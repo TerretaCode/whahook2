@@ -5,12 +5,12 @@ import { useSocket } from './useSocket'
 
 /**
  * WhatsApp Session Status
- * ONLY 3 states - matches backend exactly
  * - ready: Session is active and working
  * - error: Session failed (check error_message)
  * - initializing: First-time setup (scanning QR)
+ * - qr_pending: QR code generated, waiting for scan
  */
-export type WhatsAppSessionStatus = 'ready' | 'error' | 'initializing'
+export type WhatsAppSessionStatus = 'ready' | 'error' | 'initializing' | 'qr_pending'
 
 export interface WhatsAppSession {
   id: string

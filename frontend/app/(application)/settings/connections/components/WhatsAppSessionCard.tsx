@@ -45,6 +45,7 @@ export function WhatsAppSessionCard({
       case 'ready':
         return <CheckCircle2 className="w-5 h-5 text-green-600" />
       case 'initializing':
+      case 'qr_pending':
         return <Loader2 className="w-5 h-5 text-gray-600 animate-spin" />
       case 'error':
         return <AlertCircle className="w-5 h-5 text-red-600" />
@@ -58,6 +59,7 @@ export function WhatsAppSessionCard({
       case 'ready':
         return 'Connected'
       case 'initializing':
+      case 'qr_pending':
         return session.qr_code ? 'Scan QR Code' : 'Initializing...'
       case 'error':
         return session.error_message || 'Authentication failed'
@@ -71,6 +73,7 @@ export function WhatsAppSessionCard({
       case 'ready':
         return 'bg-green-100 text-green-800 border-green-200'
       case 'initializing':
+      case 'qr_pending':
         return session.qr_code ? 'bg-blue-100 text-blue-800 border-blue-200' : 'bg-gray-100 text-gray-800 border-gray-200'
       case 'error':
         return 'bg-red-100 text-red-800 border-red-200'
@@ -102,8 +105,8 @@ export function WhatsAppSessionCard({
         </div>
       </div>
 
-      {/* QR Code Display - shown when initializing with QR */}
-      {session.status === 'initializing' && session.qr_code && (
+      {/* QR Code Display - shown when initializing/qr_pending with QR */}
+      {(session.status === 'initializing' || session.status === 'qr_pending') && session.qr_code && (
         <div className="mb-4">
           <div className="flex justify-center mb-2">
             <QRCodeDisplay qrCode={session.qr_code} size={200} />
@@ -113,7 +116,7 @@ export function WhatsAppSessionCard({
       )}
 
       {/* Initializing State - without QR */}
-      {session.status === 'initializing' && !session.qr_code && (
+      {(session.status === 'initializing' || session.status === 'qr_pending') && !session.qr_code && (
         <div className="mb-4 p-4 bg-gray-50 rounded-lg text-center">
           <Loader2 className="w-8 h-8 text-gray-600 animate-spin mx-auto mb-2" />
           <p className="text-sm text-gray-600">Initializing WhatsApp session...</p>
