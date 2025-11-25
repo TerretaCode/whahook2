@@ -8,6 +8,7 @@ import rateLimit from 'express-rate-limit'
 import { env, isDev } from './config/environment'
 import { authRoutes } from './modules/auth'
 import { setupWhatsAppSocket, whatsappService, whatsappRoutes } from './modules/whatsapp'
+import { chatWidgetRoutes, chatWidgetPublicRoutes } from './modules/chatWidget'
 import { keepaliveMessagesService, sessionMonitoringService, backupService, cacheCleanupService } from './services'
 import { healthRoutes } from './routes'
 
@@ -60,6 +61,8 @@ app.get('/notifications/unread-count', (_req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/users', authRoutes)
 app.use('/api/whatsapp', whatsappRoutes)
+app.use('/api/chat-widgets', chatWidgetRoutes)
+app.use('/api/public/chat-widgets', chatWidgetPublicRoutes)
 
 // 404
 app.use((req, res) => {
