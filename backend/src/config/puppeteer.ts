@@ -5,7 +5,7 @@ import { env, isProd } from './environment'
  * Reduce consumo de RAM de ~150MB a ~60-80MB por sesión
  */
 export const PUPPETEER_CONFIG = {
-  headless: true,
+  headless: true as const, // Modo headless
   timeout: 0, // No timeout for browser operations
   protocolTimeout: 240000, // 4 minutes for protocol operations
   
@@ -15,20 +15,28 @@ export const PUPPETEER_CONFIG = {
   }),
   
   args: [
-    // === CRÍTICOS PARA RAILWAY ===
+    // === CRÍTICOS PARA RAILWAY (sin X server) ===
     '--no-sandbox',
     '--disable-setuid-sandbox',
     '--disable-dev-shm-usage',
     '--disable-gpu',
     '--disable-software-rasterizer',
     '--disable-accelerated-2d-canvas',
+    '--headless=new',
+    '--single-process',
+    
+    // === FIX PARA SERVIDOR SIN DISPLAY ===
+    '--disable-features=VizDisplayCompositor',
+    '--use-gl=swiftshader',
+    '--disable-web-security',
+    '--disable-features=IsolateOrigins,site-per-process',
     
     // === FIX PARA LOCKS DE PERFIL ===
     '--disable-features=LockProfileCookieDatabase',
     '--disable-session-crashed-bubble',
     '--disable-infobars',
     
-    // === ESTABILIDAD (del proyecto antiguo que funciona) ===
+    // === ESTABILIDAD ===
     '--no-first-run',
     '--no-zygote',
     '--disable-extensions',
@@ -37,7 +45,6 @@ export const PUPPETEER_CONFIG = {
     '--disable-backgrounding-occluded-windows',
     '--disable-breakpad',
     '--disable-component-extensions-with-background-pages',
-    '--disable-features=TranslateUI,BlinkGenPropertyTrees,LockProfileCookieDatabase',
     '--disable-ipc-flooding-protection',
     '--disable-renderer-backgrounding',
     '--enable-features=NetworkService,NetworkServiceInProcess',
