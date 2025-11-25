@@ -23,6 +23,11 @@ export const PUPPETEER_CONFIG = {
     '--disable-software-rasterizer',
     '--disable-accelerated-2d-canvas',
     
+    // === FIX PARA LOCKS DE PERFIL ===
+    '--disable-features=LockProfileCookieDatabase',
+    '--disable-session-crashed-bubble',
+    '--disable-infobars',
+    
     // === ESTABILIDAD (del proyecto antiguo que funciona) ===
     '--no-first-run',
     '--no-zygote',
@@ -32,7 +37,7 @@ export const PUPPETEER_CONFIG = {
     '--disable-backgrounding-occluded-windows',
     '--disable-breakpad',
     '--disable-component-extensions-with-background-pages',
-    '--disable-features=TranslateUI,BlinkGenPropertyTrees',
+    '--disable-features=TranslateUI,BlinkGenPropertyTrees,LockProfileCookieDatabase',
     '--disable-ipc-flooding-protection',
     '--disable-renderer-backgrounding',
     '--enable-features=NetworkService,NetworkServiceInProcess',

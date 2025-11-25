@@ -709,46 +709,68 @@ class WhatsAppService {
    */
   private async cleanChromeLocks(sessionId: string): Promise<void> {
     try {
-      const sessionPath = path.join(env.sessionsPath, `session-${sessionId}`)
-      const lockFiles = [
-        path.join(sessionPath, 'SingletonLock'),
-        path.join(sessionPath, 'SingletonSocket'),
-        path.join(sessionPath, 'SingletonCookie'),
-        path.join(sessionPath, 'Default', 'SingletonLock'),
-        path.join(sessionPath, 'Default', 'SingletonSocket'),
-        path.join(sessionPath, 'Default', 'SingletonCookie'),
+      // whatsapp-web.js usa .wwebjs_auth/session-{clientId} dentro del dataPath
+      const possiblePaths = [
+        path.join(env.sessionsPath, `session-${sessionId}`),
+        path.join(env.sessionsPath, '.wwebjs_auth', `session-${sessionId}`),
+        path.join(env.sessionsPath, sessionId),
+        // También buscar en la raíz del dataPath
+        env.sessionsPath,
       ]
 
-      for (const lockFile of lockFiles) {
-        try {
-          if (fs.existsSync(lockFile)) {
-            fs.unlinkSync(lockFile)
-            console.log(`🧹 Removed lock file: ${lockFile}`)
-          }
-        } catch (err) {
-          // Ignorar errores individuales
-        }
+      // Listar contenido del directorio para debug
+      if (fs.existsSync(env.sessionsPath)) {
+        const contents = fs.readdirSync(env.sessionsPath)
+        console.log(`📁 Sessions directory contents: ${contents.join(', ')}`)
       }
 
-      // También limpiar archivos de lock en el directorio de Chrome
-      const chromePath = path.join(sessionPath, 'Default')
-      if (fs.existsSync(chromePath)) {
-        const files = fs.readdirSync(chromePath)
-        for (const file of files) {
-          if (file.includes('Lock') || file.includes('Singleton')) {
-            try {
-              fs.unlinkSync(path.join(chromePath, file))
-              console.log(`🧹 Removed: ${file}`)
-            } catch (err) {
-              // Ignorar
-            }
-          }
+      for (const basePath of possiblePaths) {
+        if (!fs.existsSync(basePath)) {
+          console.log(`⚠️ Path does not exist: ${basePath}`)
+          continue
         }
+        
+        console.log(`🔍 Checking locks in: ${basePath}`)
+        await this.cleanLocksRecursively(basePath)
       }
 
       console.log(`✅ Chrome locks cleaned for ${sessionId}`)
     } catch (error) {
       console.error(`Error cleaning Chrome locks:`, error)
+    }
+  }
+
+  /**
+   * Limpiar locks recursivamente en un directorio
+   */
+  private async cleanLocksRecursively(dirPath: string): Promise<void> {
+    if (!fs.existsSync(dirPath)) return
+
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true })
+    
+    for (const entry of entries) {
+      const fullPath = path.join(dirPath, entry.name)
+      
+      if (entry.isDirectory()) {
+        // Recursivamente limpiar subdirectorios
+        await this.cleanLocksRecursively(fullPath)
+      } else if (entry.isFile()) {
+        // Eliminar archivos de lock
+        if (
+          entry.name === 'SingletonLock' ||
+          entry.name === 'SingletonSocket' ||
+          entry.name === 'SingletonCookie' ||
+          entry.name.includes('Lock') ||
+          entry.name.includes('Singleton')
+        ) {
+          try {
+            fs.unlinkSync(fullPath)
+            console.log(`🧹 Removed: ${fullPath}`)
+          } catch (err) {
+            console.error(`Failed to remove ${fullPath}:`, err)
+          }
+        }
+      }
     }
   }
 }
