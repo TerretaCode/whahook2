@@ -6,36 +6,23 @@
 [phases.setup]
 nixPkgs = [
   "nodejs_18",
-  "chromium",
-  "libuuid",
-  "libdrm",
-  "mesa",
-  "libxkbcommon",
-  "libxshmfence",
-  "nss",
-  "nspr",
-  "atk",
-  "cups",
-  "libxcomposite",
-  "libxdamage",
-  "libxrandr",
-  "pango",
-  "cairo",
-  "alsa-lib",
-  "at-spi2-atk",
-  "at-spi2-core",
-  "libxcursor",
-  "libxi",
-  "libxtst",
-  "xorg.libX11",
-  "xorg.libXext",
-  "xorg.libXfixes",
-  "xorg.libXrender",
-  "xorg.libxcb",
-  "expat",
-  "glib",
-  "gtk3",
-  "dbus"
+  "chromium"
+]
+aptPkgs = [
+  "libnss3",
+  "libatk1.0-0",
+  "libatk-bridge2.0-0",
+  "libcups2",
+  "libdrm2",
+  "libxkbcommon0",
+  "libxcomposite1",
+  "libxdamage1",
+  "libxrandr2",
+  "libgbm1",
+  "libasound2",
+  "libpangocairo-1.0-0",
+  "libgtk-3-0",
+  "libxshmfence1"
 ]
 
 [phases.install]
