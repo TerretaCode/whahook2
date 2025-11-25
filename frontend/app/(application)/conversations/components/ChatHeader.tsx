@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { ArrowLeft, Bot, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -10,14 +9,23 @@ interface ChatHeaderProps {
   avatar?: string
   isOnline: boolean
   source: 'whatsapp' | 'web'
+  chatbotEnabled: boolean
+  onToggleChatbot: (enabled: boolean) => void
   onBack?: () => void
 }
 
-export function ChatHeader({ name, avatar, isOnline, source, onBack }: ChatHeaderProps) {
-  const [mode, setMode] = useState<'ai' | 'manual'>('ai')
+export function ChatHeader({ 
+  name, 
+  avatar, 
+  isOnline, 
+  source, 
+  chatbotEnabled, 
+  onToggleChatbot, 
+  onBack 
+}: ChatHeaderProps) {
 
-  const toggleMode = () => {
-    setMode(prev => prev === 'ai' ? 'manual' : 'ai')
+  const handleToggle = () => {
+    onToggleChatbot(!chatbotEnabled)
   }
 
   return (
@@ -39,7 +47,7 @@ export function ChatHeader({ name, avatar, isOnline, source, onBack }: ChatHeade
         <Avatar className="w-10 h-10">
           <AvatarImage src={avatar} />
           <AvatarFallback className="bg-[#25D366] text-white font-semibold">
-            {name.charAt(0).toUpperCase()}
+            {name ? name.charAt(0).toUpperCase() : '?'}
           </AvatarFallback>
         </Avatar>
         {isOnline && (
@@ -49,7 +57,7 @@ export function ChatHeader({ name, avatar, isOnline, source, onBack }: ChatHeade
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <h2 className="font-semibold text-gray-900 truncate">{name}</h2>
+        <h2 className="font-semibold text-gray-900 truncate">{name || 'Unknown'}</h2>
         <div className="flex items-center gap-2">
           <p className="text-xs text-gray-600">
             {isOnline ? 'Online' : 'Offline'}
@@ -68,17 +76,18 @@ export function ChatHeader({ name, avatar, isOnline, source, onBack }: ChatHeade
       <div className="flex items-center gap-2">
         {/* AI/Manual Toggle */}
         <button
-          onClick={toggleMode}
+          onClick={handleToggle}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-            mode === 'ai'
+            chatbotEnabled
               ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-              : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+              : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
           }`}
+          title={chatbotEnabled ? 'Click to disable chatbot' : 'Click to enable chatbot'}
         >
-          {mode === 'ai' ? (
+          {chatbotEnabled ? (
             <>
               <Bot className="w-4 h-4" />
-              <span className="hidden sm:inline">AI</span>
+              <span className="hidden sm:inline">AI On</span>
             </>
           ) : (
             <>

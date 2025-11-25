@@ -202,4 +202,338 @@ router.delete('/sessions/:sessionId', async (req: Request, res: Response) => {
   }
 })
 
+// ==============================================
+// RUTAS DE CONVERSACIONES
+// ==============================================
+
+/**
+ * GET /api/whatsapp/conversations
+ * Obtener todas las conversaciones del usuario
+ */
+router.get('/conversations', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const { data: conversations, error } = await supabaseAdmin
+      .from('conversations')
+      .select('*')
+      .eq('user_id', userId)
+      .order('last_message_at', { ascending: false, nullsFirst: false })
+
+    if (error) {
+      console.error('Error fetching conversations:', error)
+      return res.status(500).json({ success: false, error: 'Error fetching conversations' })
+    }
+
+    res.json({ success: true, data: conversations || [] })
+  } catch (error: any) {
+    console.error('Error in GET /conversations:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
+ * GET /api/whatsapp/conversations/:id
+ * Obtener una conversación específica
+ */
+router.get('/conversations/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { id } = req.params
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const { data: conversation, error } = await supabaseAdmin
+      .from('conversations')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single()
+
+    if (error || !conversation) {
+      return res.status(404).json({ success: false, error: 'Conversation not found' })
+    }
+
+    res.json({ success: true, data: conversation })
+  } catch (error: any) {
+    console.error('Error in GET /conversations/:id:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
+ * PUT /api/whatsapp/conversations/:id/chatbot
+ * Activar/desactivar chatbot para una conversación
+ */
+router.put('/conversations/:id/chatbot', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { id } = req.params
+    const { enabled } = req.body
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('conversations')
+      .update({ 
+        chatbot_enabled: enabled,
+        needs_attention: !enabled // Si se desactiva el chatbot, necesita atención
+      })
+      .eq('id', id)
+      .eq('user_id', userId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating chatbot status:', error)
+      return res.status(500).json({ success: false, error: 'Error updating chatbot status' })
+    }
+
+    console.log(`🤖 Chatbot ${enabled ? 'enabled' : 'disabled'} for conversation ${id}`)
+    res.json({ success: true, data })
+  } catch (error: any) {
+    console.error('Error in PUT /conversations/:id/chatbot:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
+ * PUT /api/whatsapp/conversations/:id/read
+ * Marcar conversación como leída
+ */
+router.put('/conversations/:id/read', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { id } = req.params
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const { error } = await supabaseAdmin
+      .from('conversations')
+      .update({ unread_count: 0 })
+      .eq('id', id)
+      .eq('user_id', userId)
+
+    if (error) {
+      console.error('Error marking as read:', error)
+      return res.status(500).json({ success: false, error: 'Error marking as read' })
+    }
+
+    res.json({ success: true })
+  } catch (error: any) {
+    console.error('Error in PUT /conversations/:id/read:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+// ==============================================
+// RUTAS DE MENSAJES
+// ==============================================
+
+/**
+ * GET /api/whatsapp/conversations/:id/messages
+ * Obtener mensajes de una conversación
+ */
+router.get('/conversations/:id/messages', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { id } = req.params
+    const { limit = '50', before } = req.query
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    // Verificar que la conversación pertenece al usuario
+    const { data: conversation } = await supabaseAdmin
+      .from('conversations')
+      .select('id')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single()
+
+    if (!conversation) {
+      return res.status(404).json({ success: false, error: 'Conversation not found' })
+    }
+
+    let query = supabaseAdmin
+      .from('messages')
+      .select('*')
+      .eq('conversation_id', id)
+      .order('timestamp', { ascending: false })
+      .limit(parseInt(limit as string))
+
+    if (before) {
+      query = query.lt('timestamp', before as string)
+    }
+
+    const { data: messages, error } = await query
+
+    if (error) {
+      console.error('Error fetching messages:', error)
+      return res.status(500).json({ success: false, error: 'Error fetching messages' })
+    }
+
+    // Devolver en orden cronológico
+    res.json({ success: true, data: (messages || []).reverse() })
+  } catch (error: any) {
+    console.error('Error in GET /conversations/:id/messages:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
+ * POST /api/whatsapp/conversations/:id/messages
+ * Enviar mensaje a una conversación
+ */
+router.post('/conversations/:id/messages', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { id } = req.params
+    const { content, type = 'text' } = req.body
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    if (!content) {
+      return res.status(400).json({ success: false, error: 'Content is required' })
+    }
+
+    // Obtener conversación
+    const { data: conversation, error: convError } = await supabaseAdmin
+      .from('conversations')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single()
+
+    if (convError || !conversation) {
+      return res.status(404).json({ success: false, error: 'Conversation not found' })
+    }
+
+    // Desactivar chatbot al enviar mensaje manual
+    await supabaseAdmin
+      .from('conversations')
+      .update({ 
+        chatbot_enabled: false,
+        needs_attention: false // Ya no necesita atención porque estamos respondiendo
+      })
+      .eq('id', id)
+
+    // Obtener session_id de la cuenta de WhatsApp
+    const { data: waAccount } = await supabaseAdmin
+      .from('whatsapp_accounts')
+      .select('session_id')
+      .eq('id', conversation.whatsapp_account_id)
+      .single()
+
+    if (!waAccount) {
+      return res.status(404).json({ success: false, error: 'WhatsApp account not found' })
+    }
+
+    // Formatear JID
+    const remoteJid = `${conversation.contact_phone.replace(/\D/g, '')}@s.whatsapp.net`
+
+    // Enviar mensaje por WhatsApp
+    const result = await whatsappService.sendMessage(
+      waAccount.session_id,
+      remoteJid,
+      content
+    )
+
+    if (!result.success) {
+      return res.status(500).json({ success: false, error: result.error || 'Failed to send message' })
+    }
+
+    // Guardar mensaje en la base de datos
+    const { data: message, error: msgError } = await supabaseAdmin
+      .from('messages')
+      .insert({
+        conversation_id: id,
+        user_id: userId,
+        whatsapp_account_id: conversation.whatsapp_account_id,
+        message_id: result.messageId || `msg_${Date.now()}`,
+        content,
+        type,
+        direction: 'outgoing',
+        status: 'sent',
+        created_at: new Date().toISOString(),
+      })
+      .select()
+      .single()
+
+    if (msgError) {
+      console.error('Error saving message:', msgError)
+    }
+
+    console.log(`📤 Message sent to ${conversation.contact_phone}`)
+    res.json({ 
+      success: true, 
+      data: message,
+      chatbot_disabled: true 
+    })
+  } catch (error: any) {
+    console.error('Error in POST /conversations/:id/messages:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
+ * POST /api/whatsapp/send
+ * Enviar mensaje directo (sin conversación previa)
+ */
+router.post('/send', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { sessionId, phone, message } = req.body
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    if (!sessionId || !phone || !message) {
+      return res.status(400).json({ success: false, error: 'sessionId, phone, and message are required' })
+    }
+
+    // Verificar que la sesión pertenece al usuario
+    const { data: account } = await supabaseAdmin
+      .from('whatsapp_accounts')
+      .select('*')
+      .eq('session_id', sessionId)
+      .eq('user_id', userId)
+      .single()
+
+    if (!account) {
+      return res.status(404).json({ success: false, error: 'Session not found' })
+    }
+
+    // Formatear número
+    const formattedPhone = phone.replace(/\D/g, '')
+    const jid = `${formattedPhone}@s.whatsapp.net`
+
+    // Enviar mensaje
+    const result = await whatsappService.sendMessage(sessionId, jid, message)
+
+    if (!result.success) {
+      return res.status(500).json({ success: false, error: result.error || 'Failed to send message' })
+    }
+
+    res.json({ success: true, data: { messageId: result.messageId } })
+  } catch (error: any) {
+    console.error('Error in POST /send:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
 export { router as whatsappRoutes }

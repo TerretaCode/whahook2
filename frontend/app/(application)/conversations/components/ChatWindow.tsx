@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { ChatHeader } from "./ChatHeader"
 import { MessageList } from "./MessageList"
 import { ChatInput } from "./ChatInput"
 import { ConversationStarters } from "./ConversationStarters"
 import { QuickReplies } from "./QuickReplies"
+import { ApiClient } from "@/lib/api-client"
+import { toast } from "@/lib/toast"
 
 interface Message {
   id: string
@@ -16,6 +18,28 @@ interface Message {
   type: 'text' | 'image' | 'file'
 }
 
+interface ApiMessage {
+  id: string
+  content: string | null
+  body: string | null
+  created_at: string
+  timestamp: string
+  direction: string
+  from_me: boolean
+  status: string
+  type: string
+}
+
+interface ApiConversation {
+  id: string
+  contact_name: string | null
+  contact_phone: string | null
+  contact_avatar: string | null
+  contact_avatar_url: string | null
+  is_online: boolean
+  chatbot_enabled: boolean
+}
+
 interface ChatWindowProps {
   conversationId: string
   onBack?: () => void
@@ -24,6 +48,8 @@ interface ChatWindowProps {
 export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isSending, setIsSending] = useState(false)
+  const [chatbotEnabled, setChatbotEnabled] = useState(true)
   const [conversationInfo, setConversationInfo] = useState({
     name: '',
     avatar: '',
@@ -37,92 +63,133 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const showStarters = messages.length === 0 && !isLoading
 
-  useEffect(() => {
-    fetchConversation()
-    fetchMessages()
-    fetchChatbotConfig()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchConversation = useCallback(async () => {
+    try {
+      const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}`)
+      
+      if (response.success && response.data) {
+        const conv = response.data as ApiConversation
+        setConversationInfo({
+          name: conv.contact_name || conv.contact_phone || 'Unknown',
+          avatar: conv.contact_avatar_url || conv.contact_avatar || '',
+          isOnline: conv.is_online || false,
+          source: 'whatsapp'
+        })
+        setChatbotEnabled(conv.chatbot_enabled ?? true)
+      }
+    } catch (error) {
+      console.error('Error fetching conversation:', error)
+    }
+  }, [conversationId])
+
+  const fetchMessages = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}/messages`)
+      
+      if (response.success && response.data) {
+        const mapped = (response.data as ApiMessage[]).map((msg): Message => ({
+          id: msg.id,
+          content: msg.content || msg.body || '',
+          timestamp: msg.created_at || msg.timestamp,
+          isOwn: msg.direction === 'outgoing' || msg.from_me,
+          status: (msg.status as 'sent' | 'delivered' | 'read') || 'sent',
+          type: (msg.type as 'text' | 'image' | 'file') || 'text'
+        }))
+        setMessages(mapped)
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }, [conversationId])
 
   useEffect(() => {
+    fetchConversation()
+    fetchMessages()
+    
+    // Polling cada 5 segundos para nuevos mensajes
+    const interval = setInterval(fetchMessages, 5000)
+    return () => clearInterval(interval)
+  }, [conversationId, fetchConversation, fetchMessages])
+
+  useEffect(() => {
     scrollToBottom()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages])
-
-  const fetchConversation = async () => {
-    try {
-      // TODO: Implement real API call
-      // const response = await ApiClient.request(`/api/conversations/${conversationId}`)
-      // setConversationInfo(response.data)
-      
-      setConversationInfo({
-        name: '',
-        avatar: '',
-        isOnline: false,
-        source: 'whatsapp'
-      })
-    } catch {
-      // Silently fail
-    }
-  }
-
-  const fetchChatbotConfig = async () => {
-    try {
-      const response = await fetch(`/api/chatbot/conversation/${conversationId}/config`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-      
-      if (response.ok) {
-        const result = await response.json()
-        if (result.success && result.data) {
-          setChatbotConfig(result.data)
-        }
-      }
-    } catch {
-      // Silently fail - config is optional
-    }
-  }
-
-  const fetchMessages = async () => {
-    try {
-      setIsLoading(true)
-      // TODO: Implement real API call
-      // const response = await ApiClient.request(`/api/conversations/${conversationId}/messages`)
-      // setMessages(response.data)
-      
-      setMessages([])
-      setIsLoading(false)
-    } catch {
-      setIsLoading(false)
-    }
-  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const handleSendMessage = async (content: string) => {
-    try {
-      // TODO: Implement real API call
-      // await ApiClient.request(`/api/conversations/${conversationId}/messages`, {
-      //   method: 'POST',
-      //   body: JSON.stringify({ content })
-      // })
+    if (isSending) return
+    
+    setIsSending(true)
+    
+    // Optimistic update
+    const tempId = `temp_${Date.now()}`
+    const newMessage: Message = {
+      id: tempId,
+      content,
+      timestamp: new Date().toISOString(),
+      isOwn: true,
+      status: 'sent',
+      type: 'text'
+    }
+    setMessages(prev => [...prev, newMessage])
 
-      // Optimistic update
-      const newMessage: Message = {
-        id: Date.now().toString(),
-        content,
-        timestamp: new Date().toISOString(),
-        isOwn: true,
-        status: 'sent',
-        type: 'text'
+    try {
+      const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({ content })
+      })
+
+      if (response.success) {
+        // Actualizar mensaje con ID real
+        if (response.data) {
+          setMessages(prev => prev.map(msg => 
+            msg.id === tempId ? { ...msg, id: (response.data as { id: string }).id } : msg
+          ))
+        }
+        
+        // Desactivar chatbot (siempre se desactiva al enviar mensaje manual)
+        const responseData = response as { chatbot_disabled?: boolean }
+        if (responseData.chatbot_disabled) {
+          setChatbotEnabled(false)
+          toast.info('Chatbot Disabled', 'Manual mode activated for this conversation')
+        }
+      } else {
+        // Revertir optimistic update
+        setMessages(prev => prev.filter(msg => msg.id !== tempId))
+        toast.error('Error', 'Failed to send message')
       }
-      setMessages(prev => [...prev, newMessage])
-    } catch {
-      // Silently fail
+    } catch (error) {
+      console.error('Error sending message:', error)
+      setMessages(prev => prev.filter(msg => msg.id !== tempId))
+      toast.error('Error', 'Failed to send message')
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  const handleToggleChatbot = async (enabled: boolean) => {
+    try {
+      const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}/chatbot`, {
+        method: 'PUT',
+        body: JSON.stringify({ enabled })
+      })
+
+      if (response.success) {
+        setChatbotEnabled(enabled)
+        toast.success(
+          enabled ? 'Chatbot Enabled' : 'Chatbot Disabled',
+          enabled ? 'AI will respond to messages' : 'Manual mode activated'
+        )
+      }
+    } catch (error) {
+      console.error('Error toggling chatbot:', error)
+      toast.error('Error', 'Failed to update chatbot status')
     }
   }
 
@@ -134,6 +201,8 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
         avatar={conversationInfo.avatar}
         isOnline={conversationInfo.isOnline}
         source={conversationInfo.source}
+        chatbotEnabled={chatbotEnabled}
+        onToggleChatbot={handleToggleChatbot}
         onBack={onBack}
       />
 
@@ -166,7 +235,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
       )}
 
       {/* Input */}
-      <ChatInput onSendMessage={handleSendMessage} />
+      <ChatInput onSendMessage={handleSendMessage} disabled={isSending} />
     </div>
   )
 }

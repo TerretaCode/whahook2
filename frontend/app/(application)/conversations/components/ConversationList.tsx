@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Search, MessageSquare } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ConversationItem } from "./ConversationItem"
+import { ApiClient } from "@/lib/api-client"
 
 interface Conversation {
   id: string
@@ -15,6 +16,21 @@ interface Conversation {
   source: 'whatsapp' | 'web'
   needsAttention: boolean
   isOnline: boolean
+  chatbotEnabled: boolean
+}
+
+interface ApiConversation {
+  id: string
+  contact_name: string | null
+  contact_phone: string | null
+  contact_avatar: string | null
+  contact_avatar_url: string | null
+  last_message_preview: string | null
+  last_message_at: string | null
+  unread_count: number
+  is_online: boolean
+  needs_attention: boolean
+  chatbot_enabled: boolean
 }
 
 interface ConversationListProps {
@@ -31,6 +47,9 @@ export function ConversationList({ selectedConversationId, onSelectConversation 
 
   useEffect(() => {
     fetchConversations()
+    // Polling cada 10 segundos para actualizar conversaciones
+    const interval = setInterval(fetchConversations, 10000)
+    return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
@@ -39,24 +58,43 @@ export function ConversationList({ selectedConversationId, onSelectConversation 
   }, [conversations, activeFilter, searchQuery])
 
   // Marcar conversación como leída cuando se selecciona
-  const handleSelectConversation = (id: string) => {
+  const handleSelectConversation = async (id: string) => {
     // Actualizar el contador a 0 para la conversación seleccionada
     setConversations(prev => prev.map(conv => 
       conv.id === id ? { ...conv, unreadCount: 0 } : conv
     ))
     onSelectConversation(id)
+    
+    // Marcar como leída en el backend
+    try {
+      await ApiClient.request(`/api/whatsapp/conversations/${id}/read`, { method: 'PUT' })
+    } catch (error) {
+      console.error('Error marking as read:', error)
+    }
   }
 
   const fetchConversations = async () => {
     try {
-      setIsLoading(true)
-      // TODO: Implement real API call
-      // const response = await ApiClient.request('/api/conversations')
-      // setConversations(response.data)
+      const response = await ApiClient.request('/api/whatsapp/conversations')
       
-      setConversations([])
-      setIsLoading(false)
-    } catch {
+      if (response.success && response.data) {
+        const mapped = (response.data as ApiConversation[]).map((conv): Conversation => ({
+          id: conv.id,
+          name: conv.contact_name || conv.contact_phone || 'Unknown',
+          avatar: conv.contact_avatar_url || conv.contact_avatar || undefined,
+          lastMessage: conv.last_message_preview || '',
+          timestamp: conv.last_message_at || '',
+          unreadCount: conv.unread_count || 0,
+          source: 'whatsapp',
+          needsAttention: conv.needs_attention || false,
+          isOnline: conv.is_online || false,
+          chatbotEnabled: conv.chatbot_enabled ?? true,
+        }))
+        setConversations(mapped)
+      }
+    } catch (error) {
+      console.error('Error fetching conversations:', error)
+    } finally {
       setIsLoading(false)
     }
   }

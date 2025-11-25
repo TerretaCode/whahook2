@@ -379,6 +379,37 @@ class WhatsAppService {
   }
 
   /**
+   * Enviar mensaje de WhatsApp
+   */
+  async sendMessage(sessionId: string, jid: string, message: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    const session = this.sessions.get(sessionId)
+    
+    if (!session) {
+      return { success: false, error: 'Session not found' }
+    }
+
+    if (session.status !== 'ready') {
+      return { success: false, error: 'Session not ready' }
+    }
+
+    try {
+      const result = await session.client.sendMessage(jid, message)
+      session.lastActivity = Date.now()
+      
+      return { 
+        success: true, 
+        messageId: result.id._serialized 
+      }
+    } catch (error) {
+      console.error(`Error sending message on ${sessionId}:`, error)
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to send message' 
+      }
+    }
+  }
+
+  /**
    * Enviar email de conexión exitosa
    */
   private async sendConnectionEmail(userId: string, phoneNumber: string, sessionId: string): Promise<void> {

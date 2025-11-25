@@ -6,14 +6,15 @@ import { Button } from "@/components/ui/button"
 
 interface ChatInputProps {
   onSendMessage: (content: string) => void
+  disabled?: boolean
 }
 
-export function ChatInput({ onSendMessage }: ChatInputProps) {
+export function ChatInput({ onSendMessage, disabled = false }: ChatInputProps) {
   const [message, setMessage] = useState("")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (message.trim()) {
+    if (message.trim() && !disabled) {
       onSendMessage(message.trim())
       setMessage("")
     }
@@ -70,7 +71,7 @@ export function ChatInput({ onSendMessage }: ChatInputProps) {
           type="submit"
           size="icon"
           className="bg-[#25D366] hover:bg-[#20BD5A] text-white"
-          disabled={!message.trim()}
+          disabled={!message.trim() || disabled}
         >
           <Send className="w-5 h-5" />
         </Button>
