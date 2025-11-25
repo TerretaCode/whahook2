@@ -6,6 +6,8 @@ import { env, isProd } from './environment'
  */
 export const PUPPETEER_CONFIG = {
   headless: true,
+  timeout: 0, // No timeout for browser operations
+  protocolTimeout: 240000, // 4 minutes for protocol operations
   
   // Executable path (en producción usa Chromium de nixpacks)
   ...(env.puppeteerExecutablePath && {
@@ -21,52 +23,27 @@ export const PUPPETEER_CONFIG = {
     '--disable-software-rasterizer',
     '--disable-accelerated-2d-canvas',
     
-    // === REDUCCIÓN DE MEMORIA ===
-    '--single-process',
-    '--no-zygote',
-    '--disable-features=site-per-process',
-    '--js-flags=--max-old-space-size=128',
-    '--renderer-process-limit=1',
-    '--disable-canvas-aa',
-    '--disable-2d-canvas-clip-aa',
-    
-    // === DESACTIVAR FEATURES INNECESARIAS ===
+    // === ESTABILIDAD (del proyecto antiguo que funciona) ===
     '--no-first-run',
+    '--no-zygote',
     '--disable-extensions',
-    '--disable-default-apps',
     '--disable-background-networking',
     '--disable-background-timer-throttling',
     '--disable-backgrounding-occluded-windows',
     '--disable-breakpad',
-    '--disable-component-update',
-    '--disable-domain-reliability',
-    '--disable-features=TranslateUI',
-    '--disable-hang-monitor',
+    '--disable-component-extensions-with-background-pages',
+    '--disable-features=TranslateUI,BlinkGenPropertyTrees',
     '--disable-ipc-flooding-protection',
-    '--disable-popup-blocking',
-    '--disable-prompt-on-repost',
     '--disable-renderer-backgrounding',
-    '--disable-sync',
-    '--disable-translate',
-    
-    // === CACHE DESACTIVADO ===
-    '--disk-cache-size=0',
-    '--media-cache-size=0',
-    '--aggressive-cache-discard',
-    
-    // === OTROS ===
+    '--enable-features=NetworkService,NetworkServiceInProcess',
+    '--force-color-profile=srgb',
+    '--hide-scrollbars',
     '--metrics-recording-only',
     '--mute-audio',
-    '--no-default-browser-check',
     '--safebrowsing-disable-auto-update',
+    '--disable-hang-monitor',
+    '--disable-prompt-on-repost',
   ],
-  
-  // Timeouts
-  timeout: 60000,
-  protocolTimeout: 300000,
-  
-  // Ignorar errores HTTPS
-  ignoreHTTPSErrors: true,
 }
 
 // Configuración para desarrollo local (Windows)
