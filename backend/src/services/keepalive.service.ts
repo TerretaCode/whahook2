@@ -57,7 +57,11 @@ class KeepaliveService {
 
   private async doHeartbeat(sessionId: string): Promise<void> {
     const session = whatsappService.getSession(sessionId)
-    if (!session || session.status !== 'ready') return
+    if (!session || session.status !== 'ready') {
+      // Sesión no existe o no está ready, detener keepalive
+      this.stopAll(sessionId)
+      return
+    }
 
     try {
       // Enviar presencia "disponible"
@@ -72,8 +76,13 @@ class KeepaliveService {
       // Actualizar en memoria
       session.lastActivity = Date.now()
 
-    } catch (error) {
-      console.error(`Heartbeat failed for ${sessionId}:`, error)
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      // Si la sesión está cerrada, detener keepalive
+      if (errorMsg.includes('Session closed') || errorMsg.includes('page has been closed')) {
+        console.log(`💔 Session closed, stopping keepalive for ${sessionId}`)
+        this.stopAll(sessionId)
+      }
     }
   }
 
@@ -99,7 +108,10 @@ class KeepaliveService {
 
   private async doWatchdog(sessionId: string): Promise<void> {
     const session = whatsappService.getSession(sessionId)
-    if (!session) return
+    if (!session) {
+      this.stopAll(sessionId)
+      return
+    }
 
     try {
       const state = await session.client.getState()
@@ -119,8 +131,12 @@ class KeepaliveService {
         console.log(`⚠️ Watchdog: ${sessionId} state is ${state}, cannot auto-reconnect`)
       }
 
-    } catch (error) {
-      console.error(`Watchdog check failed for ${sessionId}:`, error)
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      if (errorMsg.includes('Session closed') || errorMsg.includes('page has been closed')) {
+        console.log(`💔 Session closed, stopping keepalive for ${sessionId}`)
+        this.stopAll(sessionId)
+      }
     }
   }
 
@@ -146,7 +162,10 @@ class KeepaliveService {
 
   private async doBrowserActivity(sessionId: string): Promise<void> {
     const session = whatsappService.getSession(sessionId)
-    if (!session?.client.pupPage) return
+    if (!session?.client.pupPage) {
+      this.stopAll(sessionId)
+      return
+    }
 
     try {
       // El código dentro de evaluate() se ejecuta en el navegador (Chromium)
@@ -175,8 +194,11 @@ class KeepaliveService {
           writable: true
         });
       `) as () => void)
-    } catch (error) {
-      // Silenciar errores (no críticos)
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      if (errorMsg.includes('Session closed') || errorMsg.includes('page has been closed')) {
+        this.stopAll(sessionId)
+      }
     }
   }
 
