@@ -174,11 +174,25 @@ class WhatsAppService {
             return
           }
 
-          const targetNumber = '34602718451'
+          const targetNumber = env.keepaliveTargetNumber.replace('+', '')
           const chatId = `${targetNumber}@c.us`
-          const timestamp = new Date().toLocaleString('es-ES')
-          const message = `🟢 Nueva conexión WhatsApp\n\n📱 Número: ${phoneNumber}\n🕐 Fecha: ${timestamp}\n✅ Estado: Conectado`
-          await client.sendMessage(chatId, message)
+          
+          // Mensajes aleatorios para evitar detección de bot
+          const welcomeMessages = [
+            `Hey! Ya estoy conectado 👍\nNúmero: ${phoneNumber}`,
+            `Listo! Conexión establecida ✅\n${phoneNumber} online`,
+            `Todo ok por aquí 🙌\nConectado: ${phoneNumber}`,
+            `Perfecto, ya está! ${phoneNumber} funcionando`,
+            `Conexión lista ✨ ${phoneNumber}`,
+            `Ok! ${phoneNumber} conectado y listo`,
+            `Ya estamos! 🚀 ${phoneNumber}`,
+            `Hecho! ${phoneNumber} operativo`,
+            `Genial, conectado ${phoneNumber} 👌`,
+            `${phoneNumber} - Todo correcto!`,
+          ]
+          
+          const randomMessage = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]
+          await client.sendMessage(chatId, randomMessage)
           console.log(`📨 Welcome message sent to +${targetNumber}`)
         } catch (err) {
           console.error(`Failed to send welcome message:`, err)
