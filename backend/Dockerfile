@@ -39,7 +39,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --production
 
 # Copy source code
 COPY . .
@@ -47,16 +47,13 @@ COPY . .
 # Build TypeScript
 RUN npm run build
 
-# Set environment variables for Puppeteer
+# Set environment variables for Puppeteer AFTER build
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 ENV NODE_ENV=production
 
-# Create directory for WhatsApp sessions
-RUN mkdir -p /data/whatsapp-sessions
-
 # Expose port
-EXPOSE 4000
+EXPOSE 3000
 
 # Start the application
 CMD ["npm", "start"]
