@@ -9,6 +9,7 @@ import { env, isDev } from './config/environment'
 import { authRoutes } from './modules/auth'
 import { setupWhatsAppSocket, whatsappService, whatsappRoutes } from './modules/whatsapp'
 import { chatWidgetRoutes, chatWidgetPublicRoutes } from './modules/chatWidget'
+import { ecommerceRoutes } from './modules/ecommerce'
 import { keepaliveMessagesService, sessionMonitoringService, backupService, cacheCleanupService } from './services'
 import { healthRoutes } from './routes'
 
@@ -63,6 +64,7 @@ app.use('/api/users', authRoutes)
 app.use('/api/whatsapp', whatsappRoutes)
 app.use('/api/chat-widgets', chatWidgetRoutes)
 app.use('/api/public/chat-widgets', chatWidgetPublicRoutes)
+app.use('/api/ecommerce', ecommerceRoutes)
 
 // 404
 app.use((req, res) => {
