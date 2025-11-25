@@ -872,25 +872,24 @@ class WhatsAppService {
         return
       }
 
-      // Eliminar SingletonLock directamente en la raíz de la sesión
-      const singletonLockPath = path.join(sessionPath, 'SingletonLock')
-      if (fs.existsSync(singletonLockPath)) {
-        fs.unlinkSync(singletonLockPath)
-        console.log(`🧹 Removed SingletonLock: ${singletonLockPath}`)
-      }
+      // Listar archivos en la raíz de la sesión para debug
+      const sessionContents = fs.readdirSync(sessionPath)
+      console.log(`📁 Session folder contents: ${sessionContents.join(', ')}`)
 
-      // Eliminar SingletonSocket
-      const singletonSocketPath = path.join(sessionPath, 'SingletonSocket')
-      if (fs.existsSync(singletonSocketPath)) {
-        fs.unlinkSync(singletonSocketPath)
-        console.log(`🧹 Removed SingletonSocket: ${singletonSocketPath}`)
-      }
-
-      // Eliminar SingletonCookie
-      const singletonCookiePath = path.join(sessionPath, 'SingletonCookie')
-      if (fs.existsSync(singletonCookiePath)) {
-        fs.unlinkSync(singletonCookiePath)
-        console.log(`🧹 Removed SingletonCookie: ${singletonCookiePath}`)
+      // Eliminar archivos Singleton (pueden ser symlinks)
+      const singletonFiles = ['SingletonLock', 'SingletonSocket', 'SingletonCookie']
+      for (const filename of singletonFiles) {
+        const filePath = path.join(sessionPath, filename)
+        try {
+          // Usar lstatSync para detectar symlinks
+          const stat = fs.lstatSync(filePath)
+          if (stat) {
+            fs.rmSync(filePath, { force: true })
+            console.log(`🧹 Removed ${filename}: ${filePath}`)
+          }
+        } catch (e) {
+          // El archivo no existe, está bien
+        }
       }
 
       // Limpiar locks recursivamente en subcarpetas
