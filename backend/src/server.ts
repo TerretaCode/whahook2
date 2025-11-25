@@ -13,24 +13,38 @@ import { keepaliveMessagesService, sessionMonitoringService } from './services'
 const app = express()
 const httpServer = createServer(app)
 
-// Socket.IO
+// Trust proxy para Railway (necesario para rate limiting y headers)
+app.set('trust proxy', 1)
+
+// Socket.IO con múltiples orígenes permitidos
+const allowedOrigins = [
+  env.frontendUrl,
+  'http://localhost:3000',
+  'https://localhost:3000',
+].filter(Boolean)
+
 const io = new SocketServer(httpServer, {
   cors: {
-    origin: env.frontendUrl,
+    origin: allowedOrigins,
     credentials: true,
   },
 })
 
 // Middleware
 app.use(helmet())
-app.use(cors({ origin: env.frontendUrl, credentials: true }))
+app.use(cors({ 
+  origin: allowedOrigins, 
+  credentials: true 
+}))
 app.use(express.json())
 app.use(morgan(isDev ? 'dev' : 'combined'))
 
 // Rate limiting
 app.use('/api/', rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
 }))
 
 // Health check (para UptimeRobot)
