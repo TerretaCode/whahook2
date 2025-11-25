@@ -145,6 +145,11 @@ class WhatsAppService {
 
       this.io?.to(`user:${userId}`).emit('whatsapp:ready', { sessionId, phoneNumber })
 
+      // Sincronizar chats existentes de WhatsApp
+      this.syncExistingChats(client, sessionId, userId).catch(err => {
+        console.error(`Failed to sync existing chats:`, err)
+      })
+
       // Iniciar keepalive
       keepaliveService.startAll(sessionId)
 
@@ -594,6 +599,125 @@ class WhatsAppService {
         timestamp: new Date(message.timestamp * 1000).toISOString(),
       }
     })
+  }
+
+  /**
+   * Sincronizar chats existentes de WhatsApp al conectar
+   */
+  private async syncExistingChats(client: Client, sessionId: string, userId: string): Promise<void> {
+    try {
+      console.log(`🔄 Syncing existing chats for session: ${sessionId}`)
+
+      // Obtener whatsapp_account_id
+      const { data: waAccount } = await supabaseAdmin
+        .from('whatsapp_accounts')
+        .select('id')
+        .eq('session_id', sessionId)
+        .single()
+
+      if (!waAccount) {
+        console.error(`WhatsApp account not found for session: ${sessionId}`)
+        return
+      }
+
+      // Obtener todos los chats de WhatsApp
+      const chats = await client.getChats()
+      console.log(`📱 Found ${chats.length} chats in WhatsApp`)
+
+      let syncedCount = 0
+      const maxChatsToSync = 50 // Limitar para no sobrecargar
+
+      for (const chat of chats.slice(0, maxChatsToSync)) {
+        try {
+          // Ignorar grupos y broadcasts
+          if (chat.isGroup || chat.id._serialized.includes('@g.us') || chat.id._serialized.includes('@broadcast')) {
+            continue
+          }
+
+          const contactPhone = chat.id.user
+          const contact = await chat.getContact()
+          const contactName = contact?.pushname || contact?.name || chat.name || null
+
+          // Verificar si ya existe la conversación
+          const { data: existingConv } = await supabaseAdmin
+            .from('conversations')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('whatsapp_account_id', waAccount.id)
+            .eq('contact_phone', contactPhone)
+            .single()
+
+          if (existingConv) {
+            // Ya existe, actualizar nombre si es necesario
+            if (contactName) {
+              await supabaseAdmin
+                .from('conversations')
+                .update({ contact_name: contactName })
+                .eq('id', existingConv.id)
+            }
+            continue
+          }
+
+          // Obtener últimos mensajes del chat
+          const messages = await chat.fetchMessages({ limit: 10 })
+          const lastMessage = messages[messages.length - 1]
+
+          // Crear nueva conversación
+          const { data: newConv, error: convError } = await supabaseAdmin
+            .from('conversations')
+            .insert({
+              user_id: userId,
+              whatsapp_account_id: waAccount.id,
+              contact_phone: contactPhone,
+              contact_name: contactName,
+              status: 'open',
+              last_message_preview: lastMessage?.body?.substring(0, 100) || '',
+              last_message_at: lastMessage ? new Date(lastMessage.timestamp * 1000).toISOString() : new Date().toISOString(),
+              unread_count: chat.unreadCount || 0,
+              chatbot_enabled: true,
+            })
+            .select('id')
+            .single()
+
+          if (convError) {
+            console.error(`Error creating conversation for ${contactPhone}:`, convError)
+            continue
+          }
+
+          // Guardar los últimos mensajes
+          for (const msg of messages) {
+            const direction = msg.fromMe ? 'outgoing' : 'incoming'
+            
+            await supabaseAdmin
+              .from('messages')
+              .upsert({
+                conversation_id: newConv.id,
+                user_id: userId,
+                whatsapp_account_id: waAccount.id,
+                message_id: msg.id._serialized,
+                content: msg.body || '',
+                type: msg.type || 'chat',
+                direction,
+                status: msg.fromMe ? 'sent' : 'received',
+                created_at: new Date(msg.timestamp * 1000).toISOString(),
+              }, {
+                onConflict: 'message_id'
+              })
+          }
+
+          syncedCount++
+          console.log(`✅ Synced chat: ${contactName || contactPhone}`)
+
+        } catch (chatError) {
+          console.error(`Error syncing chat:`, chatError)
+        }
+      }
+
+      console.log(`🔄 Sync completed: ${syncedCount} new conversations`)
+
+    } catch (error) {
+      console.error(`Error syncing existing chats:`, error)
+    }
   }
 
   /**
