@@ -218,6 +218,8 @@ router.get('/conversations', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
+    console.log(`📋 Fetching conversations for user: ${userId}`)
+
     const { data: conversations, error } = await supabaseAdmin
       .from('conversations')
       .select('*')
@@ -229,6 +231,7 @@ router.get('/conversations', async (req: Request, res: Response) => {
       return res.status(500).json({ success: false, error: 'Error fetching conversations' })
     }
 
+    console.log(`📋 Found ${conversations?.length || 0} conversations`)
     res.json({ success: true, data: conversations || [] })
   } catch (error: any) {
     console.error('Error in GET /conversations:', error)
