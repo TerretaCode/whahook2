@@ -8,6 +8,7 @@ import { getPuppeteerConfig } from '../../config/puppeteer'
 import { WhatsAppSession, SessionStatus, WhatsAppAccount, LIMITS } from './whatsapp.types'
 import { keepaliveService } from '../../services/keepalive.service'
 import { backupService } from '../../services/backup.service'
+import { autoReconnectService } from '../../services/autoReconnect.service'
 import { sendWhatsAppConnectedEmail } from '../../utils/email'
 
 class WhatsAppService {
@@ -213,10 +214,14 @@ class WhatsAppService {
     const session = this.sessions.get(sessionId)
     if (!session) return
 
-    const permanentReasons = ['LOGOUT', 'CONFLICT', 'UNPAIRED', 'TOS_BLOCK']
-    const isPermanent = permanentReasons.some(r => reason.includes(r))
+    // Stop keepalive on disconnection
+    keepaliveService.stopAll(sessionId)
+
+    // Check if this is a permanent disconnection
+    const isPermanent = autoReconnectService.isPermanentDisconnection(reason)
 
     if (isPermanent) {
+      console.log(`🔴 Permanent disconnection for ${sessionId}: ${reason}`)
       session.status = 'disconnected'
       
       await supabaseAdmin
@@ -226,29 +231,43 @@ class WhatsAppService {
 
       this.io?.to(`user:${session.userId}`).emit('whatsapp:disconnected', { sessionId, reason })
     } else {
-      await this.attemptReconnect(sessionId)
+      console.log(`🟡 Temporary disconnection for ${sessionId}: ${reason} - attempting reconnect`)
+      await this.attemptReconnect(sessionId, reason)
     }
   }
 
-  private async attemptReconnect(sessionId: string): Promise<void> {
+  private async attemptReconnect(sessionId: string, reason?: string): Promise<void> {
     const session = this.sessions.get(sessionId)
     if (!session) return
 
-    if (session.reconnectAttempts >= LIMITS.maxReconnectAttempts) {
-      console.log(`Max reconnect attempts for ${sessionId}`)
-      await this.handleSessionError(sessionId, 'Máximo de intentos de reconexión alcanzado')
+    // Check if already reconnecting
+    if (autoReconnectService.isReconnecting(sessionId)) {
+      console.log(`⚠️ Already reconnecting ${sessionId}`)
       return
     }
 
-    session.reconnectAttempts++
-    console.log(`Reconnecting ${sessionId} (${session.reconnectAttempts}/${LIMITS.maxReconnectAttempts})`)
+    // Execute reconnection with exponential backoff
+    const result = await autoReconnectService.executeReconnection(
+      sessionId,
+      async () => {
+        try {
+          // Try to reinitialize the client
+          await session.client.initialize()
+          
+          // Check if connected
+          const state = await session.client.getState()
+          return state === 'CONNECTED'
+        } catch (error) {
+          console.error(`Reconnection attempt failed for ${sessionId}:`, error)
+          return false
+        }
+      },
+      reason
+    )
 
-    await new Promise(resolve => setTimeout(resolve, LIMITS.reconnectDelayMs))
-
-    try {
-      await session.client.initialize()
-    } catch {
-      await this.attemptReconnect(sessionId)
+    if (!result.success) {
+      console.error(`❌ All reconnection attempts failed for ${sessionId}`)
+      await this.handleSessionError(sessionId, 'Reconexión fallida después de múltiples intentos')
     }
   }
 
