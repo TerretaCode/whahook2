@@ -676,12 +676,16 @@ class WhatsAppService {
     const { session_id: sessionId, user_id: userId } = account
     console.log(`Restoring: ${sessionId}`)
 
+    // Limpiar locks de Chrome antes de restaurar
+    await this.cleanChromeLocks(sessionId)
+
     const client = new Client({
       authStrategy: new LocalAuth({
         clientId: sessionId,
         dataPath: env.sessionsPath,
       }),
       puppeteer: getPuppeteerConfig(),
+      restartOnAuthFail: true,
     })
 
     const session: WhatsAppSession = {
@@ -698,6 +702,54 @@ class WhatsAppService {
     this.sessions.set(sessionId, session)
     this.setupClientEvents(client, sessionId, userId)
     await client.initialize()
+  }
+
+  /**
+   * Limpiar locks de Chrome que pueden quedar después de un crash
+   */
+  private async cleanChromeLocks(sessionId: string): Promise<void> {
+    try {
+      const sessionPath = path.join(env.sessionsPath, `session-${sessionId}`)
+      const lockFiles = [
+        path.join(sessionPath, 'SingletonLock'),
+        path.join(sessionPath, 'SingletonSocket'),
+        path.join(sessionPath, 'SingletonCookie'),
+        path.join(sessionPath, 'Default', 'SingletonLock'),
+        path.join(sessionPath, 'Default', 'SingletonSocket'),
+        path.join(sessionPath, 'Default', 'SingletonCookie'),
+      ]
+
+      for (const lockFile of lockFiles) {
+        try {
+          if (fs.existsSync(lockFile)) {
+            fs.unlinkSync(lockFile)
+            console.log(`🧹 Removed lock file: ${lockFile}`)
+          }
+        } catch (err) {
+          // Ignorar errores individuales
+        }
+      }
+
+      // También limpiar archivos de lock en el directorio de Chrome
+      const chromePath = path.join(sessionPath, 'Default')
+      if (fs.existsSync(chromePath)) {
+        const files = fs.readdirSync(chromePath)
+        for (const file of files) {
+          if (file.includes('Lock') || file.includes('Singleton')) {
+            try {
+              fs.unlinkSync(path.join(chromePath, file))
+              console.log(`🧹 Removed: ${file}`)
+            } catch (err) {
+              // Ignorar
+            }
+          }
+        }
+      }
+
+      console.log(`✅ Chrome locks cleaned for ${sessionId}`)
+    } catch (error) {
+      console.error(`Error cleaning Chrome locks:`, error)
+    }
   }
 }
 
