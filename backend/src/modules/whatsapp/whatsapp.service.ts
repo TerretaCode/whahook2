@@ -1,5 +1,7 @@
 import { Client, LocalAuth } from 'whatsapp-web.js'
 import { Server as SocketServer } from 'socket.io'
+import fs from 'fs'
+import path from 'path'
 import { supabaseAdmin } from '../../config/supabase'
 import { env } from '../../config/environment'
 import { getPuppeteerConfig } from '../../config/puppeteer'
@@ -258,23 +260,61 @@ class WhatsAppService {
     const session = this.sessions.get(sessionId)
     if (!session) throw new Error('Sesión no encontrada')
 
+    console.log(`🗑️ Destroying session: ${sessionId}`)
+
+    // 1. Detener keepalive
     keepaliveService.stopAll(sessionId)
 
+    // 2. Cerrar cliente WhatsApp
     try {
       await session.client.logout()
       await session.client.destroy()
     } catch (error) {
-      console.error(`Error destroying ${sessionId}:`, error)
+      console.error(`Error destroying client ${sessionId}:`, error)
     }
 
+    // 3. Eliminar de memoria
     this.sessions.delete(sessionId)
 
-    await supabaseAdmin
+    // 4. Eliminar de Supabase (DELETE, no UPDATE)
+    const { error: dbError } = await supabaseAdmin
       .from('whatsapp_accounts')
-      .update({ status: 'disconnected' as SessionStatus, error_message: 'Desconectado manualmente' })
+      .delete()
       .eq('session_id', sessionId)
 
-    console.log(`🗑️ Session destroyed: ${sessionId}`)
+    if (dbError) {
+      console.error(`Error deleting from Supabase:`, dbError)
+    }
+
+    // 5. Eliminar archivos de sesión locales
+    const sessionPath = path.join(env.sessionsPath, `session-${sessionId}`)
+    try {
+      if (fs.existsSync(sessionPath)) {
+        fs.rmSync(sessionPath, { recursive: true, force: true })
+        console.log(`📁 Session files deleted: ${sessionPath}`)
+      }
+    } catch (error) {
+      console.error(`Error deleting session files:`, error)
+    }
+
+    // 6. Eliminar backups de Supabase Storage (opcional, mantener histórico)
+    try {
+      const { data: backups } = await supabaseAdmin.storage
+        .from('whatsapp-backups')
+        .list('sessions', { search: sessionId })
+
+      if (backups && backups.length > 0) {
+        const filesToDelete = backups.map(f => `sessions/${f.name}`)
+        await supabaseAdmin.storage
+          .from('whatsapp-backups')
+          .remove(filesToDelete)
+        console.log(`☁️ ${backups.length} backup(s) deleted from storage`)
+      }
+    } catch (error) {
+      console.error(`Error deleting backups:`, error)
+    }
+
+    console.log(`✅ Session completely destroyed: ${sessionId}`)
   }
 
   getSession(sessionId: string): WhatsAppSession | undefined {
