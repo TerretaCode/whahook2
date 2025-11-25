@@ -608,20 +608,31 @@ class WhatsAppService {
     try {
       console.log(`🔄 Syncing existing chats for session: ${sessionId}`)
 
+      // Esperar un poco para que WhatsApp cargue los chats
+      await new Promise(resolve => setTimeout(resolve, 5000))
+
       // Obtener whatsapp_account_id
-      const { data: waAccount } = await supabaseAdmin
+      const { data: waAccount, error: waError } = await supabaseAdmin
         .from('whatsapp_accounts')
         .select('id')
         .eq('session_id', sessionId)
         .single()
 
-      if (!waAccount) {
-        console.error(`WhatsApp account not found for session: ${sessionId}`)
+      if (waError || !waAccount) {
+        console.error(`❌ WhatsApp account not found for session: ${sessionId}`, waError)
         return
       }
 
-      // Obtener todos los chats de WhatsApp
-      const chats = await client.getChats()
+      console.log(`✅ Found WhatsApp account: ${waAccount.id}`)
+
+      // Obtener todos los chats de WhatsApp con timeout
+      console.log(`📱 Fetching chats from WhatsApp...`)
+      const chats = await Promise.race([
+        client.getChats(),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('getChats timeout')), 30000)
+        )
+      ])
       console.log(`📱 Found ${chats.length} chats in WhatsApp`)
 
       let syncedCount = 0
