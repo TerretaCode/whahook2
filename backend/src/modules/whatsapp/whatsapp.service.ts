@@ -848,30 +848,43 @@ class WhatsAppService {
    */
   private async cleanChromeLocks(sessionId: string): Promise<void> {
     try {
-      // whatsapp-web.js usa .wwebjs_auth/session-{clientId} dentro del dataPath
-      const possiblePaths = [
-        path.join(env.sessionsPath, `session-${sessionId}`),
-        path.join(env.sessionsPath, '.wwebjs_auth', `session-${sessionId}`),
-        path.join(env.sessionsPath, sessionId),
-        // También buscar en la raíz del dataPath
-        env.sessionsPath,
-      ]
-
+      const sessionPath = path.join(env.sessionsPath, `session-${sessionId}`)
+      
       // Listar contenido del directorio para debug
       if (fs.existsSync(env.sessionsPath)) {
         const contents = fs.readdirSync(env.sessionsPath)
         console.log(`📁 Sessions directory contents: ${contents.join(', ')}`)
       }
 
-      for (const basePath of possiblePaths) {
-        if (!fs.existsSync(basePath)) {
-          console.log(`⚠️ Path does not exist: ${basePath}`)
-          continue
-        }
-        
-        console.log(`🔍 Checking locks in: ${basePath}`)
-        await this.cleanLocksRecursively(basePath)
+      if (!fs.existsSync(sessionPath)) {
+        console.log(`⚠️ Session path does not exist: ${sessionPath}`)
+        return
       }
+
+      // Eliminar SingletonLock directamente en la raíz de la sesión
+      const singletonLockPath = path.join(sessionPath, 'SingletonLock')
+      if (fs.existsSync(singletonLockPath)) {
+        fs.unlinkSync(singletonLockPath)
+        console.log(`🧹 Removed SingletonLock: ${singletonLockPath}`)
+      }
+
+      // Eliminar SingletonSocket
+      const singletonSocketPath = path.join(sessionPath, 'SingletonSocket')
+      if (fs.existsSync(singletonSocketPath)) {
+        fs.unlinkSync(singletonSocketPath)
+        console.log(`🧹 Removed SingletonSocket: ${singletonSocketPath}`)
+      }
+
+      // Eliminar SingletonCookie
+      const singletonCookiePath = path.join(sessionPath, 'SingletonCookie')
+      if (fs.existsSync(singletonCookiePath)) {
+        fs.unlinkSync(singletonCookiePath)
+        console.log(`🧹 Removed SingletonCookie: ${singletonCookiePath}`)
+      }
+
+      // Limpiar locks recursivamente en subcarpetas
+      console.log(`🔍 Checking locks in: ${sessionPath}`)
+      await this.cleanLocksRecursively(sessionPath)
 
       console.log(`✅ Chrome locks cleaned for ${sessionId}`)
     } catch (error) {
