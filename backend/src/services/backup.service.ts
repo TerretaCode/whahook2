@@ -176,7 +176,15 @@ class BackupService {
   }
 
   /**
-   * Backup a single WhatsApp session
+   * Backup a single WhatsApp session (public method for on-demand backup)
+   */
+  async backupSession(sessionId: string): Promise<BackupResult> {
+    console.log(`📦 On-demand backup for session: ${sessionId}`)
+    return this.backupSingleSession(sessionId)
+  }
+
+  /**
+   * Backup a single WhatsApp session (internal)
    */
   private async backupSingleSession(sessionId: string): Promise<BackupResult> {
     const startTime = Date.now();
