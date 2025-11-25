@@ -257,24 +257,24 @@ class WhatsAppService {
   }
 
   async destroySession(sessionId: string): Promise<void> {
-    const session = this.sessions.get(sessionId)
-    if (!session) throw new Error('Sesión no encontrada')
-
     console.log(`🗑️ Destroying session: ${sessionId}`)
 
-    // 1. Detener keepalive
+    const session = this.sessions.get(sessionId)
+
+    // 1. Detener keepalive (si existe)
     keepaliveService.stopAll(sessionId)
 
-    // 2. Cerrar cliente WhatsApp
-    try {
-      await session.client.logout()
-      await session.client.destroy()
-    } catch (error) {
-      console.error(`Error destroying client ${sessionId}:`, error)
+    // 2. Cerrar cliente WhatsApp (si está en memoria)
+    if (session) {
+      try {
+        await session.client.logout()
+        await session.client.destroy()
+      } catch (error) {
+        console.error(`Error destroying client ${sessionId}:`, error)
+      }
+      // 3. Eliminar de memoria
+      this.sessions.delete(sessionId)
     }
-
-    // 3. Eliminar de memoria
-    this.sessions.delete(sessionId)
 
     // 4. Eliminar de Supabase (DELETE, no UPDATE)
     const { error: dbError } = await supabaseAdmin
