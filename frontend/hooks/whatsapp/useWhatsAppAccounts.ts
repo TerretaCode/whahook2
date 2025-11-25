@@ -35,12 +35,9 @@ export function useWhatsAppAccounts() {
   }, [])
 
   const createAccount = useCallback(async (accountName: string) => {
-    console.log('🔍 CREATE ACCOUNT FRONTEND - Starting request', { accountName });
-    
     setIsLoading(true)
     try {
-      const payload = { account_name: accountName };
-      console.log('🔍 CREATE ACCOUNT FRONTEND - Payload:', payload);
+      const payload = { label: accountName };
       
       const response = await ApiClient.request<{ account: WhatsAppAccount }>(
         '/api/whatsapp/accounts',
@@ -49,12 +46,6 @@ export function useWhatsAppAccounts() {
           body: JSON.stringify(payload)
         }
       )
-      
-      console.log('🔍 CREATE ACCOUNT FRONTEND - Response:', {
-        success: response.success,
-        error: response.error,
-        data: response.data
-      });
       
       if (response.data?.account) {
         setAccounts(prev => [...prev, response.data!.account])

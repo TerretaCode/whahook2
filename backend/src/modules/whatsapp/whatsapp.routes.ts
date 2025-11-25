@@ -78,6 +78,7 @@ router.post('/accounts', async (req: Request, res: Response) => {
         user_id: userId,
         session_id: `wa_${userId}_${Date.now()}`,
         status: 'disconnected',
+        label: label || 'WhatsApp Account',
       })
       .select()
       .single()

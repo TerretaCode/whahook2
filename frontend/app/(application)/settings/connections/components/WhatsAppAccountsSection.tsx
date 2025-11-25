@@ -42,9 +42,15 @@ export function WhatsAppAccountsSection() {
     }
   }
 
-  const getAccountName = (accountId: string) => {
-    const account = accounts.find(a => a.id === accountId)
-    return account?.label || 'Unknown Account'
+  const getAccountName = (session: typeof sessions[0]) => {
+    // First try to find matching account by id
+    const account = accounts.find(a => a.id === session.account_id)
+    if (account?.label) return account.label
+    
+    // Fallback: check if session itself has label (same table)
+    if ((session as any).label) return (session as any).label
+    
+    return 'WhatsApp Account'
   }
 
   if (accountsLoading || sessionsLoading) {
@@ -164,7 +170,7 @@ export function WhatsAppAccountsSection() {
             <WhatsAppSessionCard
               key={session.id}
               session={session}
-              accountName={getAccountName(session.account_id)}
+              accountName={getAccountName(session)}
               onDestroy={destroySession}
             />
           ))}
