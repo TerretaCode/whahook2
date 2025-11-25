@@ -188,6 +188,7 @@ class WhatsAppService {
 
     // Mensaje entrante - GUARDAR EN BASE DE DATOS
     client.on('message', async (message) => {
+      console.log(`🔔 MESSAGE EVENT RECEIVED from ${message.from}`)
       try {
         await this.handleIncomingMessage(sessionId, userId, message)
       } catch (err) {
