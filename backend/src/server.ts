@@ -8,7 +8,8 @@ import rateLimit from 'express-rate-limit'
 import { env, isDev } from './config/environment'
 import { authRoutes } from './modules/auth'
 import { setupWhatsAppSocket, whatsappService, whatsappRoutes } from './modules/whatsapp'
-import { keepaliveMessagesService, sessionMonitoringService, backupService } from './services'
+import { keepaliveMessagesService, sessionMonitoringService, backupService, cacheCleanupService } from './services'
+import { healthRoutes } from './routes'
 
 const app = express()
 const httpServer = createServer(app)
@@ -47,25 +48,11 @@ app.use('/api/', rateLimit({
   legacyHeaders: false,
 }))
 
-// Health check (para UptimeRobot)
-app.get('/health', (req, res) => {
-  const sessions = whatsappService.getAllSessions()
-  res.json({ 
-    status: 'healthy', 
-    timestamp: new Date().toISOString(),
-    sessions: {
-      active: sessions.size,
-      ready: Array.from(sessions.values()).filter(s => s.status === 'ready').length,
-    }
-  })
-})
-
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: Date.now() })
-})
+// Health check avanzado (para UptimeRobot)
+app.use('/api', healthRoutes)
 
 // Placeholder para notificaciones (silenciar 404)
-app.get('/notifications/unread-count', (req, res) => {
+app.get('/notifications/unread-count', (_req, res) => {
   res.json({ success: true, data: { count: 0 } })
 })
 
@@ -96,4 +83,5 @@ httpServer.listen(env.port, async () => {
   keepaliveMessagesService.start()
   sessionMonitoringService.start()
   backupService.start()
+  cacheCleanupService.start()
 })
