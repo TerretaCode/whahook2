@@ -1,0 +1,52 @@
+# ==============================================
+# NIXPACKS CONFIG PARA RAILWAY
+# Instala Chromium y dependencias necesarias
+# ==============================================
+
+[phases.setup]
+nixPkgs = [
+  "nodejs_18",
+  "chromium",
+  "libuuid",
+  "libdrm",
+  "mesa",
+  "libxkbcommon",
+  "libxshmfence",
+  "nss",
+  "nspr",
+  "atk",
+  "cups",
+  "libxcomposite",
+  "libxdamage",
+  "libxrandr",
+  "pango",
+  "cairo",
+  "alsa-lib",
+  "at-spi2-atk",
+  "at-spi2-core",
+  "libxcursor",
+  "libxi",
+  "libxtst",
+  "xorg.libX11",
+  "xorg.libXext",
+  "xorg.libXfixes",
+  "xorg.libXrender",
+  "xorg.libxcb",
+  "expat",
+  "glib",
+  "gtk3",
+  "dbus"
+]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npm start"
+
+[variables]
+PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
+PUPPETEER_EXECUTABLE_PATH = "/nix/var/nix/profiles/default/bin/chromium"

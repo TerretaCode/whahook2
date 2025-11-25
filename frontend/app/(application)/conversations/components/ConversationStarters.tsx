@@ -1,0 +1,36 @@
+"use client"
+
+import { MessageSquare } from "lucide-react"
+
+interface ConversationStartersProps {
+  starters: string[]
+  onSelect: (starter: string) => void
+}
+
+export function ConversationStarters({ starters, onSelect }: ConversationStartersProps) {
+  if (!starters || starters.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="p-4 space-y-3">
+      <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+        <MessageSquare className="w-4 h-4" />
+        <span className="font-medium">Sugerencias para empezar:</span>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        {starters.map((starter, index) => (
+          <button
+            key={index}
+            onClick={() => onSelect(starter)}
+            className="text-left p-3 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group"
+          >
+            <p className="text-sm text-gray-700 group-hover:text-blue-700">
+              {starter}
+            </p>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
