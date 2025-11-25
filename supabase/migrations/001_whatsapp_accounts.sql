@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS whatsapp_accounts (
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   session_id TEXT NOT NULL UNIQUE,
   phone_number TEXT,
+  label TEXT DEFAULT 'WhatsApp Account',
   status TEXT DEFAULT 'disconnected' CHECK (status IN ('initializing', 'qr_pending', 'authenticating', 'ready', 'disconnected', 'error')),
   error_message TEXT,
   last_seen TIMESTAMPTZ DEFAULT NOW(),
