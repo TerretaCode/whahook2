@@ -894,23 +894,53 @@ class WhatsAppService {
         // Recursivamente limpiar subdirectorios
         await this.cleanLocksRecursively(fullPath)
       } else if (entry.isFile()) {
-        // Eliminar archivos de lock
-        if (
-          entry.name === 'SingletonLock' ||
-          entry.name === 'SingletonSocket' ||
-          entry.name === 'SingletonCookie' ||
+        // Eliminar archivos de lock - lista ampliada
+        const lockFiles = [
+          'SingletonLock',
+          'SingletonSocket', 
+          'SingletonCookie',
+          'lockfile',
+          'LOCK',
+          '.lock',
+          'parent.lock',
+        ]
+        
+        const isLockFile = lockFiles.includes(entry.name) ||
           entry.name.includes('Lock') ||
-          entry.name.includes('Singleton')
-        ) {
+          entry.name.includes('Singleton') ||
+          entry.name.includes('lock')
+        
+        if (isLockFile) {
           try {
             fs.unlinkSync(fullPath)
-            console.log(`🧹 Removed: ${fullPath}`)
+            console.log(`🧹 Removed lock: ${fullPath}`)
           } catch (err) {
             console.error(`Failed to remove ${fullPath}:`, err)
           }
         }
       }
     }
+  }
+
+  /**
+   * Forzar limpieza completa de sesión corrupta
+   */
+  async forceCleanSession(sessionId: string): Promise<void> {
+    console.log(`🔥 Force cleaning session: ${sessionId}`)
+    
+    const sessionPath = path.join(env.sessionsPath, `session-${sessionId}`)
+    
+    if (fs.existsSync(sessionPath)) {
+      // Eliminar toda la carpeta de sesión
+      fs.rmSync(sessionPath, { recursive: true, force: true })
+      console.log(`🗑️ Removed session folder: ${sessionPath}`)
+    }
+    
+    // También limpiar en la base de datos
+    await supabaseAdmin
+      .from('whatsapp_accounts')
+      .update({ status: 'disconnected' as SessionStatus })
+      .eq('session_id', sessionId)
   }
 }
 

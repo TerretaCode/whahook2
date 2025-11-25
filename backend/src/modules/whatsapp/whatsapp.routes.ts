@@ -202,6 +202,44 @@ router.delete('/sessions/:sessionId', async (req: Request, res: Response) => {
   }
 })
 
+/**
+ * POST /api/whatsapp/sessions/:sessionId/force-clean
+ * Forzar limpieza completa de una sesión corrupta
+ */
+router.post('/sessions/:sessionId/force-clean', async (req: Request, res: Response) => {
+  try {
+    const { sessionId } = req.params
+    const userId = await getUserIdFromToken(req)
+
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    // Verificar que la sesión pertenece al usuario
+    const { data: account } = await supabaseAdmin
+      .from('whatsapp_accounts')
+      .select('*')
+      .eq('session_id', sessionId)
+      .eq('user_id', userId)
+      .single()
+
+    if (!account) {
+      return res.status(404).json({ success: false, error: 'Session not found' })
+    }
+
+    // Destruir sesión si existe en memoria
+    await whatsappService.destroySession(sessionId)
+    
+    // Forzar limpieza de archivos
+    await whatsappService.forceCleanSession(sessionId)
+
+    res.json({ success: true, message: 'Session force cleaned' })
+  } catch (error: any) {
+    console.error('Error in POST /sessions/force-clean:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
 // ==============================================
 // RUTAS DE CONVERSACIONES
 // ==============================================
