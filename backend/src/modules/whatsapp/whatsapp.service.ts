@@ -186,6 +186,26 @@ class WhatsAppService {
       }, 2 * 60 * 1000) // 2 minutos
     })
 
+    // Mensaje entrante - GUARDAR EN BASE DE DATOS
+    client.on('message', async (message) => {
+      try {
+        await this.handleIncomingMessage(sessionId, userId, message)
+      } catch (err) {
+        console.error(`Error handling incoming message:`, err)
+      }
+    })
+
+    // Mensaje saliente (enviado desde el teléfono)
+    client.on('message_create', async (message) => {
+      if (message.fromMe) {
+        try {
+          await this.handleOutgoingMessage(sessionId, userId, message)
+        } catch (err) {
+          console.error(`Error handling outgoing message:`, err)
+        }
+      }
+    })
+
     // Desconectado
     client.on('disconnected', async (reason) => {
       console.log(`❌ Disconnected: ${sessionId} - ${reason}`)
@@ -376,6 +396,189 @@ class WhatsAppService {
 
   getAllSessions(): Map<string, WhatsAppSession> {
     return this.sessions
+  }
+
+  /**
+   * Manejar mensaje entrante - guardar en DB
+   */
+  private async handleIncomingMessage(sessionId: string, userId: string, message: any): Promise<void> {
+    // Ignorar mensajes de grupos y broadcasts por ahora
+    if (message.from.includes('@g.us') || message.from.includes('@broadcast')) {
+      return
+    }
+
+    const contactPhone = message.from.replace('@c.us', '').replace('@s.whatsapp.net', '')
+    const contact = await message.getContact()
+    const contactName = contact?.pushname || contact?.name || null
+
+    console.log(`📩 Incoming message from ${contactPhone}: ${message.body?.substring(0, 50)}...`)
+
+    // Obtener whatsapp_account_id
+    const { data: waAccount } = await supabaseAdmin
+      .from('whatsapp_accounts')
+      .select('id')
+      .eq('session_id', sessionId)
+      .single()
+
+    if (!waAccount) {
+      console.error(`WhatsApp account not found for session: ${sessionId}`)
+      return
+    }
+
+    // Buscar o crear conversación
+    let { data: conversation } = await supabaseAdmin
+      .from('conversations')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('whatsapp_account_id', waAccount.id)
+      .eq('contact_phone', contactPhone)
+      .single()
+
+    if (!conversation) {
+      // Crear nueva conversación
+      const { data: newConv, error: convError } = await supabaseAdmin
+        .from('conversations')
+        .insert({
+          user_id: userId,
+          whatsapp_account_id: waAccount.id,
+          contact_phone: contactPhone,
+          contact_name: contactName,
+          status: 'open',
+          last_message_preview: message.body?.substring(0, 100) || '',
+          last_message_at: new Date().toISOString(),
+          unread_count: 1,
+          chatbot_enabled: true,
+        })
+        .select('id')
+        .single()
+
+      if (convError) {
+        console.error('Error creating conversation:', convError)
+        return
+      }
+      conversation = newConv
+      console.log(`📝 New conversation created: ${conversation.id}`)
+    } else {
+      // Actualizar conversación existente - incrementar unread_count con SQL raw
+      const { data: currentConv } = await supabaseAdmin
+        .from('conversations')
+        .select('unread_count')
+        .eq('id', conversation.id)
+        .single()
+
+      await supabaseAdmin
+        .from('conversations')
+        .update({
+          contact_name: contactName || undefined,
+          last_message_preview: message.body?.substring(0, 100) || '',
+          last_message_at: new Date().toISOString(),
+          unread_count: (currentConv?.unread_count || 0) + 1,
+        })
+        .eq('id', conversation.id)
+    }
+
+    // Guardar mensaje
+    const { error: msgError } = await supabaseAdmin
+      .from('messages')
+      .insert({
+        conversation_id: conversation.id,
+        user_id: userId,
+        whatsapp_account_id: waAccount.id,
+        message_id: message.id._serialized || `msg_${Date.now()}`,
+        content: message.body || '',
+        type: message.type || 'chat',
+        direction: 'incoming',
+        status: 'received',
+        created_at: new Date(message.timestamp * 1000).toISOString(),
+      })
+
+    if (msgError) {
+      console.error('Error saving message:', msgError)
+    }
+
+    // Emitir evento por socket para actualizar UI en tiempo real
+    this.io?.to(`user:${userId}`).emit('whatsapp:message', {
+      conversationId: conversation.id,
+      message: {
+        id: message.id._serialized,
+        content: message.body,
+        direction: 'incoming',
+        timestamp: new Date(message.timestamp * 1000).toISOString(),
+      }
+    })
+  }
+
+  /**
+   * Manejar mensaje saliente (enviado desde el teléfono)
+   */
+  private async handleOutgoingMessage(sessionId: string, userId: string, message: any): Promise<void> {
+    // Ignorar mensajes de grupos y broadcasts
+    if (message.to.includes('@g.us') || message.to.includes('@broadcast')) {
+      return
+    }
+
+    const contactPhone = message.to.replace('@c.us', '').replace('@s.whatsapp.net', '')
+
+    console.log(`📤 Outgoing message to ${contactPhone}: ${message.body?.substring(0, 50)}...`)
+
+    // Obtener whatsapp_account_id
+    const { data: waAccount } = await supabaseAdmin
+      .from('whatsapp_accounts')
+      .select('id')
+      .eq('session_id', sessionId)
+      .single()
+
+    if (!waAccount) return
+
+    // Buscar conversación existente
+    const { data: conversation } = await supabaseAdmin
+      .from('conversations')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('whatsapp_account_id', waAccount.id)
+      .eq('contact_phone', contactPhone)
+      .single()
+
+    if (!conversation) {
+      // No crear conversación para mensajes salientes sin conversación previa
+      return
+    }
+
+    // Actualizar conversación
+    await supabaseAdmin
+      .from('conversations')
+      .update({
+        last_message_preview: message.body?.substring(0, 100) || '',
+        last_message_at: new Date().toISOString(),
+        unread_count: 0, // Resetear al enviar mensaje
+      })
+      .eq('id', conversation.id)
+
+    // Guardar mensaje
+    await supabaseAdmin
+      .from('messages')
+      .insert({
+        conversation_id: conversation.id,
+        user_id: userId,
+        whatsapp_account_id: waAccount.id,
+        message_id: message.id._serialized || `msg_${Date.now()}`,
+        content: message.body || '',
+        type: message.type || 'chat',
+        direction: 'outgoing',
+        status: 'sent',
+        created_at: new Date(message.timestamp * 1000).toISOString(),
+      })
+
+    // Emitir evento por socket
+    this.io?.to(`user:${userId}`).emit('whatsapp:message', {
+      conversationId: conversation.id,
+      message: {
+        id: message.id._serialized,
+        content: message.body,
+        direction: 'outgoing',
+        timestamp: new Date(message.timestamp * 1000).toISOString(),
+      }
+    })
   }
 
   /**
