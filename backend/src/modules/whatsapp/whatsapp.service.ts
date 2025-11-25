@@ -8,6 +8,7 @@ import { getPuppeteerConfig } from '../../config/puppeteer'
 import { WhatsAppSession, SessionStatus, WhatsAppAccount, LIMITS } from './whatsapp.types'
 import { keepaliveService } from '../../services/keepalive.service'
 import { backupService } from '../../services/backup.service'
+import { sendWhatsAppConnectedEmail } from '../../utils/email'
 
 class WhatsAppService {
   private sessions: Map<string, WhatsAppSession> = new Map()
@@ -149,6 +150,11 @@ class WhatsAppService {
       // Backup automático
       backupService.backupSession(sessionId).catch(err => {
         console.error(`Backup failed for ${sessionId}:`, err)
+      })
+
+      // Enviar email de conexión exitosa
+      this.sendConnectionEmail(userId, phoneNumber, sessionId).catch(err => {
+        console.error(`Failed to send connection email:`, err)
       })
 
       // Enviar mensaje de bienvenida después de 2 minutos
@@ -351,6 +357,37 @@ class WhatsAppService {
 
   getAllSessions(): Map<string, WhatsAppSession> {
     return this.sessions
+  }
+
+  /**
+   * Enviar email de conexión exitosa
+   */
+  private async sendConnectionEmail(userId: string, phoneNumber: string, sessionId: string): Promise<void> {
+    try {
+      // Obtener datos del usuario
+      const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.getUserById(userId)
+      
+      if (authError || !authUser?.user?.email) {
+        console.log(`⚠️ No email found for user ${userId}`)
+        return
+      }
+
+      const userEmail = authUser.user.email
+      const userName = authUser.user.user_metadata?.full_name || 'Usuario'
+      const frontendUrl = env.frontendUrl || 'http://localhost:3000'
+
+      await sendWhatsAppConnectedEmail(userEmail, {
+        user_name: userName,
+        phone_number: phoneNumber || 'N/A',
+        session_label: 'WhatsApp',
+        connection_time: new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid' }),
+        dashboard_url: `${frontendUrl}/settings/connections`,
+      })
+
+      console.log(`📧 Connection email sent to ${userEmail}`)
+    } catch (error) {
+      console.error('Error sending connection email:', error)
+    }
   }
 
   async restoreActiveSessions(): Promise<void> {
