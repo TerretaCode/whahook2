@@ -2,3 +2,4 @@
 export * from './keepalive.service'
 export * from './keepaliveMessages.service'
 export * from './sessionMonitoring.service'
+export * from './backup.service'

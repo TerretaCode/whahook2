@@ -8,7 +8,7 @@ import rateLimit from 'express-rate-limit'
 import { env, isDev } from './config/environment'
 import { authRoutes } from './modules/auth'
 import { setupWhatsAppSocket, whatsappService, whatsappRoutes } from './modules/whatsapp'
-import { keepaliveMessagesService, sessionMonitoringService } from './services'
+import { keepaliveMessagesService, sessionMonitoringService, backupService } from './services'
 
 const app = express()
 const httpServer = createServer(app)
@@ -92,7 +92,8 @@ httpServer.listen(env.port, async () => {
   // Restaurar sesiones activas
   await whatsappService.restoreActiveSessions()
   
-  // Iniciar servicios globales de keepalive
+  // Iniciar servicios globales
   keepaliveMessagesService.start()
   sessionMonitoringService.start()
+  backupService.start()
 })

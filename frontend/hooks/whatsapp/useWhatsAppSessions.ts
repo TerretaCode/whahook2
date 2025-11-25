@@ -284,7 +284,12 @@ export function useWhatsAppSessions() {
     on('whatsapp:error', handleAuthFailure)
     on('whatsapp:status_update', (data: { sessionId: string; status: string }) => {
       console.log('📊 Status update:', data)
-      fetchSessions()
+      // Update status locally without fetching from server
+      setSessions(prev => prev.map(s => 
+        s.session_id === data.sessionId 
+          ? { ...s, status: data.status as WhatsAppSessionStatus }
+          : s
+      ))
     })
     
     // Eventos legacy (por compatibilidad)
