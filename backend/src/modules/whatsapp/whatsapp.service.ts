@@ -856,6 +856,7 @@ class WhatsAppService {
 
   /**
    * Limpiar locks de Chrome que pueden quedar después de un crash
+   * CRITICAL: Copied from working old project
    */
   private async cleanChromeLocks(sessionId: string): Promise<void> {
     try {
@@ -872,28 +873,35 @@ class WhatsAppService {
         return
       }
 
-      // Listar archivos en la raíz de la sesión para debug
-      const sessionContents = fs.readdirSync(sessionPath)
-      console.log(`📁 Session folder contents: ${sessionContents.join(', ')}`)
+      // CRITICAL: Clean Chromium lock files before restoring
+      // These files prevent session restoration after container restarts
+      console.log(`🧹 Cleaning Chromium lock files for session: ${sessionId}`)
+      const lockFiles = [
+        'SingletonCookie',
+        'SingletonLock', 
+        'SingletonSocket',
+        'Default/SingletonCookie',
+        'Default/SingletonLock',
+        'Default/SingletonSocket'
+      ]
 
-      // Eliminar archivos Singleton (pueden ser symlinks)
-      const singletonFiles = ['SingletonLock', 'SingletonSocket', 'SingletonCookie']
-      for (const filename of singletonFiles) {
-        const filePath = path.join(sessionPath, filename)
+      lockFiles.forEach(lockFile => {
+        const lockPath = path.join(sessionPath, lockFile)
         try {
-          // Usar lstatSync para detectar symlinks
-          const stat = fs.lstatSync(filePath)
-          if (stat) {
-            fs.rmSync(filePath, { force: true })
-            console.log(`🧹 Removed ${filename}: ${filePath}`)
+          // Try to unlink without checking existence first
+          // This handles symlinks and special files better
+          fs.unlinkSync(lockPath)
+          console.log(`  ✅ Removed lock file: ${lockFile}`)
+        } catch (unlinkError: any) {
+          // ENOENT means file doesn't exist, which is fine
+          if (unlinkError.code !== 'ENOENT') {
+            console.warn(`  ⚠️ Could not remove ${lockFile}:`, unlinkError.message)
           }
-        } catch (e) {
-          // El archivo no existe, está bien
         }
-      }
+      })
 
       // Limpiar locks recursivamente en subcarpetas
-      console.log(`🔍 Checking locks in: ${sessionPath}`)
+      console.log(`🔍 Checking locks in subdirectories: ${sessionPath}`)
       await this.cleanLocksRecursively(sessionPath)
 
       console.log(`✅ Chrome locks cleaned for ${sessionId}`)
