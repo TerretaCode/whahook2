@@ -1,13 +1,11 @@
 -- ==============================================
 -- WHAHOOK COMPLETE DATABASE SCHEMA
--- Consolidated migration file
+-- Idempotent migration file (can be run multiple times)
 -- ==============================================
 
 -- ==============================================
 -- SHARED FUNCTIONS
 -- ==============================================
-
--- Generic function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -37,6 +35,12 @@ CREATE INDEX IF NOT EXISTS idx_whatsapp_accounts_session_id ON whatsapp_accounts
 CREATE INDEX IF NOT EXISTS idx_whatsapp_accounts_status ON whatsapp_accounts(status);
 
 ALTER TABLE whatsapp_accounts ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view own whatsapp accounts" ON whatsapp_accounts;
+DROP POLICY IF EXISTS "Users can insert own whatsapp accounts" ON whatsapp_accounts;
+DROP POLICY IF EXISTS "Users can update own whatsapp accounts" ON whatsapp_accounts;
+DROP POLICY IF EXISTS "Users can delete own whatsapp accounts" ON whatsapp_accounts;
+DROP POLICY IF EXISTS "Service role has full access to whatsapp_accounts" ON whatsapp_accounts;
 
 CREATE POLICY "Users can view own whatsapp accounts" ON whatsapp_accounts FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own whatsapp accounts" ON whatsapp_accounts FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -79,6 +83,11 @@ CREATE INDEX IF NOT EXISTS idx_conversations_last_message ON conversations(last_
 
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can insert own conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can update own conversations" ON conversations;
+DROP POLICY IF EXISTS "Service role full access conversations" ON conversations;
+
 CREATE POLICY "Users can view own conversations" ON conversations FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own conversations" ON conversations FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update own conversations" ON conversations FOR UPDATE USING (auth.uid() = user_id);
@@ -113,6 +122,11 @@ CREATE INDEX IF NOT EXISTS idx_messages_timestamp ON messages(timestamp DESC);
 
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own messages" ON messages;
+DROP POLICY IF EXISTS "Users can insert own messages" ON messages;
+DROP POLICY IF EXISTS "Users can update own messages" ON messages;
+DROP POLICY IF EXISTS "Service role full access messages" ON messages;
+
 CREATE POLICY "Users can view own messages" ON messages FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own messages" ON messages FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update own messages" ON messages FOR UPDATE USING (auth.uid() = user_id);
@@ -133,6 +147,10 @@ CREATE TABLE IF NOT EXISTS ai_config (
 );
 
 ALTER TABLE ai_config ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view own AI config" ON ai_config;
+DROP POLICY IF EXISTS "Users can insert own AI config" ON ai_config;
+DROP POLICY IF EXISTS "Users can update own AI config" ON ai_config;
 
 CREATE POLICY "Users can view own AI config" ON ai_config FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own AI config" ON ai_config FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -157,7 +175,7 @@ CREATE TABLE IF NOT EXISTS clients (
   tags TEXT[] DEFAULT '{}',
   notes TEXT,
   ai_summary TEXT,
-  satisfaction TEXT DEFAULT 'unknown', -- 'happy', 'neutral', 'unhappy', 'unknown'
+  satisfaction TEXT DEFAULT 'unknown',
   status TEXT DEFAULT 'lead',
   priority TEXT DEFAULT 'normal',
   total_conversations INTEGER DEFAULT 0,
@@ -170,6 +188,14 @@ CREATE TABLE IF NOT EXISTS clients (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Add satisfaction column if it doesn't exist
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'clients' AND column_name = 'satisfaction') THEN
+    ALTER TABLE clients ADD COLUMN satisfaction TEXT DEFAULT 'unknown';
+  END IF;
+END $$;
+
 CREATE UNIQUE INDEX IF NOT EXISTS idx_clients_user_phone ON clients(user_id, phone);
 CREATE INDEX IF NOT EXISTS idx_clients_user ON clients(user_id);
 CREATE INDEX IF NOT EXISTS idx_clients_status ON clients(user_id, status);
@@ -177,6 +203,11 @@ CREATE INDEX IF NOT EXISTS idx_clients_interest ON clients(user_id, interest_typ
 CREATE INDEX IF NOT EXISTS idx_clients_last_contact ON clients(user_id, last_contact_at DESC);
 
 ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view own clients" ON clients;
+DROP POLICY IF EXISTS "Users can insert own clients" ON clients;
+DROP POLICY IF EXISTS "Users can update own clients" ON clients;
+DROP POLICY IF EXISTS "Users can delete own clients" ON clients;
 
 CREATE POLICY "Users can view own clients" ON clients FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own clients" ON clients FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -197,6 +228,10 @@ CREATE TABLE IF NOT EXISTS client_settings (
 );
 
 ALTER TABLE client_settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view own client settings" ON client_settings;
+DROP POLICY IF EXISTS "Users can insert own client settings" ON client_settings;
+DROP POLICY IF EXISTS "Users can update own client settings" ON client_settings;
 
 CREATE POLICY "Users can view own client settings" ON client_settings FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own client settings" ON client_settings FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -292,6 +327,10 @@ CREATE INDEX IF NOT EXISTS idx_webhook_logs_created ON webhook_logs(created_at D
 ALTER TABLE webhooks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE webhook_logs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own webhooks" ON webhooks;
+DROP POLICY IF EXISTS "Service role full access webhooks" ON webhooks;
+DROP POLICY IF EXISTS "Service role full access webhook_logs" ON webhook_logs;
+
 CREATE POLICY "Users can manage own webhooks" ON webhooks FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "Service role full access webhooks" ON webhooks FOR ALL USING (auth.jwt()->>'role' = 'service_role');
 CREATE POLICY "Service role full access webhook_logs" ON webhook_logs FOR ALL USING (auth.jwt()->>'role' = 'service_role');
@@ -367,6 +406,14 @@ CREATE INDEX IF NOT EXISTS idx_chat_widget_messages_conversation_id ON chat_widg
 ALTER TABLE chat_widgets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_widget_conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_widget_messages ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view own widgets" ON chat_widgets;
+DROP POLICY IF EXISTS "Users can insert own widgets" ON chat_widgets;
+DROP POLICY IF EXISTS "Users can update own widgets" ON chat_widgets;
+DROP POLICY IF EXISTS "Users can delete own widgets" ON chat_widgets;
+DROP POLICY IF EXISTS "Service role full access to widgets" ON chat_widgets;
+DROP POLICY IF EXISTS "Service role full access to widget_conversations" ON chat_widget_conversations;
+DROP POLICY IF EXISTS "Service role full access to widget_messages" ON chat_widget_messages;
 
 CREATE POLICY "Users can view own widgets" ON chat_widgets FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own widgets" ON chat_widgets FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -496,6 +543,12 @@ ALTER TABLE ecommerce_connections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ecommerce_products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ecommerce_orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ecommerce_sync_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can manage own ecommerce connections" ON ecommerce_connections;
+DROP POLICY IF EXISTS "Service role full access ecommerce_connections" ON ecommerce_connections;
+DROP POLICY IF EXISTS "Service role full access ecommerce_products" ON ecommerce_products;
+DROP POLICY IF EXISTS "Service role full access ecommerce_orders" ON ecommerce_orders;
+DROP POLICY IF EXISTS "Service role full access ecommerce_sync_logs" ON ecommerce_sync_logs;
 
 CREATE POLICY "Users can manage own ecommerce connections" ON ecommerce_connections FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "Service role full access ecommerce_connections" ON ecommerce_connections FOR ALL USING (auth.jwt()->>'role' = 'service_role');
