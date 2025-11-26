@@ -243,9 +243,9 @@ export default function ClientsPage() {
                 <Sparkles className="w-5 h-5 text-purple-600" />
               </div>
               <div>
-                <h3 className="font-medium text-gray-900">Captura automática con IA</h3>
+                <h3 className="font-medium text-gray-900">AI Auto-Capture</h3>
                 <p className="text-sm text-gray-500">
-                  Extrae automáticamente email, empresa e intereses de las conversaciones
+                  Automatically extract email, company & interests from conversations
                 </p>
               </div>
             </div>
@@ -255,7 +255,7 @@ export default function ClientsPage() {
               ) : (
                 <>
                   <span className={`text-sm font-medium ${autoCapture ? 'text-green-600' : 'text-gray-500'}`}>
-                    {autoCapture ? 'Activo' : 'Inactivo'}
+                    {autoCapture ? 'Active' : 'Inactive'}
                   </span>
                   <Switch
                     checked={autoCapture}
@@ -269,7 +269,7 @@ export default function ClientsPage() {
             <div className="mt-3 pt-3 border-t border-gray-100">
               <p className="text-xs text-gray-500 flex items-center gap-1">
                 <Settings2 className="w-3 h-3" />
-                Usa el modelo de IA configurado en <a href="/settings/ia" className="text-green-600 hover:underline">Ajustes → IA</a>
+                Uses the AI model configured in <a href="/settings/ia" className="text-green-600 hover:underline">Settings → AI</a>
               </p>
             </div>
           )}

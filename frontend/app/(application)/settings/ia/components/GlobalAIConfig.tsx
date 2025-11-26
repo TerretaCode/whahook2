@@ -13,7 +13,9 @@ import {
   Eye,
   EyeOff,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  ExternalLink,
+  HelpCircle
 } from "lucide-react"
 
 interface AIConfig {
@@ -26,22 +28,65 @@ interface AIConfig {
 
 const providerModels: Record<string, { value: string; label: string; description: string }[]> = {
   google: [
-    { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Mejor relación precio/rendimiento" },
-    { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Más capaz" },
-    { value: "gemini-1.5-flash", label: "Gemini 1.5 Flash", description: "Estable y rápido" },
-    { value: "gemini-1.5-pro", label: "Gemini 1.5 Pro", description: "Muy capaz" },
+    { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Best price/performance" },
+    { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Most capable" },
+    { value: "gemini-1.5-flash", label: "Gemini 1.5 Flash", description: "Stable & fast" },
+    { value: "gemini-1.5-pro", label: "Gemini 1.5 Pro", description: "Very capable" },
   ],
   openai: [
-    { value: "gpt-4o", label: "GPT-4o", description: "GPT-4 más rápido" },
-    { value: "gpt-4o-mini", label: "GPT-4o Mini", description: "Mejor valor" },
-    { value: "gpt-4-turbo", label: "GPT-4 Turbo", description: "Más capaz" },
-    { value: "gpt-3.5-turbo", label: "GPT-3.5 Turbo", description: "Rápido y económico" },
+    { value: "gpt-4o", label: "GPT-4o", description: "Fastest GPT-4" },
+    { value: "gpt-4o-mini", label: "GPT-4o Mini", description: "Best value" },
+    { value: "gpt-4-turbo", label: "GPT-4 Turbo", description: "Most capable" },
+    { value: "gpt-3.5-turbo", label: "GPT-3.5 Turbo", description: "Fast & affordable" },
   ],
   anthropic: [
-    { value: "claude-3-5-sonnet-20241022", label: "Claude 3.5 Sonnet", description: "Mejor general" },
-    { value: "claude-3-5-haiku-20241022", label: "Claude 3.5 Haiku", description: "Rápido y económico" },
-    { value: "claude-3-opus-20240229", label: "Claude 3 Opus", description: "Más capaz" },
+    { value: "claude-3-5-sonnet-20241022", label: "Claude 3.5 Sonnet", description: "Best overall" },
+    { value: "claude-3-5-haiku-20241022", label: "Claude 3.5 Haiku", description: "Fast & affordable" },
+    { value: "claude-3-opus-20240229", label: "Claude 3 Opus", description: "Most capable" },
   ],
+}
+
+const providerInfo: Record<string, { 
+  name: string
+  url: string
+  steps: string[]
+  freeCredits: string
+}> = {
+  google: {
+    name: "Google AI Studio",
+    url: "https://aistudio.google.com/app/apikey",
+    steps: [
+      "Click the link below to open Google AI Studio",
+      "Sign in with your Google account",
+      "Click 'Create API Key'",
+      "Copy the key and paste it here"
+    ],
+    freeCredits: "Free tier available with generous limits"
+  },
+  openai: {
+    name: "OpenAI Platform",
+    url: "https://platform.openai.com/api-keys",
+    steps: [
+      "Click the link below to open OpenAI",
+      "Sign in or create an account",
+      "Go to API Keys section",
+      "Click 'Create new secret key'",
+      "Copy the key and paste it here"
+    ],
+    freeCredits: "$5 free credits for new accounts"
+  },
+  anthropic: {
+    name: "Anthropic Console",
+    url: "https://console.anthropic.com/settings/keys",
+    steps: [
+      "Click the link below to open Anthropic Console",
+      "Sign in or create an account",
+      "Go to API Keys in Settings",
+      "Click 'Create Key'",
+      "Copy the key and paste it here"
+    ],
+    freeCredits: "$5 free credits for new accounts"
+  }
 }
 
 const defaultConfig: AIConfig = {
@@ -124,6 +169,8 @@ export function GlobalAIConfig() {
     }
   }
 
+  const currentProviderInfo = providerInfo[formData.provider]
+
   if (isInitialLoading) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -132,13 +179,13 @@ export function GlobalAIConfig() {
             <Sparkles className="w-5 h-5 text-purple-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Configuración de IA</h3>
-            <p className="text-sm text-gray-600">Configura el modelo de IA para toda la aplicación</p>
+            <h3 className="text-lg font-semibold text-gray-900">AI Configuration</h3>
+            <p className="text-sm text-gray-600">Configure AI model for all app features</p>
           </div>
         </div>
         <div className="flex flex-col items-center justify-center py-16">
           <Loader2 className="w-12 h-12 text-purple-600 animate-spin" />
-          <p className="text-sm text-gray-500 mt-4">Cargando configuración...</p>
+          <p className="text-sm text-gray-500 mt-4">Loading configuration...</p>
         </div>
       </div>
     )
@@ -151,8 +198,8 @@ export function GlobalAIConfig() {
           <Sparkles className="w-5 h-5 text-purple-600" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Configuración de IA</h3>
-          <p className="text-sm text-gray-600">Configura el modelo de IA para toda la aplicación</p>
+          <h3 className="text-lg font-semibold text-gray-900">AI Configuration</h3>
+          <p className="text-sm text-gray-600">Configure AI model for all app features</p>
         </div>
       </div>
 
@@ -161,7 +208,7 @@ export function GlobalAIConfig() {
         <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
           <CheckCircle2 className="w-5 h-5 text-green-600" />
           <span className="text-sm text-green-700">
-            IA configurada con <strong>{config.provider === 'google' ? 'Google Gemini' : config.provider === 'openai' ? 'OpenAI' : 'Anthropic'}</strong> - {config.model}
+            AI configured with <strong>{config.provider === 'google' ? 'Google Gemini' : config.provider === 'openai' ? 'OpenAI' : 'Anthropic'}</strong> - {config.model}
           </span>
         </div>
       )}
@@ -170,7 +217,7 @@ export function GlobalAIConfig() {
         <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
           <AlertCircle className="w-5 h-5 text-yellow-600" />
           <span className="text-sm text-yellow-700">
-            Configura tu API key para habilitar las funciones de IA
+            Configure your API key to enable AI features
           </span>
         </div>
       )}
@@ -178,19 +225,20 @@ export function GlobalAIConfig() {
       <div className="space-y-6">
         {/* Provider */}
         <div className="space-y-2">
-          <Label>Proveedor de IA</Label>
+          <Label>AI Provider</Label>
           <Select 
             value={formData.provider} 
             onValueChange={(v) => updateField('provider', v)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecciona un proveedor" />
+              <SelectValue placeholder="Select a provider" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="google">
                 <div className="flex items-center gap-2">
                   <span>🔷</span>
                   <span>Google Gemini</span>
+                  <span className="text-xs text-green-600 ml-1">Recommended</span>
                 </div>
               </SelectItem>
               <SelectItem value="openai">
@@ -211,13 +259,13 @@ export function GlobalAIConfig() {
 
         {/* Model */}
         <div className="space-y-2">
-          <Label>Modelo</Label>
+          <Label>Model</Label>
           <Select 
             value={formData.model} 
             onValueChange={(v) => updateField('model', v)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecciona un modelo" />
+              <SelectValue placeholder="Select a model" />
             </SelectTrigger>
             <SelectContent>
               {providerModels[formData.provider]?.map((m) => (
@@ -230,6 +278,37 @@ export function GlobalAIConfig() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        {/* How to get API Key - Step by step guide */}
+        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-start gap-3">
+            <HelpCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <h4 className="text-sm font-medium text-blue-900 mb-2">
+                How to get your {currentProviderInfo.name} API Key
+              </h4>
+              <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside mb-3">
+                {currentProviderInfo.steps.map((step, i) => (
+                  <li key={i}>{step}</li>
+                ))}
+              </ol>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs text-green-700 bg-green-100 px-2 py-0.5 rounded">
+                  💰 {currentProviderInfo.freeCredits}
+                </span>
+              </div>
+              <a 
+                href={currentProviderInfo.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800 hover:underline"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Open {currentProviderInfo.name}
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* API Key */}
@@ -257,27 +336,25 @@ export function GlobalAIConfig() {
             </Button>
           </div>
           <p className="text-xs text-gray-500">
-            {formData.provider === 'google' && 'Obtén tu API key en Google AI Studio'}
-            {formData.provider === 'openai' && 'Obtén tu API key en platform.openai.com'}
-            {formData.provider === 'anthropic' && 'Obtén tu API key en console.anthropic.com'}
+            Your API key is encrypted and stored securely
           </p>
         </div>
 
         {/* Info about usage */}
         <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Esta configuración se usa para:</h4>
+          <h4 className="text-sm font-medium text-gray-900 mb-2">This configuration is used for:</h4>
           <ul className="text-sm text-gray-600 space-y-1">
             <li className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
-              Chatbot de WhatsApp (respuestas automáticas)
+              WhatsApp Chatbot (automatic responses)
             </li>
             <li className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
-              Captura de clientes (extracción de información)
+              Client capture (information extraction)
             </li>
             <li className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
-              Análisis de conversaciones
+              Conversation analysis
             </li>
           </ul>
         </div>
@@ -291,22 +368,22 @@ export function GlobalAIConfig() {
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Guardando...
+              Saving...
             </>
           ) : saveStatus === 'success' ? (
             <>
               <CheckCircle2 className="w-4 h-4 mr-2" />
-              ¡Guardado!
+              Saved!
             </>
           ) : saveStatus === 'error' ? (
             <>
               <AlertCircle className="w-4 h-4 mr-2" />
-              Error al guardar
+              Error saving
             </>
           ) : (
             <>
               <Save className="w-4 h-4 mr-2" />
-              Guardar Configuración
+              Save Configuration
             </>
           )}
         </Button>
