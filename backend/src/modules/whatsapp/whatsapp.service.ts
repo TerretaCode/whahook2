@@ -688,8 +688,8 @@ class WhatsAppService {
             const contactName = chat.name || null
             const existingConvId = existingConvsMap.get(contactPhone)
 
-            // Obtener mensajes
-            const messages = await chat.fetchMessages({ limit: 10 })
+            // Obtener mensajes (50 por chat para tener historial inicial)
+            const messages = await chat.fetchMessages({ limit: 50 })
             const lastMessage = messages[messages.length - 1]
 
             let conversationId: string
@@ -769,7 +769,7 @@ class WhatsAppService {
         }))
       }
 
-      console.log(`📱 Synced ${syncedCount} conversations, ${individualChats.length * 10} messages`)
+      console.log(`📱 Synced ${syncedCount} conversations`)
 
     } catch {
       // Silencioso

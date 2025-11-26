@@ -42,7 +42,7 @@ export function MessageItem({ message }: MessageItemProps) {
             : 'bg-white'
         } shadow-sm`}
       >
-        <p className="text-sm text-gray-900 break-words whitespace-pre-wrap">
+        <p className="text-sm text-gray-900 break-words whitespace-pre-wrap font-[system-ui]">
           {message.content}
         </p>
         <div className="flex items-center justify-end gap-1 mt-1">

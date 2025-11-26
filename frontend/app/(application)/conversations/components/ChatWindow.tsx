@@ -98,34 +98,64 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     type: (msg.type as 'text' | 'image' | 'file') || 'text'
   })
 
-  const fetchMessages = useCallback(async () => {
+  const fetchMessages = useCallback(async (isInitial = true) => {
     try {
-      setIsLoading(true)
-      setHasMoreMessages(true)
+      if (isInitial) {
+        setIsLoading(true)
+        setHasMoreMessages(true)
+      }
+      
       const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}/messages?limit=50`)
       
       if (response.success && response.data) {
         const data = response.data as ApiMessage[]
-        setMessages(data.map(mapApiMessage))
-        setHasMoreMessages(data.length >= 50)
+        const newMessages = data.map(mapApiMessage)
+        
+        if (isInitial) {
+          setMessages(newMessages)
+          setHasMoreMessages(data.length >= 50)
+        } else {
+          // Polling: solo añadir mensajes nuevos al final, sin borrar los antiguos
+          setMessages(prev => {
+            const existingIds = new Set(prev.map(m => m.id))
+            const trulyNew = newMessages.filter(m => !existingIds.has(m.id))
+            if (trulyNew.length > 0) {
+              // Añadir solo los mensajes que son más recientes
+              const lastExisting = prev[prev.length - 1]?.timestamp
+              const newerMessages = trulyNew.filter(m => !lastExisting || m.timestamp > lastExisting)
+              return newerMessages.length > 0 ? [...prev, ...newerMessages] : prev
+            }
+            return prev
+          })
+        }
       }
     } catch (error) {
       console.error('Error fetching messages:', error)
     } finally {
-      setIsLoading(false)
+      if (isInitial) setIsLoading(false)
     }
   }, [conversationId])
 
+  // Ref para el timestamp más antiguo (evita dependencia de messages en useCallback)
+  const oldestTimestampRef = useRef<string | null>(null)
+  
+  // Actualizar ref cuando cambian los mensajes
+  useEffect(() => {
+    if (messages.length > 0) {
+      oldestTimestampRef.current = messages[0].timestamp
+    }
+  }, [messages])
+
   // Cargar mensajes más antiguos
   const loadMoreMessages = useCallback(async () => {
-    if (isLoadingMore || !hasMoreMessages || messages.length === 0) return
+    if (isLoadingMore || !hasMoreMessages || !oldestTimestampRef.current) return
     
     setIsLoadingMore(true)
-    const oldestMessage = messages[0]
+    const scrollHeightBefore = messagesContainerRef.current?.scrollHeight || 0
     
     try {
       const response = await ApiClient.request(
-        `/api/whatsapp/conversations/${conversationId}/messages?limit=50&before=${encodeURIComponent(oldestMessage.timestamp)}`
+        `/api/whatsapp/conversations/${conversationId}/messages?limit=50&before=${encodeURIComponent(oldestTimestampRef.current)}`
       )
       
       if (response.success && response.data) {
@@ -135,14 +165,13 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
           setMessages(prev => [...newMessages, ...prev])
           setHasMoreMessages(data.length >= 50)
           
-          // Mantener posición de scroll
-          if (messagesContainerRef.current) {
-            const container = messagesContainerRef.current
-            const scrollHeightBefore = container.scrollHeight
-            requestAnimationFrame(() => {
-              container.scrollTop = container.scrollHeight - scrollHeightBefore
-            })
-          }
+          // Mantener posición de scroll después de añadir mensajes arriba
+          requestAnimationFrame(() => {
+            if (messagesContainerRef.current) {
+              const newScrollHeight = messagesContainerRef.current.scrollHeight
+              messagesContainerRef.current.scrollTop = newScrollHeight - scrollHeightBefore
+            }
+          })
         } else {
           setHasMoreMessages(false)
         }
@@ -152,25 +181,25 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     } finally {
       setIsLoadingMore(false)
     }
-  }, [conversationId, messages, isLoadingMore, hasMoreMessages])
+  }, [conversationId, isLoadingMore, hasMoreMessages])
 
   // Detectar scroll hacia arriba para cargar más mensajes
   const handleScroll = useCallback(() => {
-    if (!messagesContainerRef.current) return
+    if (!messagesContainerRef.current || isLoadingMore || !hasMoreMessages) return
     const { scrollTop } = messagesContainerRef.current
     
-    // Cargar más cuando el usuario está cerca del top
-    if (scrollTop < 100 && hasMoreMessages && !isLoadingMore) {
+    // Cargar más cuando el usuario está cerca del top (< 50px)
+    if (scrollTop < 50) {
       loadMoreMessages()
     }
   }, [hasMoreMessages, isLoadingMore, loadMoreMessages])
 
   useEffect(() => {
     fetchConversation()
-    fetchMessages()
+    fetchMessages(true) // Carga inicial
     
     // Polling cada 5 segundos para nuevos mensajes (fallback si socket falla)
-    const interval = setInterval(fetchMessages, 5000)
+    const interval = setInterval(() => fetchMessages(false), 5000)
     return () => clearInterval(interval)
   }, [conversationId, fetchConversation, fetchMessages])
 
