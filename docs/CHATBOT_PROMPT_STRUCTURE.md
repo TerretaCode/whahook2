@@ -24,8 +24,10 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  ┌─────────────────────────────────────────────────────────────────┐   │
 │  │ 🤖 TU BOT                                                       │   │
 │  │                                                                 │   │
-│  │  Nombre          Idioma              Tono                       │   │
-│  │  [Asistente  ]   [Español     ▼]    [Profesional    ▼]         │   │
+│  │  Nombre                    Tono                                 │   │
+│  │  [Asistente          ]     [Profesional         ▼]             │   │
+│  │                                                                 │   │
+│  │  💡 El bot responde automáticamente en el idioma del cliente   │   │
 │  │                                                                 │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
@@ -222,7 +224,8 @@ Al hacer click en [✏️] se abre el formulario de edición:
 ## Secciones de la UI
 
 ### 🤖 TU BOT
-Siempre visible, campos en línea: Nombre, Idioma, Tono
+Siempre visible. Campos: Nombre y Tono.
+El bot detecta automáticamente el idioma del cliente y responde en ese idioma.
 
 ### 🏢 TU NEGOCIO  
 Colapsable. Contiene:
@@ -266,8 +269,8 @@ Colapsable. Textarea libre para promociones, reglas especiales, etc.
 interface ChatbotConfig {
   // Bot
   bot_name: string
-  language: string
-  tone: string
+  tone: string  // 'profesional' | 'amigable' | 'formal' | 'casual'
+  // Nota: No hay campo de idioma - el bot detecta automáticamente el idioma del cliente
   
   // Negocio
   business_name: string
