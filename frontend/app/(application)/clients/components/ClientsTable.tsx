@@ -1,6 +1,6 @@
 "use client"
 
-import { Edit, Trash2, Mail, Phone, Building2, Users, Sparkles, Loader2, MessageSquare } from "lucide-react"
+import { Edit, Trash2, Mail, Phone, Building2, Users, Sparkles, Loader2, MessageSquare, Smile, Meh, Frown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useState } from "react"
@@ -35,10 +35,10 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
     }
 
     const labels: Record<string, string> = {
-      customer: 'Cliente',
-      prospect: 'Prospecto',
+      customer: 'Customer',
+      prospect: 'Prospect',
       lead: 'Lead',
-      inactive: 'Inactivo'
+      inactive: 'Inactive'
     }
 
     return (
@@ -61,18 +61,37 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
     }
 
     const labels: Record<string, string> = {
-      product: 'Producto',
-      service: 'Servicio',
-      support: 'Soporte',
-      information: 'Información',
-      complaint: 'Queja',
-      other: 'Otro'
+      product: 'Product',
+      service: 'Service',
+      support: 'Support',
+      information: 'Info',
+      complaint: 'Complaint',
+      other: 'Other'
     }
 
     return (
       <Badge variant="secondary" className={styles[interest] || styles.other}>
         {labels[interest] || interest}
       </Badge>
+    )
+  }
+
+  const getSatisfactionIcon = (satisfaction?: string) => {
+    if (!satisfaction || satisfaction === 'unknown') return null
+    
+    const icons: Record<string, { icon: React.ReactNode; color: string; label: string }> = {
+      happy: { icon: <Smile className="w-4 h-4" />, color: 'text-green-500', label: 'Happy' },
+      neutral: { icon: <Meh className="w-4 h-4" />, color: 'text-yellow-500', label: 'Neutral' },
+      unhappy: { icon: <Frown className="w-4 h-4" />, color: 'text-red-500', label: 'Unhappy' }
+    }
+
+    const info = icons[satisfaction]
+    if (!info) return null
+
+    return (
+      <span className={`${info.color} flex items-center gap-1`} title={info.label}>
+        {info.icon}
+      </span>
     )
   }
 
@@ -111,87 +130,88 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Cliente
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Client
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Contacto
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Contact
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Estado / Interés
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Summary
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Mensajes
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Último contacto
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Mood
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Acciones
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {clients.map((client) => (
               <tr key={client.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4">
+                <td className="px-4 py-4">
                   <div>
                     <div className="font-medium text-gray-900">
                       {client.whatsapp_name || `+${client.phone}`}
                     </div>
-                    {!client.whatsapp_name && (
-                      <div className="text-xs text-gray-400 mt-0.5">
-                        No WhatsApp name available
-                      </div>
-                    )}
                     {client.full_name && client.full_name !== client.whatsapp_name && (
                       <div className="text-sm text-gray-500 mt-0.5">
                         {client.full_name}
                       </div>
                     )}
                     {client.company && (
-                      <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                      <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
                         <Building2 className="w-3 h-3" />
                         {client.company}
                       </div>
                     )}
-                    {client.ai_summary && (
-                      <div className="text-xs text-gray-400 mt-1 line-clamp-2">
-                        {client.ai_summary}
-                      </div>
-                    )}
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 py-4">
                   <div className="space-y-1">
                     <div className="text-sm text-gray-900 flex items-center gap-2">
                       <Phone className="w-3 h-3 text-gray-400" />
-                      {client.phone}
+                      +{client.phone}
                     </div>
-                    {client.email && (
-                      <div className="text-sm text-gray-900 flex items-center gap-2">
-                        <Mail className="w-3 h-3 text-gray-400" />
+                    {client.email ? (
+                      <div className="text-sm text-green-600 flex items-center gap-2">
+                        <Mail className="w-3 h-3" />
                         {client.email}
+                      </div>
+                    ) : (
+                      <div className="text-xs text-gray-400 flex items-center gap-2">
+                        <Mail className="w-3 h-3" />
+                        No email
                       </div>
                     )}
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 py-4 max-w-xs">
+                  {client.ai_summary ? (
+                    <p className="text-sm text-gray-600 line-clamp-2" title={client.ai_summary}>
+                      {client.ai_summary}
+                    </p>
+                  ) : (
+                    <span className="text-xs text-gray-400">No summary yet</span>
+                  )}
+                </td>
+                <td className="px-4 py-4">
                   <div className="flex flex-col gap-1">
                     {getStatusBadge(client.status)}
                     {getInterestBadge(client.interest_type)}
                   </div>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <MessageSquare className="w-3 h-3" />
-                    {client.total_messages || 0}
+                <td className="px-4 py-4">
+                  <div className="flex items-center gap-2">
+                    {getSatisfactionIcon(client.satisfaction)}
+                    <span className="text-xs text-gray-500">
+                      {client.total_messages || 0} msgs
+                    </span>
                   </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-500">
-                  {client.last_contact_at 
-                    ? new Date(client.last_contact_at).toLocaleDateString('es-ES')
-                    : '-'}
                 </td>
                 <td className="px-6 py-4 text-right text-sm font-medium">
                   <div className="flex items-center justify-end gap-1">
@@ -288,24 +308,32 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
             <div className="space-y-2 mb-3">
               <div className="text-sm text-gray-900 flex items-center gap-2">
                 <Phone className="w-3 h-3 text-gray-400" />
-                {client.phone}
+                +{client.phone}
               </div>
-              {client.email && (
-                <div className="text-sm text-gray-900 flex items-center gap-2">
-                  <Mail className="w-3 h-3 text-gray-400" />
+              {client.email ? (
+                <div className="text-sm text-green-600 flex items-center gap-2">
+                  <Mail className="w-3 h-3" />
                   {client.email}
+                </div>
+              ) : (
+                <div className="text-xs text-gray-400 flex items-center gap-2">
+                  <Mail className="w-3 h-3" />
+                  No email
                 </div>
               )}
             </div>
 
             {client.ai_summary && (
-              <p className="text-xs text-gray-500 mb-3 line-clamp-2">{client.ai_summary}</p>
+              <div className="bg-gray-50 rounded p-2 mb-3">
+                <p className="text-xs text-gray-600 line-clamp-2">{client.ai_summary}</p>
+              </div>
             )}
 
             <div className="flex items-center justify-between">
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 {getStatusBadge(client.status)}
                 {getInterestBadge(client.interest_type)}
+                {getSatisfactionIcon(client.satisfaction)}
               </div>
               <span className="text-xs text-gray-500">
                 {client.total_messages || 0} msgs

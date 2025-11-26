@@ -157,6 +157,7 @@ CREATE TABLE IF NOT EXISTS clients (
   tags TEXT[] DEFAULT '{}',
   notes TEXT,
   ai_summary TEXT,
+  satisfaction TEXT DEFAULT 'unknown', -- 'happy', 'neutral', 'unhappy', 'unknown'
   status TEXT DEFAULT 'lead',
   priority TEXT DEFAULT 'normal',
   total_conversations INTEGER DEFAULT 0,

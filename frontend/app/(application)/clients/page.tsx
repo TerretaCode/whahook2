@@ -23,6 +23,7 @@ export interface Client {
   tags?: string[]
   notes?: string
   ai_summary?: string
+  satisfaction?: 'happy' | 'neutral' | 'unhappy' | 'unknown'
   status: 'lead' | 'prospect' | 'customer' | 'inactive'
   priority?: 'low' | 'normal' | 'high' | 'urgent'
   total_conversations?: number

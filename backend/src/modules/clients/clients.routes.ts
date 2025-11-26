@@ -401,22 +401,29 @@ async function extractClientInfoWithAI(
   model: string,
   apiKey: string
 ): Promise<any> {
-  const prompt = `Analiza la siguiente conversación de WhatsApp y extrae la información del cliente.
+  const prompt = `Analyze this WhatsApp conversation and extract client information.
 
-CONVERSACIÓN:
+CONVERSATION:
 ${conversationText}
 
-Extrae la siguiente información en formato JSON (solo incluye campos que puedas identificar con certeza):
+Extract the following information in JSON format. Only include fields you can identify with certainty:
+
 {
-  "full_name": "nombre completo si se menciona",
-  "email": "correo electrónico si se menciona",
-  "company": "empresa o negocio si se menciona",
+  "full_name": "client's full name if mentioned",
+  "email": "email address if mentioned (look for patterns like xxx@xxx.com)",
+  "company": "company or business name if mentioned",
   "interest_type": "product|service|support|information|complaint|other",
-  "interest_details": "descripción breve del interés principal del cliente",
-  "ai_summary": "resumen de 2-3 oraciones sobre el cliente y sus necesidades"
+  "interest_details": "brief description of client's main interest or need",
+  "ai_summary": "2-3 sentence summary of what the client wants and the conversation context",
+  "satisfaction": "happy|neutral|unhappy|unknown - based on client's tone and responses"
 }
 
-Responde SOLO con el JSON, sin explicaciones adicionales.`
+IMPORTANT:
+- For "email": Look carefully for any email addresses in the conversation
+- For "ai_summary": Summarize what the client is looking for or asking about
+- For "satisfaction": Analyze if the client seems satisfied (happy), neutral, or frustrated (unhappy) based on their messages
+
+Respond ONLY with the JSON, no additional explanations.`
 
   try {
     if (provider === 'google') {
