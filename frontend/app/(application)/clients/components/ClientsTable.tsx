@@ -130,22 +130,25 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Client
+              <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Name
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Contact
+              <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Phone
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Email
+              </th>
+              <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Summary
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Mood
               </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -153,64 +156,57 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
           <tbody className="divide-y divide-gray-200">
             {clients.map((client) => (
               <tr key={client.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-4">
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {client.whatsapp_name || `+${client.phone}`}
+                {/* NAME */}
+                <td className="px-3 py-3">
+                  <div className="font-medium text-gray-900">
+                    {client.whatsapp_name || '-'}
+                  </div>
+                  {client.company && (
+                    <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                      <Building2 className="w-3 h-3" />
+                      {client.company}
                     </div>
-                    {client.full_name && client.full_name !== client.whatsapp_name && (
-                      <div className="text-sm text-gray-500 mt-0.5">
-                        {client.full_name}
-                      </div>
-                    )}
-                    {client.company && (
-                      <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                        <Building2 className="w-3 h-3" />
-                        {client.company}
-                      </div>
-                    )}
+                  )}
+                </td>
+                {/* PHONE */}
+                <td className="px-3 py-3">
+                  <div className="text-sm text-gray-900 flex items-center gap-1">
+                    <Phone className="w-3 h-3 text-gray-400" />
+                    +{client.phone}
                   </div>
                 </td>
-                <td className="px-4 py-4">
-                  <div className="space-y-1">
-                    <div className="text-sm text-gray-900 flex items-center gap-2">
-                      <Phone className="w-3 h-3 text-gray-400" />
-                      +{client.phone}
+                {/* EMAIL */}
+                <td className="px-3 py-3">
+                  {client.email ? (
+                    <div className="text-sm text-green-600 flex items-center gap-1">
+                      <Mail className="w-3 h-3" />
+                      {client.email}
                     </div>
-                    {client.email ? (
-                      <div className="text-sm text-green-600 flex items-center gap-2">
-                        <Mail className="w-3 h-3" />
-                        {client.email}
-                      </div>
-                    ) : (
-                      <div className="text-xs text-gray-400 flex items-center gap-2">
-                        <Mail className="w-3 h-3" />
-                        No email
-                      </div>
-                    )}
-                  </div>
+                  ) : (
+                    <span className="text-xs text-gray-400">-</span>
+                  )}
                 </td>
-                <td className="px-4 py-4 max-w-xs">
+                {/* SUMMARY */}
+                <td className="px-3 py-3 max-w-[200px]">
                   {client.ai_summary ? (
-                    <p className="text-sm text-gray-600 line-clamp-2" title={client.ai_summary}>
+                    <p className="text-xs text-gray-600 line-clamp-2" title={client.ai_summary}>
                       {client.ai_summary}
                     </p>
                   ) : (
-                    <span className="text-xs text-gray-400">No summary yet</span>
+                    <span className="text-xs text-gray-400">-</span>
                   )}
                 </td>
-                <td className="px-4 py-4">
+                {/* STATUS */}
+                <td className="px-3 py-3">
                   <div className="flex flex-col gap-1">
                     {getStatusBadge(client.status)}
                     {getInterestBadge(client.interest_type)}
                   </div>
                 </td>
-                <td className="px-4 py-4">
+                {/* MOOD */}
+                <td className="px-3 py-3">
                   <div className="flex items-center gap-2">
-                    {getSatisfactionIcon(client.satisfaction)}
-                    <span className="text-xs text-gray-500">
-                      {client.total_messages || 0} msgs
-                    </span>
+                    {getSatisfactionIcon(client.satisfaction) || <span className="text-xs text-gray-400">-</span>}
                   </div>
                 </td>
                 <td className="px-6 py-4 text-right text-sm font-medium">

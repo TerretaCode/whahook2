@@ -427,21 +427,45 @@ class WhatsAppService {
     const messagePreview = message.body?.substring(0, 100) || ''
     const messageTimestamp = new Date(message.timestamp * 1000).toISOString()
     
-    // Obtener nombre del contacto (puede fallar, no es crítico)
+    // Obtener nombre del contacto - múltiples fuentes
     let contactName: string | null = null
+    
+    // 1. Primero intentar desde _data.notifyName (más confiable)
     try {
-      const contact = await message.getContact()
-      // pushname es el nombre que el usuario pone en su WhatsApp
-      // name es el nombre guardado en contactos
-      // notifyName es otra forma de obtener el nombre
-      contactName = contact?.pushname || contact?.notifyName || contact?.name || null
-    } catch {
-      // Intentar obtener del mensaje directamente
-      try {
-        contactName = message._data?.notifyName || message.notifyName || null
-      } catch {
-        // Ignorar
+      if (message._data?.notifyName) {
+        contactName = message._data.notifyName
       }
+    } catch {}
+    
+    // 2. Si no, intentar desde el objeto contact
+    if (!contactName) {
+      try {
+        const contact = await message.getContact()
+        if (contact) {
+          // Prioridad: pushname > notifyName > name > shortName > verifiedName
+          contactName = contact.pushname || 
+                       contact.notifyName || 
+                       contact.name || 
+                       contact.shortName || 
+                       contact.verifiedName || 
+                       null
+        }
+      } catch {}
+    }
+    
+    // 3. Fallback: intentar desde rawData del mensaje
+    if (!contactName) {
+      try {
+        const rawData = message.rawData || message._data
+        contactName = rawData?.notifyName || rawData?.pushname || null
+      } catch {}
+    }
+    
+    // Log para debug
+    if (contactName) {
+      console.log(`📇 Contact name found: ${contactName} for ${contactPhone}`)
+    } else {
+      console.log(`⚠️ No contact name found for ${contactPhone}`)
     }
 
     // Log solo si es mensaje nuevo (no del sync inicial)
