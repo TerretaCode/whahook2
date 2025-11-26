@@ -56,13 +56,15 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │                                                                 │   │
 │  │  ═══════════════════════════════════════════════════════════   │   │
 │  │                                                                 │   │
-│  │  📊 47 productos · 3 categorías                                │   │
+│  │  📊 47 productos · 3 categorías                    [Ver todos]│   │
 │  │                                                                 │   │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐              │   │
-│  │  │ 🔗 API      │ │ 📄 CSV      │ │ ✏️ Manual   │              │   │
-│  │  │ 32 prod.    │ │ 10 prod.    │ │ 5 prod.     │              │   │
-│  │  │ [Gestionar] │ │ [Importar]  │ │ [Añadir]    │              │   │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘              │   │
+│  │  ┌─────────────────┐ ┌─────────────┐ ┌─────────────┐          │   │
+│  │  │ 🔗 API          │ │ 📄 CSV      │ │ ✏️ Manual   │          │   │
+│  │  │ 32 prod.        │ │ 10 prod.    │ │ 5 prod.     │          │   │
+│  │  │ WooCommerce     │ │             │ │             │          │   │
+│  │  │ [🔄 Sincronizar]│ │ [Importar]  │ │ [+ Añadir]  │          │   │
+│  │  │ Última: hace 2h │ │             │ │             │          │   │
+│  │  └─────────────────┘ └─────────────┘ └─────────────┘          │   │
 │  │                                                                 │   │
 │  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─    │   │
 │  │                                                                 │   │
@@ -139,6 +141,84 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 
 ---
 
+## Modal: Ver Todos los Productos
+
+Al hacer click en [Ver todos] se abre un modal/drawer con la lista completa de productos.
+**TODOS los productos son editables**, sin importar su origen (API, CSV o Manual).
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 📦 TODOS LOS PRODUCTOS                                           [✕]   │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  🔍 Buscar...                    Filtrar: [Todos ▼] [Todas categorías ▼]│
+│                                                                         │
+│  ┌───────────────────────────────────────────────────────────────────┐ │
+│  │ Nombre              │ Categoría │ Precio  │ Origen │ Acciones     │ │
+│  ├─────────────────────┼───────────┼─────────┼────────┼──────────────┤ │
+│  │ Crema Hidratante    │ Facial    │ 29.99€  │ 🔗 API │ [✏️] [🗑️]   │ │
+│  │ Sérum Vitamina C    │ Facial    │ 45.00€  │ 🔗 API │ [✏️] [🗑️]   │ │
+│  │ Contorno de Ojos    │ Facial    │ 38.50€  │ 📄 CSV │ [✏️] [🗑️]   │ │
+│  │ Mascarilla Especial │ Facial    │ 25.00€  │ ✏️ Man │ [✏️] [🗑️]   │ │
+│  │ Body Lotion         │ Corporal  │ 19.99€  │ 🔗 API │ [✏️] [🗑️]   │ │
+│  │ Aceite Corporal     │ Corporal  │ 32.00€  │ 📄 CSV │ [✏️] [🗑️]   │ │
+│  │ ...                 │           │         │        │              │ │
+│  └───────────────────────────────────────────────────────────────────┘ │
+│                                                                         │
+│  Mostrando 47 productos                              [+ Añadir producto]│
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Editar Producto (Modal)
+
+Al hacer click en [✏️] se abre el formulario de edición:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ ✏️ EDITAR PRODUCTO                                               [✕]   │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ⚠️ Origen: API (WooCommerce)                                          │
+│  Los cambios aquí NO se reflejan en tu tienda. Solo afectan al bot.    │
+│                                                                         │
+│  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │
+│                                                                         │
+│  Nombre *                          Precio *                             │
+│  [Crema Hidratante Premium    ]    [29.99] €                           │
+│                                                                         │
+│  Categoría              Subcategoría                                    │
+│  [Facial          ▼]    [Hidratante      ▼]                            │
+│                                                                         │
+│  Descripción                                                            │
+│  ┌───────────────────────────────────────────────────────────────────┐ │
+│  │ Crema hidratante con ácido hialurónico para pieles secas.        │ │
+│  │ Uso diario, mañana y noche.                                       │ │
+│  └───────────────────────────────────────────────────────────────────┘ │
+│                                                                         │
+│  Beneficios (separados por coma)                                        │
+│  [Hidratación 24h, Sin parabenos, Vegano, Apto pieles sensibles    ]   │
+│                                                                         │
+│  URL del producto                                                       │
+│  [https://belior.com/crema-hidratante                              ]   │
+│                                                                         │
+│  ▼ Campos adicionales                                                   │
+│    Ingredientes: [Aqua, Hyaluronic Acid, Glycerin...               ]   │
+│    Modo de uso:  [Aplicar mañana y noche sobre rostro limpio       ]   │
+│                                                                         │
+│                                        [Cancelar]  [💾 Guardar cambios] │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Notas sobre edición:
+
+- **Productos API**: Se pueden editar localmente. Los cambios solo afectan al bot, no a la tienda original. Al sincronizar, se mantienen las ediciones locales a menos que el usuario elija "Restaurar original".
+- **Productos CSV**: Editables sin restricción.
+- **Productos Manual**: Editables sin restricción.
+
+---
+
 ## Secciones de la UI
 
 ### 🤖 TU BOT
@@ -152,9 +232,18 @@ Colapsable. Contiene:
 
 ### 🛒 PRODUCTOS
 Solo visible si elige "Sí, tengo productos". Contiene:
-- **3 cards de fuentes**: API | CSV | Manual (cada una con contador y botón de acción)
+- **Botón [Ver todos]**: Abre modal con lista completa de productos (todos editables)
+- **3 cards de fuentes**:
+  - **API**: Muestra conexión activa + botón [🔄 Sincronizar] + última sincronización
+  - **CSV**: Botón [Importar] para cargar archivo
+  - **Manual**: Botón [+ Añadir] para crear producto
 - **Categorías expandibles**: Cada categoría muestra subcategorías (tags), preguntas y reglas
 - **Formato de recomendación**: Checkboxes de qué incluir al recomendar
+
+**Sincronización API**:
+- Al pulsar [🔄 Sincronizar] se vuelven a extraer todos los productos de la tienda
+- Productos nuevos se añaden, eliminados se quitan, modificados se actualizan
+- Las ediciones locales del usuario se mantienen (marcadas como "editado localmente")
 
 ### � CONVERSACIÓN
 Colapsable. Contiene:
