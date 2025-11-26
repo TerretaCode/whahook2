@@ -66,8 +66,28 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   }>({})
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const isFirstLoadRef = useRef(true)
   const showStarters = messages.length === 0 && !isLoading
   const { on, off } = useSocket()
+
+  // Scroll instantáneo al bottom (sin animación) - para carga inicial
+  const scrollToBottomInstant = useCallback(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+    }
+  }, [])
+
+  // Scroll suave al bottom - para mensajes nuevos
+  const scrollToBottomSmooth = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [])
+
+  // Verificar si el usuario está cerca del bottom
+  const isNearBottom = useCallback(() => {
+    if (!messagesContainerRef.current) return true
+    const { scrollHeight, scrollTop, clientHeight } = messagesContainerRef.current
+    return scrollHeight - scrollTop - clientHeight < 150
+  }, [])
 
   const fetchConversation = useCallback(async () => {
     try {
@@ -195,9 +215,8 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   }, [hasMoreMessages, isLoadingMore, loadMoreMessages])
 
   useEffect(() => {
-    // Reset refs cuando cambia la conversación
-    isInitialLoadRef.current = true
-    prevMessagesLengthRef.current = 0
+    // Reset cuando cambia la conversación
+    isFirstLoadRef.current = true
     setMessages([])
     setHasMoreMessages(true)
     
@@ -209,11 +228,23 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     return () => clearInterval(interval)
   }, [conversationId, fetchConversation, fetchMessages])
 
+  // Scroll instantáneo al bottom después de la carga inicial (como WhatsApp)
+  useEffect(() => {
+    if (isFirstLoadRef.current && messages.length > 0 && !isLoading) {
+      // Usar setTimeout para asegurar que el DOM está actualizado
+      setTimeout(() => {
+        scrollToBottomInstant()
+        isFirstLoadRef.current = false
+      }, 0)
+    }
+  }, [messages, isLoading, scrollToBottomInstant])
+
   // Escuchar eventos de socket para actualizaciones en tiempo real
   useEffect(() => {
-    // Nuevo mensaje
+    // Nuevo mensaje - hacer scroll suave si estamos cerca del bottom
     const handleNewMessage = (data: { conversationId: string; message: { id: string; content: string; direction: string; timestamp: string } }) => {
       if (data.conversationId === conversationId) {
+        const wasNearBottom = isNearBottom()
         const newMsg: Message = {
           id: data.message.id,
           content: data.message.content,
@@ -223,10 +254,13 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
           type: 'text'
         }
         setMessages(prev => {
-          // Evitar duplicados
           if (prev.some(m => m.id === newMsg.id)) return prev
           return [...prev, newMsg]
         })
+        // Scroll suave solo si estábamos cerca del bottom
+        if (wasNearBottom) {
+          setTimeout(() => scrollToBottomSmooth(), 100)
+        }
       }
     }
 
@@ -246,34 +280,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
       off('whatsapp:message', handleNewMessage)
       off('whatsapp:message_ack', handleMessageAck)
     }
-  }, [conversationId, on, off])
-
-  // Solo scroll al bottom en carga inicial, no cuando se cargan mensajes antiguos
-  const isInitialLoadRef = useRef(true)
-  const prevMessagesLengthRef = useRef(0)
-  
-  useEffect(() => {
-    // Solo hacer scroll si es carga inicial o si se añadieron mensajes al final (no al principio)
-    if (isInitialLoadRef.current && messages.length > 0) {
-      scrollToBottom()
-      isInitialLoadRef.current = false
-    } else if (messages.length > prevMessagesLengthRef.current) {
-      // Solo scroll si el último mensaje es nuevo (no si se cargaron antiguos al principio)
-      const lastMsg = messages[messages.length - 1]
-      const wasAtBottom = messagesContainerRef.current 
-        ? messagesContainerRef.current.scrollHeight - messagesContainerRef.current.scrollTop - messagesContainerRef.current.clientHeight < 100
-        : false
-      
-      if (wasAtBottom && lastMsg) {
-        scrollToBottom()
-      }
-    }
-    prevMessagesLengthRef.current = messages.length
-  }, [messages])
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  }, [conversationId, on, off, isNearBottom, scrollToBottomSmooth])
 
   const handleSendMessage = async (content: string) => {
     if (isSending) return
@@ -291,6 +298,9 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
       type: 'text'
     }
     setMessages(prev => [...prev, newMessage])
+    
+    // Scroll al enviar mensaje
+    setTimeout(() => scrollToBottomSmooth(), 100)
 
     try {
       const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}/messages`, {
