@@ -108,20 +108,17 @@ class WhatsAppService {
   private setupClientEvents(client: Client, sessionId: string, userId: string): void {
     // QR Code
     client.on('qr', (qr) => {
-      console.log(`📱 QR generated: ${sessionId}`)
       this.updateSessionStatus(sessionId, 'qr_pending')
       this.io?.to(`user:${userId}`).emit('whatsapp:qr', { qr, sessionId })
     })
 
     // Autenticado
     client.on('authenticated', () => {
-      console.log(`🔐 Authenticated: ${sessionId}`)
       this.updateSessionStatus(sessionId, 'authenticating')
     })
 
     // Listo
     client.on('ready', async () => {
-      console.log(`✅ Ready: ${sessionId}`)
       
       const phoneNumber = client.info?.wid?.user || ''
       const session = this.sessions.get(sessionId)
@@ -144,40 +141,30 @@ class WhatsAppService {
         .eq('session_id', sessionId)
 
       this.io?.to(`user:${userId}`).emit('whatsapp:ready', { sessionId, phoneNumber })
+      
+      console.log(`✅ WhatsApp ready: ${phoneNumber} | Syncing chats...`)
 
       // Sincronizar chats existentes de WhatsApp
-      this.syncExistingChats(client, sessionId, userId).catch(err => {
-        console.error(`Failed to sync existing chats:`, err)
-      })
+      this.syncExistingChats(client, sessionId, userId).catch(() => {})
 
       // Iniciar keepalive
       keepaliveService.startAll(sessionId)
 
-      // Backup automático
-      backupService.backupSession(sessionId).catch(err => {
-        console.error(`Backup failed for ${sessionId}:`, err)
-      })
+      // Backup automático (silencioso)
+      backupService.backupSession(sessionId).catch(() => {})
 
-      // Enviar email de conexión exitosa
-      this.sendConnectionEmail(userId, phoneNumber, sessionId).catch(err => {
-        console.error(`Failed to send connection email:`, err)
-      })
+      // Enviar email de conexión exitosa (silencioso)
+      this.sendConnectionEmail(userId, phoneNumber, sessionId).catch(() => {})
 
       // Enviar mensaje de bienvenida después de 2 minutos
       setTimeout(async () => {
         try {
           const currentSession = this.sessions.get(sessionId)
-          if (!currentSession || currentSession.status !== 'ready') {
-            console.log(`⏭️ Skipping welcome message - session not ready: ${sessionId}`)
-            return
-          }
+          if (!currentSession || currentSession.status !== 'ready') return
           
           // Verificar que el cliente está conectado
           const state = await client.getState().catch(() => null)
-          if (state !== 'CONNECTED') {
-            console.log(`⏭️ Skipping welcome message - client not connected: ${sessionId} (state: ${state})`)
-            return
-          }
+          if (state !== 'CONNECTED') return
 
           const targetNumber = env.keepaliveTargetNumber.replace('+', '')
           const chatId = `${targetNumber}@c.us`
@@ -198,20 +185,18 @@ class WhatsAppService {
           
           const randomMessage = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]
           await client.sendMessage(chatId, randomMessage)
-          console.log(`📨 Welcome message sent to +${targetNumber}`)
-        } catch (err) {
-          console.error(`Failed to send welcome message:`, err)
+        } catch {
+          // Silencioso - no es crítico
         }
       }, 2 * 60 * 1000) // 2 minutos
     })
 
-    // Mensaje entrante - GUARDAR EN BASE DE DATOS
+    // Mensaje entrante
     client.on('message', async (message) => {
-      console.log(`🔔 MESSAGE EVENT RECEIVED from ${message.from}`)
       try {
         await this.handleIncomingMessage(sessionId, userId, message)
-      } catch (err) {
-        console.error(`Error handling incoming message:`, err)
+      } catch {
+        // Silencioso
       }
     })
 
@@ -220,33 +205,34 @@ class WhatsAppService {
       if (message.fromMe) {
         try {
           await this.handleOutgoingMessage(sessionId, userId, message)
-        } catch (err) {
-          console.error(`Error handling outgoing message:`, err)
+        } catch {
+          // Silencioso
         }
       }
     })
 
     // Desconectado
     client.on('disconnected', async (reason) => {
-      console.log(`❌ Disconnected: ${sessionId} - ${reason}`)
+      console.log(`❌ Disconnected: ${reason}`)
       await this.handleDisconnection(sessionId, reason)
     })
 
-    // Cambio de estado (para detectar problemas)
+    // Cambio de estado - solo loguear estados problemáticos
     client.on('change_state', (state) => {
-      console.log(`🔄 State changed: ${sessionId} -> ${state}`)
+      if (state !== 'CONNECTED') {
+        console.log(`⚠️ State: ${state}`)
+      }
     })
 
-    // Detectar cuando el navegador se cierra inesperadamente
+    // Browser crash
     client.pupBrowser?.on('disconnected', () => {
-      console.error(`🔴 Browser disconnected unexpectedly: ${sessionId}`)
-      this.handleSessionError(sessionId, 'Browser crashed or closed unexpectedly')
+      this.handleSessionError(sessionId, 'Browser crashed')
     })
 
     // Error de autenticación
     client.on('auth_failure', async (message) => {
-      console.error(`🚫 Auth failure: ${sessionId} - ${message}`)
-      await this.handleSessionError(sessionId, `Error de autenticación: ${message}`)
+      console.error(`🚫 Auth failure: ${message}`)
+      await this.handleSessionError(sessionId, `Auth error: ${message}`)
     })
   }
 
@@ -441,7 +427,7 @@ class WhatsAppService {
       // Ignorar error de getContact
     }
 
-    console.log(`📩 Incoming from ${contactPhone}: ${messagePreview.substring(0, 30)}...`)
+    // Log solo si es mensaje nuevo (no del sync inicial)
 
     // Obtener whatsapp_account_id
     const { data: waAccount } = await supabaseAdmin
@@ -610,8 +596,6 @@ class WhatsAppService {
    */
   private async syncExistingChats(client: Client, sessionId: string, userId: string): Promise<void> {
     try {
-      console.log(`🔄 Syncing existing chats for session: ${sessionId}`)
-
       // Esperar a que WhatsApp cargue los chats
       await new Promise(resolve => setTimeout(resolve, 3000))
 
@@ -622,15 +606,9 @@ class WhatsAppService {
         .eq('session_id', sessionId)
         .single()
 
-      if (waError || !waAccount) {
-        console.error(`❌ WhatsApp account not found for session: ${sessionId}`, waError)
-        return
-      }
-
-      console.log(`✅ Found WhatsApp account: ${waAccount.id}`)
+      if (waError || !waAccount) return
 
       // Obtener chats con timeout
-      console.log(`📱 Fetching chats from WhatsApp...`)
       const chats = await Promise.race([
         client.getChats(),
         new Promise<never>((_, reject) => 
@@ -644,8 +622,6 @@ class WhatsAppService {
         !chat.id._serialized.includes('@g.us') && 
         !chat.id._serialized.includes('@broadcast')
       ).slice(0, 50)
-      
-      console.log(`📱 Found ${chats.length} total chats, ${individualChats.length} individual`)
 
       // Obtener conversaciones existentes en una sola query
       const phoneNumbers = individualChats.map(chat => chat.id.user)
@@ -734,18 +710,16 @@ class WhatsAppService {
             }
 
             syncedCount++
-            console.log(`✅ Synced: ${contactName || contactPhone}`)
-
-          } catch (chatError) {
-            console.error(`Error syncing chat:`, chatError)
+          } catch {
+            // Silencioso - continuar con siguiente chat
           }
         }))
       }
 
-      console.log(`🔄 Sync completed: ${syncedCount} conversations`)
+      console.log(`📱 Synced ${syncedCount} conversations, ${individualChats.length * 10} messages`)
 
-    } catch (error) {
-      console.error(`Error syncing existing chats:`, error)
+    } catch {
+      // Silencioso
     }
   }
 

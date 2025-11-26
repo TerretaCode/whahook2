@@ -41,7 +41,6 @@ class KeepaliveMessagesService {
     
     this.isRunning = true
     this.scheduleNextMessage()
-    console.log(`📱 Keepalive messages service started (target: +${env.keepaliveTargetNumber})`)
   }
 
   /**
@@ -53,7 +52,6 @@ class KeepaliveMessagesService {
       clearTimeout(this.timeoutId)
       this.timeoutId = null
     }
-    console.log('📱 Keepalive messages service stopped')
   }
 
   /**
@@ -66,9 +64,6 @@ class KeepaliveMessagesService {
     const minMs = KEEPALIVE_CONFIG.keepaliveMessageMinMs
     const maxMs = KEEPALIVE_CONFIG.keepaliveMessageMaxMs
     const randomMs = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs
-    const randomMinutes = Math.round(randomMs / 60000)
-
-    console.log(`📱 Next keepalive message in ${randomMinutes} minutes`)
 
     this.timeoutId = setTimeout(async () => {
       await this.sendKeepaliveMessage()
@@ -86,10 +81,7 @@ class KeepaliveMessagesService {
       const connectedSessions = Array.from(sessions.values())
         .filter(s => s.status === 'ready')
 
-      if (connectedSessions.length === 0) {
-        console.log('⚠️ No connected sessions, skipping keepalive message')
-        return
-      }
+      if (connectedSessions.length === 0) return
 
       // Usar la primera sesión conectada
       const session = connectedSessions[0]
@@ -97,12 +89,8 @@ class KeepaliveMessagesService {
       // Verificar estado real
       try {
         const state = await session.client.getState()
-        if (state !== 'CONNECTED') {
-          console.log(`⚠️ Session not connected (${state}), skipping`)
-          return
-        }
+        if (state !== 'CONNECTED') return
       } catch {
-        console.log('⚠️ Cannot verify session state, skipping')
         return
       }
 
@@ -120,10 +108,8 @@ class KeepaliveMessagesService {
       const chatId = `${env.keepaliveTargetNumber}@c.us`
       await session.client.sendMessage(chatId, finalMessage)
 
-      console.log(`✅ Keepalive message sent: "${finalMessage}"`)
-
-    } catch (error: any) {
-      console.error(`❌ Failed to send keepalive message:`, error.message)
+    } catch {
+      // Silencioso
     }
   }
 }

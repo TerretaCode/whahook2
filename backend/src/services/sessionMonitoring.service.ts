@@ -46,8 +46,6 @@ class SessionMonitoringService {
    * Ejecutar monitoreo
    */
   private async runMonitoring(): Promise<void> {
-    console.log('🔍 Running session health check...')
-
     try {
       // Obtener sesiones activas de Supabase
       const { data: accounts, error } = await supabaseAdmin
@@ -55,26 +53,14 @@ class SessionMonitoringService {
         .select('*')
         .in('status', ['ready', 'disconnected', 'error'])
 
-      if (error) {
-        console.error('Error fetching accounts for monitoring:', error)
-        return
-      }
-
-      if (!accounts || accounts.length === 0) {
-        console.log('No sessions to monitor')
-        return
-      }
-
-      console.log(`📊 Monitoring ${accounts.length} session(s)`)
+      if (error || !accounts || accounts.length === 0) return
 
       for (const account of accounts) {
         await this.checkSessionHealth(account)
       }
 
-      console.log('✅ Session health check completed')
-
-    } catch (error) {
-      console.error('Session monitoring error:', error)
+    } catch {
+      // Silencioso
     }
   }
 
@@ -82,33 +68,18 @@ class SessionMonitoringService {
    * Verificar salud de una sesión
    */
   private async checkSessionHealth(account: any): Promise<void> {
-    const { session_id, last_seen, user_id, phone_number, status } = account
-
-    // Calcular tiempo de inactividad
-    const lastSeenDate = new Date(last_seen)
-    const timeSinceLastSeen = Date.now() - lastSeenDate.getTime()
-    const daysSinceLastSeen = timeSinceLastSeen / (24 * 60 * 60 * 1000)
-
-    console.log(`   Checking: ${session_id}`)
-    console.log(`   Status: ${status}, Last seen: ${daysSinceLastSeen.toFixed(1)} days ago`)
+    const { session_id, status } = account
 
     // 1. Verificar si está en memoria
     const sessionInMemory = whatsappService.getSession(session_id)
 
     // 2. Si está marcada como "ready" pero no está en memoria, hay problema
     if (status === 'ready' && !sessionInMemory) {
-      console.warn(`   ⚠️ Session marked as ready but not in memory`)
-      await this.markSessionAsError(account, 'Sesión no encontrada en memoria')
+      await this.markSessionAsError(account, 'Session not in memory')
       return
     }
 
-    // 3. Alerta por inactividad prolongada (>5 días)
-    if (daysSinceLastSeen > this.INACTIVITY_WARNING_DAYS) {
-      console.warn(`   ⚠️ Session inactive for ${daysSinceLastSeen.toFixed(0)} days`)
-      // Aquí podrías enviar email de alerta
-    }
-
-    // 4. Verificar conexión real si está en memoria
+    // 3. Verificar conexión real si está en memoria
     if (sessionInMemory) {
       try {
         const state = await Promise.race([
@@ -119,13 +90,10 @@ class SessionMonitoringService {
         ])
 
         if (state !== 'CONNECTED') {
-          console.error(`   ❌ Session disconnected (state: ${state})`)
-          await this.markSessionAsError(account, `Desconectado (estado: ${state})`)
-        } else {
-          console.log(`   ✅ Session healthy`)
+          await this.markSessionAsError(account, `Disconnected: ${state}`)
         }
-      } catch (error) {
-        console.error(`   ❌ Cannot verify session state`)
+      } catch {
+        // Timeout verificando estado - no es crítico
       }
     }
   }

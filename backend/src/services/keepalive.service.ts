@@ -22,7 +22,6 @@ class KeepaliveService {
     this.startHeartbeat(sessionId)
     this.startWatchdog(sessionId)
     this.startBrowserActivity(sessionId)
-    console.log(`💓 Keepalive started for ${sessionId}`)
   }
 
   /**
@@ -32,7 +31,6 @@ class KeepaliveService {
     this.stopHeartbeat(sessionId)
     this.stopWatchdog(sessionId)
     this.stopBrowserActivity(sessionId)
-    console.log(`💔 Keepalive stopped for ${sessionId}`)
   }
 
   // ==================== HEARTBEAT ====================
@@ -78,9 +76,7 @@ class KeepaliveService {
 
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error)
-      // Si la sesión está cerrada, detener keepalive
       if (errorMsg.includes('Session closed') || errorMsg.includes('page has been closed')) {
-        console.log(`💔 Session closed, stopping keepalive for ${sessionId}`)
         this.stopAll(sessionId)
       }
     }
@@ -125,16 +121,12 @@ class KeepaliveService {
       const reconnectableStates = ['UNPAIRED_IDLE', 'OPENING', 'PAIRING', 'TIMEOUT']
       
       if (reconnectableStates.includes(state)) {
-        console.log(`🔄 Watchdog: ${sessionId} state is ${state}, attempting reconnect`)
         await session.client.initialize()
-      } else {
-        console.log(`⚠️ Watchdog: ${sessionId} state is ${state}, cannot auto-reconnect`)
       }
 
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error)
       if (errorMsg.includes('Session closed') || errorMsg.includes('page has been closed')) {
-        console.log(`💔 Session closed, stopping keepalive for ${sessionId}`)
         this.stopAll(sessionId)
       }
     }
