@@ -166,32 +166,20 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     }
   }, [messages])
 
-  // Cargar mensajes más antiguos
+  // Cargar mensajes más antiguos (solo con botón)
   const loadMoreMessages = useCallback(async () => {
-    console.log('📜 loadMoreMessages called', { 
-      isLoadingMore, 
-      hasMoreMessages, 
-      oldestTimestamp: oldestTimestampRef.current 
-    })
-    
-    if (isLoadingMore || !hasMoreMessages || !oldestTimestampRef.current) {
-      console.log('📜 Skipping load:', { isLoadingMore, hasMoreMessages, hasTimestamp: !!oldestTimestampRef.current })
-      return
-    }
+    if (isLoadingMore || !hasMoreMessages || !oldestTimestampRef.current) return
     
     setIsLoadingMore(true)
     const scrollHeightBefore = messagesContainerRef.current?.scrollHeight || 0
     
     try {
-      const url = `/api/whatsapp/conversations/${conversationId}/messages?limit=50&before=${encodeURIComponent(oldestTimestampRef.current)}`
-      console.log('📜 Fetching:', url)
-      
-      const response = await ApiClient.request(url)
-      console.log('📜 Response:', response)
+      const response = await ApiClient.request(
+        `/api/whatsapp/conversations/${conversationId}/messages?limit=50&before=${encodeURIComponent(oldestTimestampRef.current)}`
+      )
       
       if (response.success && response.data) {
         const data = response.data as ApiMessage[]
-        console.log('📜 Got messages:', data.length)
         
         if (data.length > 0) {
           const newMessages = data.map(mapApiMessage)
@@ -206,7 +194,6 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
             }
           })
         } else {
-          console.log('📜 No more messages')
           setHasMoreMessages(false)
         }
       }
@@ -216,18 +203,6 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
       setIsLoadingMore(false)
     }
   }, [conversationId, isLoadingMore, hasMoreMessages])
-
-  // Detectar scroll hacia arriba para cargar más mensajes
-  const handleScroll = useCallback(() => {
-    if (!messagesContainerRef.current) return
-    const { scrollTop } = messagesContainerRef.current
-    
-    // Cargar más cuando el usuario está cerca del top (< 100px)
-    if (scrollTop < 100 && hasMoreMessages && !isLoadingMore) {
-      console.log('📜 Loading more messages...', { scrollTop, hasMoreMessages, isLoadingMore })
-      loadMoreMessages()
-    }
-  }, [hasMoreMessages, isLoadingMore, loadMoreMessages])
 
   useEffect(() => {
     // Reset cuando cambia la conversación
@@ -387,7 +362,6 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
       {/* Messages */}
       <div 
         ref={messagesContainerRef}
-        onScroll={handleScroll}
         className="flex-1 overflow-y-auto px-4 py-4"
       >
         {isLoading ? (
@@ -396,19 +370,21 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
           </div>
         ) : (
           <>
-            {/* Indicador de carga de mensajes antiguos */}
-            {isLoadingMore && (
-              <div className="flex justify-center py-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#25D366]"></div>
-              </div>
-            )}
-            {/* Botón para cargar más si hay más mensajes */}
-            {!isLoadingMore && hasMoreMessages && messages.length > 0 && (
+            {/* Botón para cargar más mensajes antiguos */}
+            {hasMoreMessages && messages.length > 0 && (
               <button
                 onClick={loadMoreMessages}
-                className="w-full py-2 text-sm text-green-600 hover:text-green-700 font-medium"
+                disabled={isLoadingMore}
+                className="w-full py-3 mb-2 text-sm text-green-600 hover:text-green-700 hover:bg-green-50 font-medium rounded-lg border border-green-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                ↑ Cargar mensajes anteriores
+                {isLoadingMore ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                    Cargando...
+                  </>
+                ) : (
+                  '↑ Cargar mensajes anteriores'
+                )}
               </button>
             )}
             {showStarters && (
