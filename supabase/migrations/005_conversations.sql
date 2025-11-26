@@ -52,15 +52,18 @@ EXCEPTION WHEN others THEN NULL;
 END $$;
 
 -- ==============================================
--- ÍNDICES
+-- ÍNDICES OPTIMIZADOS
 -- ==============================================
+-- Índice compuesto para búsqueda de conversaciones (más usado)
+CREATE INDEX IF NOT EXISTS idx_conversations_user_wa ON conversations(user_id, whatsapp_account_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_user_phone ON conversations(user_id, whatsapp_account_id, contact_phone);
+
+-- Índices simples
 CREATE INDEX IF NOT EXISTS idx_conversations_user ON conversations(user_id);
 CREATE INDEX IF NOT EXISTS idx_conversations_whatsapp ON conversations(whatsapp_account_id);
 CREATE INDEX IF NOT EXISTS idx_conversations_phone ON conversations(contact_phone);
-CREATE INDEX IF NOT EXISTS idx_conversations_status ON conversations(status);
-CREATE INDEX IF NOT EXISTS idx_conversations_chatbot ON conversations(chatbot_enabled);
-CREATE INDEX IF NOT EXISTS idx_conversations_attention ON conversations(needs_attention);
-CREATE INDEX IF NOT EXISTS idx_conversations_last_message ON conversations(last_message_at DESC);
+CREATE INDEX IF NOT EXISTS idx_conversations_status ON conversations(status) WHERE status = 'open';
+CREATE INDEX IF NOT EXISTS idx_conversations_last_message ON conversations(last_message_at DESC NULLS LAST);
 
 -- ==============================================
 -- RLS

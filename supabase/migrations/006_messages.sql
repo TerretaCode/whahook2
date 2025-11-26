@@ -50,12 +50,15 @@ END $$;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_message_id_unique ON messages(message_id);
 
 -- ==============================================
--- ÍNDICES
+-- ÍNDICES OPTIMIZADOS
 -- ==============================================
+-- Índice compuesto para obtener mensajes de conversación (query más común)
+CREATE INDEX IF NOT EXISTS idx_messages_conv_time ON messages(conversation_id, timestamp DESC);
+
+-- Índices simples
 CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_messages_user ON messages(user_id);
 CREATE INDEX IF NOT EXISTS idx_messages_timestamp ON messages(timestamp DESC);
-CREATE INDEX IF NOT EXISTS idx_messages_direction ON messages(direction);
 
 -- ==============================================
 -- RLS

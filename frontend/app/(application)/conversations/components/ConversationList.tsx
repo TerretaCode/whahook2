@@ -1,10 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { Search, MessageSquare } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ConversationItem } from "./ConversationItem"
 import { ApiClient } from "@/lib/api-client"
+
+// Polling adaptativo: más rápido cuando hay actividad, más lento cuando no
+const POLL_INTERVAL_ACTIVE = 5000   // 5s cuando hay actividad reciente
+const POLL_INTERVAL_IDLE = 30000    // 30s cuando no hay actividad
 
 interface Conversation {
   id: string
@@ -44,13 +48,42 @@ export function ConversationList({ selectedConversationId, onSelectConversation 
   const [searchQuery, setSearchQuery] = useState("")
   const [activeFilter, setActiveFilter] = useState<'all' | 'whatsapp' | 'web' | 'attention'>('all')
   const [isLoading, setIsLoading] = useState(true)
+  const lastActivityRef = useRef<number>(Date.now())
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Polling adaptativo
+  const startPolling = useCallback(() => {
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
+    
+    const poll = () => {
+      const timeSinceActivity = Date.now() - lastActivityRef.current
+      const interval = timeSinceActivity < 60000 ? POLL_INTERVAL_ACTIVE : POLL_INTERVAL_IDLE
+      
+      pollIntervalRef.current = setTimeout(async () => {
+        await fetchConversations()
+        poll()
+      }, interval)
+    }
+    
+    poll()
+  }, [])
+
+  // Detectar actividad del usuario
+  useEffect(() => {
+    const handleActivity = () => { lastActivityRef.current = Date.now() }
+    window.addEventListener('focus', handleActivity)
+    window.addEventListener('click', handleActivity)
+    return () => {
+      window.removeEventListener('focus', handleActivity)
+      window.removeEventListener('click', handleActivity)
+    }
+  }, [])
 
   useEffect(() => {
     fetchConversations()
-    // Polling cada 10 segundos para actualizar conversaciones
-    const interval = setInterval(fetchConversations, 10000)
-    return () => clearInterval(interval)
-  }, [])
+    startPolling()
+    return () => { if (pollIntervalRef.current) clearTimeout(pollIntervalRef.current) }
+  }, [startPolling])
 
   useEffect(() => {
     filterConversations()

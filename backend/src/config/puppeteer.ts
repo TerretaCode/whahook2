@@ -72,8 +72,4 @@ export const PUPPETEER_CONFIG_DEV = {
 }
 
 // Exportar la configuración según el entorno
-export const getPuppeteerConfig = () => {
-  const config = isProd ? PUPPETEER_CONFIG : PUPPETEER_CONFIG_DEV
-  console.log(`🔧 Using Puppeteer config: ${isProd ? 'PRODUCTION' : 'DEVELOPMENT'}`)
-  return config
-}
+export const getPuppeteerConfig = () => isProd ? PUPPETEER_CONFIG : PUPPETEER_CONFIG_DEV

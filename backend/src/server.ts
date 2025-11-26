@@ -3,9 +3,9 @@ import { createServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
 import cors from 'cors'
 import helmet from 'helmet'
-import morgan from 'morgan'
+import compression from 'compression'
 import rateLimit from 'express-rate-limit'
-import { env, isDev } from './config/environment'
+import { env } from './config/environment'
 import { authRoutes } from './modules/auth'
 import { setupWhatsAppSocket, whatsappService, whatsappRoutes } from './modules/whatsapp'
 import { chatWidgetRoutes, chatWidgetPublicRoutes } from './modules/chatWidget'
@@ -36,20 +36,16 @@ const io = new SocketServer(httpServer, {
 
 // Middleware
 app.use(helmet())
-app.use(cors({ 
-  origin: allowedOrigins, 
-  credentials: true 
-}))
-app.use(express.json())
-app.use(morgan(isDev ? 'dev' : 'combined'))
+app.use(compression()) // Gzip compression
+app.use(cors({ origin: allowedOrigins, credentials: true }))
+app.use(express.json({ limit: '1mb' }))
 
-// Rate limiting
-app.use('/api/', rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-}))
+// Rate limiting por tipo de endpoint
+const strictLimit = rateLimit({ windowMs: 60 * 1000, max: 10, message: { error: 'Too many requests' } })
+const normalLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 200, standardHeaders: true, legacyHeaders: false })
+
+app.use('/api/whatsapp/send', strictLimit) // Anti-spam para envío
+app.use('/api/', normalLimit)
 
 // Health check avanzado (para UptimeRobot)
 app.use('/api', healthRoutes)
@@ -76,17 +72,35 @@ app.use((req, res) => {
 // Inicializar WhatsApp Socket
 setupWhatsAppSocket(io)
 
+// Graceful shutdown
+const gracefulShutdown = async (signal: string) => {
+  console.log(`\n🚫 ${signal} received, shutting down...`)
+  
+  // Detener servicios
+  keepaliveMessagesService.stop()
+  sessionMonitoringService.stop()
+  backupService.stop()
+  cacheCleanupService.stop()
+  
+  // Cerrar servidor HTTP
+  httpServer.close(() => {
+    console.log('✅ Server closed')
+    process.exit(0)
+  })
+  
+  // Forzar cierre después de 10s
+  setTimeout(() => process.exit(1), 10000)
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+
 // Start server
 httpServer.listen(env.port, async () => {
-  console.log(`✅ Server running on port ${env.port}`)
-  console.log(`🌐 API: http://localhost:${env.port}`)
-  console.log(`🔒 CORS: ${env.frontendUrl}`)
-  console.log(`📱 WhatsApp Socket.IO ready`)
+  console.log(`✅ Server ready | Port ${env.port} | ${env.frontendUrl}`)
   
-  // Restaurar sesiones activas
   await whatsappService.restoreActiveSessions()
   
-  // Iniciar servicios globales
   keepaliveMessagesService.start()
   sessionMonitoringService.start()
   backupService.start()
