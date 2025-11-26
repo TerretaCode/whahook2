@@ -694,11 +694,13 @@ class WhatsAppService {
 
             let conversationId: string
 
-            // Obtener unread count real del chat
-            const unreadCount = typeof chat.unreadCount === 'number' ? chat.unreadCount : 0
+            // Obtener unread count real del chat de WhatsApp
+            // -1 significa que WhatsApp no tiene el valor, usamos 0
+            const rawUnread = chat.unreadCount
+            const unreadCount = (typeof rawUnread === 'number' && rawUnread >= 0) ? rawUnread : 0
 
             if (existingConvId) {
-              // Actualizar conversación existente con unread_count real de WhatsApp
+              // Actualizar conversación existente (NO tocar unread_count, solo se actualiza con mensajes nuevos)
               conversationId = existingConvId
               await supabaseAdmin
                 .from('conversations')
@@ -706,7 +708,6 @@ class WhatsAppService {
                   contact_name: contactName,
                   last_message_preview: lastMessage?.body?.substring(0, 100) || '',
                   last_message_at: lastMessage ? new Date(lastMessage.timestamp * 1000).toISOString() : undefined,
-                  unread_count: unreadCount,
                 })
                 .eq('id', existingConvId)
             } else {

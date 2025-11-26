@@ -513,10 +513,12 @@ router.get('/conversations/:id/fetch-older', async (req: Request, res: Response)
         .upsert(messageRecords, { onConflict: 'message_id', ignoreDuplicates: true })
     }
 
+    // hasMore = true si encontramos mensajes nuevos (puede haber más)
+    // Solo false si no encontramos ningún mensaje nuevo
     res.json({ 
       success: true, 
       data: olderMessages,
-      hasMore: olderMessages.length >= parseInt(limit as string)
+      hasMore: olderMessages.length > 0
     })
   } catch (error: any) {
     console.error('Error fetching older messages:', error)
