@@ -56,7 +56,7 @@ Usaremos **Progressive Disclosure** (revelación progresiva) para:
 │  (Todas las opciones disponibles)      │  │  (Solo info básica)    │
 │                                        │  │  - Info del Negocio    │
 │  Se muestran directamente:             │  │  - Políticas           │
-│  • Conexión API (si hay disponibles)   │  │  - Contacto            │
+│  • Conexión API (siempre visible)      │  │  - Contacto            │
 │  • Importar CSV                        │  │  - FAQs                │
 │  • Productos manuales                  │  │  - Escalación          │
 │  • Categorías y subcategorías          │  └────────────────────────┘
@@ -70,8 +70,9 @@ Usaremos **Progressive Disclosure** (revelación progresiva) para:
 ┌─────────────────────────────────────────────────────────────┐
 │  SECCIONES VISIBLES (el usuario usa las que quiera):        │
 │                                                              │
-│  📦 Conexión API E-commerce (si hay conexiones disponibles) │
-│     └─ Selector de tiendas conectadas                       │
+│  📦 Conexión API E-commerce (siempre visible)               │
+│     └─ Si hay APIs: selector de tiendas conectadas          │
+│     └─ Si NO hay APIs: botón "Conectar API" → Settings      │
 │                                                              │
 │  📄 Importar desde CSV                                      │
 │     └─ Zona drag & drop + preview                           │
@@ -119,7 +120,9 @@ Usaremos **Progressive Disclosure** (revelación progresiva) para:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Sección 2: Conexión API E-commerce (Solo si eligió "Sí" y hay conexiones disponibles)
+### Sección 2: Conexión API E-commerce (Siempre visible en modo E-commerce)
+
+**Si hay conexiones disponibles:**
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ 🔗 Conexiones E-commerce                                    │
@@ -129,7 +132,27 @@ Usaremos **Progressive Disclosure** (revelación progresiva) para:
 │ ☑️ WooCommerce - Mi Tienda Principal                        │
 │ ☐ Shopify - Tienda Secundaria                               │
 │                                                              │
-│ ⚠️ ¿No ves tu tienda? Conéctala en Settings > Connections   │
+│ [+ Conectar otra tienda]  → Settings > Connections          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Si NO hay conexiones disponibles:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 🔗 Conexiones E-commerce                                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  🛒  No tienes ninguna tienda conectada             │    │
+│  │                                                     │    │
+│  │  Conecta tu WooCommerce, Shopify u otra plataforma  │    │
+│  │  para sincronizar automáticamente tu catálogo.      │    │
+│  │                                                     │    │
+│  │  [Conectar tienda]  → Settings > Connections        │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                                                              │
+│  💡 También puedes añadir productos manualmente o           │
+│     importarlos desde un archivo CSV más abajo.             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
