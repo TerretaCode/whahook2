@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { ApiClient } from "@/lib/api-client"
@@ -8,7 +8,12 @@ import { ConversationList } from "./components/ConversationList"
 import { ChatWindow } from "./components/ChatWindow"
 import { MessageSquare, Loader2 } from "lucide-react"
 
-export default function ConversationsPage() {
+interface Conversation {
+  id: string
+  contact_phone: string
+}
+
+function ConversationsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, isLoading: authLoading } = useAuth()
@@ -27,10 +32,10 @@ export default function ConversationsPage() {
     if (phone && user && !initialPhoneProcessed) {
       setInitialPhoneProcessed(true)
       // Find conversation by phone number
-      ApiClient.request<any>('/api/whatsapp/conversations')
-        .then(response => {
+      ApiClient.request<Conversation[]>('/api/whatsapp/conversations')
+        .then((response) => {
           if (response.success && response.data) {
-            const conversation = response.data.find((c: any) => 
+            const conversation = response.data.find((c) => 
               c.contact_phone === phone || c.contact_phone === phone.replace(/^\+/, '')
             )
             if (conversation) {
@@ -38,11 +43,9 @@ export default function ConversationsPage() {
             }
           }
         })
-        .catch(console.error)
+        .catch(() => {})
     }
   }, [searchParams, user, initialPhoneProcessed])
-
-  // Ya no necesitamos manipular el DOM, el posicionamiento fixed se encarga de todo
 
   if (authLoading || !user) {
     return (
@@ -96,5 +99,17 @@ export default function ConversationsPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function ConversationsPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-full flex items-center justify-center bg-gray-50">
+        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+      </div>
+    }>
+      <ConversationsContent />
+    </Suspense>
   )
 }
