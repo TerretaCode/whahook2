@@ -34,15 +34,15 @@ export function MessageItem({ message }: MessageItemProps) {
   }
 
   return (
-    <div className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'} w-full`}>
       <div
-        className={`max-w-[75%] md:max-w-[65%] rounded-lg px-3 py-2 ${
+        className={`max-w-[75%] md:max-w-[65%] rounded-lg px-3 py-2 overflow-hidden ${
           message.isOwn
             ? 'bg-[#DCF8C6]'
             : 'bg-white'
         } shadow-sm`}
       >
-        <p className="text-sm text-gray-900 break-words whitespace-pre-wrap font-[system-ui]">
+        <p className="text-sm text-gray-900 break-all whitespace-pre-wrap font-[system-ui]" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
           {message.content}
         </p>
         <div className="flex items-center justify-end gap-1 mt-1">
