@@ -171,6 +171,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     if (isLoadingMore) return
     
     setIsLoadingMore(true)
+    console.log('🔄 Iniciando carga de todo el historial...')
     
     try {
       // Cargar todos los mensajes desde WhatsApp
@@ -178,26 +179,30 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
         `/api/whatsapp/conversations/${conversationId}/load-all`
       )
       
+      console.log('📥 Respuesta load-all:', response)
+      
       if (response.success) {
         const result = response as { newMessages?: number, totalInWhatsApp?: number }
+        console.log(`📜 Nuevos: ${result.newMessages}, Total en WhatsApp: ${result.totalInWhatsApp}`)
         
-        if (result.newMessages && result.newMessages > 0) {
-          // Recargar mensajes desde la DB (ahora tiene todos)
-          const messagesResponse = await ApiClient.request(
-            `/api/whatsapp/conversations/${conversationId}/messages?limit=1000`
-          )
-          
-          if (messagesResponse.success && messagesResponse.data) {
-            const data = messagesResponse.data as ApiMessage[]
-            setMessages(data.map(mapApiMessage))
-          }
+        // Siempre recargar mensajes desde la DB después de load-all
+        const messagesResponse = await ApiClient.request(
+          `/api/whatsapp/conversations/${conversationId}/messages?limit=5000`
+        )
+        
+        if (messagesResponse.success && messagesResponse.data) {
+          const data = messagesResponse.data as ApiMessage[]
+          console.log(`📬 Mensajes cargados desde DB: ${data.length}`)
+          setMessages(data.map(mapApiMessage))
         }
         
         // Ya no hay más mensajes que cargar
         setHasMoreMessages(false)
+      } else {
+        console.error('❌ Error en load-all:', response)
       }
     } catch (error) {
-      console.error('Error loading all messages:', error)
+      console.error('❌ Error loading all messages:', error)
     } finally {
       setIsLoadingMore(false)
     }

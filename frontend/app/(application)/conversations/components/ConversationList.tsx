@@ -118,7 +118,8 @@ export function ConversationList({ selectedConversationId, onSelectConversation 
           avatar: conv.contact_avatar || undefined,
           lastMessage: conv.last_message_preview || '',
           timestamp: conv.last_message_at || '',
-          unreadCount: conv.unread_count || 0,
+          // Si es la conversación seleccionada, mantener unreadCount en 0
+          unreadCount: conv.id === selectedConversationId ? 0 : (conv.unread_count || 0),
           source: 'whatsapp',
           needsAttention: conv.needs_attention || false,
           isOnline: conv.is_online || false,

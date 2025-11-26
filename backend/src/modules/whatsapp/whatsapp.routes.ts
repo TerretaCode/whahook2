@@ -481,6 +481,8 @@ router.get('/conversations/:id/load-all', async (req: Request, res: Response) =>
       return res.status(404).json({ success: false, error: 'No active WhatsApp session' })
     }
 
+    console.log(`📜 [load-all] Cargando mensajes para conversación ${id}, teléfono: ${conversation.contact_phone}`)
+    
     // Cargar TODOS los mensajes desde WhatsApp
     const result = await whatsappService.fetchAllMessages(
       waAccount.session_id,
@@ -489,7 +491,8 @@ router.get('/conversations/:id/load-all', async (req: Request, res: Response) =>
     )
 
     if (!result) {
-      return res.json({ success: true, data: [], totalLoaded: 0 })
+      console.log(`📜 [load-all] No se pudieron cargar mensajes (session no ready o error)`)
+      return res.json({ success: true, newMessages: 0, totalInWhatsApp: 0 })
     }
 
     // Guardar nuevos mensajes en DB
