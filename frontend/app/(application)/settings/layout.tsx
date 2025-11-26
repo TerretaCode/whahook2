@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { 
   Smartphone, 
   Sparkles,
+  Bot,
   Menu,
   X,
   ChevronRight
@@ -21,17 +22,24 @@ interface SettingsLayoutProps {
 const settingsNavigation = [
   {
     id: 'connections',
-    name: 'Conexiones',
+    name: 'Connections',
     href: '/settings/connections',
     icon: Smartphone,
     description: 'WhatsApp & Webhooks'
   },
   {
+    id: 'chatbot',
+    name: 'Chatbot',
+    href: '/settings/chatbot',
+    icon: Bot,
+    description: 'AI Chatbot Configuration'
+  },
+  {
     id: 'ia',
-    name: 'IA',
+    name: 'AI',
     href: '/settings/ia',
     icon: Sparkles,
-    description: 'Configuración global de IA'
+    description: 'Global AI Settings'
   }
 ]
 
