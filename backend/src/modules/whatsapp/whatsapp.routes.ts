@@ -247,29 +247,33 @@ router.post('/sessions/:sessionId/force-clean', async (req: Request, res: Respon
 /**
  * GET /api/whatsapp/conversations
  * Obtener todas las conversaciones del usuario
+ * OPTIMIZADO: Campos específicos, caché, límite
  */
 router.get('/conversations', async (req: Request, res: Response) => {
   try {
     const userId = await getUserIdFromToken(req)
+    const { limit = '100' } = req.query
     
     if (!userId) {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    console.log(`📋 Fetching conversations for user: ${userId}`)
-
+    // Seleccionar solo campos necesarios para la lista
     const { data: conversations, error } = await supabaseAdmin
       .from('conversations')
-      .select('*')
+      .select('id, contact_phone, contact_name, contact_avatar, status, last_message_preview, last_message_at, unread_count, chatbot_enabled, is_online, needs_attention')
       .eq('user_id', userId)
       .order('last_message_at', { ascending: false, nullsFirst: false })
+      .limit(Math.min(parseInt(limit as string) || 100, 200))
 
     if (error) {
       console.error('Error fetching conversations:', error)
       return res.status(500).json({ success: false, error: 'Error fetching conversations' })
     }
 
-    console.log(`📋 Found ${conversations?.length || 0} conversations`)
+    // Headers de caché
+    res.set('Cache-Control', 'private, max-age=3')
+    
     res.json({ success: true, data: conversations || [] })
   } catch (error: any) {
     console.error('Error in GET /conversations:', error)
@@ -384,6 +388,7 @@ router.put('/conversations/:id/read', async (req: Request, res: Response) => {
 /**
  * GET /api/whatsapp/conversations/:id/messages
  * Obtener mensajes de una conversación
+ * OPTIMIZADO: Selección de campos específicos, caché headers
  */
 router.get('/conversations/:id/messages', async (req: Request, res: Response) => {
   try {
@@ -407,12 +412,13 @@ router.get('/conversations/:id/messages', async (req: Request, res: Response) =>
       return res.status(404).json({ success: false, error: 'Conversation not found' })
     }
 
+    // Seleccionar solo campos necesarios para el frontend
     let query = supabaseAdmin
       .from('messages')
-      .select('*')
+      .select('id, message_id, content, type, direction, status, timestamp')
       .eq('conversation_id', id)
       .order('timestamp', { ascending: false })
-      .limit(parseInt(limit as string))
+      .limit(Math.min(parseInt(limit as string) || 50, 100))
 
     if (before) {
       query = query.lt('timestamp', before as string)
@@ -425,6 +431,9 @@ router.get('/conversations/:id/messages', async (req: Request, res: Response) =>
       return res.status(500).json({ success: false, error: 'Error fetching messages' })
     }
 
+    // Headers de caché para reducir requests
+    res.set('Cache-Control', 'private, max-age=5')
+    
     // Devolver en orden cronológico
     res.json({ success: true, data: (messages || []).reverse() })
   } catch (error: any) {

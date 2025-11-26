@@ -603,13 +603,14 @@ class WhatsAppService {
 
   /**
    * Sincronizar chats existentes de WhatsApp al conectar
+   * OPTIMIZADO: Batch inserts, menos queries, procesamiento paralelo
    */
   private async syncExistingChats(client: Client, sessionId: string, userId: string): Promise<void> {
     try {
       console.log(`🔄 Syncing existing chats for session: ${sessionId}`)
 
-      // Esperar un poco para que WhatsApp cargue los chats
-      await new Promise(resolve => setTimeout(resolve, 5000))
+      // Esperar a que WhatsApp cargue los chats
+      await new Promise(resolve => setTimeout(resolve, 3000))
 
       // Obtener whatsapp_account_id
       const { data: waAccount, error: waError } = await supabaseAdmin
@@ -625,7 +626,7 @@ class WhatsAppService {
 
       console.log(`✅ Found WhatsApp account: ${waAccount.id}`)
 
-      // Obtener todos los chats de WhatsApp con timeout
+      // Obtener chats con timeout
       console.log(`📱 Fetching chats from WhatsApp...`)
       const chats = await Promise.race([
         client.getChats(),
@@ -633,128 +634,113 @@ class WhatsAppService {
           setTimeout(() => reject(new Error('getChats timeout')), 30000)
         )
       ])
-      console.log(`📱 Found ${chats.length} chats in WhatsApp`)
+      
+      // Filtrar solo chats individuales (no grupos)
+      const individualChats = chats.filter(chat => 
+        !chat.isGroup && 
+        !chat.id._serialized.includes('@g.us') && 
+        !chat.id._serialized.includes('@broadcast')
+      ).slice(0, 50)
+      
+      console.log(`📱 Found ${chats.length} total chats, ${individualChats.length} individual`)
+
+      // Obtener conversaciones existentes en una sola query
+      const phoneNumbers = individualChats.map(chat => chat.id.user)
+      const { data: existingConvs } = await supabaseAdmin
+        .from('conversations')
+        .select('id, contact_phone')
+        .eq('user_id', userId)
+        .eq('whatsapp_account_id', waAccount.id)
+        .in('contact_phone', phoneNumbers)
+
+      const existingPhones = new Set(existingConvs?.map(c => c.contact_phone) || [])
+      const existingConvsMap = new Map(existingConvs?.map(c => [c.contact_phone, c.id]) || [])
 
       let syncedCount = 0
-      const maxChatsToSync = 50 // Limitar para no sobrecargar
+      const BATCH_SIZE = 5
 
-      for (const chat of chats.slice(0, maxChatsToSync)) {
-        try {
-          // Ignorar grupos y broadcasts
-          if (chat.isGroup || chat.id._serialized.includes('@g.us') || chat.id._serialized.includes('@broadcast')) {
-            continue
-          }
+      // Procesar en batches para no sobrecargar
+      for (let i = 0; i < individualChats.length; i += BATCH_SIZE) {
+        const batch = individualChats.slice(i, i + BATCH_SIZE)
+        
+        await Promise.all(batch.map(async (chat) => {
+          try {
+            const contactPhone = chat.id.user
+            const contactName = chat.name || null
+            const existingConvId = existingConvsMap.get(contactPhone)
 
-          const contactPhone = chat.id.user
-          // Use chat.name directly - getContact() has compatibility issues
-          const contactName = chat.name || null
+            // Obtener mensajes
+            const messages = await chat.fetchMessages({ limit: 10 })
+            const lastMessage = messages[messages.length - 1]
 
-          // Verificar si ya existe la conversación
-          const { data: existingConv } = await supabaseAdmin
-            .from('conversations')
-            .select('id')
-            .eq('user_id', userId)
-            .eq('whatsapp_account_id', waAccount.id)
-            .eq('contact_phone', contactPhone)
-            .single()
+            let conversationId: string
 
-          if (existingConv) {
-            // Ya existe, actualizar nombre y sincronizar mensajes
-            if (contactName) {
+            if (existingConvId) {
+              // Actualizar conversación existente
+              conversationId = existingConvId
               await supabaseAdmin
                 .from('conversations')
-                .update({ contact_name: contactName })
-                .eq('id', existingConv.id)
-            }
-            
-            // Sincronizar mensajes de conversación existente
-            const messages = await chat.fetchMessages({ limit: 10 })
-            for (const msg of messages) {
-              const direction = msg.fromMe ? 'outgoing' : 'incoming'
-              
-              const { error: msgErr } = await supabaseAdmin
-                .from('messages')
-                .upsert({
-                  conversation_id: existingConv.id,
-                  user_id: userId,
-                  whatsapp_account_id: waAccount.id,
-                  message_id: msg.id._serialized,
-                  content: msg.body || '',
-                  type: msg.type || 'chat',
-                  direction,
-                  status: msg.fromMe ? 'sent' : 'received',
-                  timestamp: new Date(msg.timestamp * 1000).toISOString(),
-                }, {
-                  onConflict: 'message_id'
+                .update({ 
+                  contact_name: contactName,
+                  last_message_preview: lastMessage?.body?.substring(0, 100) || '',
+                  last_message_at: lastMessage ? new Date(lastMessage.timestamp * 1000).toISOString() : undefined,
                 })
-              
-              if (msgErr) {
-                console.error(`Error syncing message:`, msgErr)
+                .eq('id', existingConvId)
+            } else {
+              // Crear nueva conversación
+              const { data: newConv, error: convError } = await supabaseAdmin
+                .from('conversations')
+                .insert({
+                  user_id: userId,
+                  session_id: sessionId,
+                  whatsapp_account_id: waAccount.id,
+                  contact_phone: contactPhone,
+                  contact_name: contactName,
+                  status: 'open',
+                  last_message_preview: lastMessage?.body?.substring(0, 100) || '',
+                  last_message_at: lastMessage ? new Date(lastMessage.timestamp * 1000).toISOString() : new Date().toISOString(),
+                  unread_count: chat.unreadCount || 0,
+                  chatbot_enabled: true,
+                })
+                .select('id')
+                .single()
+
+              if (convError || !newConv) {
+                console.error(`Error creating conversation for ${contactPhone}:`, convError)
+                return
               }
+              conversationId = newConv.id
             }
-            
-            syncedCount++
-            console.log(`✅ Synced messages for: ${contactName || contactPhone}`)
-            continue
-          }
 
-          // Obtener últimos mensajes del chat
-          const messages = await chat.fetchMessages({ limit: 10 })
-          const lastMessage = messages[messages.length - 1]
-
-          // Crear nueva conversación
-          const { data: newConv, error: convError } = await supabaseAdmin
-            .from('conversations')
-            .insert({
-              user_id: userId,
-              session_id: sessionId,
-              whatsapp_account_id: waAccount.id,
-              contact_phone: contactPhone,
-              contact_name: contactName,
-              status: 'open',
-              last_message_preview: lastMessage?.body?.substring(0, 100) || '',
-              last_message_at: lastMessage ? new Date(lastMessage.timestamp * 1000).toISOString() : new Date().toISOString(),
-              unread_count: chat.unreadCount || 0,
-              chatbot_enabled: true,
-            })
-            .select('id')
-            .single()
-
-          if (convError) {
-            console.error(`Error creating conversation for ${contactPhone}:`, convError)
-            continue
-          }
-
-          // Guardar los últimos mensajes
-          for (const msg of messages) {
-            const direction = msg.fromMe ? 'outgoing' : 'incoming'
-            
-            await supabaseAdmin
-              .from('messages')
-              .upsert({
-                conversation_id: newConv.id,
+            // Batch insert de mensajes
+            if (messages.length > 0) {
+              const messageRecords = messages.map(msg => ({
+                conversation_id: conversationId,
                 user_id: userId,
                 whatsapp_account_id: waAccount.id,
                 message_id: msg.id._serialized,
                 content: msg.body || '',
                 type: msg.type || 'chat',
-                direction,
+                direction: msg.fromMe ? 'outgoing' : 'incoming',
                 status: msg.fromMe ? 'sent' : 'received',
                 timestamp: new Date(msg.timestamp * 1000).toISOString(),
-              }, {
-                onConflict: 'message_id'
-              })
+              }))
+
+              await supabaseAdmin
+                .from('messages')
+                .upsert(messageRecords, { onConflict: 'message_id' })
+            }
+
+            syncedCount++
+            console.log(`✅ Synced: ${contactName || contactPhone}`)
+
+          } catch (chatError) {
+            console.error(`Error syncing chat:`, chatError)
           }
-
-          syncedCount++
-          console.log(`✅ Synced chat: ${contactName || contactPhone}`)
-
-        } catch (chatError) {
-          console.error(`Error syncing chat:`, chatError)
-        }
+        }))
       }
 
-      console.log(`🔄 Sync completed: ${syncedCount} new conversations`)
+      console.log(`🔄 Sync completed: ${syncedCount} conversations`)
 
     } catch (error) {
       console.error(`Error syncing existing chats:`, error)
