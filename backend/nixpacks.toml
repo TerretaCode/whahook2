@@ -28,10 +28,10 @@ aptPkgs = [
 ]
 
 [phases.install]
-cmds = ["npm install --production"]
+cmds = ["npm install"]
 
 [phases.build]
-cmds = ["npm run build"]
+cmds = ["npm run build", "npm prune --production"]
 
 [start]
 cmd = "npm start"
