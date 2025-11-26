@@ -168,18 +168,31 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
 
   // Cargar mensajes más antiguos
   const loadMoreMessages = useCallback(async () => {
-    if (isLoadingMore || !hasMoreMessages || !oldestTimestampRef.current) return
+    console.log('📜 loadMoreMessages called', { 
+      isLoadingMore, 
+      hasMoreMessages, 
+      oldestTimestamp: oldestTimestampRef.current 
+    })
+    
+    if (isLoadingMore || !hasMoreMessages || !oldestTimestampRef.current) {
+      console.log('📜 Skipping load:', { isLoadingMore, hasMoreMessages, hasTimestamp: !!oldestTimestampRef.current })
+      return
+    }
     
     setIsLoadingMore(true)
     const scrollHeightBefore = messagesContainerRef.current?.scrollHeight || 0
     
     try {
-      const response = await ApiClient.request(
-        `/api/whatsapp/conversations/${conversationId}/messages?limit=50&before=${encodeURIComponent(oldestTimestampRef.current)}`
-      )
+      const url = `/api/whatsapp/conversations/${conversationId}/messages?limit=50&before=${encodeURIComponent(oldestTimestampRef.current)}`
+      console.log('📜 Fetching:', url)
+      
+      const response = await ApiClient.request(url)
+      console.log('📜 Response:', response)
       
       if (response.success && response.data) {
         const data = response.data as ApiMessage[]
+        console.log('📜 Got messages:', data.length)
+        
         if (data.length > 0) {
           const newMessages = data.map(mapApiMessage)
           setMessages(prev => [...newMessages, ...prev])
@@ -193,6 +206,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
             }
           })
         } else {
+          console.log('📜 No more messages')
           setHasMoreMessages(false)
         }
       }
@@ -205,11 +219,12 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
 
   // Detectar scroll hacia arriba para cargar más mensajes
   const handleScroll = useCallback(() => {
-    if (!messagesContainerRef.current || isLoadingMore || !hasMoreMessages) return
+    if (!messagesContainerRef.current) return
     const { scrollTop } = messagesContainerRef.current
     
-    // Cargar más cuando el usuario está cerca del top (< 50px)
-    if (scrollTop < 50) {
+    // Cargar más cuando el usuario está cerca del top (< 100px)
+    if (scrollTop < 100 && hasMoreMessages && !isLoadingMore) {
+      console.log('📜 Loading more messages...', { scrollTop, hasMoreMessages, isLoadingMore })
       loadMoreMessages()
     }
   }, [hasMoreMessages, isLoadingMore, loadMoreMessages])
