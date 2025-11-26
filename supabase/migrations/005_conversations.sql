@@ -38,8 +38,9 @@ ADD COLUMN IF NOT EXISTS chatbot_enabled BOOLEAN DEFAULT true,
 ADD COLUMN IF NOT EXISTS is_online BOOLEAN DEFAULT false,
 ADD COLUMN IF NOT EXISTS needs_attention BOOLEAN DEFAULT false;
 
--- Hacer session_id nullable si existe con NOT NULL
+-- Hacer columnas nullable si existen con NOT NULL
 ALTER TABLE conversations ALTER COLUMN session_id DROP NOT NULL;
+ALTER TABLE conversations ALTER COLUMN remote_jid DROP NOT NULL;
 
 -- ==============================================
 -- ÍNDICES
