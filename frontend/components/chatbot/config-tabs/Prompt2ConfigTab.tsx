@@ -750,72 +750,11 @@ export function Prompt2ConfigTab({ formData, updateField, onFormDataChange, sess
                 )}
               </div>
 
-              <div className="pt-3 border-t border-blue-200 dark:border-blue-800">
-                <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3 mb-3">
-                  <div className="flex items-start gap-2">
-                    <svg className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div>
-                      <p className="text-sm font-medium text-green-800 dark:text-green-200">Búsqueda Automática Activada</p>
-                      <p className="text-xs text-green-700 dark:text-green-300 mt-1">
-                        El bot buscará automáticamente en tu catálogo con cada mensaje. Si encuentra productos relacionados, los incluirá en la respuesta.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Mensaje Mientras Busca</Label>
-                  <Input
-                    value={formData?.ecommerce_search_message || 'Estoy buscando la mejor solución para ti...'}
-                    onChange={(e) => updateField('ecommerce_search_message', e.target.value)}
-                    placeholder="Estoy buscando la mejor solución para ti..."
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Este mensaje se enviará al usuario mientras el bot busca en tu catálogo.
-                  </p>
-                </div>
-              </div>
             </div>
           </CardContent>
         )}
       </Card>
 
-      {/* Toggle de Recomendar Productos - Solo si API ecommerce está activa */}
-      {formData?.use_ecommerce_api && (
-        <Card className="border border-muted bg-muted/30">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-4">
-              <Switch 
-                id="recommend_products" 
-                checked={recommendProducts}
-                onCheckedChange={(checked) => {
-                  setRecommendProducts(checked)
-                  // Update formData to persist the change
-                  if (onFormDataChange) {
-                    onFormDataChange({
-                      ...formData,
-                      recommend_products: checked
-                    })
-                  }
-                }}
-              />
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <Lightbulb className="w-5 h-5 text-primary" />
-                  <Label htmlFor="recommend_products" className="text-base font-semibold cursor-pointer">
-                    Recomendar Productos
-                  </Label>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Activa si quieres que el chatbot recomiende productos. Con API activa, buscará en tu catálogo. Sin API, usará los productos manuales que añadas abajo.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
       {/* Header con info */}
       <div className="bg-muted/50 border border-muted rounded-lg p-4">
         <div className="flex items-start gap-3">
