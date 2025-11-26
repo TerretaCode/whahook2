@@ -659,13 +659,42 @@ class WhatsAppService {
             .single()
 
           if (existingConv) {
-            // Ya existe, actualizar nombre si es necesario
+            // Ya existe, actualizar nombre y sincronizar mensajes
             if (contactName) {
               await supabaseAdmin
                 .from('conversations')
                 .update({ contact_name: contactName })
                 .eq('id', existingConv.id)
             }
+            
+            // Sincronizar mensajes de conversación existente
+            const messages = await chat.fetchMessages({ limit: 10 })
+            for (const msg of messages) {
+              const direction = msg.fromMe ? 'outgoing' : 'incoming'
+              
+              const { error: msgErr } = await supabaseAdmin
+                .from('messages')
+                .upsert({
+                  conversation_id: existingConv.id,
+                  user_id: userId,
+                  whatsapp_account_id: waAccount.id,
+                  message_id: msg.id._serialized,
+                  content: msg.body || '',
+                  type: msg.type || 'chat',
+                  direction,
+                  status: msg.fromMe ? 'sent' : 'received',
+                  timestamp: new Date(msg.timestamp * 1000).toISOString(),
+                }, {
+                  onConflict: 'message_id'
+                })
+              
+              if (msgErr) {
+                console.error(`Error syncing message:`, msgErr)
+              }
+            }
+            
+            syncedCount++
+            console.log(`✅ Synced messages for: ${contactName || contactPhone}`)
             continue
           }
 
