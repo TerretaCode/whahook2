@@ -678,6 +678,7 @@ class WhatsAppService {
             .from('conversations')
             .insert({
               user_id: userId,
+              session_id: sessionId,
               whatsapp_account_id: waAccount.id,
               contact_phone: contactPhone,
               contact_name: contactName,

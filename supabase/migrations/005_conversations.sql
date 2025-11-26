@@ -7,6 +7,7 @@
 CREATE TABLE IF NOT EXISTS conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  session_id TEXT,
   whatsapp_account_id UUID REFERENCES whatsapp_accounts(id) ON DELETE CASCADE,
   contact_phone TEXT NOT NULL,
   contact_name TEXT,
@@ -24,6 +25,7 @@ CREATE TABLE IF NOT EXISTS conversations (
 
 -- Añadir columnas faltantes si la tabla ya existe
 ALTER TABLE conversations 
+ADD COLUMN IF NOT EXISTS session_id TEXT,
 ADD COLUMN IF NOT EXISTS whatsapp_account_id UUID REFERENCES whatsapp_accounts(id) ON DELETE CASCADE,
 ADD COLUMN IF NOT EXISTS contact_phone TEXT,
 ADD COLUMN IF NOT EXISTS contact_name TEXT,
@@ -35,6 +37,9 @@ ADD COLUMN IF NOT EXISTS unread_count INTEGER DEFAULT 0,
 ADD COLUMN IF NOT EXISTS chatbot_enabled BOOLEAN DEFAULT true,
 ADD COLUMN IF NOT EXISTS is_online BOOLEAN DEFAULT false,
 ADD COLUMN IF NOT EXISTS needs_attention BOOLEAN DEFAULT false;
+
+-- Hacer session_id nullable si existe con NOT NULL
+ALTER TABLE conversations ALTER COLUMN session_id DROP NOT NULL;
 
 -- ==============================================
 -- ÍNDICES
