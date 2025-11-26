@@ -695,7 +695,7 @@ class WhatsAppService {
             let conversationId: string
 
             if (existingConvId) {
-              // Actualizar conversación existente
+              // Actualizar conversación existente con unread_count real de WhatsApp
               conversationId = existingConvId
               await supabaseAdmin
                 .from('conversations')
@@ -703,6 +703,7 @@ class WhatsAppService {
                   contact_name: contactName,
                   last_message_preview: lastMessage?.body?.substring(0, 100) || '',
                   last_message_at: lastMessage ? new Date(lastMessage.timestamp * 1000).toISOString() : undefined,
+                  unread_count: chat.unreadCount || 0, // Sincronizar unread_count real
                 })
                 .eq('id', existingConvId)
             } else {
@@ -731,19 +732,30 @@ class WhatsAppService {
               conversationId = newConv.id
             }
 
-            // Batch insert de mensajes
+            // Batch insert de mensajes con status real de WhatsApp
             if (messages.length > 0) {
-              const messageRecords = messages.map(msg => ({
-                conversation_id: conversationId,
-                user_id: userId,
-                whatsapp_account_id: waAccount.id,
-                message_id: msg.id._serialized,
-                content: msg.body || '',
-                type: msg.type || 'chat',
-                direction: msg.fromMe ? 'outgoing' : 'incoming',
-                status: msg.fromMe ? 'sent' : 'received',
-                timestamp: new Date(msg.timestamp * 1000).toISOString(),
-              }))
+              const messageRecords = messages.map(msg => {
+                // Mapear ack a status para mensajes salientes
+                let status = 'received'
+                if (msg.fromMe) {
+                  const ack = msg.ack ?? 1
+                  if (ack >= 3) status = 'read'
+                  else if (ack === 2) status = 'delivered'
+                  else status = 'sent'
+                }
+                
+                return {
+                  conversation_id: conversationId,
+                  user_id: userId,
+                  whatsapp_account_id: waAccount.id,
+                  message_id: msg.id._serialized,
+                  content: msg.body || '',
+                  type: msg.type || 'chat',
+                  direction: msg.fromMe ? 'outgoing' : 'incoming',
+                  status,
+                  timestamp: new Date(msg.timestamp * 1000).toISOString(),
+                }
+              })
 
               await supabaseAdmin
                 .from('messages')
