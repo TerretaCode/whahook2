@@ -653,7 +653,6 @@ class WhatsAppService {
         .eq('whatsapp_account_id', waAccount.id)
         .in('contact_phone', phoneNumbers)
 
-      const existingPhones = new Set(existingConvs?.map(c => c.contact_phone) || [])
       const existingConvsMap = new Map(existingConvs?.map(c => [c.contact_phone, c.id]) || [])
 
       let syncedCount = 0
