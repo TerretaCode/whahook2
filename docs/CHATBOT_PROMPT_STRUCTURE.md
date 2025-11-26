@@ -51,36 +51,37 @@ Usaremos **Progressive Disclosure** (revelación progresiva) para:
 └─────────┼───────────────────────────────┼───────────────────┘
           │                               │
           ▼                               ▼
-┌─────────────────────────────────┐  ┌────────────────────────┐
-│  FUENTES DE PRODUCTOS           │  │  MODO INFORMACIONAL    │
-│  (Selecciona una o varias)      │  │  (Solo info básica)    │
-│                                 │  │  - Info del Negocio    │
-│  ☐ Conectar API E-commerce      │  │  - Políticas           │
-│  ☐ Importar desde CSV           │  │  - Contacto            │
-│  ☐ Añadir productos manualmente │  │  - FAQs                │
-│                                 │  │  - Escalación          │
-│  💡 Puedes combinar métodos     │  └────────────────────────┘
-└─────────────────────────────────┘
-          │
-          ▼ (según selección, se muestran las secciones)
-┌─────────────────────────────────────────────────────────────┐
-│  SI API ACTIVA:                                             │
-│  └─ Selector de conexiones disponibles                      │
-├─────────────────────────────────────────────────────────────┤
-│  SI CSV ACTIVO:                                             │
-│  └─ Zona de drag & drop + preview de productos              │
-├─────────────────────────────────────────────────────────────┤
-│  SI MANUAL ACTIVO (o siempre visible como complemento):     │
-│  └─ Lista de productos + botón "Añadir producto"            │
-│  └─ Cada producto es editable/eliminable                    │
-└─────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────┐  ┌────────────────────────┐
+│  MODO E-COMMERCE                       │  │  MODO INFORMACIONAL    │
+│  (Todas las opciones disponibles)      │  │  (Solo info básica)    │
+│                                        │  │  - Info del Negocio    │
+│  Se muestran directamente:             │  │  - Políticas           │
+│  • Conexión API (si hay disponibles)   │  │  - Contacto            │
+│  • Importar CSV                        │  │  - FAQs                │
+│  • Productos manuales                  │  │  - Escalación          │
+│  • Categorías y subcategorías          │  └────────────────────────┘
+│  • Preguntas clave                     │
+│  • Reglas de recomendación             │
+│                                        │
+│  💡 Usa las que necesites              │
+└────────────────────────────────────────┘
           │
           ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  CONFIGURACIÓN DE PRODUCTOS (común a todas las fuentes)     │
-│  - Categorías y Subcategorías (auto-detectadas + manuales)  │
-│  - Preguntas Clave por categoría                            │
-│  - Reglas de Recomendación                                  │
+│  SECCIONES VISIBLES (el usuario usa las que quiera):        │
+│                                                              │
+│  📦 Conexión API E-commerce (si hay conexiones disponibles) │
+│     └─ Selector de tiendas conectadas                       │
+│                                                              │
+│  📄 Importar desde CSV                                      │
+│     └─ Zona drag & drop + preview                           │
+│                                                              │
+│  ✏️ Productos Manuales                                      │
+│     └─ Lista de productos + "Añadir producto"               │
+│                                                              │
+│  📂 Categorías y Subcategorías                              │
+│  ❓ Preguntas Clave por categoría                           │
+│  📋 Reglas de Recomendación                                 │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -118,34 +119,7 @@ Usaremos **Progressive Disclosure** (revelación progresiva) para:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Sección 2: Fuentes de Productos (Solo si eligió "Sí" en Sección 1)
-```
-┌─────────────────────────────────────────────────────────────┐
-│ 📦 Fuentes de Productos                                     │
-├─────────────────────────────────────────────────────────────┤
-│ Selecciona cómo quieres cargar tus productos.               │
-│ Puedes activar varias opciones a la vez.                    │
-│                                                              │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ ☐ 🔗 Conectar API E-commerce                            │ │
-│ │   Sincroniza automáticamente con tu tienda online       │ │
-│ │   (WooCommerce, Shopify, etc.)                          │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ ☐ 📄 Importar desde CSV                                 │ │
-│ │   Carga masiva de productos desde archivo Excel o CSV   │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ ☐ ✏️ Añadir productos manualmente                       │ │
-│ │   Escribe productos uno a uno, edita o añade nuevos     │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│                                                              │
-│ 💡 Ejemplo: Conecta tu API para el catálogo principal y    │
-│    añade manualmente productos exclusivos o promociones     │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Sección 2A: Conexión API (Si eligió API)
+### Sección 2: Conexión API E-commerce (Solo si eligió "Sí" y hay conexiones disponibles)
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ 🔗 Conexiones E-commerce                                    │
@@ -159,7 +133,9 @@ Usaremos **Progressive Disclosure** (revelación progresiva) para:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Sección 2B: Productos Manuales (Si eligió Manual o como complemento)
+### Sección 3: Importar desde CSV (Solo si eligió "Sí")
+
+### Sección 4: Productos Manuales (Solo si eligió "Sí")
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ ✏️ Productos Manuales                                       │
@@ -391,54 +367,52 @@ interface ChatbotConfig {
 
 ### Orden de secciones propuesto:
 
+**Siempre visible:**
 1. **Configuración del Bot** - Nombre, Idioma, Tono
 2. **Tipo de Chatbot** - ¿Recomendar productos? Sí/No
-3. **Fuentes de Productos** (si Sí) - Checkboxes combinables: API / CSV / Manual
-4. **Conexiones E-commerce** (si API marcado)
-5. **Importar CSV** (si CSV marcado)
-6. **Productos Manuales** (si Manual marcado) - Lista editable de productos
-7. **Categorías y Subcategorías** (si cualquier fuente de productos activa)
-8. **Preguntas Clave** (si productos)
-9. **Reglas de Recomendación** (si productos)
-10. **Información del Negocio** - Siempre
-11. **Políticas** - Siempre
-12. **Contacto** - Siempre
-13. **Escalación** - Siempre
-14. **FAQs** - Siempre
-15. **Información Adicional** - Siempre
 
-### Combinaciones de Fuentes Soportadas:
+**Si elige "Sí, recomendar productos" (todas visibles, usa las que quiera):**
+3. **Conexiones E-commerce** - Si hay conexiones disponibles
+4. **Importar CSV** - Drag & drop para carga masiva
+5. **Productos Manuales** - Lista editable, añadir/editar/eliminar
+6. **Categorías y Subcategorías** - Auto-detectadas + manuales
+7. **Preguntas Clave** - Por categoría
+8. **Reglas de Recomendación** - Estructura de respuesta + reglas especiales
 
-| Combinación | Caso de Uso |
-|-------------|-------------|
-| Solo API | Tienda online con catálogo sincronizado |
-| Solo CSV | Importación inicial sin API disponible |
-| Solo Manual | Pocos productos, control total |
-| API + Manual | Catálogo + productos exclusivos/promociones |
-| CSV + Manual | Importación bulk + ediciones/añadidos sin re-subir |
-| API + CSV | Múltiples fuentes de catálogo |
-| API + CSV + Manual | Máxima flexibilidad |
+**Siempre visible (ambos modos):**
+9. **Información del Negocio** - Obligatorio
+10. **Políticas** - Envío, devoluciones, pagos
+11. **Contacto** - Email, teléfono, redes
+12. **Escalación** - Cuándo pasar a humano
+13. **FAQs** - Preguntas frecuentes
+14. **Información Adicional** - Opcional
+
+### Ejemplos de uso:
+
+| El usuario quiere... | Usa estas secciones |
+|---------------------|---------------------|
+| Solo chatbot informativo | Info Negocio + Políticas + FAQs |
+| E-commerce con API | Conexión API + Categorías + Reglas |
+| E-commerce sin API | CSV o Manual + Categorías + Reglas |
+| E-commerce mixto | API + algunos productos manuales especiales |
 
 ### Beneficios de esta estructura:
 
-1. **Claridad**: El usuario sabe desde el principio qué tipo de bot está configurando
-2. **Flexibilidad Total**: Puede combinar cualquier método de carga de productos
-3. **Consistencia**: Los productos se tratan igual internamente sin importar el origen
-4. **Escalabilidad**: Fácil añadir nuevas fuentes de productos en el futuro
-5. **UX Progresiva**: Solo muestra lo relevante según las elecciones del usuario
-6. **Edición sin fricción**: Con Manual activo, siempre puede editar/añadir productos
+1. **Sin fricción**: No hay que "activar" opciones, todo está disponible
+2. **Flexibilidad Total**: El usuario usa solo lo que necesita
+3. **Consistencia**: Los productos se tratan igual sin importar el origen
+4. **UX Simple**: Solo 1 decisión inicial (¿productos sí/no?)
 
 ---
 
 ## Próximos Pasos de Implementación
 
-1. [ ] Crear componente `ChatbotTypeSelector` (Sí/No productos)
-2. [ ] Crear componente `ProductSourceSelector` (checkboxes combinables)
-3. [ ] Crear componente `ManualProductForm` (formulario de producto con CRUD)
-4. [ ] Crear componente `ProductList` (lista de productos de todas las fuentes)
-5. [ ] Crear componente `CSVImporter` (drag & drop + preview + mapeo columnas)
-6. [ ] Modificar `Prompt2ConfigTab` para usar progressive disclosure
-7. [ ] Crear endpoint backend para importar CSV
-8. [ ] Crear tabla `chatbot_products` en Supabase para productos manuales/CSV
-9. [ ] Unificar modelo de datos de productos
-10. [ ] Actualizar lógica de generación de prompt para usar estructura unificada
+1. [ ] Añadir toggle "¿Recomendar productos?" al inicio de Prompt2ConfigTab
+2. [ ] Crear componente `ManualProductForm` (formulario de producto con CRUD)
+3. [ ] Crear componente `ProductList` (lista de productos de todas las fuentes)
+4. [ ] Crear componente `CSVImporter` (drag & drop + preview + mapeo columnas)
+5. [ ] Modificar `Prompt2ConfigTab` para mostrar/ocultar secciones según el toggle
+6. [ ] Crear endpoint backend para importar CSV
+7. [ ] Crear tabla `chatbot_products` en Supabase para productos manuales/CSV
+8. [ ] Unificar modelo de datos de productos
+9. [ ] Actualizar lógica de generación de prompt para usar estructura unificada
