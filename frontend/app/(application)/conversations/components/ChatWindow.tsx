@@ -122,10 +122,10 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     try {
       if (isInitial) {
         setIsLoading(true)
-        setHasMoreMessages(true)
       }
       
-      const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}/messages?limit=50`)
+      // Cargar TODOS los mensajes de la DB (limit alto)
+      const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}/messages?limit=10000`)
       
       if (response.success && response.data) {
         const data = response.data as ApiMessage[]
@@ -133,7 +133,8 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
         
         if (isInitial) {
           setMessages(newMessages)
-          setHasMoreMessages(data.length >= 50)
+          // Ya no hay más mensajes que cargar desde la DB
+          setHasMoreMessages(false)
         } else {
           // Polling: solo añadir mensajes nuevos al final, sin borrar los antiguos
           setMessages(prev => {
@@ -374,22 +375,11 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
           </div>
         ) : (
           <>
-            {/* Botón para cargar todo el historial */}
-            {hasMoreMessages && messages.length > 0 && (
-              <button
-                onClick={loadAllMessages}
-                disabled={isLoadingMore}
-                className="w-full py-3 mb-2 text-sm text-green-600 hover:text-green-700 hover:bg-green-50 font-medium rounded-lg border border-green-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isLoadingMore ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
-                    Cargando historial completo...
-                  </>
-                ) : (
-                  '↑ Cargar todo el historial'
-                )}
-              </button>
+            {/* Indicador de cantidad de mensajes */}
+            {messages.length > 0 && (
+              <div className="text-center text-xs text-gray-400 py-2">
+                {messages.length} mensajes en esta conversación
+              </div>
             )}
             {showStarters && (
               <ConversationStarters
