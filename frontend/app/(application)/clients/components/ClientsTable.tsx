@@ -101,8 +101,8 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
   }
 
   const goToConversation = (phone: string) => {
-    // Navigate to inbox with the phone number as filter
-    router.push(`/inbox?phone=${phone}`)
+    // Navigate to conversations with the phone number as filter
+    router.push(`/conversations?phone=${phone}`)
   }
 
   if (isLoading) {
@@ -123,10 +123,10 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
             <Users className="w-8 h-8 text-gray-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No hay clientes
+            No clients yet
           </h3>
           <p className="text-gray-600 mb-4">
-            Comienza añadiendo tu primer cliente
+            Start by adding your first client
           </p>
         </div>
       </div>

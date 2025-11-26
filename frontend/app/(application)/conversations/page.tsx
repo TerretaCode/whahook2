@@ -1,22 +1,46 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
+import { ApiClient } from "@/lib/api-client"
 import { ConversationList } from "./components/ConversationList"
 import { ChatWindow } from "./components/ChatWindow"
 import { MessageSquare, Loader2 } from "lucide-react"
 
 export default function ConversationsPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, isLoading: authLoading } = useAuth()
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
+  const [initialPhoneProcessed, setInitialPhoneProcessed] = useState(false)
 
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login')
     }
   }, [user, authLoading, router])
+
+  // Handle phone parameter from URL to auto-select conversation
+  useEffect(() => {
+    const phone = searchParams.get('phone')
+    if (phone && user && !initialPhoneProcessed) {
+      setInitialPhoneProcessed(true)
+      // Find conversation by phone number
+      ApiClient.request<any>('/api/whatsapp/conversations')
+        .then(response => {
+          if (response.success && response.data) {
+            const conversation = response.data.find((c: any) => 
+              c.contact_phone === phone || c.contact_phone === phone.replace(/^\+/, '')
+            )
+            if (conversation) {
+              setSelectedConversationId(conversation.id)
+            }
+          }
+        })
+        .catch(console.error)
+    }
+  }, [searchParams, user, initialPhoneProcessed])
 
   // Ya no necesitamos manipular el DOM, el posicionamiento fixed se encarga de todo
 

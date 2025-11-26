@@ -124,7 +124,7 @@ export default function ClientsPage() {
       await fetchClients()
     } catch (error) {
       console.error('Error extracting info:', error)
-      alert('Error al extraer información. Asegúrate de tener configurado el chatbot con una API key válida.')
+      alert('Error extracting info. Make sure you have configured the AI with a valid API key.')
     }
   }
 
@@ -161,13 +161,13 @@ export default function ClientsPage() {
   }
 
   const handleDeleteClient = async (clientId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este cliente?')) return
+    if (!confirm('Are you sure you want to delete this client?')) return
 
     try {
       await ApiClient.request(`/api/clients/${clientId}`, { method: 'DELETE' })
       setClients(prev => prev.filter(c => c.id !== clientId))
     } catch {
-      alert('Error al eliminar el cliente')
+      alert('Error deleting client')
     }
   }
 
@@ -183,13 +183,13 @@ export default function ClientsPage() {
       setIsModalOpen(false)
       setSelectedClient(null)
     } catch {
-      alert('Error al guardar el cliente')
+      alert('Error saving client')
     }
   }
 
   const handleExport = () => {
     // TODO: Implement CSV export
-    alert('Exportar a CSV - Próximamente')
+    alert('Export to CSV - Coming soon')
   }
 
   if (authLoading || !user) {
@@ -207,10 +207,10 @@ export default function ClientsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              Clientes
+              Clients
             </h1>
             <p className="mt-1 text-sm text-gray-600">
-              Gestiona tu base de datos de clientes
+              Manage your client database
             </p>
           </div>
           <div className="flex gap-3">
@@ -222,7 +222,7 @@ export default function ClientsPage() {
               className="gap-2"
             >
               <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-              {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
+              {isSyncing ? 'Syncing...' : 'Sync'}
             </Button>
             <Button
               variant="outline"
@@ -231,7 +231,7 @@ export default function ClientsPage() {
               className="gap-2"
             >
               <Download className="w-4 h-4" />
-              Exportar
+              Export
             </Button>
           </div>
         </div>
@@ -285,7 +285,7 @@ export default function ClientsPage() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="Buscar por nombre, email, teléfono o empresa..."
+                  placeholder="Search by name, email, phone or company..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -301,7 +301,7 @@ export default function ClientsPage() {
                 onClick={() => setStatusFilter('all')}
                 className={statusFilter === 'all' ? 'bg-green-600 hover:bg-green-700' : ''}
               >
-                Todos
+                All
               </Button>
               <Button
                 variant={statusFilter === 'customer' ? 'default' : 'outline'}
@@ -309,7 +309,7 @@ export default function ClientsPage() {
                 onClick={() => setStatusFilter('customer')}
                 className={statusFilter === 'customer' ? 'bg-green-600 hover:bg-green-700' : ''}
               >
-                Clientes
+                Customers
               </Button>
               <Button
                 variant={statusFilter === 'prospect' ? 'default' : 'outline'}
@@ -317,7 +317,7 @@ export default function ClientsPage() {
                 onClick={() => setStatusFilter('prospect')}
                 className={statusFilter === 'prospect' ? 'bg-green-600 hover:bg-green-700' : ''}
               >
-                Prospectos
+                Prospects
               </Button>
               <Button
                 variant={statusFilter === 'lead' ? 'default' : 'outline'}
@@ -333,7 +333,7 @@ export default function ClientsPage() {
                 onClick={() => setStatusFilter('inactive')}
                 className={statusFilter === 'inactive' ? 'bg-green-600 hover:bg-green-700' : ''}
               >
-                Inactivos
+                Inactive
               </Button>
             </div>
           </div>
@@ -344,7 +344,7 @@ export default function ClientsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Contactos</p>
+                <p className="text-sm text-gray-600">Total Contacts</p>
                 <p className="text-2xl font-bold text-gray-900">{clients.length}</p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -356,7 +356,7 @@ export default function ClientsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Clientes</p>
+                <p className="text-sm text-gray-600">Customers</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {clients.filter(c => c.status === 'customer').length}
                 </p>
@@ -384,7 +384,7 @@ export default function ClientsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Mensajes</p>
+                <p className="text-sm text-gray-600">Total Messages</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {clients.reduce((sum, c) => sum + (c.total_messages || 0), 0)}
                 </p>
