@@ -75,6 +75,6 @@ export const KEEPALIVE_CONFIG = {
   heartbeatIntervalMs: 2 * 60 * 1000,      // 2 minutos
   watchdogIntervalMs: 60 * 1000,           // 1 minuto
   browserActivityIntervalMs: 45 * 1000,    // 45 segundos
-  keepaliveMessageMinMs: 55 * 60 * 1000,   // 55 minutos
-  keepaliveMessageMaxMs: 65 * 60 * 1000,   // 65 minutos
+  keepaliveMessageMinMs: 165 * 60 * 1000,  // 2h 45min (165 min)
+  keepaliveMessageMaxMs: 195 * 60 * 1000,  // 3h 15min (195 min)
 }
