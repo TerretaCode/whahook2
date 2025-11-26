@@ -49,6 +49,8 @@ interface ChatWindowProps {
 export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [hasMoreMessages, setHasMoreMessages] = useState(true)
   const [isSending, setIsSending] = useState(false)
   const [chatbotEnabled, setChatbotEnabled] = useState(true)
   const [conversationInfo, setConversationInfo] = useState({
@@ -63,6 +65,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     quick_replies?: string[]
   }>({})
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const showStarters = messages.length === 0 && !isLoading
   const { on, off } = useSocket()
 
@@ -86,21 +89,25 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     }
   }, [conversationId])
 
+  const mapApiMessage = (msg: ApiMessage): Message => ({
+    id: msg.id,
+    content: msg.content || msg.body || '',
+    timestamp: msg.created_at || msg.timestamp,
+    isOwn: msg.direction === 'outgoing' || msg.from_me,
+    status: (msg.status as 'sent' | 'delivered' | 'read') || 'sent',
+    type: (msg.type as 'text' | 'image' | 'file') || 'text'
+  })
+
   const fetchMessages = useCallback(async () => {
     try {
       setIsLoading(true)
-      const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}/messages`)
+      setHasMoreMessages(true)
+      const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}/messages?limit=50`)
       
       if (response.success && response.data) {
-        const mapped = (response.data as ApiMessage[]).map((msg): Message => ({
-          id: msg.id,
-          content: msg.content || msg.body || '',
-          timestamp: msg.created_at || msg.timestamp,
-          isOwn: msg.direction === 'outgoing' || msg.from_me,
-          status: (msg.status as 'sent' | 'delivered' | 'read') || 'sent',
-          type: (msg.type as 'text' | 'image' | 'file') || 'text'
-        }))
-        setMessages(mapped)
+        const data = response.data as ApiMessage[]
+        setMessages(data.map(mapApiMessage))
+        setHasMoreMessages(data.length >= 50)
       }
     } catch (error) {
       console.error('Error fetching messages:', error)
@@ -108,6 +115,55 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
       setIsLoading(false)
     }
   }, [conversationId])
+
+  // Cargar mensajes más antiguos
+  const loadMoreMessages = useCallback(async () => {
+    if (isLoadingMore || !hasMoreMessages || messages.length === 0) return
+    
+    setIsLoadingMore(true)
+    const oldestMessage = messages[0]
+    
+    try {
+      const response = await ApiClient.request(
+        `/api/whatsapp/conversations/${conversationId}/messages?limit=50&before=${oldestMessage.timestamp}`
+      )
+      
+      if (response.success && response.data) {
+        const data = response.data as ApiMessage[]
+        if (data.length > 0) {
+          const newMessages = data.map(mapApiMessage)
+          setMessages(prev => [...newMessages, ...prev])
+          setHasMoreMessages(data.length >= 50)
+          
+          // Mantener posición de scroll
+          if (messagesContainerRef.current) {
+            const container = messagesContainerRef.current
+            const scrollHeightBefore = container.scrollHeight
+            requestAnimationFrame(() => {
+              container.scrollTop = container.scrollHeight - scrollHeightBefore
+            })
+          }
+        } else {
+          setHasMoreMessages(false)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading more messages:', error)
+    } finally {
+      setIsLoadingMore(false)
+    }
+  }, [conversationId, messages, isLoadingMore, hasMoreMessages])
+
+  // Detectar scroll hacia arriba para cargar más mensajes
+  const handleScroll = useCallback(() => {
+    if (!messagesContainerRef.current) return
+    const { scrollTop } = messagesContainerRef.current
+    
+    // Cargar más cuando el usuario está cerca del top
+    if (scrollTop < 100 && hasMoreMessages && !isLoadingMore) {
+      loadMoreMessages()
+    }
+  }, [hasMoreMessages, isLoadingMore, loadMoreMessages])
 
   useEffect(() => {
     fetchConversation()
@@ -250,13 +306,32 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
       />
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div 
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-4 py-4"
+      >
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#25D366]"></div>
           </div>
         ) : (
           <>
+            {/* Indicador de carga de mensajes antiguos */}
+            {isLoadingMore && (
+              <div className="flex justify-center py-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#25D366]"></div>
+              </div>
+            )}
+            {/* Botón para cargar más si hay más mensajes */}
+            {!isLoadingMore && hasMoreMessages && messages.length > 0 && (
+              <button
+                onClick={loadMoreMessages}
+                className="w-full py-2 text-sm text-green-600 hover:text-green-700 font-medium"
+              >
+                ↑ Cargar mensajes anteriores
+              </button>
+            )}
             {showStarters && (
               <ConversationStarters
                 starters={chatbotConfig.conversation_starters || []}

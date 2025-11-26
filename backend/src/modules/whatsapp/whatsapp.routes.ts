@@ -443,6 +443,85 @@ router.get('/conversations/:id/messages', async (req: Request, res: Response) =>
 })
 
 /**
+ * GET /api/whatsapp/conversations/:id/fetch-older
+ * Cargar mensajes más antiguos desde WhatsApp (no solo de la DB)
+ */
+router.get('/conversations/:id/fetch-older', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { id } = req.params
+    const { limit = '20' } = req.query
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    // Obtener conversación
+    const { data: conversation } = await supabaseAdmin
+      .from('conversations')
+      .select('contact_phone, whatsapp_account_id')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single()
+
+    if (!conversation) {
+      return res.status(404).json({ success: false, error: 'Conversation not found' })
+    }
+
+    // Obtener session_id
+    const { data: waAccount } = await supabaseAdmin
+      .from('whatsapp_accounts')
+      .select('session_id')
+      .eq('id', conversation.whatsapp_account_id)
+      .eq('status', 'ready')
+      .single()
+
+    if (!waAccount) {
+      return res.status(404).json({ success: false, error: 'No active WhatsApp session' })
+    }
+
+    // Obtener mensajes más antiguos desde WhatsApp
+    const olderMessages = await whatsappService.fetchOlderMessages(
+      waAccount.session_id,
+      conversation.contact_phone,
+      parseInt(limit as string) || 20
+    )
+
+    if (!olderMessages) {
+      return res.json({ success: true, data: [], hasMore: false })
+    }
+
+    // Guardar en DB para cache
+    if (olderMessages.length > 0) {
+      const messageRecords = olderMessages.map((msg: any) => ({
+        conversation_id: id,
+        user_id: userId,
+        whatsapp_account_id: conversation.whatsapp_account_id,
+        message_id: msg.id,
+        content: msg.content || '',
+        type: msg.type || 'chat',
+        direction: msg.direction,
+        status: msg.status,
+        timestamp: msg.timestamp,
+      }))
+
+      await supabaseAdmin
+        .from('messages')
+        .upsert(messageRecords, { onConflict: 'message_id', ignoreDuplicates: true })
+    }
+
+    res.json({ 
+      success: true, 
+      data: olderMessages,
+      hasMore: olderMessages.length >= parseInt(limit as string)
+    })
+  } catch (error: any) {
+    console.error('Error fetching older messages:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
  * POST /api/whatsapp/conversations/:id/messages
  * Enviar mensaje a una conversación
  */

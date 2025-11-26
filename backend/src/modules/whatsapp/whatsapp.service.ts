@@ -825,6 +825,47 @@ class WhatsAppService {
   }
 
   /**
+   * Obtener mensajes más antiguos de un chat desde WhatsApp
+   */
+  async fetchOlderMessages(sessionId: string, phone: string, limit: number = 20): Promise<any[] | null> {
+    const session = this.sessions.get(sessionId)
+    if (!session || session.status !== 'ready') return null
+
+    try {
+      const chatId = `${phone.replace(/\D/g, '')}@c.us`
+      const chat = await session.client.getChatById(chatId)
+      
+      if (!chat) return null
+
+      // Obtener más mensajes del chat
+      const messages = await chat.fetchMessages({ limit })
+      
+      return messages.map(msg => {
+        // Mapear ack a status
+        let status = 'received'
+        if (msg.fromMe) {
+          const ack = msg.ack ?? 1
+          if (ack >= 3) status = 'read'
+          else if (ack === 2) status = 'delivered'
+          else status = 'sent'
+        }
+
+        return {
+          id: msg.id._serialized,
+          content: msg.body || '',
+          type: msg.type || 'chat',
+          direction: msg.fromMe ? 'outgoing' : 'incoming',
+          status,
+          timestamp: new Date(msg.timestamp * 1000).toISOString(),
+        }
+      })
+    } catch (error) {
+      console.error('Error fetching older messages:', error)
+      return null
+    }
+  }
+
+  /**
    * Enviar email de conexión exitosa
    */
   private async sendConnectionEmail(userId: string, phoneNumber: string, sessionId: string): Promise<void> {
