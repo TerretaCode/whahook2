@@ -918,65 +918,42 @@ class WhatsAppService {
 
   /**
    * Limpiar locks de Chrome que pueden quedar después de un crash
-   * CRITICAL: Copied from working old project
    */
   private async cleanChromeLocks(sessionId: string): Promise<void> {
     try {
       const sessionPath = path.join(env.sessionsPath, `session-${sessionId}`)
       
-      // Listar contenido del directorio para debug
-      if (fs.existsSync(env.sessionsPath)) {
-        const contents = fs.readdirSync(env.sessionsPath)
-        console.log(`📁 Sessions directory contents: ${contents.join(', ')}`)
-      }
+      if (!fs.existsSync(sessionPath)) return
 
-      if (!fs.existsSync(sessionPath)) {
-        console.log(`⚠️ Session path does not exist: ${sessionPath}`)
-        return
-      }
-
-      // CRITICAL: Clean Chromium lock files before restoring
-      // These files prevent session restoration after container restarts
-      console.log(`🧹 Cleaning Chromium lock files for session: ${sessionId}`)
-      const lockFiles = [
-        'SingletonCookie',
-        'SingletonLock', 
-        'SingletonSocket',
-        'Default/SingletonCookie',
-        'Default/SingletonLock',
-        'Default/SingletonSocket'
-      ]
+      let removedCount = 0
+      const lockFiles = ['SingletonCookie', 'SingletonLock', 'SingletonSocket', 'Default/SingletonCookie', 'Default/SingletonLock', 'Default/SingletonSocket']
 
       lockFiles.forEach(lockFile => {
-        const lockPath = path.join(sessionPath, lockFile)
         try {
-          // Try to unlink without checking existence first
-          // This handles symlinks and special files better
-          fs.unlinkSync(lockPath)
-          console.log(`  ✅ Removed lock file: ${lockFile}`)
-        } catch (unlinkError: any) {
-          // ENOENT means file doesn't exist, which is fine
-          if (unlinkError.code !== 'ENOENT') {
-            console.warn(`  ⚠️ Could not remove ${lockFile}:`, unlinkError.message)
-          }
+          fs.unlinkSync(path.join(sessionPath, lockFile))
+          removedCount++
+        } catch {
+          // Silencioso
         }
       })
 
-      // Limpiar locks recursivamente en subcarpetas
-      console.log(`🔍 Checking locks in subdirectories: ${sessionPath}`)
-      await this.cleanLocksRecursively(sessionPath)
+      // Limpiar locks recursivamente
+      removedCount += await this.cleanLocksRecursively(sessionPath)
 
-      console.log(`✅ Chrome locks cleaned for ${sessionId}`)
-    } catch (error) {
-      console.error(`Error cleaning Chrome locks:`, error)
+      if (removedCount > 0) {
+        console.log(`🧹 Cleaned ${removedCount} lock files for session`)
+      }
+    } catch {
+      // Silencioso
     }
   }
 
   /**
    * Limpiar locks recursivamente en un directorio
+   * Retorna el número de locks eliminados
    */
-  private async cleanLocksRecursively(dirPath: string): Promise<void> {
-    if (!fs.existsSync(dirPath)) return
+  private async cleanLocksRecursively(dirPath: string, removedCount = { count: 0 }): Promise<number> {
+    if (!fs.existsSync(dirPath)) return removedCount.count
 
     const entries = fs.readdirSync(dirPath, { withFileTypes: true })
     
@@ -984,35 +961,22 @@ class WhatsAppService {
       const fullPath = path.join(dirPath, entry.name)
       
       if (entry.isDirectory()) {
-        // Recursivamente limpiar subdirectorios
-        await this.cleanLocksRecursively(fullPath)
+        await this.cleanLocksRecursively(fullPath, removedCount)
       } else if (entry.isFile()) {
-        // Eliminar archivos de lock - lista ampliada
-        const lockFiles = [
-          'SingletonLock',
-          'SingletonSocket', 
-          'SingletonCookie',
-          'lockfile',
-          'LOCK',
-          '.lock',
-          'parent.lock',
-        ]
-        
-        const isLockFile = lockFiles.includes(entry.name) ||
-          entry.name.includes('Lock') ||
-          entry.name.includes('Singleton') ||
-          entry.name.includes('lock')
+        const lockFiles = ['SingletonLock', 'SingletonSocket', 'SingletonCookie', 'lockfile', 'LOCK', '.lock', 'parent.lock']
+        const isLockFile = lockFiles.includes(entry.name) || entry.name.includes('Lock') || entry.name.includes('Singleton') || entry.name.includes('lock')
         
         if (isLockFile) {
           try {
             fs.unlinkSync(fullPath)
-            console.log(`🧹 Removed lock: ${fullPath}`)
-          } catch (err) {
-            console.error(`Failed to remove ${fullPath}:`, err)
+            removedCount.count++
+          } catch {
+            // Silencioso
           }
         }
       }
     }
+    return removedCount.count
   }
 
   /**
