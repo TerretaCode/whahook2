@@ -431,9 +431,17 @@ class WhatsAppService {
     let contactName: string | null = null
     try {
       const contact = await message.getContact()
-      contactName = contact?.pushname || contact?.name || null
+      // pushname es el nombre que el usuario pone en su WhatsApp
+      // name es el nombre guardado en contactos
+      // notifyName es otra forma de obtener el nombre
+      contactName = contact?.pushname || contact?.notifyName || contact?.name || null
     } catch {
-      // Ignorar error de getContact
+      // Intentar obtener del mensaje directamente
+      try {
+        contactName = message._data?.notifyName || message.notifyName || null
+      } catch {
+        // Ignorar
+      }
     }
 
     // Log solo si es mensaje nuevo (no del sync inicial)

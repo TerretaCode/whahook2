@@ -137,8 +137,13 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                 <td className="px-6 py-4">
                   <div>
                     <div className="font-medium text-gray-900">
-                      {client.whatsapp_name || client.phone}
+                      {client.whatsapp_name || `+${client.phone}`}
                     </div>
+                    {!client.whatsapp_name && (
+                      <div className="text-xs text-gray-400 mt-0.5">
+                        No WhatsApp name available
+                      </div>
+                    )}
                     {client.full_name && client.full_name !== client.whatsapp_name && (
                       <div className="text-sm text-gray-500 mt-0.5">
                         {client.full_name}
@@ -235,7 +240,7 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
                 <h3 className="font-medium text-gray-900">
-                  {client.whatsapp_name || client.phone}
+                  {client.whatsapp_name || `+${client.phone}`}
                 </h3>
                 {client.full_name && client.full_name !== client.whatsapp_name && (
                   <p className="text-sm text-gray-500">{client.full_name}</p>
