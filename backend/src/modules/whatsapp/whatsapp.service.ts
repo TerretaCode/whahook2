@@ -646,8 +646,8 @@ class WhatsAppService {
           }
 
           const contactPhone = chat.id.user
-          const contact = await chat.getContact()
-          const contactName = contact?.pushname || contact?.name || chat.name || null
+          // Use chat.name directly - getContact() has compatibility issues
+          const contactName = chat.name || null
 
           // Verificar si ya existe la conversación
           const { data: existingConv } = await supabaseAdmin
