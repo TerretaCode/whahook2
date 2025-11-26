@@ -1,9 +1,10 @@
 "use client"
 
-import { Edit, Trash2, Mail, Phone, Building2, Users, Sparkles, Loader2, MessageSquare, Smile, Meh, Frown } from "lucide-react"
+import { Edit, Trash2, Mail, Phone, Building2, Users, Sparkles, Loader2, MessageSquare, Smile, Meh, Frown, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import type { Client } from "../page"
 
 interface ClientsTableProps {
@@ -15,6 +16,7 @@ interface ClientsTableProps {
 }
 
 export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractInfo }: ClientsTableProps) {
+  const router = useRouter()
   const [extractingId, setExtractingId] = useState<string | null>(null)
 
   const handleExtract = async (clientId: string) => {
@@ -76,23 +78,31 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
     )
   }
 
-  const getSatisfactionIcon = (satisfaction?: string) => {
-    if (!satisfaction || satisfaction === 'unknown') return null
+  const getSatisfactionBadge = (satisfaction?: string) => {
+    if (!satisfaction || satisfaction === 'unknown') {
+      return <span className="text-xs text-gray-400">-</span>
+    }
     
-    const icons: Record<string, { icon: React.ReactNode; color: string; label: string }> = {
-      happy: { icon: <Smile className="w-4 h-4" />, color: 'text-green-500', label: 'Happy' },
-      neutral: { icon: <Meh className="w-4 h-4" />, color: 'text-yellow-500', label: 'Neutral' },
-      unhappy: { icon: <Frown className="w-4 h-4" />, color: 'text-red-500', label: 'Unhappy' }
+    const config: Record<string, { icon: React.ReactNode; bg: string; text: string; label: string }> = {
+      happy: { icon: <Smile className="w-3 h-3" />, bg: 'bg-green-100', text: 'text-green-700', label: 'Happy' },
+      neutral: { icon: <Meh className="w-3 h-3" />, bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Neutral' },
+      unhappy: { icon: <Frown className="w-3 h-3" />, bg: 'bg-red-100', text: 'text-red-700', label: 'Unhappy' }
     }
 
-    const info = icons[satisfaction]
-    if (!info) return null
+    const info = config[satisfaction]
+    if (!info) return <span className="text-xs text-gray-400">-</span>
 
     return (
-      <span className={`${info.color} flex items-center gap-1`} title={info.label}>
+      <span className={`${info.bg} ${info.text} px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit`}>
         {info.icon}
+        {info.label}
       </span>
     )
+  }
+
+  const goToConversation = (phone: string) => {
+    // Navigate to inbox with the phone number as filter
+    router.push(`/inbox?phone=${phone}`)
   }
 
   if (isLoading) {
@@ -146,7 +156,7 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                 Status
               </th>
               <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Mood
+                Satisfaction
               </th>
               <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -203,21 +213,29 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                     {getInterestBadge(client.interest_type)}
                   </div>
                 </td>
-                {/* MOOD */}
+                {/* SATISFACTION */}
                 <td className="px-3 py-3">
-                  <div className="flex items-center gap-2">
-                    {getSatisfactionIcon(client.satisfaction) || <span className="text-xs text-gray-400">-</span>}
-                  </div>
+                  {getSatisfactionBadge(client.satisfaction)}
                 </td>
-                <td className="px-6 py-4 text-right text-sm font-medium">
+                {/* ACTIONS */}
+                <td className="px-3 py-3 text-right">
                   <div className="flex items-center justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => goToConversation(client.phone)}
+                      className="text-blue-600 hover:text-blue-700"
+                      title="Go to conversation"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleExtract(client.id)}
                       disabled={extractingId === client.id}
                       className="text-green-600 hover:text-green-700"
-                      title="Extraer info con IA"
+                      title="Extract info with AI"
                     >
                       {extractingId === client.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -230,6 +248,7 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                       size="sm"
                       onClick={() => onEdit(client)}
                       className="text-gray-600 hover:text-green-600"
+                      title="Edit"
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -238,6 +257,7 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                       size="sm"
                       onClick={() => onDelete(client.id)}
                       className="text-gray-600 hover:text-red-600"
+                      title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -326,14 +346,20 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
             )}
 
             <div className="flex items-center justify-between">
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-2 items-center flex-wrap">
                 {getStatusBadge(client.status)}
                 {getInterestBadge(client.interest_type)}
-                {getSatisfactionIcon(client.satisfaction)}
+                {getSatisfactionBadge(client.satisfaction)}
               </div>
-              <span className="text-xs text-gray-500">
-                {client.total_messages || 0} msgs
-              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => goToConversation(client.phone)}
+                className="text-blue-600"
+              >
+                <MessageSquare className="w-4 h-4 mr-1" />
+                Chat
+              </Button>
             </div>
           </div>
         ))}
