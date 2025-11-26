@@ -137,8 +137,13 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                 <td className="px-6 py-4">
                   <div>
                     <div className="font-medium text-gray-900">
-                      {client.full_name || client.whatsapp_name || 'Sin nombre'}
+                      {client.whatsapp_name || client.phone}
                     </div>
+                    {client.full_name && client.full_name !== client.whatsapp_name && (
+                      <div className="text-sm text-gray-500 mt-0.5">
+                        {client.full_name}
+                      </div>
+                    )}
                     {client.company && (
                       <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
                         <Building2 className="w-3 h-3" />
@@ -190,7 +195,7 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                       size="sm"
                       onClick={() => handleExtract(client.id)}
                       disabled={extractingId === client.id}
-                      className="text-purple-600 hover:text-purple-700"
+                      className="text-green-600 hover:text-green-700"
                       title="Extraer info con IA"
                     >
                       {extractingId === client.id ? (
@@ -230,8 +235,11 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
                 <h3 className="font-medium text-gray-900">
-                  {client.full_name || client.whatsapp_name || 'Sin nombre'}
+                  {client.whatsapp_name || client.phone}
                 </h3>
+                {client.full_name && client.full_name !== client.whatsapp_name && (
+                  <p className="text-sm text-gray-500">{client.full_name}</p>
+                )}
                 {client.company && (
                   <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
                     <Building2 className="w-3 h-3" />
@@ -245,7 +253,7 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                   size="sm"
                   onClick={() => handleExtract(client.id)}
                   disabled={extractingId === client.id}
-                  className="text-purple-600"
+                  className="text-green-600"
                 >
                   {extractingId === client.id ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
