@@ -28,18 +28,18 @@ const settingsNavigation = [
     description: 'WhatsApp & Webhooks'
   },
   {
-    id: 'chatbot',
-    name: 'Chatbot',
-    href: '/settings/chatbot',
-    icon: Bot,
-    description: 'AI Chatbot Configuration'
-  },
-  {
     id: 'ia',
     name: 'AI',
     href: '/settings/ia',
     icon: Sparkles,
     description: 'Global AI Settings'
+  },
+  {
+    id: 'chatbot',
+    name: 'Chatbot',
+    href: '/settings/chatbot',
+    icon: Bot,
+    description: 'AI Chatbot Configuration'
   }
 ]
 
