@@ -80,6 +80,73 @@ router.get('/', async (req: Request, res: Response) => {
 })
 
 /**
+ * GET /api/clients/settings
+ * Get client capture settings
+ */
+router.get('/settings', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const { data: settings, error } = await supabaseAdmin
+      .from('client_settings')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching client settings:', error)
+      return res.status(500).json({ success: false, error: 'Error fetching settings' })
+    }
+
+    res.json({ 
+      success: true, 
+      data: settings || { auto_capture_enabled: false }
+    })
+  } catch (error: any) {
+    console.error('Error in GET /clients/settings:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
+ * POST /api/clients/settings
+ * Update client capture settings
+ */
+router.post('/settings', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const { auto_capture_enabled } = req.body
+
+    const { data: settings, error } = await supabaseAdmin
+      .from('client_settings')
+      .upsert({
+        user_id: userId,
+        auto_capture_enabled: auto_capture_enabled ?? false,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating client settings:', error)
+      return res.status(500).json({ success: false, error: 'Error updating settings' })
+    }
+
+    res.json({ success: true, data: settings })
+  } catch (error: any) {
+    console.error('Error in POST /clients/settings:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
  * GET /api/clients/:id
  * Get a single client
  */

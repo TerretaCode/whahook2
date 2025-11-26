@@ -170,3 +170,36 @@ CREATE TRIGGER trigger_update_client_message_count
   AFTER INSERT ON messages
   FOR EACH ROW
   EXECUTE FUNCTION update_client_message_count();
+
+-- ==============================================
+-- Tabla de configuración de captura de clientes
+-- ==============================================
+CREATE TABLE IF NOT EXISTS client_settings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  
+  -- Captura automática con IA
+  auto_capture_enabled BOOLEAN DEFAULT false,
+  
+  -- Timestamps
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  
+  -- Un registro por usuario
+  CONSTRAINT client_settings_user_unique UNIQUE (user_id)
+);
+
+-- RLS para client_settings
+ALTER TABLE client_settings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own client settings"
+  ON client_settings FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own client settings"
+  ON client_settings FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own client settings"
+  ON client_settings FOR UPDATE
+  USING (auth.uid() = user_id);
