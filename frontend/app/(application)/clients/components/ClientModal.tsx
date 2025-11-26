@@ -17,34 +17,34 @@ interface ClientModalProps {
 
 export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProps) {
   const [formData, setFormData] = useState({
-    name: '',
+    full_name: '',
     email: '',
     phone: '',
     company: '',
     status: 'lead' as Client['status'],
-    source: 'manual' as Client['source'],
+    interest_type: '' as string,
     notes: ''
   })
 
   useEffect(() => {
     if (client) {
       setFormData({
-        name: client.name,
-        email: client.email,
+        full_name: client.full_name || client.whatsapp_name || '',
+        email: client.email || '',
         phone: client.phone,
         company: client.company || '',
         status: client.status,
-        source: client.source,
+        interest_type: client.interest_type || '',
         notes: client.notes || ''
       })
     } else {
       setFormData({
-        name: '',
+        full_name: '',
         email: '',
         phone: '',
         company: '',
         status: 'lead',
-        source: 'manual',
+        interest_type: '',
         notes: ''
       })
     }
@@ -77,13 +77,12 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Name */}
           <div>
-            <Label htmlFor="name">Nombre *</Label>
+            <Label htmlFor="full_name">Nombre</Label>
             <Input
-              id="name"
+              id="full_name"
               type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
+              value={formData.full_name}
+              onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
               placeholder="Juan Pérez"
               className="mt-1"
             />
@@ -92,27 +91,26 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
           {/* Email & Phone */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
                 placeholder="juan@example.com"
                 className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="phone">Teléfono *</Label>
+              <Label htmlFor="phone">Teléfono</Label>
               <Input
                 id="phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
                 placeholder="+34 600 000 000"
                 className="mt-1"
+                disabled={!!client}
               />
             </div>
           </div>
@@ -130,10 +128,10 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
             />
           </div>
 
-          {/* Status & Source */}
+          {/* Status & Interest */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="status">Estado *</Label>
+              <Label htmlFor="status">Estado</Label>
               <select
                 id="status"
                 value={formData.status}
@@ -141,21 +139,26 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="lead">Lead</option>
-                <option value="active">Activo</option>
+                <option value="prospect">Prospecto</option>
+                <option value="customer">Cliente</option>
                 <option value="inactive">Inactivo</option>
               </select>
             </div>
             <div>
-              <Label htmlFor="source">Origen *</Label>
+              <Label htmlFor="interest_type">Tipo de Interés</Label>
               <select
-                id="source"
-                value={formData.source}
-                onChange={(e) => setFormData({ ...formData, source: e.target.value as Client['source'] })}
+                id="interest_type"
+                value={formData.interest_type}
+                onChange={(e) => setFormData({ ...formData, interest_type: e.target.value })}
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               >
-                <option value="manual">Manual</option>
-                <option value="whatsapp">WhatsApp</option>
-                <option value="web">Web</option>
+                <option value="">Sin especificar</option>
+                <option value="product">Producto</option>
+                <option value="service">Servicio</option>
+                <option value="support">Soporte</option>
+                <option value="information">Información</option>
+                <option value="complaint">Queja</option>
+                <option value="other">Otro</option>
               </select>
             </div>
           </div>
