@@ -166,25 +166,32 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     }
   }, [messages])
 
-  // Cargar mensajes más antiguos (solo con botón)
+  // Cargar mensajes más antiguos desde WhatsApp (solo con botón)
   const loadMoreMessages = useCallback(async () => {
-    if (isLoadingMore || !hasMoreMessages || !oldestTimestampRef.current) return
+    if (isLoadingMore || !hasMoreMessages) return
     
     setIsLoadingMore(true)
     const scrollHeightBefore = messagesContainerRef.current?.scrollHeight || 0
     
     try {
+      // Usar endpoint que busca directamente en WhatsApp
       const response = await ApiClient.request(
-        `/api/whatsapp/conversations/${conversationId}/messages?limit=50&before=${encodeURIComponent(oldestTimestampRef.current)}`
+        `/api/whatsapp/conversations/${conversationId}/fetch-older?limit=50`
       )
       
       if (response.success && response.data) {
         const data = response.data as ApiMessage[]
+        const hasMore = (response as { hasMore?: boolean }).hasMore ?? false
         
         if (data.length > 0) {
           const newMessages = data.map(mapApiMessage)
-          setMessages(prev => [...newMessages, ...prev])
-          setHasMoreMessages(data.length >= 50)
+          // Filtrar duplicados
+          setMessages(prev => {
+            const existingIds = new Set(prev.map(m => m.id))
+            const uniqueNew = newMessages.filter(m => !existingIds.has(m.id))
+            return [...uniqueNew, ...prev]
+          })
+          setHasMoreMessages(hasMore)
           
           // Mantener posición de scroll después de añadir mensajes arriba
           requestAnimationFrame(() => {
@@ -196,6 +203,8 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
         } else {
           setHasMoreMessages(false)
         }
+      } else {
+        setHasMoreMessages(false)
       }
     } catch (error) {
       console.error('Error loading more messages:', error)

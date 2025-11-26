@@ -486,7 +486,8 @@ router.get('/conversations/:id/fetch-older', async (req: Request, res: Response)
     const olderMessages = await whatsappService.fetchOlderMessages(
       waAccount.session_id,
       conversation.contact_phone,
-      parseInt(limit as string) || 20
+      id, // conversationId para filtrar duplicados
+      parseInt(limit as string) || 50
     )
 
     if (!olderMessages) {
