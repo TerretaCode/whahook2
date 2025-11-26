@@ -175,8 +175,8 @@ export function GlobalAIConfig() {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-purple-100 rounded-lg">
-            <Sparkles className="w-5 h-5 text-purple-600" />
+          <div className="p-2 bg-green-100 rounded-lg">
+            <Sparkles className="w-5 h-5 text-green-600" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">AI Configuration</h3>
@@ -184,7 +184,7 @@ export function GlobalAIConfig() {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center py-16">
-          <Loader2 className="w-12 h-12 text-purple-600 animate-spin" />
+          <Loader2 className="w-12 h-12 text-green-600 animate-spin" />
           <p className="text-sm text-gray-500 mt-4">Loading configuration...</p>
         </div>
       </div>
@@ -194,8 +194,8 @@ export function GlobalAIConfig() {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-purple-100 rounded-lg">
-          <Sparkles className="w-5 h-5 text-purple-600" />
+        <div className="p-2 bg-green-100 rounded-lg">
+          <Sparkles className="w-5 h-5 text-green-600" />
         </div>
         <div>
           <h3 className="text-lg font-semibold text-gray-900">AI Configuration</h3>
@@ -345,15 +345,15 @@ export function GlobalAIConfig() {
           <h4 className="text-sm font-medium text-gray-900 mb-2">This configuration is used for:</h4>
           <ul className="text-sm text-gray-600 space-y-1">
             <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
+              <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
               WhatsApp Chatbot (automatic responses)
             </li>
             <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
+              <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
               Client capture (information extraction)
             </li>
             <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
+              <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
               Conversation analysis
             </li>
           </ul>
@@ -363,7 +363,7 @@ export function GlobalAIConfig() {
         <Button 
           onClick={handleSave} 
           disabled={isLoading} 
-          className="w-full bg-purple-600 hover:bg-purple-700"
+          className="w-full bg-green-600 hover:bg-green-700"
         >
           {isLoading ? (
             <>

@@ -239,8 +239,8 @@ export default function ClientsPage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-purple-600" />
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-green-600" />
               </div>
               <div>
                 <h3 className="font-medium text-gray-900">AI Auto-Capture</h3>
