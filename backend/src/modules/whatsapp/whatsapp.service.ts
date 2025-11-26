@@ -509,7 +509,7 @@ class WhatsAppService {
         type: message.type || 'chat',
         direction: 'incoming',
         status: 'received',
-        created_at: new Date(message.timestamp * 1000).toISOString(),
+        timestamp: new Date(message.timestamp * 1000).toISOString(),
       })
 
     if (msgError) {
@@ -586,7 +586,7 @@ class WhatsAppService {
         type: message.type || 'chat',
         direction: 'outgoing',
         status: 'sent',
-        created_at: new Date(message.timestamp * 1000).toISOString(),
+        timestamp: new Date(message.timestamp * 1000).toISOString(),
       })
 
     // Emitir evento por socket
@@ -711,7 +711,7 @@ class WhatsAppService {
                 type: msg.type || 'chat',
                 direction,
                 status: msg.fromMe ? 'sent' : 'received',
-                created_at: new Date(msg.timestamp * 1000).toISOString(),
+                timestamp: new Date(msg.timestamp * 1000).toISOString(),
               }, {
                 onConflict: 'message_id'
               })

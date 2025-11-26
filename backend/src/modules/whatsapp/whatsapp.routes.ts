@@ -509,7 +509,7 @@ router.post('/conversations/:id/messages', async (req: Request, res: Response) =
         type,
         direction: 'outgoing',
         status: 'sent',
-        created_at: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
       })
       .select()
       .single()
