@@ -158,6 +158,9 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
               <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Satisfaction
               </th>
+              <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Messages
+              </th>
               <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
@@ -216,6 +219,13 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                 {/* SATISFACTION */}
                 <td className="px-3 py-3">
                   {getSatisfactionBadge(client.satisfaction)}
+                </td>
+                {/* MESSAGES */}
+                <td className="px-3 py-3">
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <MessageSquare className="w-3 h-3" />
+                    {client.total_messages || 0}
+                  </div>
                 </td>
                 {/* ACTIONS */}
                 <td className="px-3 py-3 text-right">
