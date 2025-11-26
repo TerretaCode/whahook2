@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS messages (
   conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   whatsapp_account_id UUID REFERENCES whatsapp_accounts(id) ON DELETE CASCADE,
-  message_id TEXT UNIQUE,
+  message_id TEXT,
   content TEXT,
   type TEXT DEFAULT 'chat',
-  direction TEXT NOT NULL CHECK (direction IN ('incoming', 'outgoing')),
+  direction TEXT CHECK (direction IN ('incoming', 'outgoing')),
   status TEXT DEFAULT 'sent',
   timestamp TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -33,8 +33,21 @@ ADD COLUMN IF NOT EXISTS timestamp TIMESTAMPTZ DEFAULT NOW(),
 ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW(),
 ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
--- Hacer message_id único si no lo es
-CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_message_id ON messages(message_id) WHERE message_id IS NOT NULL;
+-- Hacer columnas nullable si existen con NOT NULL
+DO $$ 
+BEGIN
+  ALTER TABLE messages ALTER COLUMN remote_jid DROP NOT NULL;
+EXCEPTION WHEN others THEN NULL;
+END $$;
+
+DO $$ 
+BEGIN
+  ALTER TABLE messages ALTER COLUMN message_id DROP NOT NULL;
+EXCEPTION WHEN others THEN NULL;
+END $$;
+
+-- Índice único para message_id (para upsert)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_message_id_unique ON messages(message_id);
 
 -- ==============================================
 -- ÍNDICES
