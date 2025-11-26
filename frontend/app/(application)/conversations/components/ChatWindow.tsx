@@ -125,7 +125,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     
     try {
       const response = await ApiClient.request(
-        `/api/whatsapp/conversations/${conversationId}/messages?limit=50&before=${oldestMessage.timestamp}`
+        `/api/whatsapp/conversations/${conversationId}/messages?limit=50&before=${encodeURIComponent(oldestMessage.timestamp)}`
       )
       
       if (response.success && response.data) {

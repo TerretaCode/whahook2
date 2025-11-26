@@ -421,7 +421,9 @@ router.get('/conversations/:id/messages', async (req: Request, res: Response) =>
       .limit(Math.min(parseInt(limit as string) || 50, 100))
 
     if (before) {
-      query = query.lt('timestamp', before as string)
+      // Decodificar el timestamp (el + se convierte en espacio en URLs)
+      const beforeTimestamp = decodeURIComponent(before as string).replace(' ', '+')
+      query = query.lt('timestamp', beforeTimestamp)
     }
 
     const { data: messages, error } = await query
