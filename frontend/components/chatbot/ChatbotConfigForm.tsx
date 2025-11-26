@@ -4,14 +4,12 @@ import { useState, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
-  Settings,
   MessageSquare,
   Clock,
   Zap,
   Shield,
   Sparkles
 } from "lucide-react"
-import { BasicConfigTab } from "./config-tabs/BasicConfigTab"
 import { Prompt2ConfigTab } from "./config-tabs/Prompt2ConfigTab"
 import { ModelConfigTab } from "./config-tabs/ModelConfigTab"
 import { ConversationConfigTab } from "./config-tabs/ConversationConfigTab"
@@ -48,7 +46,7 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
         ? `chatbot-tab-widget-${props.widgetId}`
         : 'chatbot-tab'
     const savedTab = localStorage.getItem(storageKey)
-    return savedTab || 'basic'
+    return savedTab || 'prompt2'
   }
   
   const [activeTab, setActiveTab] = useState(getInitialTab())
@@ -105,10 +103,6 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
       <div className="overflow-x-auto -mx-4 px-4 mb-4">
         <TabsList className="inline-flex w-auto min-w-full">
-          <TabsTrigger value="basic" className="flex-shrink-0">
-            <Settings className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Básico</span>
-          </TabsTrigger>
           <TabsTrigger value="prompt2" className="flex-shrink-0">
             <Sparkles className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Prompt</span>
@@ -132,7 +126,6 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
         </TabsList>
       </div>
 
-      <TabsContent value="basic"><BasicConfigTab {...tabProps} /></TabsContent>
       <TabsContent value="prompt2"><Prompt2ConfigTab {...tabProps} /></TabsContent>
       <TabsContent value="model"><ModelConfigTab {...tabProps} /></TabsContent>
       <TabsContent value="conversation"><ConversationConfigTab {...tabProps} /></TabsContent>

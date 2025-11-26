@@ -24,7 +24,11 @@ import {
   X,
   Sparkles,
   FileText,
-  Lightbulb
+  Lightbulb,
+  Bot,
+  ShoppingCart,
+  Globe,
+  Settings
 } from "lucide-react"
 import {
   Select,
@@ -55,9 +59,10 @@ interface Prompt2ConfigTabProps {
   onFormDataChange?: (data: any) => void // Direct access to parent's setState
   sessionId?: string // WhatsApp session ID
   widgetId?: string // Widget ID (for future use)
+  ecommerceConnections?: { id: string; platform: string; store_name: string }[]
 }
 
-export function Prompt2ConfigTab({ formData, updateField, onFormDataChange, sessionId, widgetId }: Prompt2ConfigTabProps) {
+export function Prompt2ConfigTab({ formData, updateField, onFormDataChange, sessionId, widgetId, ecommerceConnections = [] }: Prompt2ConfigTabProps) {
   // Debug: Log formData changes
   useEffect(() => {
     console.log('📊 formData changed:', formData)
@@ -631,8 +636,154 @@ export function Prompt2ConfigTab({ formData, updateField, onFormDataChange, sess
 
   return (
     <div className="space-y-6">
+      {/* Configuración Básica del Bot */}
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Bot className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Configuración del Bot</CardTitle>
+              <CardDescription>Nombre, idioma y tono de conversación</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="bot_name">Nombre del Bot</Label>
+              <Input
+                id="bot_name"
+                value={formData?.bot_name || ''}
+                onChange={(e) => updateField('bot_name', e.target.value)}
+                placeholder="Asistente"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="language">Idioma</Label>
+              <Select value={formData?.language || 'es'} onValueChange={(v) => updateField('language', v)}>
+                <SelectTrigger id="language">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="es">Español</SelectItem>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="fr">Français</SelectItem>
+                  <SelectItem value="de">Deutsch</SelectItem>
+                  <SelectItem value="it">Italiano</SelectItem>
+                  <SelectItem value="pt">Português</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tone">Tono de Conversación</Label>
+              <Select value={formData?.tone || 'professional'} onValueChange={(v) => updateField('tone', v)}>
+                <SelectTrigger id="tone">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="professional">Profesional</SelectItem>
+                  <SelectItem value="friendly">Amigable</SelectItem>
+                  <SelectItem value="casual">Casual</SelectItem>
+                  <SelectItem value="formal">Formal</SelectItem>
+                  <SelectItem value="enthusiastic">Entusiasta</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Integración E-commerce */}
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <ShoppingCart className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Integración E-commerce</CardTitle>
+                <CardDescription>Conecta tu catálogo de productos</CardDescription>
+              </div>
+            </div>
+            <Switch 
+              checked={formData?.use_ecommerce_api || false} 
+              onCheckedChange={(c) => updateField('use_ecommerce_api', c)} 
+            />
+          </div>
+        </CardHeader>
+        {formData?.use_ecommerce_api && (
+          <CardContent className="space-y-4 pt-0">
+            <div className="space-y-3 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/30">
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Selecciona las APIs a integrar:</p>
+                {ecommerceConnections.length === 0 ? (
+                  <p className="text-sm text-gray-500">No hay conexiones de e-commerce disponibles</p>
+                ) : (
+                  <div className="space-y-2">
+                    {ecommerceConnections.map((c) => {
+                      const isSelected = (formData?.ecommerce_connection_ids || []).includes(c.id)
+                      return (
+                        <div key={c.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`ecommerce-${c.id}`}
+                            checked={isSelected}
+                            onCheckedChange={(checked) => {
+                              const currentIds = formData?.ecommerce_connection_ids || []
+                              const newIds = checked
+                                ? [...currentIds, c.id]
+                                : currentIds.filter((id: string) => id !== c.id)
+                              updateField('ecommerce_connection_ids', newIds)
+                            }}
+                          />
+                          <label htmlFor={`ecommerce-${c.id}`} className="text-sm text-gray-900 dark:text-gray-100 cursor-pointer">
+                            <span className="font-medium">{c.platform}</span> - {c.store_name}
+                          </label>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-3 border-t border-blue-200 dark:border-blue-800">
+                <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3 mb-3">
+                  <div className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-green-800 dark:text-green-200">Búsqueda Automática Activada</p>
+                      <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                        El bot buscará automáticamente en tu catálogo con cada mensaje. Si encuentra productos relacionados, los incluirá en la respuesta.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Mensaje Mientras Busca</Label>
+                  <Input
+                    value={formData?.ecommerce_search_message || 'Estoy buscando la mejor solución para ti...'}
+                    onChange={(e) => updateField('ecommerce_search_message', e.target.value)}
+                    placeholder="Estoy buscando la mejor solución para ti..."
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Este mensaje se enviará al usuario mientras el bot busca en tu catálogo.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
       {/* Toggle de Recomendar Productos - Solo si API ecommerce está activa */}
-      {formData.use_ecommerce_api && (
+      {formData?.use_ecommerce_api && (
         <Card className="border border-muted bg-muted/30">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
