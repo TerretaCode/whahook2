@@ -445,14 +445,13 @@ router.get('/conversations/:id/messages', async (req: Request, res: Response) =>
 })
 
 /**
- * GET /api/whatsapp/conversations/:id/fetch-older
- * Cargar mensajes más antiguos desde WhatsApp (no solo de la DB)
+ * GET /api/whatsapp/conversations/:id/load-all
+ * Cargar TODOS los mensajes desde WhatsApp (historial completo)
  */
-router.get('/conversations/:id/fetch-older', async (req: Request, res: Response) => {
+router.get('/conversations/:id/load-all', async (req: Request, res: Response) => {
   try {
     const userId = await getUserIdFromToken(req)
     const { id } = req.params
-    const { limit = '20' } = req.query
     
     if (!userId) {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
@@ -482,21 +481,20 @@ router.get('/conversations/:id/fetch-older', async (req: Request, res: Response)
       return res.status(404).json({ success: false, error: 'No active WhatsApp session' })
     }
 
-    // Obtener mensajes más antiguos desde WhatsApp
-    const olderMessages = await whatsappService.fetchOlderMessages(
+    // Cargar TODOS los mensajes desde WhatsApp
+    const result = await whatsappService.fetchAllMessages(
       waAccount.session_id,
       conversation.contact_phone,
-      id, // conversationId para filtrar duplicados
-      parseInt(limit as string) || 50
+      id
     )
 
-    if (!olderMessages) {
-      return res.json({ success: true, data: [], hasMore: false })
+    if (!result) {
+      return res.json({ success: true, data: [], totalLoaded: 0 })
     }
 
-    // Guardar en DB para cache
-    if (olderMessages.length > 0) {
-      const messageRecords = olderMessages.map((msg: any) => ({
+    // Guardar nuevos mensajes en DB
+    if (result.messages.length > 0) {
+      const messageRecords = result.messages.map((msg: any) => ({
         conversation_id: id,
         user_id: userId,
         whatsapp_account_id: conversation.whatsapp_account_id,
@@ -513,15 +511,13 @@ router.get('/conversations/:id/fetch-older', async (req: Request, res: Response)
         .upsert(messageRecords, { onConflict: 'message_id', ignoreDuplicates: true })
     }
 
-    // hasMore = true si encontramos mensajes nuevos (puede haber más)
-    // Solo false si no encontramos ningún mensaje nuevo
     res.json({ 
       success: true, 
-      data: olderMessages,
-      hasMore: olderMessages.length > 0
+      newMessages: result.messages.length,
+      totalInWhatsApp: result.totalInWhatsApp
     })
   } catch (error: any) {
-    console.error('Error fetching older messages:', error)
+    console.error('Error loading all messages:', error)
     res.status(500).json({ success: false, error: error.message })
   }
 })

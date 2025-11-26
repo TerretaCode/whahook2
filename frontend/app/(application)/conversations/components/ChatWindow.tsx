@@ -166,52 +166,42 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     }
   }, [messages])
 
-  // Cargar mensajes más antiguos desde WhatsApp (solo con botón)
-  const loadMoreMessages = useCallback(async () => {
-    if (isLoadingMore || !hasMoreMessages) return
+  // Cargar TODOS los mensajes desde WhatsApp
+  const loadAllMessages = useCallback(async () => {
+    if (isLoadingMore) return
     
     setIsLoadingMore(true)
-    const scrollHeightBefore = messagesContainerRef.current?.scrollHeight || 0
     
     try {
-      // Usar endpoint que busca directamente en WhatsApp
+      // Cargar todos los mensajes desde WhatsApp
       const response = await ApiClient.request(
-        `/api/whatsapp/conversations/${conversationId}/fetch-older?limit=50`
+        `/api/whatsapp/conversations/${conversationId}/load-all`
       )
       
-      if (response.success && response.data) {
-        const data = response.data as ApiMessage[]
-        const hasMore = (response as { hasMore?: boolean }).hasMore ?? false
+      if (response.success) {
+        const result = response as { newMessages?: number, totalInWhatsApp?: number }
         
-        if (data.length > 0) {
-          const newMessages = data.map(mapApiMessage)
-          // Filtrar duplicados
-          setMessages(prev => {
-            const existingIds = new Set(prev.map(m => m.id))
-            const uniqueNew = newMessages.filter(m => !existingIds.has(m.id))
-            return [...uniqueNew, ...prev]
-          })
-          setHasMoreMessages(hasMore)
+        if (result.newMessages && result.newMessages > 0) {
+          // Recargar mensajes desde la DB (ahora tiene todos)
+          const messagesResponse = await ApiClient.request(
+            `/api/whatsapp/conversations/${conversationId}/messages?limit=1000`
+          )
           
-          // Mantener posición de scroll después de añadir mensajes arriba
-          requestAnimationFrame(() => {
-            if (messagesContainerRef.current) {
-              const newScrollHeight = messagesContainerRef.current.scrollHeight
-              messagesContainerRef.current.scrollTop = newScrollHeight - scrollHeightBefore
-            }
-          })
-        } else {
-          setHasMoreMessages(false)
+          if (messagesResponse.success && messagesResponse.data) {
+            const data = messagesResponse.data as ApiMessage[]
+            setMessages(data.map(mapApiMessage))
+          }
         }
-      } else {
+        
+        // Ya no hay más mensajes que cargar
         setHasMoreMessages(false)
       }
     } catch (error) {
-      console.error('Error loading more messages:', error)
+      console.error('Error loading all messages:', error)
     } finally {
       setIsLoadingMore(false)
     }
-  }, [conversationId, isLoadingMore, hasMoreMessages])
+  }, [conversationId, isLoadingMore])
 
   useEffect(() => {
     // Reset cuando cambia la conversación
@@ -379,20 +369,20 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
           </div>
         ) : (
           <>
-            {/* Botón para cargar más mensajes antiguos */}
+            {/* Botón para cargar todo el historial */}
             {hasMoreMessages && messages.length > 0 && (
               <button
-                onClick={loadMoreMessages}
+                onClick={loadAllMessages}
                 disabled={isLoadingMore}
                 className="w-full py-3 mb-2 text-sm text-green-600 hover:text-green-700 hover:bg-green-50 font-medium rounded-lg border border-green-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoadingMore ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
-                    Cargando...
+                    Cargando historial completo...
                   </>
                 ) : (
-                  '↑ Cargar mensajes anteriores'
+                  '↑ Cargar todo el historial'
                 )}
               </button>
             )}

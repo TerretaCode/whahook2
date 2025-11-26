@@ -829,10 +829,10 @@ class WhatsAppService {
   }
 
   /**
-   * Obtener mensajes más antiguos de un chat desde WhatsApp
-   * Obtiene más mensajes de los que ya tenemos en la DB
+   * Cargar TODOS los mensajes de un chat desde WhatsApp
+   * Usa limit: Infinity para obtener el historial completo
    */
-  async fetchOlderMessages(sessionId: string, phone: string, conversationId: string, limit: number = 50): Promise<any[] | null> {
+  async fetchAllMessages(sessionId: string, phone: string, conversationId: string): Promise<{ messages: any[], totalInWhatsApp: number } | null> {
     const session = this.sessions.get(sessionId)
     if (!session || session.status !== 'ready') return null
 
@@ -842,19 +842,14 @@ class WhatsAppService {
       
       if (!chat) return null
 
-      // Contar mensajes actuales en DB para esta conversación
-      const { count: currentCount } = await supabaseAdmin
-        .from('messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('conversation_id', conversationId)
-
-      // Pedir más mensajes de los que ya tenemos + el límite solicitado
-      const totalToFetch = (currentCount || 0) + limit
-      console.log(`📜 Fetching ${totalToFetch} messages (current: ${currentCount}, new: ${limit})`)
+      console.log(`📜 Loading ALL messages from WhatsApp for ${phone}...`)
       
-      const messages = await chat.fetchMessages({ limit: totalToFetch })
+      // Cargar TODOS los mensajes disponibles en WhatsApp
+      const allMessages = await chat.fetchMessages({ limit: Infinity })
       
-      // Obtener IDs de mensajes que ya tenemos
+      console.log(`📜 WhatsApp returned ${allMessages.length} total messages`)
+      
+      // Obtener IDs de mensajes que ya tenemos en DB
       const { data: existingMessages } = await supabaseAdmin
         .from('messages')
         .select('message_id')
@@ -862,13 +857,12 @@ class WhatsAppService {
       
       const existingIds = new Set(existingMessages?.map(m => m.message_id) || [])
       
-      // Filtrar solo los mensajes nuevos (que no tenemos en DB)
-      const newMessages = messages.filter(msg => !existingIds.has(msg.id._serialized))
+      // Filtrar solo los mensajes nuevos
+      const newMessages = allMessages.filter(msg => !existingIds.has(msg.id._serialized))
       
-      console.log(`📜 Found ${newMessages.length} new messages out of ${messages.length} total`)
+      console.log(`📜 Found ${newMessages.length} new messages to add (${existingIds.size} already in DB)`)
       
-      return newMessages.map(msg => {
-        // Mapear ack a status
+      const mappedMessages = newMessages.map(msg => {
         let status = 'received'
         if (msg.fromMe) {
           const ack = msg.ack ?? 1
@@ -886,8 +880,13 @@ class WhatsAppService {
           timestamp: new Date(msg.timestamp * 1000).toISOString(),
         }
       })
+
+      return {
+        messages: mappedMessages,
+        totalInWhatsApp: allMessages.length
+      }
     } catch (error) {
-      console.error('Error fetching older messages:', error)
+      console.error('Error fetching all messages:', error)
       return null
     }
   }
