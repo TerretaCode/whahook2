@@ -694,6 +694,9 @@ class WhatsAppService {
 
             let conversationId: string
 
+            // Obtener unread count real del chat
+            const unreadCount = typeof chat.unreadCount === 'number' ? chat.unreadCount : 0
+
             if (existingConvId) {
               // Actualizar conversación existente con unread_count real de WhatsApp
               conversationId = existingConvId
@@ -703,7 +706,7 @@ class WhatsAppService {
                   contact_name: contactName,
                   last_message_preview: lastMessage?.body?.substring(0, 100) || '',
                   last_message_at: lastMessage ? new Date(lastMessage.timestamp * 1000).toISOString() : undefined,
-                  unread_count: chat.unreadCount || 0, // Sincronizar unread_count real
+                  unread_count: unreadCount,
                 })
                 .eq('id', existingConvId)
             } else {
@@ -719,7 +722,7 @@ class WhatsAppService {
                   status: 'open',
                   last_message_preview: lastMessage?.body?.substring(0, 100) || '',
                   last_message_at: lastMessage ? new Date(lastMessage.timestamp * 1000).toISOString() : new Date().toISOString(),
-                  unread_count: chat.unreadCount || 0,
+                  unread_count: unreadCount,
                   chatbot_enabled: true,
                 })
                 .select('id')

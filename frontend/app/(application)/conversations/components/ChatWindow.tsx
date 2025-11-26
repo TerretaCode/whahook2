@@ -195,6 +195,12 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   }, [hasMoreMessages, isLoadingMore, loadMoreMessages])
 
   useEffect(() => {
+    // Reset refs cuando cambia la conversación
+    isInitialLoadRef.current = true
+    prevMessagesLengthRef.current = 0
+    setMessages([])
+    setHasMoreMessages(true)
+    
     fetchConversation()
     fetchMessages(true) // Carga inicial
     
@@ -242,8 +248,27 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     }
   }, [conversationId, on, off])
 
+  // Solo scroll al bottom en carga inicial, no cuando se cargan mensajes antiguos
+  const isInitialLoadRef = useRef(true)
+  const prevMessagesLengthRef = useRef(0)
+  
   useEffect(() => {
-    scrollToBottom()
+    // Solo hacer scroll si es carga inicial o si se añadieron mensajes al final (no al principio)
+    if (isInitialLoadRef.current && messages.length > 0) {
+      scrollToBottom()
+      isInitialLoadRef.current = false
+    } else if (messages.length > prevMessagesLengthRef.current) {
+      // Solo scroll si el último mensaje es nuevo (no si se cargaron antiguos al principio)
+      const lastMsg = messages[messages.length - 1]
+      const wasAtBottom = messagesContainerRef.current 
+        ? messagesContainerRef.current.scrollHeight - messagesContainerRef.current.scrollTop - messagesContainerRef.current.clientHeight < 100
+        : false
+      
+      if (wasAtBottom && lastMsg) {
+        scrollToBottom()
+      }
+    }
+    prevMessagesLengthRef.current = messages.length
   }, [messages])
 
   const scrollToBottom = () => {
