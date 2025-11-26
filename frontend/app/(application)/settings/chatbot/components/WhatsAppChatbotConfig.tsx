@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   Save,
   Loader2,
@@ -17,8 +18,11 @@ import {
   Pause,
   Play,
   Eye,
-  EyeOff
+  EyeOff,
+  Settings,
+  FileText
 } from "lucide-react"
+import { StructuredPromptConfig, defaultPromptData, type StructuredPromptData } from "./StructuredPromptConfig"
 
 interface WhatsAppSession {
   id: string
@@ -88,6 +92,8 @@ export function WhatsAppChatbotConfig() {
   const [expandedSession, setExpandedSession] = useState<string | null>(null)
   const [configs, setConfigs] = useState<Record<string, ChatbotConfig>>({})
   const [formData, setFormData] = useState<Record<string, ChatbotConfig>>({})
+  const [promptData, setPromptData] = useState<Record<string, StructuredPromptData>>({})
+  const [activeTab, setActiveTab] = useState<string>("basic")
 
   useEffect(() => {
     loadInitialData()
@@ -181,10 +187,15 @@ export function WhatsAppChatbotConfig() {
         }
         
         setFormData(prev => ({ ...prev, [sessionId]: configData }))
+        
+        // Load structured prompt data if exists
+        const structuredPrompt = config.structured_prompt || {}
+        setPromptData(prev => ({ ...prev, [sessionId]: { ...defaultPromptData, ...structuredPrompt } }))
       }
-    } catch (error) {
+    } catch {
       // No config exists yet - set defaults
       setFormData(prev => ({ ...prev, [sessionId]: { ...defaultConfig } }))
+      setPromptData(prev => ({ ...prev, [sessionId]: { ...defaultPromptData } }))
     }
   }
 
@@ -198,18 +209,33 @@ export function WhatsAppChatbotConfig() {
         delete data.api_key
       }
       
+      // Include structured prompt data
+      const saveData = {
+        ...data,
+        structured_prompt: promptData[sessionId] || defaultPromptData
+      }
+      
       await ApiClient.request(`/api/chatbot/whatsapp/${sessionId}`, {
         method: 'POST',
-        body: JSON.stringify(data)
+        body: JSON.stringify(saveData)
       })
       
       // Reload config
       await loadConfig(sessionId)
-    } catch (error) {
-      console.error('Error saving config:', error)
+    } catch {
+      console.error('Error saving config')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleTestBot = (sessionId: string) => {
+    // TODO: Implement bot testing
+    alert('Bot testing coming soon! Session: ' + sessionId)
+  }
+
+  const updatePromptData = (sessionId: string, data: StructuredPromptData) => {
+    setPromptData(prev => ({ ...prev, [sessionId]: data }))
   }
 
   const toggleAutoReply = async (sessionId: string, currentState: boolean) => {
@@ -361,201 +387,169 @@ export function WhatsAppChatbotConfig() {
                   </div>
                 </div>
 
-                {/* Expanded Config Form */}
+                {/* Expanded Config Form with Tabs */}
                 {isExpanded && (
                   <div className="p-4 border-t">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Configuración Básica</CardTitle>
-                        <CardDescription>Configura el proveedor de IA, modelo y credenciales</CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {/* Provider */}
-                        <div className="space-y-2">
-                          <Label>Proveedor de IA *</Label>
-                          <Select 
-                            value={data.provider || ''} 
-                            onValueChange={(v) => updateField(session.id, 'provider', v)}
-                          >
-                            <SelectTrigger><SelectValue placeholder="Selecciona un proveedor" /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="google">Google Gemini</SelectItem>
-                              <SelectItem value="openai">OpenAI GPT</SelectItem>
-                              <SelectItem value="anthropic">Anthropic Claude</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                      <TabsList className="grid w-full grid-cols-2 mb-6">
+                        <TabsTrigger value="basic" className="flex items-center gap-2">
+                          <Settings className="w-4 h-4" />
+                          Basic Config
+                        </TabsTrigger>
+                        <TabsTrigger value="prompt" className="flex items-center gap-2">
+                          <FileText className="w-4 h-4" />
+                          Prompt 2
+                        </TabsTrigger>
+                      </TabsList>
 
-                        {/* Model */}
-                        {data.provider && (
-                          <div className="space-y-2">
-                            <Label>Modelo *</Label>
-                            <Select 
-                              value={data.model || ''} 
-                              onValueChange={(v) => updateField(session.id, 'model', v)}
-                            >
-                              <SelectTrigger><SelectValue placeholder="Selecciona un modelo" /></SelectTrigger>
-                              <SelectContent>
-                                {providerModels[data.provider]?.map((m) => (
-                                  <SelectItem key={m.value} value={m.value}>
-                                    <div className="flex flex-col">
-                                      <span className="font-medium">{m.label}</span>
-                                      <span className="text-xs text-muted-foreground">{m.description}</span>
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
+                      {/* Basic Configuration Tab */}
+                      <TabsContent value="basic">
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Basic Configuration</CardTitle>
+                            <CardDescription>Configure AI provider, model and credentials</CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            {/* Provider */}
+                            <div className="space-y-2">
+                              <Label>AI Provider *</Label>
+                              <Select 
+                                value={data.provider || ''} 
+                                onValueChange={(v) => updateField(session.id, 'provider', v)}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Select a provider" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="google">Google Gemini</SelectItem>
+                                  <SelectItem value="openai">OpenAI GPT</SelectItem>
+                                  <SelectItem value="anthropic">Anthropic Claude</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
 
-                        {/* API Key */}
-                        <div className="space-y-2">
-                          <Label>API Key *</Label>
-                          <div className="flex gap-2">
-                            <Input
-                              type={showApiKey ? "text" : "password"}
-                              value={data.api_key || ''}
-                              onChange={(e) => updateField(session.id, 'api_key', e.target.value)}
-                              placeholder="sk-..."
-                            />
-                            <Button type="button" variant="outline" size="icon" onClick={() => setShowApiKey(!showApiKey)}>
-                              {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* Bot Name */}
-                        <div className="space-y-2">
-                          <Label>Nombre del Bot</Label>
-                          <Input 
-                            value={data.bot_name || ''} 
-                            onChange={(e) => updateField(session.id, 'bot_name', e.target.value)} 
-                            placeholder="Asistente" 
-                          />
-                        </div>
-
-                        {/* Language */}
-                        <div className="space-y-2">
-                          <Label>Idioma</Label>
-                          <Select 
-                            value={data.language || 'es'} 
-                            onValueChange={(v) => updateField(session.id, 'language', v)}
-                          >
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="es">Español</SelectItem>
-                              <SelectItem value="en">English</SelectItem>
-                              <SelectItem value="fr">Français</SelectItem>
-                              <SelectItem value="de">Deutsch</SelectItem>
-                              <SelectItem value="it">Italiano</SelectItem>
-                              <SelectItem value="pt">Português</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {/* Tone */}
-                        <div className="space-y-2">
-                          <Label>Tono de Conversación</Label>
-                          <Select 
-                            value={data.tone || 'professional'} 
-                            onValueChange={(v) => updateField(session.id, 'tone', v)}
-                          >
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="professional">Profesional</SelectItem>
-                              <SelectItem value="friendly">Amigable</SelectItem>
-                              <SelectItem value="casual">Casual</SelectItem>
-                              <SelectItem value="formal">Formal</SelectItem>
-                              <SelectItem value="enthusiastic">Entusiasta</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {/* E-commerce Integration */}
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <Label>Integración E-commerce</Label>
-                            <Switch 
-                              checked={data.use_ecommerce_api || false} 
-                              onCheckedChange={(checked) => updateField(session.id, 'use_ecommerce_api', checked)} 
-                            />
-                          </div>
-                          
-                          {data.use_ecommerce_api && (
-                            <div className="space-y-3 p-4 border rounded-lg bg-blue-50">
-                              <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Selecciona las APIs a integrar:</p>
-                                {ecommerceConnections.length === 0 ? (
-                                  <p className="text-sm text-gray-500">No hay conexiones de e-commerce disponibles</p>
-                                ) : (
-                                  ecommerceConnections.map((c) => {
-                                    const isSelected = (data.ecommerce_connection_ids || []).includes(c.id)
-                                    return (
-                                      <div key={c.id} className="flex items-center space-x-2">
-                                        <input
-                                          type="checkbox"
-                                          id={`ecommerce-${session.id}-${c.id}`}
-                                          checked={isSelected}
-                                          onChange={(e) => {
-                                            const currentIds = data.ecommerce_connection_ids || []
-                                            const newIds = e.target.checked
-                                              ? [...currentIds, c.id]
-                                              : currentIds.filter((id: string) => id !== c.id)
-                                            updateField(session.id, 'ecommerce_connection_ids', newIds)
-                                          }}
-                                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                        />
-                                        <label htmlFor={`ecommerce-${session.id}-${c.id}`} className="text-sm text-gray-900 cursor-pointer">
-                                          <span className="font-medium">{c.platform}</span> - {c.store_name}
-                                        </label>
-                                      </div>
-                                    )
-                                  })
-                                )}
+                            {/* Model */}
+                            {data.provider && (
+                              <div className="space-y-2">
+                                <Label>Model *</Label>
+                                <Select 
+                                  value={data.model || ''} 
+                                  onValueChange={(v) => updateField(session.id, 'model', v)}
+                                >
+                                  <SelectTrigger><SelectValue placeholder="Select a model" /></SelectTrigger>
+                                  <SelectContent>
+                                    {providerModels[data.provider]?.map((m) => (
+                                      <SelectItem key={m.value} value={m.value}>
+                                        <div className="flex flex-col">
+                                          <span className="font-medium">{m.label}</span>
+                                          <span className="text-xs text-muted-foreground">{m.description}</span>
+                                        </div>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
+                            )}
 
-                              <div className="pt-3 border-t border-blue-200">
-                                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                                  <div className="flex items-start gap-2">
-                                    <svg className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <div>
-                                      <p className="text-sm font-medium text-green-800">Búsqueda Automática Activada</p>
-                                      <p className="text-xs text-green-700 mt-1">
-                                        El bot buscará automáticamente en tu catálogo con cada mensaje. Si encuentra productos relacionados (como "absolut confort"), los incluirá en la respuesta. Si no encuentra nada, responderá normalmente.
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
+                            {/* API Key */}
+                            <div className="space-y-2">
+                              <Label>API Key *</Label>
+                              <div className="flex gap-2">
+                                <Input
+                                  type={showApiKey ? "text" : "password"}
+                                  value={data.api_key || ''}
+                                  onChange={(e) => updateField(session.id, 'api_key', e.target.value)}
+                                  placeholder="sk-..."
+                                />
+                                <Button type="button" variant="outline" size="icon" onClick={() => setShowApiKey(!showApiKey)}>
+                                  {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </Button>
                               </div>
                             </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
 
-                    {/* Save Button */}
-                    <div className="flex gap-3 pt-4 mt-4 border-t">
-                      <Button 
-                        onClick={() => handleSave(session.id)} 
-                        disabled={isLoading} 
-                        className="flex-1"
-                      >
-                        {isLoading ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Guardando...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="w-4 h-4 mr-2" />
-                            Guardar Configuración
-                          </>
-                        )}
-                      </Button>
-                    </div>
+                            {/* Bot Name */}
+                            <div className="space-y-2">
+                              <Label>Bot Name</Label>
+                              <Input 
+                                value={data.bot_name || ''} 
+                                onChange={(e) => updateField(session.id, 'bot_name', e.target.value)} 
+                                placeholder="Assistant" 
+                              />
+                            </div>
+
+                            {/* Language */}
+                            <div className="space-y-2">
+                              <Label>Language</Label>
+                              <Select 
+                                value={data.language || 'es'} 
+                                onValueChange={(v) => updateField(session.id, 'language', v)}
+                              >
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="es">Español</SelectItem>
+                                  <SelectItem value="en">English</SelectItem>
+                                  <SelectItem value="fr">Français</SelectItem>
+                                  <SelectItem value="de">Deutsch</SelectItem>
+                                  <SelectItem value="it">Italiano</SelectItem>
+                                  <SelectItem value="pt">Português</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* Tone */}
+                            <div className="space-y-2">
+                              <Label>Conversation Tone</Label>
+                              <Select 
+                                value={data.tone || 'professional'} 
+                                onValueChange={(v) => updateField(session.id, 'tone', v)}
+                              >
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="professional">Professional</SelectItem>
+                                  <SelectItem value="friendly">Friendly</SelectItem>
+                                  <SelectItem value="casual">Casual</SelectItem>
+                                  <SelectItem value="formal">Formal</SelectItem>
+                                  <SelectItem value="enthusiastic">Enthusiastic</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        {/* Save Button for Basic Tab */}
+                        <div className="flex gap-3 pt-4 mt-4 border-t">
+                          <Button 
+                            onClick={() => handleSave(session.id)} 
+                            disabled={isLoading} 
+                            className="flex-1 bg-green-600 hover:bg-green-700"
+                          >
+                            {isLoading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Saving...
+                              </>
+                            ) : (
+                              <>
+                                <Save className="w-4 h-4 mr-2" />
+                                Save Configuration
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </TabsContent>
+
+                      {/* Prompt 2 Tab */}
+                      <TabsContent value="prompt">
+                        <StructuredPromptConfig
+                          sessionId={session.id}
+                          useEcommerceApi={data.use_ecommerce_api || false}
+                          onUseEcommerceApiChange={(checked) => updateField(session.id, 'use_ecommerce_api', checked)}
+                          promptData={promptData[session.id] || defaultPromptData}
+                          onPromptDataChange={(newData) => updatePromptData(session.id, newData)}
+                          onSave={() => handleSave(session.id)}
+                          onTest={() => handleTestBot(session.id)}
+                          isLoading={isLoading}
+                        />
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 )}
               </div>
