@@ -13,6 +13,7 @@ import { ecommerceRoutes } from './modules/ecommerce'
 import { webhookRoutes } from './modules/webhooks'
 import { chatbotRoutes } from './modules/chatbot'
 import { clientsRoutes } from './modules/clients'
+import { aiRoutes } from './modules/ai'
 import { keepaliveMessagesService, sessionMonitoringService, backupService, cacheCleanupService } from './services'
 import { healthRoutes } from './routes'
 
@@ -67,6 +68,7 @@ app.use('/api/ecommerce', ecommerceRoutes)
 app.use('/api/webhooks', webhookRoutes)
 app.use('/api/chatbot', chatbotRoutes)
 app.use('/api/clients', clientsRoutes)
+app.use('/api/ai', aiRoutes)
 
 // 404
 app.use((req, res) => {

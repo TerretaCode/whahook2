@@ -269,7 +269,7 @@ export default function ClientsPage() {
             <div className="mt-3 pt-3 border-t border-gray-100">
               <p className="text-xs text-gray-500 flex items-center gap-1">
                 <Settings2 className="w-3 h-3" />
-                Usa el modelo de IA configurado en <a href="/settings/chatbot" className="text-green-600 hover:underline">Ajustes → Chatbot</a>
+                Usa el modelo de IA configurado en <a href="/settings/ia" className="text-green-600 hover:underline">Ajustes → IA</a>
               </p>
             </div>
           )}

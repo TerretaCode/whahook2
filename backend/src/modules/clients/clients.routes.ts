@@ -285,23 +285,21 @@ router.post('/:id/extract-info', async (req: Request, res: Response) => {
       .update({ ai_extraction_status: 'processing' })
       .eq('id', id)
 
-    // Get user's chatbot config to use their AI provider
-    const { data: chatbotConfigs } = await supabaseAdmin
-      .from('chatbot_configs')
+    // Get user's global AI config
+    const { data: aiConfig } = await supabaseAdmin
+      .from('ai_config')
       .select('*')
       .eq('user_id', userId)
-      .limit(1)
-
-    const chatbotConfig = chatbotConfigs?.[0]
+      .single()
     
-    if (!chatbotConfig?.api_key_encrypted) {
+    if (!aiConfig?.api_key_encrypted) {
       await supabaseAdmin
         .from('clients')
         .update({ ai_extraction_status: 'failed' })
         .eq('id', id)
       return res.status(400).json({ 
         success: false, 
-        error: 'No AI configuration found. Please configure your chatbot first.' 
+        error: 'No AI configuration found. Please configure your AI settings first.' 
       })
     }
 
@@ -343,7 +341,7 @@ router.post('/:id/extract-info', async (req: Request, res: Response) => {
     ).join('\n')
 
     // Decrypt API key
-    const apiKey = decrypt(chatbotConfig.api_key_encrypted)
+    const apiKey = decrypt(aiConfig.api_key_encrypted)
     if (!apiKey) {
       await supabaseAdmin
         .from('clients')
@@ -355,8 +353,8 @@ router.post('/:id/extract-info', async (req: Request, res: Response) => {
     // Call AI to extract info
     const extractedInfo = await extractClientInfoWithAI(
       conversationText,
-      chatbotConfig.provider,
-      chatbotConfig.model,
+      aiConfig.provider,
+      aiConfig.model,
       apiKey
     )
 
