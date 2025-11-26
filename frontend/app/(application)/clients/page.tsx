@@ -3,24 +3,33 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
+import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Search, Download, Loader2, Users, UserCheck, Star, Smartphone } from "lucide-react"
+import { Plus, Search, Download, Loader2, Users, UserCheck, Star, Smartphone, RefreshCw, Sparkles } from "lucide-react"
 import { ClientsTable } from "./components/ClientsTable"
 import { ClientModal } from "./components/ClientModal"
 
 export interface Client {
   id: string
-  name: string
-  email: string
   phone: string
+  whatsapp_name?: string
+  full_name?: string
+  email?: string
   company?: string
+  interest_type?: string
+  interest_details?: string
   tags?: string[]
-  status: 'active' | 'inactive' | 'lead'
-  source: 'whatsapp' | 'web' | 'manual'
-  created_at: string
-  last_contact?: string
   notes?: string
+  ai_summary?: string
+  status: 'lead' | 'prospect' | 'customer' | 'inactive'
+  priority?: 'low' | 'normal' | 'high' | 'urgent'
+  total_conversations?: number
+  total_messages?: number
+  first_contact_at?: string
+  last_contact_at?: string
+  ai_extraction_status?: 'pending' | 'processing' | 'completed' | 'failed'
+  created_at: string
 }
 
 export default function ClientsPage() {
@@ -29,8 +38,9 @@ export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([])
   const [filteredClients, setFilteredClients] = useState<Client[]>([])
   const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'lead'>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'customer' | 'prospect' | 'lead' | 'inactive'>('all')
   const [isLoading, setIsLoading] = useState(true)
+  const [isSyncing, setIsSyncing] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
 
@@ -54,14 +64,36 @@ export default function ClientsPage() {
   const fetchClients = async () => {
     try {
       setIsLoading(true)
-      // TODO: Implement real API call
-      // const response = await ApiClient.request('/api/clients')
-      // setClients(response.data)
-      
-      setClients([])
+      const response = await ApiClient.request<any>('/api/clients')
+      if (response.success && response.data) {
+        setClients(response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching clients:', error)
+    } finally {
       setIsLoading(false)
-    } catch {
-      setIsLoading(false)
+    }
+  }
+
+  const handleSync = async () => {
+    try {
+      setIsSyncing(true)
+      await ApiClient.request('/api/clients/sync', { method: 'POST' })
+      await fetchClients()
+    } catch (error) {
+      console.error('Error syncing clients:', error)
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
+  const handleExtractInfo = async (clientId: string) => {
+    try {
+      await ApiClient.request(`/api/clients/${clientId}/extract-info`, { method: 'POST' })
+      await fetchClients()
+    } catch (error) {
+      console.error('Error extracting info:', error)
+      alert('Error al extraer información. Asegúrate de tener configurado el chatbot con una API key válida.')
     }
   }
 
@@ -77,10 +109,10 @@ export default function ClientsPage() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(client =>
-        client.name.toLowerCase().includes(query) ||
-        client.email.toLowerCase().includes(query) ||
+        (client.full_name || client.whatsapp_name || '').toLowerCase().includes(query) ||
+        (client.email || '').toLowerCase().includes(query) ||
         client.phone.includes(query) ||
-        client.company?.toLowerCase().includes(query)
+        (client.company || '').toLowerCase().includes(query)
       )
     }
 
@@ -101,9 +133,7 @@ export default function ClientsPage() {
     if (!confirm('¿Estás seguro de que quieres eliminar este cliente?')) return
 
     try {
-      // TODO: Implement real API call
-      // await ApiClient.request(`/api/clients/${clientId}`, { method: 'DELETE' })
-      
+      await ApiClient.request(`/api/clients/${clientId}`, { method: 'DELETE' })
       setClients(prev => prev.filter(c => c.id !== clientId))
     } catch {
       alert('Error al eliminar el cliente')
@@ -113,32 +143,12 @@ export default function ClientsPage() {
   const handleSaveClient = async (clientData: Partial<Client>) => {
     try {
       if (selectedClient) {
-        // Update existing client
-        // TODO: Implement real API call
-        // await ApiClient.request(`/api/clients/${selectedClient.id}`, {
-        //   method: 'PUT',
-        //   body: JSON.stringify(clientData)
-        // })
-        
-        setClients(prev => prev.map(c => 
-          c.id === selectedClient.id ? { ...c, ...clientData } : c
-        ))
-      } else {
-        // Create new client
-        // TODO: Implement real API call
-        // const response = await ApiClient.request('/api/clients', {
-        //   method: 'POST',
-        //   body: JSON.stringify(clientData)
-        // })
-        
-        const newClient: Client = {
-          ...clientData as Client,
-          id: Date.now().toString(),
-          created_at: new Date().toISOString()
-        }
-        setClients(prev => [newClient, ...prev])
+        await ApiClient.request(`/api/clients/${selectedClient.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(clientData)
+        })
+        await fetchClients()
       }
-      
       setIsModalOpen(false)
       setSelectedClient(null)
     } catch {
@@ -176,19 +186,21 @@ export default function ClientsPage() {
             <Button
               variant="outline"
               size="sm"
+              onClick={handleSync}
+              disabled={isSyncing}
+              className="gap-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+              {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleExport}
               className="gap-2"
             >
               <Download className="w-4 h-4" />
               Exportar
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleAddClient}
-              className="gap-2 bg-green-600 hover:bg-green-700"
-            >
-              <Plus className="w-4 h-4" />
-              Nuevo Cliente
             </Button>
           </div>
         </div>
@@ -211,7 +223,7 @@ export default function ClientsPage() {
             </div>
 
             {/* Status Filter */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button
                 variant={statusFilter === 'all' ? 'default' : 'outline'}
                 size="sm"
@@ -221,12 +233,20 @@ export default function ClientsPage() {
                 Todos
               </Button>
               <Button
-                variant={statusFilter === 'active' ? 'default' : 'outline'}
+                variant={statusFilter === 'customer' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setStatusFilter('active')}
-                className={statusFilter === 'active' ? 'bg-green-600 hover:bg-green-700' : ''}
+                onClick={() => setStatusFilter('customer')}
+                className={statusFilter === 'customer' ? 'bg-green-600 hover:bg-green-700' : ''}
               >
-                Activos
+                Clientes
+              </Button>
+              <Button
+                variant={statusFilter === 'prospect' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setStatusFilter('prospect')}
+                className={statusFilter === 'prospect' ? 'bg-green-600 hover:bg-green-700' : ''}
+              >
+                Prospectos
               </Button>
               <Button
                 variant={statusFilter === 'lead' ? 'default' : 'outline'}
@@ -253,7 +273,7 @@ export default function ClientsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Clientes</p>
+                <p className="text-sm text-gray-600">Total Contactos</p>
                 <p className="text-2xl font-bold text-gray-900">{clients.length}</p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -265,9 +285,9 @@ export default function ClientsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Activos</p>
+                <p className="text-sm text-gray-600">Clientes</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {clients.filter(c => c.status === 'active').length}
+                  {clients.filter(c => c.status === 'customer').length}
                 </p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -293,9 +313,9 @@ export default function ClientsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Desde WhatsApp</p>
+                <p className="text-sm text-gray-600">Total Mensajes</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {clients.filter(c => c.source === 'whatsapp').length}
+                  {clients.reduce((sum, c) => sum + (c.total_messages || 0), 0)}
                 </p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -311,6 +331,7 @@ export default function ClientsPage() {
           isLoading={isLoading}
           onEdit={handleEditClient}
           onDelete={handleDeleteClient}
+          onExtractInfo={handleExtractInfo}
         />
 
         {/* Modal */}

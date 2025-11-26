@@ -12,6 +12,7 @@ import { chatWidgetRoutes, chatWidgetPublicRoutes } from './modules/chatWidget'
 import { ecommerceRoutes } from './modules/ecommerce'
 import { webhookRoutes } from './modules/webhooks'
 import { chatbotRoutes } from './modules/chatbot'
+import { clientsRoutes } from './modules/clients'
 import { keepaliveMessagesService, sessionMonitoringService, backupService, cacheCleanupService } from './services'
 import { healthRoutes } from './routes'
 
@@ -65,6 +66,7 @@ app.use('/api/public/chat-widgets', chatWidgetPublicRoutes)
 app.use('/api/ecommerce', ecommerceRoutes)
 app.use('/api/webhooks', webhookRoutes)
 app.use('/api/chatbot', chatbotRoutes)
+app.use('/api/clients', clientsRoutes)
 
 // 404
 app.use((req, res) => {
