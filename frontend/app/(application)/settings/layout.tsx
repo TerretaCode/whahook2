@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { 
   Smartphone, 
+  Bot,
   Menu,
   X,
   ChevronRight
@@ -24,6 +25,13 @@ const settingsNavigation = [
     href: '/settings/connections',
     icon: Smartphone,
     description: 'WhatsApp & Webhooks'
+  },
+  {
+    id: 'chatbot',
+    name: 'Chatbot',
+    href: '/settings/chatbot',
+    icon: Bot,
+    description: 'AI Configuration'
   }
 ]
 
