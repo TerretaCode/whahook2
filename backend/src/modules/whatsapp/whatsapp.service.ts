@@ -420,18 +420,28 @@ class WhatsAppService {
 
   /**
    * Manejar mensaje entrante - guardar en DB
+   * OPTIMIZADO: Mejor manejo de errores, getContact no bloquea
    */
   private async handleIncomingMessage(sessionId: string, userId: string, message: any): Promise<void> {
-    // Ignorar mensajes de grupos y broadcasts por ahora
+    // Ignorar mensajes de grupos y broadcasts
     if (message.from.includes('@g.us') || message.from.includes('@broadcast')) {
       return
     }
 
     const contactPhone = message.from.replace('@c.us', '').replace('@s.whatsapp.net', '')
-    const contact = await message.getContact()
-    const contactName = contact?.pushname || contact?.name || null
+    const messagePreview = message.body?.substring(0, 100) || ''
+    const messageTimestamp = new Date(message.timestamp * 1000).toISOString()
+    
+    // Obtener nombre del contacto (puede fallar, no es crítico)
+    let contactName: string | null = null
+    try {
+      const contact = await message.getContact()
+      contactName = contact?.pushname || contact?.name || null
+    } catch {
+      // Ignorar error de getContact
+    }
 
-    console.log(`📩 Incoming message from ${contactPhone}: ${message.body?.substring(0, 50)}...`)
+    console.log(`📩 Incoming from ${contactPhone}: ${messagePreview.substring(0, 30)}...`)
 
     // Obtener whatsapp_account_id
     const { data: waAccount } = await supabaseAdmin
@@ -441,14 +451,14 @@ class WhatsAppService {
       .single()
 
     if (!waAccount) {
-      console.error(`WhatsApp account not found for session: ${sessionId}`)
+      console.error(`WhatsApp account not found: ${sessionId}`)
       return
     }
 
-    // Buscar o crear conversación
+    // Buscar conversación existente
     let { data: conversation } = await supabaseAdmin
       .from('conversations')
-      .select('id')
+      .select('id, unread_count')
       .eq('user_id', userId)
       .eq('whatsapp_account_id', waAccount.id)
       .eq('contact_phone', contactPhone)
@@ -464,35 +474,28 @@ class WhatsAppService {
           contact_phone: contactPhone,
           contact_name: contactName,
           status: 'open',
-          last_message_preview: message.body?.substring(0, 100) || '',
-          last_message_at: new Date().toISOString(),
+          last_message_preview: messagePreview,
+          last_message_at: messageTimestamp,
           unread_count: 1,
           chatbot_enabled: true,
         })
         .select('id')
         .single()
 
-      if (convError) {
+      if (convError || !newConv) {
         console.error('Error creating conversation:', convError)
         return
       }
-      conversation = newConv
-      console.log(`📝 New conversation created: ${conversation.id}`)
+      conversation = { id: newConv.id, unread_count: 1 }
     } else {
-      // Actualizar conversación existente - incrementar unread_count con SQL raw
-      const { data: currentConv } = await supabaseAdmin
-        .from('conversations')
-        .select('unread_count')
-        .eq('id', conversation.id)
-        .single()
-
+      // Actualizar conversación existente
       await supabaseAdmin
         .from('conversations')
         .update({
           contact_name: contactName || undefined,
-          last_message_preview: message.body?.substring(0, 100) || '',
-          last_message_at: new Date().toISOString(),
-          unread_count: (currentConv?.unread_count || 0) + 1,
+          last_message_preview: messagePreview,
+          last_message_at: messageTimestamp,
+          unread_count: (conversation.unread_count || 0) + 1,
         })
         .eq('id', conversation.id)
     }
