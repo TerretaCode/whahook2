@@ -3,24 +3,13 @@
 import { useState, useEffect } from "react"
 import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
-  Save,
   Loader2,
   Smartphone,
   ChevronDown,
   ChevronUp,
   Pause,
-  Play,
-  Eye,
-  EyeOff,
-  Settings,
-  FileText
+  Play
 } from "lucide-react"
 import { StructuredPromptConfig, defaultPromptData, type StructuredPromptData } from "./StructuredPromptConfig"
 
@@ -28,12 +17,6 @@ interface WhatsAppSession {
   id: string
   phone: string
   name?: string
-}
-
-interface EcommerceConnection {
-  id: string
-  platform: string
-  store_name: string
 }
 
 interface ChatbotConfig {
@@ -51,26 +34,6 @@ interface ChatbotConfig {
   ecommerce_search_message: string
 }
 
-const providerModels: Record<string, { value: string; label: string; description: string }[]> = {
-  google: [
-    { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Best Price/Performance" },
-    { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Most Capable" },
-    { value: "gemini-1.5-flash", label: "Gemini 1.5 Flash", description: "Stable & Fast" },
-    { value: "gemini-1.5-pro", label: "Gemini 1.5 Pro", description: "Very Capable" },
-  ],
-  openai: [
-    { value: "gpt-4o", label: "GPT-4o", description: "Fastest GPT-4" },
-    { value: "gpt-4o-mini", label: "GPT-4o Mini", description: "Best Value" },
-    { value: "gpt-4-turbo", label: "GPT-4 Turbo", description: "Most Capable" },
-    { value: "gpt-3.5-turbo", label: "GPT-3.5 Turbo", description: "Fast & Affordable" },
-  ],
-  anthropic: [
-    { value: "claude-3-5-sonnet-20241022", label: "Claude 3.5 Sonnet", description: "Best Overall" },
-    { value: "claude-3-5-haiku-20241022", label: "Claude 3.5 Haiku", description: "Fast & Affordable" },
-    { value: "claude-3-opus-20240229", label: "Claude 3 Opus", description: "Most Capable" },
-  ],
-}
-
 const defaultConfig: ChatbotConfig = {
   provider: "google",
   model: "gemini-2.5-flash",
@@ -86,14 +49,11 @@ const defaultConfig: ChatbotConfig = {
 export function WhatsAppChatbotConfig() {
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
-  const [showApiKey, setShowApiKey] = useState(false)
   const [sessions, setSessions] = useState<WhatsAppSession[]>([])
-  const [ecommerceConnections, setEcommerceConnections] = useState<EcommerceConnection[]>([])
   const [expandedSession, setExpandedSession] = useState<string | null>(null)
   const [configs, setConfigs] = useState<Record<string, ChatbotConfig>>({})
   const [formData, setFormData] = useState<Record<string, ChatbotConfig>>({})
   const [promptData, setPromptData] = useState<Record<string, StructuredPromptData>>({})
-  const [activeTab, setActiveTab] = useState<string>("basic")
 
   useEffect(() => {
     loadInitialData()
@@ -101,10 +61,7 @@ export function WhatsAppChatbotConfig() {
 
   const loadInitialData = async () => {
     setIsInitialLoading(true)
-    await Promise.all([
-      loadSessions(),
-      loadEcommerceConnections()
-    ])
+    await loadSessions()
     setIsInitialLoading(false)
   }
 
@@ -134,32 +91,6 @@ export function WhatsAppChatbotConfig() {
       }
     } catch (error) {
       console.error('Error loading sessions:', error)
-    }
-  }
-
-  const loadEcommerceConnections = async () => {
-    try {
-      const response = await ApiClient.request<any>('/api/ecommerce/connections')
-      
-      let connectionsData: any = null
-      if (response.data?.success && response.data?.data) {
-        connectionsData = response.data.data
-      } else if (response.data?.data) {
-        connectionsData = response.data.data
-      } else if (Array.isArray(response.data)) {
-        connectionsData = response.data
-      }
-      
-      if (connectionsData && Array.isArray(connectionsData)) {
-        const connections = connectionsData.map((c: any) => ({
-          id: c.id,
-          platform: c.platform || 'Unknown',
-          store_name: c.name || c.store_name || c.shop_name || 'Unnamed Store'
-        }))
-        setEcommerceConnections(connections)
-      }
-    } catch (error) {
-      console.error('Error loading ecommerce connections:', error)
     }
   }
 
@@ -387,169 +318,19 @@ export function WhatsAppChatbotConfig() {
                   </div>
                 </div>
 
-                {/* Expanded Config Form with Tabs */}
+                {/* Expanded Config Form - Prompt 2 */}
                 {isExpanded && (
                   <div className="p-4 border-t">
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                      <TabsList className="grid w-full grid-cols-2 mb-6">
-                        <TabsTrigger value="basic" className="flex items-center gap-2">
-                          <Settings className="w-4 h-4" />
-                          Basic Config
-                        </TabsTrigger>
-                        <TabsTrigger value="prompt" className="flex items-center gap-2">
-                          <FileText className="w-4 h-4" />
-                          Prompt 2
-                        </TabsTrigger>
-                      </TabsList>
-
-                      {/* Basic Configuration Tab */}
-                      <TabsContent value="basic">
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>Basic Configuration</CardTitle>
-                            <CardDescription>Configure AI provider, model and credentials</CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            {/* Provider */}
-                            <div className="space-y-2">
-                              <Label>AI Provider *</Label>
-                              <Select 
-                                value={data.provider || ''} 
-                                onValueChange={(v) => updateField(session.id, 'provider', v)}
-                              >
-                                <SelectTrigger><SelectValue placeholder="Select a provider" /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="google">Google Gemini</SelectItem>
-                                  <SelectItem value="openai">OpenAI GPT</SelectItem>
-                                  <SelectItem value="anthropic">Anthropic Claude</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            {/* Model */}
-                            {data.provider && (
-                              <div className="space-y-2">
-                                <Label>Model *</Label>
-                                <Select 
-                                  value={data.model || ''} 
-                                  onValueChange={(v) => updateField(session.id, 'model', v)}
-                                >
-                                  <SelectTrigger><SelectValue placeholder="Select a model" /></SelectTrigger>
-                                  <SelectContent>
-                                    {providerModels[data.provider]?.map((m) => (
-                                      <SelectItem key={m.value} value={m.value}>
-                                        <div className="flex flex-col">
-                                          <span className="font-medium">{m.label}</span>
-                                          <span className="text-xs text-muted-foreground">{m.description}</span>
-                                        </div>
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            )}
-
-                            {/* API Key */}
-                            <div className="space-y-2">
-                              <Label>API Key *</Label>
-                              <div className="flex gap-2">
-                                <Input
-                                  type={showApiKey ? "text" : "password"}
-                                  value={data.api_key || ''}
-                                  onChange={(e) => updateField(session.id, 'api_key', e.target.value)}
-                                  placeholder="sk-..."
-                                />
-                                <Button type="button" variant="outline" size="icon" onClick={() => setShowApiKey(!showApiKey)}>
-                                  {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </Button>
-                              </div>
-                            </div>
-
-                            {/* Bot Name */}
-                            <div className="space-y-2">
-                              <Label>Bot Name</Label>
-                              <Input 
-                                value={data.bot_name || ''} 
-                                onChange={(e) => updateField(session.id, 'bot_name', e.target.value)} 
-                                placeholder="Assistant" 
-                              />
-                            </div>
-
-                            {/* Language */}
-                            <div className="space-y-2">
-                              <Label>Language</Label>
-                              <Select 
-                                value={data.language || 'es'} 
-                                onValueChange={(v) => updateField(session.id, 'language', v)}
-                              >
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="es">Español</SelectItem>
-                                  <SelectItem value="en">English</SelectItem>
-                                  <SelectItem value="fr">Français</SelectItem>
-                                  <SelectItem value="de">Deutsch</SelectItem>
-                                  <SelectItem value="it">Italiano</SelectItem>
-                                  <SelectItem value="pt">Português</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            {/* Tone */}
-                            <div className="space-y-2">
-                              <Label>Conversation Tone</Label>
-                              <Select 
-                                value={data.tone || 'professional'} 
-                                onValueChange={(v) => updateField(session.id, 'tone', v)}
-                              >
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="professional">Professional</SelectItem>
-                                  <SelectItem value="friendly">Friendly</SelectItem>
-                                  <SelectItem value="casual">Casual</SelectItem>
-                                  <SelectItem value="formal">Formal</SelectItem>
-                                  <SelectItem value="enthusiastic">Enthusiastic</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </CardContent>
-                        </Card>
-
-                        {/* Save Button for Basic Tab */}
-                        <div className="flex gap-3 pt-4 mt-4 border-t">
-                          <Button 
-                            onClick={() => handleSave(session.id)} 
-                            disabled={isLoading} 
-                            className="flex-1 bg-green-600 hover:bg-green-700"
-                          >
-                            {isLoading ? (
-                              <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Saving...
-                              </>
-                            ) : (
-                              <>
-                                <Save className="w-4 h-4 mr-2" />
-                                Save Configuration
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      </TabsContent>
-
-                      {/* Prompt 2 Tab */}
-                      <TabsContent value="prompt">
-                        <StructuredPromptConfig
-                          sessionId={session.id}
-                          useEcommerceApi={data.use_ecommerce_api || false}
-                          onUseEcommerceApiChange={(checked) => updateField(session.id, 'use_ecommerce_api', checked)}
-                          promptData={promptData[session.id] || defaultPromptData}
-                          onPromptDataChange={(newData) => updatePromptData(session.id, newData)}
-                          onSave={() => handleSave(session.id)}
-                          onTest={() => handleTestBot(session.id)}
-                          isLoading={isLoading}
-                        />
-                      </TabsContent>
-                    </Tabs>
+                    <StructuredPromptConfig
+                      sessionId={session.id}
+                      useEcommerceApi={data.use_ecommerce_api || false}
+                      onUseEcommerceApiChange={(checked) => updateField(session.id, 'use_ecommerce_api', checked)}
+                      promptData={promptData[session.id] || defaultPromptData}
+                      onPromptDataChange={(newData) => updatePromptData(session.id, newData)}
+                      onSave={() => handleSave(session.id)}
+                      onTest={() => handleTestBot(session.id)}
+                      isLoading={isLoading}
+                    />
                   </div>
                 )}
               </div>

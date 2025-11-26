@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { 
   ChevronDown, 
   ChevronUp, 
@@ -35,10 +36,11 @@ interface PromptSection {
 interface PromptField {
   id: string
   label: string
-  type: 'text' | 'textarea' | 'list'
+  type: 'text' | 'textarea' | 'list' | 'select'
   placeholder: string
   example?: string
   description?: string
+  options?: { value: string; label: string }[]
 }
 
 interface StructuredPromptData {
@@ -72,6 +74,9 @@ interface StructuredPromptData {
   handoff_schedule: string
   
   // Communication Style
+  bot_name: string
+  language: string
+  tone: string
   greeting_message: string
   farewell_message: string
   personality_traits: string
@@ -105,6 +110,9 @@ const defaultPromptData: StructuredPromptData = {
   handoff_triggers: '',
   handoff_message: '',
   handoff_schedule: '',
+  bot_name: 'Assistant',
+  language: 'es',
+  tone: 'professional',
   greeting_message: '',
   farewell_message: '',
   personality_traits: '',
@@ -183,9 +191,25 @@ const sections: PromptSection[] = [
     id: 'style',
     title: '6. Communication Style',
     icon: <MessageSquare className="w-5 h-5" />,
-    required: 'Opcional',
-    requiredColor: 'text-gray-600 bg-gray-50',
+    required: 'Recomendado',
+    requiredColor: 'text-yellow-600 bg-yellow-50',
     fields: [
+      { id: 'bot_name', label: 'Bot Name', type: 'text', placeholder: 'e.g., Assistant, Sofia, TechBot', example: 'The name your bot will use to identify itself' },
+      { id: 'language', label: 'Language', type: 'select', placeholder: '', example: 'Primary language for responses', options: [
+        { value: 'es', label: 'Español' },
+        { value: 'en', label: 'English' },
+        { value: 'fr', label: 'Français' },
+        { value: 'de', label: 'Deutsch' },
+        { value: 'it', label: 'Italiano' },
+        { value: 'pt', label: 'Português' },
+      ]},
+      { id: 'tone', label: 'Conversation Tone', type: 'select', placeholder: '', example: 'How the bot should communicate', options: [
+        { value: 'professional', label: 'Professional' },
+        { value: 'friendly', label: 'Friendly' },
+        { value: 'casual', label: 'Casual' },
+        { value: 'formal', label: 'Formal' },
+        { value: 'enthusiastic', label: 'Enthusiastic' },
+      ]},
       { id: 'greeting_message', label: 'Greeting Message', type: 'textarea', placeholder: 'e.g., Hello! 👋 Welcome to TechStore. How can I help you today?', example: 'How the bot should greet customers' },
       { id: 'farewell_message', label: 'Farewell Message', type: 'textarea', placeholder: 'e.g., Thank you for contacting us! Have a great day! 🙏', example: 'How the bot should say goodbye' },
       { id: 'personality_traits', label: 'Personality Traits', type: 'text', placeholder: 'e.g., Friendly, Professional, Helpful, Uses emojis occasionally', example: 'How the bot should behave' },
@@ -343,6 +367,22 @@ export function StructuredPromptConfig({
                             rows={4}
                             className="resize-none"
                           />
+                        ) : field.type === 'select' && field.options ? (
+                          <Select 
+                            value={fieldValue || field.options[0]?.value} 
+                            onValueChange={(v) => updateField(field.id, v)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {field.options.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         ) : (
                           <Input
                             id={`${sessionId}-${field.id}`}
