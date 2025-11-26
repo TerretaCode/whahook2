@@ -8,6 +8,7 @@ import { ConversationStarters } from "./ConversationStarters"
 import { QuickReplies } from "./QuickReplies"
 import { ApiClient } from "@/lib/api-client"
 import { toast } from "@/lib/toast"
+import { useSocket } from "@/hooks/whatsapp/useSocket"
 
 interface Message {
   id: string
@@ -52,6 +53,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   const [chatbotEnabled, setChatbotEnabled] = useState(true)
   const [conversationInfo, setConversationInfo] = useState({
     name: '',
+    phone: '',
     avatar: '',
     isOnline: false,
     source: 'whatsapp' as 'whatsapp' | 'web'
@@ -62,6 +64,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   }>({})
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const showStarters = messages.length === 0 && !isLoading
+  const { on, off } = useSocket()
 
   const fetchConversation = useCallback(async () => {
     try {
@@ -71,7 +74,8 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
         const conv = response.data as ApiConversation
         setConversationInfo({
           name: conv.contact_name || conv.contact_phone || 'Unknown',
-          avatar: conv.contact_avatar_url || conv.contact_avatar || '',
+          phone: conv.contact_phone || '',
+          avatar: conv.contact_avatar || '',
           isOnline: conv.is_online || false,
           source: 'whatsapp'
         })
@@ -109,10 +113,49 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     fetchConversation()
     fetchMessages()
     
-    // Polling cada 5 segundos para nuevos mensajes
+    // Polling cada 5 segundos para nuevos mensajes (fallback si socket falla)
     const interval = setInterval(fetchMessages, 5000)
     return () => clearInterval(interval)
   }, [conversationId, fetchConversation, fetchMessages])
+
+  // Escuchar eventos de socket para actualizaciones en tiempo real
+  useEffect(() => {
+    // Nuevo mensaje
+    const handleNewMessage = (data: { conversationId: string; message: { id: string; content: string; direction: string; timestamp: string } }) => {
+      if (data.conversationId === conversationId) {
+        const newMsg: Message = {
+          id: data.message.id,
+          content: data.message.content,
+          timestamp: data.message.timestamp,
+          isOwn: data.message.direction === 'outgoing',
+          status: 'sent',
+          type: 'text'
+        }
+        setMessages(prev => {
+          // Evitar duplicados
+          if (prev.some(m => m.id === newMsg.id)) return prev
+          return [...prev, newMsg]
+        })
+      }
+    }
+
+    // Cambio de estado de mensaje (ack)
+    const handleMessageAck = (data: { messageId: string; status: string }) => {
+      setMessages(prev => prev.map(msg => 
+        msg.id === data.messageId 
+          ? { ...msg, status: data.status as 'sent' | 'delivered' | 'read' }
+          : msg
+      ))
+    }
+
+    on('whatsapp:message', handleNewMessage)
+    on('whatsapp:message_ack', handleMessageAck)
+
+    return () => {
+      off('whatsapp:message', handleNewMessage)
+      off('whatsapp:message_ack', handleMessageAck)
+    }
+  }, [conversationId, on, off])
 
   useEffect(() => {
     scrollToBottom()

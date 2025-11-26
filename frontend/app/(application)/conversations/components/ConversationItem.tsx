@@ -1,11 +1,14 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AlertCircle } from "lucide-react"
+import { ApiClient } from "@/lib/api-client"
 
 interface Conversation {
   id: string
   name: string
+  phone: string
   avatar?: string
   lastMessage: string
   timestamp: string
@@ -21,7 +24,41 @@ interface ConversationItemProps {
   onClick: () => void
 }
 
+// Cache de fotos de perfil para evitar requests repetidos
+const profilePicCache = new Map<string, string | null>()
+
 export function ConversationItem({ conversation, isSelected, onClick }: ConversationItemProps) {
+  const [profilePic, setProfilePic] = useState<string | null>(conversation.avatar || null)
+
+  // Cargar foto de perfil desde WhatsApp si no hay avatar guardado
+  useEffect(() => {
+    if (conversation.avatar || !conversation.phone) return
+    
+    // Verificar cache primero
+    const cached = profilePicCache.get(conversation.phone)
+    if (cached !== undefined) {
+      setProfilePic(cached)
+      return
+    }
+
+    // Cargar desde API (lazy loading)
+    const loadProfilePic = async () => {
+      try {
+        const response = await ApiClient.request(`/api/whatsapp/profile-pic/${conversation.phone}`)
+        const data = response.data as { url?: string } | undefined
+        const url = response.success && data?.url ? data.url : null
+        profilePicCache.set(conversation.phone, url)
+        setProfilePic(url)
+      } catch {
+        profilePicCache.set(conversation.phone, null)
+      }
+    }
+
+    // Delay para evitar muchas requests simultáneas
+    const timer = setTimeout(loadProfilePic, Math.random() * 500)
+    return () => clearTimeout(timer)
+  }, [conversation.phone, conversation.avatar])
+
   return (
     <div
       onClick={onClick}
@@ -32,7 +69,7 @@ export function ConversationItem({ conversation, isSelected, onClick }: Conversa
       {/* Avatar */}
       <div className="relative">
         <Avatar className="w-12 h-12">
-          <AvatarImage src={conversation.avatar} />
+          <AvatarImage src={profilePic || undefined} />
           <AvatarFallback className="bg-green-600 text-white font-semibold">
             {conversation.name.charAt(0).toUpperCase()}
           </AvatarFallback>

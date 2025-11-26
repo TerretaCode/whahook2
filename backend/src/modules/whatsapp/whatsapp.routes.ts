@@ -586,4 +586,40 @@ router.post('/send', async (req: Request, res: Response) => {
   }
 })
 
+/**
+ * GET /api/whatsapp/profile-pic/:phone
+ * Obtener foto de perfil de un contacto de WhatsApp
+ * La URL es temporal y se obtiene directamente de WhatsApp
+ */
+router.get('/profile-pic/:phone', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { phone } = req.params
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    // Obtener sesión activa del usuario
+    const { data: account } = await supabaseAdmin
+      .from('whatsapp_accounts')
+      .select('session_id')
+      .eq('user_id', userId)
+      .eq('status', 'ready')
+      .single()
+
+    if (!account) {
+      return res.status(404).json({ success: false, error: 'No active session' })
+    }
+
+    const profilePicUrl = await whatsappService.getProfilePicUrl(account.session_id, phone)
+    
+    // Cache por 1 hora (las fotos de perfil no cambian frecuentemente)
+    res.set('Cache-Control', 'private, max-age=3600')
+    res.json({ success: true, data: { url: profilePicUrl } })
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
 export { router as whatsappRoutes }

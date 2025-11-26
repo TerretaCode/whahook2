@@ -13,6 +13,7 @@ const POLL_INTERVAL_IDLE = 30000    // 30s cuando no hay actividad
 interface Conversation {
   id: string
   name: string
+  phone: string
   avatar?: string
   lastMessage: string
   timestamp: string
@@ -28,7 +29,6 @@ interface ApiConversation {
   contact_name: string | null
   contact_phone: string | null
   contact_avatar: string | null
-  contact_avatar_url: string | null
   last_message_preview: string | null
   last_message_at: string | null
   unread_count: number
@@ -114,7 +114,8 @@ export function ConversationList({ selectedConversationId, onSelectConversation 
         const mapped = (response.data as ApiConversation[]).map((conv): Conversation => ({
           id: conv.id,
           name: conv.contact_name || conv.contact_phone || 'Unknown',
-          avatar: conv.contact_avatar_url || conv.contact_avatar || undefined,
+          phone: conv.contact_phone || '',
+          avatar: conv.contact_avatar || undefined,
           lastMessage: conv.last_message_preview || '',
           timestamp: conv.last_message_at || '',
           unreadCount: conv.unread_count || 0,

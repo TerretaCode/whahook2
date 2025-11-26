@@ -211,6 +211,15 @@ class WhatsAppService {
       }
     })
 
+    // Estado de mensaje (ack) - para los checks de visto
+    client.on('message_ack', async (message, ack) => {
+      try {
+        await this.handleMessageAck(sessionId, userId, message, ack)
+      } catch {
+        // Silencioso
+      }
+    })
+
     // Desconectado
     client.on('disconnected', async (reason) => {
       console.log(`❌ Disconnected: ${reason}`)
@@ -591,6 +600,38 @@ class WhatsAppService {
   }
 
   /**
+   * Manejar cambio de estado de mensaje (ack)
+   * ACK values: -1 = error, 0 = pending, 1 = sent, 2 = delivered, 3 = read, 4 = played
+   */
+  private async handleMessageAck(sessionId: string, userId: string, message: any, ack: number): Promise<void> {
+    if (!message.fromMe) return // Solo mensajes salientes
+
+    // Mapear ack a status
+    let status: string
+    switch (ack) {
+      case 0: status = 'pending'; break
+      case 1: status = 'sent'; break
+      case 2: status = 'delivered'; break
+      case 3: case 4: status = 'read'; break
+      default: status = 'sent'
+    }
+
+    // Actualizar en DB
+    const { error } = await supabaseAdmin
+      .from('messages')
+      .update({ status })
+      .eq('message_id', message.id._serialized)
+
+    if (!error) {
+      // Emitir evento para actualizar UI en tiempo real
+      this.io?.to(`user:${userId}`).emit('whatsapp:message_ack', {
+        messageId: message.id._serialized,
+        status
+      })
+    }
+  }
+
+  /**
    * Sincronizar chats existentes de WhatsApp al conectar
    * OPTIMIZADO: Batch inserts, menos queries, procesamiento paralelo
    */
@@ -751,6 +792,23 @@ class WhatsAppService {
         success: false, 
         error: error instanceof Error ? error.message : 'Failed to send message' 
       }
+    }
+  }
+
+  /**
+   * Obtener URL de foto de perfil de un contacto
+   * La URL es temporal y se obtiene directamente de WhatsApp
+   */
+  async getProfilePicUrl(sessionId: string, phone: string): Promise<string | null> {
+    const session = this.sessions.get(sessionId)
+    if (!session || session.status !== 'ready') return null
+
+    try {
+      const contactId = `${phone.replace(/\D/g, '')}@c.us`
+      const url = await session.client.getProfilePicUrl(contactId)
+      return url || null
+    } catch {
+      return null
     }
   }
 
