@@ -237,4 +237,44 @@ router.get('/:id/conversations/:conversationId/messages', async (req: Request, r
   }
 })
 
+/**
+ * POST /api/public/chat-widgets/:id/visitor
+ * Update visitor data (called when AI collects data during conversation)
+ */
+router.post('/:id/visitor', async (req: Request, res: Response) => {
+  try {
+    const { visitorId, name, email, phone } = req.body
+
+    if (!visitorId) {
+      return res.status(400).json({ success: false, error: 'visitorId is required' })
+    }
+
+    // Only sync if we have at least one piece of data
+    if (name || email || phone) {
+      await chatWidgetService.syncVisitorToClient(req.params.id, visitorId, {
+        name,
+        email,
+        phone
+      })
+
+      // Also update the conversation record
+      await supabaseAdmin
+        .from('chat_widget_conversations')
+        .update({
+          visitor_name: name || undefined,
+          visitor_email: email || undefined,
+        })
+        .eq('widget_id', req.params.id)
+        .eq('visitor_id', visitorId)
+
+      console.log(`👤 Visitor data updated: ${req.params.id} - ${visitorId}`)
+    }
+
+    res.json({ success: true })
+  } catch (error) {
+    console.error('Update visitor error:', error)
+    res.status(500).json({ success: false, error: 'Failed to update visitor' })
+  }
+})
+
 export { router as chatWidgetPublicRoutes }

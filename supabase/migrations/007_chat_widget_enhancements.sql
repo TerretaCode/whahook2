@@ -28,6 +28,25 @@ ALTER TABLE chat_widget_conversations
 ADD COLUMN IF NOT EXISTS rating VARCHAR(20),
 ADD COLUMN IF NOT EXISTS rated_at TIMESTAMPTZ;
 
+-- Add source tracking to clients table for web visitors
+ALTER TABLE clients
+ADD COLUMN IF NOT EXISTS source VARCHAR(20) DEFAULT 'whatsapp',
+ADD COLUMN IF NOT EXISTS visitor_id TEXT,
+ADD COLUMN IF NOT EXISTS widget_id UUID REFERENCES chat_widgets(id) ON DELETE SET NULL;
+
+-- Make phone nullable for web visitors (they might only have email)
+ALTER TABLE clients ALTER COLUMN phone DROP NOT NULL;
+
+-- Create index for visitor_id lookups
+CREATE INDEX IF NOT EXISTS idx_clients_visitor_id ON clients(user_id, visitor_id) WHERE visitor_id IS NOT NULL;
+
+-- Create unique constraint for web visitors (user_id + visitor_id)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_clients_user_visitor ON clients(user_id, visitor_id) WHERE visitor_id IS NOT NULL AND source = 'web';
+
+-- Link conversations to clients
+ALTER TABLE chat_widget_conversations
+ADD COLUMN IF NOT EXISTS client_id UUID REFERENCES clients(id) ON DELETE SET NULL;
+
 -- Comments for documentation
 COMMENT ON COLUMN chat_widgets.launcher_animation IS 'Animation type: pulse, bounce, or none';
 COMMENT ON COLUMN chat_widgets.z_index IS 'CSS z-index for widget positioning (default 9999)';

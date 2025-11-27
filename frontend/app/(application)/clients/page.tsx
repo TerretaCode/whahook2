@@ -32,6 +32,8 @@ export interface Client {
   last_contact_at?: string
   ai_extraction_status?: 'pending' | 'processing' | 'completed' | 'failed'
   created_at: string
+  source?: 'whatsapp' | 'web'
+  visitor_id?: string
 }
 
 export default function ClientsPage() {

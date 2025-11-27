@@ -171,7 +171,97 @@ class ChatWidgetService {
       .update({ last_message_at: new Date().toISOString() })
       .eq('id', conversationId!)
 
+    // Sync visitor to clients if we have data
+    if (input.visitorName || input.visitorEmail) {
+      await this.syncVisitorToClient(widgetId, input.visitorId, {
+        name: input.visitorName,
+        email: input.visitorEmail,
+      })
+    }
+
     return { conversationId: conversationId!, message }
+  }
+
+  /**
+   * Sync visitor data to clients table
+   */
+  async syncVisitorToClient(
+    widgetId: string, 
+    visitorId: string, 
+    data: { name?: string; email?: string; phone?: string }
+  ): Promise<void> {
+    try {
+      // Get widget to find user_id
+      const { data: widget } = await supabaseAdmin
+        .from('chat_widgets')
+        .select('user_id')
+        .eq('id', widgetId)
+        .single()
+
+      if (!widget) return
+
+      // Check if client already exists for this visitor
+      const { data: existingClient } = await supabaseAdmin
+        .from('clients')
+        .select('id')
+        .eq('user_id', widget.user_id)
+        .eq('visitor_id', visitorId)
+        .eq('source', 'web')
+        .single()
+
+      if (existingClient) {
+        // Update existing client
+        const updateData: Record<string, unknown> = {
+          last_contact_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }
+        if (data.name) updateData.full_name = data.name
+        if (data.email) updateData.email = data.email
+        if (data.phone) updateData.phone = data.phone
+
+        await supabaseAdmin
+          .from('clients')
+          .update(updateData)
+          .eq('id', existingClient.id)
+      } else {
+        // Create new client
+        await supabaseAdmin
+          .from('clients')
+          .insert({
+            user_id: widget.user_id,
+            visitor_id: visitorId,
+            widget_id: widgetId,
+            source: 'web',
+            full_name: data.name || null,
+            email: data.email || null,
+            phone: data.phone || null,
+            status: 'lead',
+            first_contact_at: new Date().toISOString(),
+            last_contact_at: new Date().toISOString(),
+            total_conversations: 1,
+          })
+      }
+
+      // Link conversation to client
+      const { data: client } = await supabaseAdmin
+        .from('clients')
+        .select('id')
+        .eq('user_id', widget.user_id)
+        .eq('visitor_id', visitorId)
+        .eq('source', 'web')
+        .single()
+
+      if (client) {
+        await supabaseAdmin
+          .from('chat_widget_conversations')
+          .update({ client_id: client.id })
+          .eq('widget_id', widgetId)
+          .eq('visitor_id', visitorId)
+      }
+    } catch (error) {
+      console.error('Error syncing visitor to client:', error)
+      // Don't throw - this is a background operation
+    }
   }
 
   /**

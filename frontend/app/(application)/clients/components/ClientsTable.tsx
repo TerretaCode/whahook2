@@ -1,6 +1,6 @@
 "use client"
 
-import { Edit, Trash2, Mail, Phone, Building2, Users, Sparkles, Loader2, MessageSquare, Smile, Meh, Frown } from "lucide-react"
+import { Edit, Trash2, Mail, Phone, Building2, Users, Sparkles, Loader2, MessageSquare, Smile, Meh, Frown, Globe, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useState } from "react"
@@ -171,50 +171,71 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
               <tr key={client.id} className="hover:bg-gray-50 transition-colors">
                 {/* NAME */}
                 <td className="px-3 py-3">
-                  <div className="font-medium text-gray-900">
-                    {client.whatsapp_name || '-'}
-                  </div>
-                  {client.company && (
-                    <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                      <Building2 className="w-3 h-3" />
-                      {client.company}
+                  <div className="flex items-center gap-2">
+                    {/* Source indicator */}
+                    <span className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
+                      client.source === 'web' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
+                    }`} title={client.source === 'web' ? 'Web Visitor' : 'WhatsApp'}>
+                      {client.source === 'web' ? <Globe className="w-3 h-3" /> : <Smartphone className="w-3 h-3" />}
+                    </span>
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {client.full_name || client.whatsapp_name || '-'}
+                      </div>
+                      {client.company && (
+                        <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                          <Building2 className="w-3 h-3" />
+                          {client.company}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </td>
-                {/* PHONE */}
-                <td className="px-3 py-3">
-                  <div className="text-sm text-gray-900 flex items-center gap-1">
-                    <Phone className="w-3 h-3 text-gray-400" />
-                    +{client.phone}
                   </div>
+                </td>
+                {/* PHONE - show email for web visitors without phone */}
+                <td className="px-3 py-3">
+                  {client.phone ? (
+                    <button
+                      onClick={() => goToConversation(client.phone)}
+                      className="flex items-center gap-1 text-gray-700 hover:text-green-600 transition-colors"
+                    >
+                      <Phone className="w-3 h-3" />
+                      {client.phone}
+                    </button>
+                  ) : client.source === 'web' && client.visitor_id ? (
+                    <span className="text-xs text-gray-400">Web visitor</span>
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
                 </td>
                 {/* EMAIL */}
                 <td className="px-3 py-3">
                   {client.email ? (
-                    <div className="text-sm text-green-600 flex items-center gap-1">
+                    <a href={`mailto:${client.email}`} className="flex items-center gap-1 text-gray-700 hover:text-green-600 transition-colors">
                       <Mail className="w-3 h-3" />
-                      {client.email}
-                    </div>
+                      <span className="truncate max-w-[150px]">{client.email}</span>
+                    </a>
                   ) : (
-                    <span className="text-xs text-gray-400">-</span>
+                    <span className="text-gray-400">-</span>
                   )}
                 </td>
-                {/* SUMMARY */}
+                {/* SUMMARY - keep existing code after this */}
                 <td className="px-3 py-3 max-w-[200px]">
                   {client.ai_summary ? (
-                    <p className="text-xs text-gray-600 line-clamp-2" title={client.ai_summary}>
+                    <p className="text-sm text-gray-600 truncate" title={client.ai_summary}>
                       {client.ai_summary}
                     </p>
+                  ) : client.interest_details ? (
+                    <p className="text-sm text-gray-600 truncate" title={client.interest_details}>
+                      {client.interest_details}
+                    </p>
                   ) : (
-                    <span className="text-xs text-gray-400">-</span>
+                    <span className="text-gray-400 text-sm">No summary</span>
                   )}
+                  {client.interest_type && getInterestBadge(client.interest_type)}
                 </td>
                 {/* STATUS */}
                 <td className="px-3 py-3">
-                  <div className="flex flex-col gap-1">
-                    {getStatusBadge(client.status)}
-                    {getInterestBadge(client.interest_type)}
-                  </div>
+                  {getStatusBadge(client.status)}
                 </td>
                 {/* SATISFACTION */}
                 <td className="px-3 py-3">
@@ -222,9 +243,9 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                 </td>
                 {/* MESSAGES */}
                 <td className="px-3 py-3">
-                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                  <div className="flex items-center gap-1 text-gray-600">
                     <MessageSquare className="w-3 h-3" />
-                    {client.total_messages || 0}
+                    <span className="text-sm">{client.total_messages || 0}</span>
                   </div>
                 </td>
                 {/* ACTIONS */}
@@ -233,18 +254,9 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => goToConversation(client.phone)}
-                      className="text-blue-600 hover:text-blue-700"
-                      title="Go to conversation"
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
                       onClick={() => handleExtract(client.id)}
                       disabled={extractingId === client.id}
-                      className="text-green-600 hover:text-green-700"
+                      className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
                       title="Extract info with AI"
                     >
                       {extractingId === client.id ? (
@@ -257,8 +269,7 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                       variant="ghost"
                       size="sm"
                       onClick={() => onEdit(client)}
-                      className="text-gray-600 hover:text-green-600"
-                      title="Edit"
+                      className="text-gray-600 hover:text-gray-700"
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -266,8 +277,7 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
                       variant="ghost"
                       size="sm"
                       onClick={() => onDelete(client.id)}
-                      className="text-gray-600 hover:text-red-600"
-                      title="Delete"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -279,97 +289,52 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
         </table>
       </div>
 
-      {/* Mobile Cards */}
+      {/* Mobile Cards - simplified view */}
       <div className="md:hidden divide-y divide-gray-200">
         {clients.map((client) => (
-          <div key={client.id} className="p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-900">
-                  {client.whatsapp_name || `+${client.phone}`}
-                </h3>
-                {client.full_name && client.full_name !== client.whatsapp_name && (
-                  <p className="text-sm text-gray-500">{client.full_name}</p>
-                )}
-                {client.company && (
-                  <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
-                    <Building2 className="w-3 h-3" />
-                    {client.company}
-                  </p>
-                )}
-              </div>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleExtract(client.id)}
-                  disabled={extractingId === client.id}
-                  className="text-green-600"
-                >
-                  {extractingId === client.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-4 h-4" />
+          <div key={client.id} className="p-4 hover:bg-gray-50">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2">
+                <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                  client.source === 'web' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
+                }`}>
+                  {client.source === 'web' ? <Globe className="w-3 h-3" /> : <Smartphone className="w-3 h-3" />}
+                </span>
+                <div>
+                  <div className="font-medium text-gray-900">
+                    {client.full_name || client.whatsapp_name || 'Unknown'}
+                  </div>
+                  {client.phone && (
+                    <div className="text-sm text-gray-500">{client.phone}</div>
                   )}
+                  {client.email && (
+                    <div className="text-sm text-gray-500">{client.email}</div>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                {getStatusBadge(client.status)}
+              </div>
+            </div>
+            {client.ai_summary && (
+              <p className="mt-2 text-sm text-gray-600 line-clamp-2">{client.ai_summary}</p>
+            )}
+            <div className="mt-3 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <MessageSquare className="w-3 h-3" />
+                {client.total_messages || 0} messages
+              </div>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="sm" onClick={() => handleExtract(client.id)} disabled={extractingId === client.id}>
+                  {extractingId === client.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onEdit(client)}
-                  className="text-gray-600 hover:text-green-600"
-                >
+                <Button variant="ghost" size="sm" onClick={() => onEdit(client)}>
                   <Edit className="w-4 h-4" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onDelete(client.id)}
-                  className="text-gray-600 hover:text-red-600"
-                >
+                <Button variant="ghost" size="sm" onClick={() => onDelete(client.id)} className="text-red-600">
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
-            </div>
-
-            <div className="space-y-2 mb-3">
-              <div className="text-sm text-gray-900 flex items-center gap-2">
-                <Phone className="w-3 h-3 text-gray-400" />
-                +{client.phone}
-              </div>
-              {client.email ? (
-                <div className="text-sm text-green-600 flex items-center gap-2">
-                  <Mail className="w-3 h-3" />
-                  {client.email}
-                </div>
-              ) : (
-                <div className="text-xs text-gray-400 flex items-center gap-2">
-                  <Mail className="w-3 h-3" />
-                  No email
-                </div>
-              )}
-            </div>
-
-            {client.ai_summary && (
-              <div className="bg-gray-50 rounded p-2 mb-3">
-                <p className="text-xs text-gray-600 line-clamp-2">{client.ai_summary}</p>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2 items-center flex-wrap">
-                {getStatusBadge(client.status)}
-                {getInterestBadge(client.interest_type)}
-                {getSatisfactionBadge(client.satisfaction)}
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => goToConversation(client.phone)}
-                className="text-blue-600"
-              >
-                <MessageSquare className="w-4 h-4 mr-1" />
-                Chat
-              </Button>
             </div>
           </div>
         ))}
