@@ -173,23 +173,29 @@ ON chatbot_configs(user_id);
 
 ALTER TABLE chatbot_configs ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view own chatbot configs" ON chatbot_configs;
+DROP POLICY IF EXISTS "Users can insert own chatbot configs" ON chatbot_configs;
+DROP POLICY IF EXISTS "Users can update own chatbot configs" ON chatbot_configs;
+DROP POLICY IF EXISTS "Users can delete own chatbot configs" ON chatbot_configs;
+
 -- Policy: Users can only see their own configs
-CREATE POLICY IF NOT EXISTS "Users can view own chatbot configs"
+CREATE POLICY "Users can view own chatbot configs"
 ON chatbot_configs FOR SELECT
 USING (auth.uid() = user_id);
 
 -- Policy: Users can insert their own configs
-CREATE POLICY IF NOT EXISTS "Users can insert own chatbot configs"
+CREATE POLICY "Users can insert own chatbot configs"
 ON chatbot_configs FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
 -- Policy: Users can update their own configs
-CREATE POLICY IF NOT EXISTS "Users can update own chatbot configs"
+CREATE POLICY "Users can update own chatbot configs"
 ON chatbot_configs FOR UPDATE
 USING (auth.uid() = user_id);
 
 -- Policy: Users can delete their own configs
-CREATE POLICY IF NOT EXISTS "Users can delete own chatbot configs"
+CREATE POLICY "Users can delete own chatbot configs"
 ON chatbot_configs FOR DELETE
 USING (auth.uid() = user_id);
 
