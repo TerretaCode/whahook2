@@ -19,7 +19,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "@/lib/toast"
-import { ChatbotConfigForm } from "@/components/chatbot/ChatbotConfigForm"
+import { ChatbotConfigForm } from "./ChatbotConfigForm"
 
 interface WhatsAppSession {
   id: string

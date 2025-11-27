@@ -9,10 +9,10 @@ import {
   Shield,
   Bot
 } from "lucide-react"
-import { ChatbotSettingsTab } from "./config-tabs/chatbot-settings"
-import { ModelConfigTab } from "./config-tabs/ModelConfigTab"
-import { ConversationConfigTab } from "./config-tabs/ConversationConfigTab"
-import { AdvancedConfigTab } from "./config-tabs/AdvancedConfigTab"
+import { ChatbotSettingsTab } from "./chatbot-settings"
+import { ModelConfigTab } from "./ModelConfigTab"
+import { ConversationConfigTab } from "./ConversationConfigTab"
+import { AdvancedConfigTab } from "./AdvancedConfigTab"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FormData = Record<string, any>
