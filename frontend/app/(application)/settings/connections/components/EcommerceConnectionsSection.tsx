@@ -27,6 +27,12 @@ interface WebhookTopic {
   description: string
 }
 
+interface WebhookFormField {
+  label: string
+  value: string
+  type: 'text' | 'select' | 'url' | 'note'
+}
+
 interface PlatformConfig {
   name: string
   color: string
@@ -36,6 +42,8 @@ interface PlatformConfig {
   webhookPath: string
   webhookInstructions: string
   webhookTopics: WebhookTopic[]
+  webhookFormFields: WebhookFormField[]
+  webhookNote?: string
 }
 
 const platformConfig: Record<Platform, PlatformConfig> = {
@@ -46,13 +54,20 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     apiPath: '/wp-admin/admin.php?page=wc-settings&tab=advanced&section=keys',
     instructions: 'Go to WooCommerce → Settings → Advanced → REST API → Add key. Permissions: Read.',
     webhookPath: '/wp-admin/admin.php?page=wc-settings&tab=advanced&section=webhooks',
-    webhookInstructions: 'Create one webhook for each event you want to sync:',
+    webhookInstructions: 'Go to WooCommerce → Settings → Advanced → Webhooks → Add webhook',
     webhookTopics: [
       { name: 'Orders', topic: 'Order created', description: 'New orders' },
       { name: 'Orders', topic: 'Order updated', description: 'Order status changes' },
       { name: 'Products', topic: 'Product created', description: 'New products' },
       { name: 'Products', topic: 'Product updated', description: 'Product changes' },
-    ]
+    ],
+    webhookFormFields: [
+      { label: 'Name', value: 'Whahook Sync (or any name)', type: 'text' },
+      { label: 'Status', value: 'Active', type: 'select' },
+      { label: 'Delivery URL', value: '', type: 'url' },
+      { label: 'Secret', value: 'Leave empty (optional)', type: 'text' },
+      { label: 'API Version', value: 'WP REST API v3', type: 'select' },
+    ],
   },
   shopify: { 
     name: 'Shopify', 
@@ -61,13 +76,19 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     apiPath: '/admin/settings/apps/development',
     instructions: 'Go to Settings → Apps → Develop apps → Create app → Configure API permissions.',
     webhookPath: '/admin/settings/notifications',
-    webhookInstructions: 'Create webhooks for each event:',
+    webhookInstructions: 'Go to Settings → Notifications → Webhooks (scroll down) → Create webhook',
     webhookTopics: [
-      { name: 'Orders', topic: 'orders/create', description: 'New orders' },
-      { name: 'Orders', topic: 'orders/updated', description: 'Order changes' },
-      { name: 'Products', topic: 'products/create', description: 'New products' },
-      { name: 'Products', topic: 'products/update', description: 'Product changes' },
-    ]
+      { name: 'Orders', topic: 'Order creation', description: 'New orders' },
+      { name: 'Orders', topic: 'Order update', description: 'Order changes' },
+      { name: 'Products', topic: 'Product creation', description: 'New products' },
+      { name: 'Products', topic: 'Product update', description: 'Product changes' },
+    ],
+    webhookFormFields: [
+      { label: 'Event', value: 'Order creation (select from dropdown)', type: 'select' },
+      { label: 'Format', value: 'JSON', type: 'select' },
+      { label: 'URL', value: '', type: 'url' },
+      { label: 'Webhook API version', value: '2024-01 (or latest)', type: 'select' },
+    ],
   },
   prestashop: { 
     name: 'PrestaShop', 
@@ -75,14 +96,22 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     fields: ['api_key'],
     apiPath: '/admin/index.php?controller=AdminWebservice',
     instructions: 'Go to Advanced Parameters → Webservice → Add key. Enable product permissions.',
-    webhookPath: '/admin/index.php?controller=AdminModules',
-    webhookInstructions: 'Install a webhook module and configure:',
+    webhookPath: '/modules/webhooks/admin',
+    webhookInstructions: 'Install "Webhooks" module from PrestaShop Addons, then configure:',
     webhookTopics: [
-      { name: 'Orders', topic: 'actionValidateOrder', description: 'New orders' },
-      { name: 'Orders', topic: 'actionOrderStatusUpdate', description: 'Order status changes' },
-      { name: 'Products', topic: 'actionProductAdd', description: 'New products' },
-      { name: 'Products', topic: 'actionProductUpdate', description: 'Product changes' },
-    ]
+      { name: 'Orders', topic: 'Order (actionValidateOrder)', description: 'New orders' },
+      { name: 'Orders', topic: 'Order Status (actionOrderStatusUpdate)', description: 'Status changes' },
+      { name: 'Products', topic: 'Product (actionProductAdd)', description: 'New products' },
+      { name: 'Products', topic: 'Product (actionProductUpdate)', description: 'Product changes' },
+    ],
+    webhookFormFields: [
+      { label: 'Hook/Event', value: 'actionValidateOrder (for orders)', type: 'select' },
+      { label: 'URL', value: '', type: 'url' },
+      { label: 'Method', value: 'POST', type: 'select' },
+      { label: 'Content Type', value: 'application/json', type: 'select' },
+      { label: 'Active', value: 'Yes', type: 'select' },
+    ],
+    webhookNote: 'PrestaShop requires a webhook module. Search "Webhooks" in Modules → Module Manager.',
   },
   magento: { 
     name: 'Magento', 
@@ -90,12 +119,24 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     fields: ['access_token'],
     apiPath: '/admin/system_config/edit/section/oauth/',
     instructions: 'Go to System → Integrations → Add new integration → Generate token.',
-    webhookPath: '/admin/system/webhook',
-    webhookInstructions: 'Create webhooks for each event:',
+    webhookPath: '/admin/system/config/edit/section/mageplaza_webhook/',
+    webhookInstructions: 'Install Mageplaza Webhook extension, then go to Stores → Configuration → Mageplaza → Webhook',
     webhookTopics: [
-      { name: 'Orders', topic: 'sales_order_save_after', description: 'New/updated orders' },
-      { name: 'Products', topic: 'catalog_product_save_after', description: 'New/updated products' },
-    ]
+      { name: 'Orders', topic: 'New Order', description: 'New orders' },
+      { name: 'Orders', topic: 'Update Order', description: 'Order changes' },
+      { name: 'Products', topic: 'New Product', description: 'New products' },
+      { name: 'Products', topic: 'Update Product', description: 'Product changes' },
+    ],
+    webhookFormFields: [
+      { label: 'Name', value: 'Whahook Sync', type: 'text' },
+      { label: 'Status', value: 'Enable', type: 'select' },
+      { label: 'Entity', value: 'Order / Product', type: 'select' },
+      { label: 'Hook Type', value: 'Before Save / After Save', type: 'select' },
+      { label: 'Payload URL', value: '', type: 'url' },
+      { label: 'Method', value: 'POST', type: 'select' },
+      { label: 'Content Type', value: 'application/json', type: 'select' },
+    ],
+    webhookNote: 'Magento requires Mageplaza Webhook extension (free). Install via composer.',
   },
 }
 
@@ -605,19 +646,28 @@ export function EcommerceConnectionsSection() {
                   <div className="border-t bg-gray-50 p-4 space-y-4">
                     <div className="flex items-center gap-2 text-lg font-medium text-gray-900">
                       <Webhook className="w-5 h-5 text-purple-600" />
-                      Auto-sync (Webhook Setup)
+                      Auto-sync (Webhook Setup) - {config.name}
                     </div>
                     
                     <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg space-y-4">
+                      {/* Note for platforms requiring extensions */}
+                      {config.webhookNote && (
+                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <p className="text-sm text-yellow-800">
+                            <strong>⚠️ Note:</strong> {config.webhookNote}
+                          </p>
+                        </div>
+                      )}
+                      
                       <p className="text-sm text-purple-900">
-                        Create a webhook in your store to automatically sync orders and products.
+                        {config.webhookInstructions}
                       </p>
                       
                       {/* Step 1: Open settings */}
                       <div className="flex items-start gap-3">
                         <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">1</span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-purple-900">Open webhook settings and click "Add webhook":</p>
+                          <p className="text-sm font-medium text-purple-900">Open webhook settings:</p>
                           <Button
                             size="sm"
                             variant="outline"
@@ -625,33 +675,51 @@ export function EcommerceConnectionsSection() {
                             onClick={() => window.open(getWebhookSettingsUrl(connection.store_url, connection.platform), '_blank')}
                           >
                             <ExternalLink className="h-4 w-4 mr-2" />
-                            Open Webhook Settings
+                            Open {config.name} Webhook Settings
                           </Button>
                         </div>
                       </div>
 
-                      {/* Step 2: Fill form */}
+                      {/* Step 2: Fill form with dynamic fields */}
                       <div className="flex items-start gap-3">
                         <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">2</span>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-purple-900 mb-2">Fill in the webhook form:</p>
                           
                           <div className="bg-white border border-purple-200 rounded-lg p-3 space-y-3 text-sm">
-                            {/* Name */}
-                            <div className="flex items-center gap-2">
-                              <span className="w-28 text-purple-700 font-medium">Name:</span>
-                              <span className="text-gray-700">Whahook Sync (or any name)</span>
-                            </div>
+                            {/* Dynamic form fields based on platform */}
+                            {config.webhookFormFields.map((field, i) => (
+                              <div key={i} className="flex items-start gap-2">
+                                <span className="w-32 text-purple-700 font-medium flex-shrink-0">{field.label}:</span>
+                                {field.type === 'url' ? (
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <Input 
+                                        value={webhookUrl} 
+                                        readOnly 
+                                        className="bg-gray-50 text-xs font-mono flex-1"
+                                      />
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={() => copyToClipboard(webhookUrl)}
+                                        className="flex-shrink-0"
+                                      >
+                                        <Copy className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : field.type === 'select' ? (
+                                  <code className="bg-purple-100 px-2 py-0.5 rounded text-xs">{field.value}</code>
+                                ) : (
+                                  <span className="text-gray-700">{field.value}</span>
+                                )}
+                              </div>
+                            ))}
                             
-                            {/* Status */}
-                            <div className="flex items-center gap-2">
-                              <span className="w-28 text-purple-700 font-medium">Status:</span>
-                              <code className="bg-green-100 text-green-800 px-2 py-0.5 rounded">Active</code>
-                            </div>
-                            
-                            {/* Topic */}
-                            <div className="flex items-start gap-2">
-                              <span className="w-28 text-purple-700 font-medium flex-shrink-0">Topic:</span>
+                            {/* Topics/Events */}
+                            <div className="flex items-start gap-2 pt-2 border-t border-purple-100">
+                              <span className="w-32 text-purple-700 font-medium flex-shrink-0">Event/Topic:</span>
                               <div className="space-y-1">
                                 {config.webhookTopics.map((t, i) => (
                                   <div key={i}>
@@ -659,42 +727,8 @@ export function EcommerceConnectionsSection() {
                                     <span className="text-gray-500 text-xs ml-2">({t.description})</span>
                                   </div>
                                 ))}
-                                <p className="text-xs text-purple-600 mt-1">Create one webhook per topic, or just "Order created" to start</p>
+                                <p className="text-xs text-purple-600 mt-1">Create one webhook per event, or just orders to start</p>
                               </div>
-                            </div>
-                            
-                            {/* Delivery URL */}
-                            <div className="flex items-start gap-2">
-                              <span className="w-28 text-purple-700 font-medium flex-shrink-0">Delivery URL:</span>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <Input 
-                                    value={webhookUrl} 
-                                    readOnly 
-                                    className="bg-gray-50 text-xs font-mono flex-1"
-                                  />
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    onClick={() => copyToClipboard(webhookUrl)}
-                                    className="flex-shrink-0"
-                                  >
-                                    <Copy className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Secret */}
-                            <div className="flex items-center gap-2">
-                              <span className="w-28 text-purple-700 font-medium">Secret:</span>
-                              <span className="text-gray-500 italic">Leave empty (optional)</span>
-                            </div>
-                            
-                            {/* API Version */}
-                            <div className="flex items-center gap-2">
-                              <span className="w-28 text-purple-700 font-medium">API Version:</span>
-                              <code className="bg-purple-100 px-2 py-0.5 rounded text-xs">WP REST API v3</code>
                             </div>
                           </div>
                         </div>
@@ -704,9 +738,9 @@ export function EcommerceConnectionsSection() {
                       <div className="flex items-start gap-3">
                         <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">3</span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-purple-900">Click "Save webhook" and you're done! 🎉</p>
+                          <p className="text-sm font-medium text-purple-900">Save and you're done! 🎉</p>
                           <p className="text-sm text-purple-700 mt-1">
-                            New orders will sync automatically. Test it by placing a test order.
+                            New orders and products will sync automatically.
                           </p>
                         </div>
                       </div>
