@@ -8,7 +8,7 @@ import { WhatsAppAccountsSection } from "./components/WhatsAppAccountsSection"
 import { ChatWidgetsSection } from "./components/ChatWidgetsSection"
 import { EcommerceConnectionsSection } from "./components/EcommerceConnectionsSection"
 import { WebhooksSection } from "./components/WebhooksSection"
-import { Loader2, Smartphone, MessageSquare, ShoppingCart, Webhook } from "lucide-react"
+import { Loader2, Smartphone, Bot, ShoppingCart, Webhook } from "lucide-react"
 
 export default function ConnectionsPage() {
   const router = useRouter()
@@ -36,8 +36,8 @@ export default function ConnectionsPage() {
           <span className="hidden sm:inline">WhatsApp</span>
         </TabsTrigger>
         <TabsTrigger value="chat-widget" className="flex items-center gap-2">
-          <MessageSquare className="w-4 h-4" />
-          <span className="hidden sm:inline">Chat Widget</span>
+          <Bot className="w-4 h-4" />
+          <span className="hidden sm:inline">Chatbot Web</span>
         </TabsTrigger>
         <TabsTrigger value="ecommerce" className="flex items-center gap-2">
           <ShoppingCart className="w-4 h-4" />

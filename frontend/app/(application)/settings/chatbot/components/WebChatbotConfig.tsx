@@ -56,7 +56,7 @@ export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
       </div>
     )
   }
@@ -70,7 +70,7 @@ export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
           First, create a Chatbot Web in the Connections section
         </p>
         <Link href="/settings/connections">
-          <Button className="bg-purple-600 hover:bg-purple-700">
+          <Button className="bg-green-600 hover:bg-green-700">
             Go to Connections
           </Button>
         </Link>

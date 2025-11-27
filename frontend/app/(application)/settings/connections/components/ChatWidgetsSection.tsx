@@ -482,7 +482,7 @@ export function ChatWidgetsSection() {
                       <Link href={`/settings/chatbot?widget=${widget.id}`}>
                         <Button
                           size="sm"
-                          className="bg-purple-600 hover:bg-purple-700"
+                          className="bg-green-600 hover:bg-green-700"
                           title="Configure AI Chatbot"
                         >
                           <Bot className="h-4 w-4 mr-1" />
