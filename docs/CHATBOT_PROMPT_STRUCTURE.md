@@ -54,6 +54,23 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │  Mensaje fuera de horario:                                      │   │
 │  │  [Ahora no hay nadie disponible. Te contactamos mañana.    ]   │   │
 │  │                                                                 │   │
+│  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │   │
+│  │                                                                 │   │
+│  │  🌐 Redes sociales                                              │   │
+│  │  (vacío - el usuario añade las suyas)                          │   │
+│  │  [+ Añadir red social]                                         │   │
+│  │  Campos: Nombre (Instagram, TikTok...) + URL o @usuario        │   │
+│  │                                                                 │   │
+│  │  📍 Ubicaciones físicas                                         │   │
+│  │  (vacío - el usuario añade las suyas)                          │   │
+│  │  [+ Añadir ubicación]                                          │   │
+│  │  ┌────────────────────────────────────────────────────────────┐│   │
+│  │  │ Campos por ubicación:                                      ││   │
+│  │  │ - Nombre: [Tienda Central                             ]   ││   │
+│  │  │ - Dirección: [Calle Mayor 123, Madrid                 ]   ││   │
+│  │  │ - [📍 Seleccionar en Google Maps]  → Genera link directo   ││   │
+│  │  └────────────────────────────────────────────────────────────┘│   │
+│  │                                                                 │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
 │  ┌─────────────────────────────────────────────────────────────────┐   │
@@ -149,9 +166,9 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │  Máx. productos por respuesta: [3  ]                           │   │
 │  │                                                                 │   │
 │  │  🔍 Si no encuentra productos:                                  │   │
-│  │  (●) Sugerir alternativas similares                            │   │
-│  │  ( ) Pedir más información al cliente                          │   │
-│  │  ( ) Escalar a humano                                          │   │
+│  │  [✓] Sugerir alternativas similares                            │   │
+│  │  [✓] Pedir más información al cliente                          │   │
+│  │  [✓] Ofrecer atención humana                                   │   │
 │  │                                                                 │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
@@ -228,10 +245,16 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │                                                                 │   │
 │  │  Cualquier otra cosa que el bot deba saber:                     │   │
 │  │  ┌───────────────────────────────────────────────────────────┐ │   │
-│  │  │ Tenemos promoción 2x1 en solares hasta fin de mes.        │ │   │
-│  │  │ Los martes hay 10% descuento para nuevos clientes.        │ │   │
-│  │  │ No vendemos a menores de 18 años productos con retinol.   │ │   │
+│  │  │                                                           │ │   │
+│  │  │                                                           │ │   │
+│  │  │                                                           │ │   │
 │  │  └───────────────────────────────────────────────────────────┘ │   │
+│  │                                                                 │   │
+│  │  💡 Ejemplos de qué poner aquí:                                 │   │
+│  │  • Promociones activas (2x1, descuentos, códigos...)           │   │
+│  │  • Reglas especiales del negocio                               │   │
+│  │  • Información temporal o de temporada                         │   │
+│  │  • Cualquier contexto extra para el bot                        │   │
 │  │                                                                 │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
@@ -334,6 +357,8 @@ Colapsable. Contiene:
 - Nombre y descripción del negocio
 - Contacto (email, tel, web)
 - Horario de atención + mensaje fuera de horario
+- Redes sociales (ilimitadas, el usuario añade las que quiera)
+- Ubicaciones físicas (ilimitadas, con integración Google Maps para link directo)
 
 ### 📦 ENVÍOS Y PAGOS (E-commerce)
 Colapsable. Solo relevante para tiendas online. Contiene:
@@ -357,7 +382,7 @@ Solo visible si elige "Sí, tengo productos". Contiene:
   - Reglas especiales (opcional)
 - **Formato de recomendación**: Checkboxes de qué incluir al recomendar
 - **Límite de productos**: Máximo por respuesta
-- **Comportamiento sin resultados**: Alternativas, pedir más info, o escalar
+- **Comportamiento sin resultados**: Multi-opción (alternativas + pedir info + ofrecer humano)
 
 ### 🎯 COMPORTAMIENTO DEL BOT
 Colapsable. Contiene:
@@ -413,7 +438,11 @@ Colapsable. Contiene:
 Toda la información recopilada se guarda automáticamente en la ficha del cliente (CRM).
 
 ### ➕ INFORMACIÓN ADICIONAL
-Colapsable. Textarea libre para promociones, reglas especiales, etc.
+Colapsable. Textarea libre para:
+- Promociones activas (2x1, descuentos, códigos...)
+- Reglas especiales del negocio
+- Información temporal o de temporada
+- Cualquier contexto extra para el bot
 
 ---
 
@@ -434,6 +463,8 @@ interface ChatbotConfig {
   contact: { email?: string, phone?: string, website?: string }
   business_hours: string                  // "Lunes a Viernes 9:00-18:00"
   out_of_hours_message: string            // Mensaje cuando no hay nadie
+  social_media: SocialMedia[]             // Redes sociales
+  locations: Location[]                   // Ubicaciones físicas
   
   // Envíos y Pagos (E-commerce)
   shipping_methods: ShippingMethod[]
@@ -449,7 +480,7 @@ interface ChatbotConfig {
   recommendation_format: string[]         // ['name', 'price', 'benefits', 'link', ...]
   custom_recommendation_fields: string[] // Campos personalizados añadidos por el usuario
   max_products_per_response: number       // Límite de productos por respuesta
-  no_results_behavior: 'alternatives' | 'ask_more' | 'escalate'
+  no_results_behavior: string[]            // Multi-opción: ['alternatives', 'ask_more', 'offer_human']
   
   // Comportamiento del Bot
   bot_objective: 'sell' | 'inform' | 'leads' | 'support'
@@ -472,6 +503,17 @@ interface ChatbotConfig {
   
   // Adicional
   additional_info: string
+}
+
+interface SocialMedia {
+  platform: string       // "Instagram", "TikTok", "Facebook"...
+  handle: string         // "@usuario" o URL completa
+}
+
+interface Location {
+  name: string           // "Tienda Central", "Sucursal Norte"
+  address: string        // "Calle Mayor 123, Madrid"
+  google_maps_url?: string  // Link directo a Google Maps
 }
 
 interface ShippingMethod {
