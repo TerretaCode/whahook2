@@ -129,16 +129,39 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
 │  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │ � ESCALACIÓN                                          [▼ Abrir]│   │
+│  │ 🚨 ESCALACIÓN                                          [▼ Abrir]│   │
 │  │                                                                 │   │
 │  │  Pasar a humano cuando:                                         │   │
 │  │  [✓] Cliente pide hablar con persona                           │   │
 │  │  [✓] Queja o reclamación                                       │   │
 │  │  [✓] Problema con pedido                                       │   │
-│  │  [ ] Después de 3 mensajes sin resolver                        │   │
+│  │  [ ] Después de X mensajes sin resolver: [3  ]                 │   │
+│  │  [+ Añadir motivo personalizado]                               │   │
 │  │                                                                 │   │
 │  │  Mensaje al escalar:                                            │   │
 │  │  [Te paso con un compañero que te ayudará mejor. Un momento.]  │   │
+│  │                                                                 │   │
+│  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │   │
+│  │                                                                 │   │
+│  │  📋 Información a recopilar del cliente:                        │   │
+│  │  [✓] Nombre completo                                           │   │
+│  │  [✓] Email                                                     │   │
+│  │  [✓] Teléfono                                                  │   │
+│  │  [ ] Número de pedido                                          │   │
+│  │  [ ] Empresa                                                   │   │
+│  │  [+ Añadir campo personalizado]                                │   │
+│  │                                                                 │   │
+│  │  📞 ¿Cómo prefiere ser contactado?                              │   │
+│  │  [✓] Preguntar al cliente su preferencia                       │   │
+│  │                                                                 │   │
+│  │  Opciones disponibles:                                          │   │
+│  │  [✓] WhatsApp (este chat)                                      │   │
+│  │  [✓] Llamada telefónica                                        │   │
+│  │  [✓] Email                                                     │   │
+│  │  [ ] Otro número de WhatsApp                                   │   │
+│  │  [+ Añadir método]                                             │   │
+│  │                                                                 │   │
+│  │  💡 Esta info se guarda en la ficha del cliente (CRM)          │   │
 │  │                                                                 │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
@@ -302,10 +325,14 @@ Colapsable. Contiene:
 - Mensaje de bienvenida
 - FAQs (pregunta/respuesta)
 
-### � ESCALACIÓN
+### 🚨 ESCALACIÓN
 Colapsable. Contiene:
-- Checkboxes de cuándo pasar a humano
-- Mensaje al escalar
+- **Motivos de escalación**: Checkboxes predefinidos + personalizables
+- **Mensaje al escalar**: Texto que verá el cliente
+- **Información a recopilar**: Campos que el bot pedirá (nombre, email, teléfono, etc.)
+- **Método de contacto preferido**: El bot pregunta cómo prefiere ser contactado
+
+Toda la información recopilada se guarda automáticamente en la ficha del cliente (CRM).
 
 ### ➕ INFORMACIÓN ADICIONAL
 Colapsable. Textarea libre para promociones, reglas especiales, etc.
@@ -339,7 +366,15 @@ interface ChatbotConfig {
   
   // Escalación
   escalation_triggers: string[]
+  custom_escalation_triggers: string[]
+  escalation_after_messages?: number      // Escalar después de X mensajes sin resolver
   escalation_message: string
+  
+  // Información a recopilar
+  info_fields_to_collect: string[]        // ['name', 'email', 'phone', 'order_number', ...]
+  custom_info_fields: string[]            // Campos personalizados
+  ask_contact_preference: boolean         // Preguntar cómo prefiere ser contactado
+  contact_methods_available: string[]     // ['whatsapp', 'call', 'email', 'other_whatsapp', ...]
   
   // Adicional
   additional_info: string
