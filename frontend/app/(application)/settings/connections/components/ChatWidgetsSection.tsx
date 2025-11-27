@@ -22,6 +22,10 @@ interface ChatWidget {
   welcome_message: string
   placeholder_text: string
   position: string
+  launcher_animation: string
+  z_index: number
+  sound_enabled: boolean
+  proactive_delay: number
   total_conversations: number
   total_messages: number
   created_at: string
@@ -147,6 +151,10 @@ export function ChatWidgetsSection() {
     welcome_message: '¡Hola! ¿En qué puedo ayudarte hoy? 😊',
     placeholder_text: 'Escribe tu mensaje...',
     position: 'bottom-right',
+    launcher_animation: 'pulse',
+    z_index: 9999,
+    sound_enabled: true,
+    proactive_delay: 0,
   })
 
   const resetForm = () => {
@@ -160,6 +168,10 @@ export function ChatWidgetsSection() {
       welcome_message: '¡Hola! ¿En qué puedo ayudarte hoy? 😊',
       placeholder_text: 'Escribe tu mensaje...',
       position: 'bottom-right',
+      launcher_animation: 'pulse',
+      z_index: 9999,
+      sound_enabled: true,
+      proactive_delay: 0,
     })
     setEditingWidget(null)
   }
@@ -240,6 +252,10 @@ export function ChatWidgetsSection() {
       welcome_message: widget.welcome_message,
       placeholder_text: widget.placeholder_text,
       position: widget.position,
+      launcher_animation: widget.launcher_animation || 'pulse',
+      z_index: widget.z_index || 9999,
+      sound_enabled: widget.sound_enabled !== false,
+      proactive_delay: widget.proactive_delay || 0,
     })
     setEditingWidget(widget.id)
     setShowForm(true)
@@ -421,6 +437,80 @@ export function ChatWidgetsSection() {
                     placeholder="Hello! How can I help you today?"
                     required
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* Step 3: Advanced Settings */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-md font-medium">
+                <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center">3</span>
+                Advanced Settings
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
+                <div>
+                  <Label>Position</Label>
+                  <select
+                    className="w-full p-2 border rounded-md bg-white"
+                    value={formData.position}
+                    onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                  >
+                    <option value="bottom-right">Bottom Right</option>
+                    <option value="bottom-left">Bottom Left</option>
+                  </select>
+                </div>
+                <div>
+                  <Label>Launcher Animation</Label>
+                  <select
+                    className="w-full p-2 border rounded-md bg-white"
+                    value={formData.launcher_animation}
+                    onChange={(e) => setFormData({ ...formData, launcher_animation: e.target.value })}
+                  >
+                    <option value="pulse">Pulse (Recommended)</option>
+                    <option value="bounce">Bounce</option>
+                    <option value="none">None</option>
+                  </select>
+                </div>
+                <div>
+                  <Label>Layer Priority (z-index)</Label>
+                  <select
+                    className="w-full p-2 border rounded-md bg-white"
+                    value={formData.z_index}
+                    onChange={(e) => setFormData({ ...formData, z_index: parseInt(e.target.value) })}
+                  >
+                    <option value={9999}>Normal (9999) - Above most elements</option>
+                    <option value={99999}>High (99999) - Above cookie banners</option>
+                    <option value={999999}>Maximum (999999) - Always on top</option>
+                    <option value={999}>Low (999) - Behind some popups</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">If the widget appears behind other elements, try a higher value</p>
+                </div>
+                <div>
+                  <Label>Proactive Message Delay</Label>
+                  <select
+                    className="w-full p-2 border rounded-md bg-white"
+                    value={formData.proactive_delay}
+                    onChange={(e) => setFormData({ ...formData, proactive_delay: parseInt(e.target.value) })}
+                  >
+                    <option value={0}>Disabled</option>
+                    <option value={5}>5 seconds</option>
+                    <option value={10}>10 seconds</option>
+                    <option value={15}>15 seconds</option>
+                    <option value={30}>30 seconds</option>
+                    <option value={60}>1 minute</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">Show welcome message popup after this time</p>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.sound_enabled}
+                      onChange={(e) => setFormData({ ...formData, sound_enabled: e.target.checked })}
+                      className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                    />
+                    <span className="text-sm text-gray-700">Enable notification sound for new messages</span>
+                  </label>
                 </div>
               </div>
             </div>
