@@ -399,40 +399,45 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* AI Status */}
+          {/* Plan Status */}
           <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-xl shadow-sm p-6 text-white">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Sparkles className="w-5 h-5" />
-              Estado de IA
+              Tu Plan
             </h2>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-white/10 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Smartphone className="w-4 h-4" />
-                  <span>WhatsApp AI</span>
-                </div>
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  stats.whatsappAiActive > 0 ? 'bg-green-400 text-green-900' : 'bg-red-400 text-red-900'
-                }`}>
-                  {stats.whatsappAiActive > 0 ? 'Activa' : 'Inactiva'}
+              <div className="text-center py-4">
+                <span className="inline-block px-4 py-2 bg-white/20 rounded-full text-lg font-bold capitalize">
+                  {user.profile?.subscription_tier === 'free' ? 'Trial Gratuito' : 
+                   user.profile?.subscription_tier === 'pro' ? 'Plan Pro' :
+                   user.profile?.subscription_tier === 'business' ? 'Plan Business' :
+                   user.profile?.subscription_tier === 'admin' ? 'Administrador' :
+                   user.profile?.subscription_tier || 'Trial'}
                 </span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-white/10 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
-                  <span>Web Chatbot AI</span>
+              
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center justify-between p-2 bg-white/10 rounded">
+                  <span>Sesiones WhatsApp</span>
+                  <span className="font-semibold">{stats.whatsappSessions} activas</span>
                 </div>
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  stats.webAiActive > 0 ? 'bg-green-400 text-green-900' : 'bg-red-400 text-red-900'
-                }`}>
-                  {stats.webAiActive > 0 ? 'Activa' : 'Inactiva'}
-                </span>
+                <div className="flex items-center justify-between p-2 bg-white/10 rounded">
+                  <span>Widgets Web</span>
+                  <span className="font-semibold">{stats.webWidgets} activos</span>
+                </div>
+                <div className="flex items-center justify-between p-2 bg-white/10 rounded">
+                  <span>IAs Configuradas</span>
+                  <span className="font-semibold">{stats.whatsappAiActive + stats.webAiActive}</span>
+                </div>
               </div>
+
               <div className="pt-4 border-t border-green-500">
-                <Link href="/settings/chatbot">
+                <Link href="/pricing">
                   <Button className="w-full bg-white text-green-600 hover:bg-gray-100">
-                    <Bot className="w-4 h-4 mr-2" />
-                    Configurar Chatbots
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    {user.profile?.subscription_tier === 'free' || !user.profile?.subscription_tier 
+                      ? 'Mejorar Plan' 
+                      : 'Ver Planes'}
                   </Button>
                 </Link>
               </div>
