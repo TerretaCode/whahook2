@@ -40,10 +40,44 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │                                                                 │   │
 │  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │   │
 │  │                                                                 │   │
-│  │  📞 Contacto                 📋 Políticas                       │   │
-│  │  Email: [info@belior.com ]   Envío: [Gratis +50€, 24-48h    ]  │   │
-│  │  Tel:   [+34 900 123 456]    Devoluciones: [30 días         ]  │   │
-│  │  Web:   [belior.com      ]   Pagos: [Tarjeta, PayPal, Bizum ]  │   │
+│  │  📞 Contacto                                                    │   │
+│  │  Email: [info@belior.com ]  Tel: [+34 900 123 456]             │   │
+│  │  Web:   [belior.com      ]                                      │   │
+│  │                                                                 │   │
+│  │  ⏰ Horario de atención                                         │   │
+│  │  [Lunes a Viernes 9:00-18:00, Sábados 10:00-14:00          ]   │   │
+│  │  Mensaje fuera de horario:                                      │   │
+│  │  [Ahora no hay nadie disponible. Te contactamos mañana.    ]   │   │
+│  │                                                                 │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │ 📦 ENVÍOS Y PAGOS (E-commerce)                        [▼ Abrir]│   │
+│  │                                                                 │   │
+│  │  🚚 Métodos de envío                                            │   │
+│  │  ┌────────────────────────────────────────────────────────────┐│   │
+│  │  │ [Estándar     ] [3-5 días ] [4.99€  ] [Gratis +50€ ✓]     ││   │
+│  │  │ [Express      ] [24-48h   ] [9.99€  ] [            ]      ││   │
+│  │  │ [Recogida     ] [Inmediato] [Gratis ] [            ]      ││   │
+│  │  │ [+ Añadir método de envío]                                 ││   │
+│  │  └────────────────────────────────────────────────────────────┘│   │
+│  │                                                                 │   │
+│  │  🌍 Zonas de envío                                              │   │
+│  │  [✓] España peninsular  [ ] Baleares  [ ] Canarias            │   │
+│  │  [ ] Portugal           [ ] Europa    [ ] Internacional       │   │
+│  │  [+ Añadir zona]                                               │   │
+│  │                                                                 │   │
+│  │  💳 Métodos de pago                                             │   │
+│  │  [✓] Tarjeta  [✓] PayPal  [✓] Bizum  [ ] Transferencia        │   │
+│  │  [ ] Contra reembolso  [ ] Financiación                        │   │
+│  │  [+ Añadir método]                                             │   │
+│  │                                                                 │   │
+│  │  🔄 Devoluciones                                                │   │
+│  │  Plazo: [30 ] días    Coste: [Gratis            ]              │   │
+│  │  Condiciones: [Producto sin abrir, con etiquetas          ]   │   │
+│  │                                                                 │   │
+│  │  🛡️ Garantías                                                   │   │
+│  │  [2 años en todos los productos. Garantía de satisfacción  ]  │   │
 │  │                                                                 │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
@@ -105,6 +139,38 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │                                                                 │   │
 │  │  📋 Al recomendar incluir:                                     │   │
 │  │  [✓] Nombre  [✓] Precio  [✓] Beneficios  [ ] Ingredientes     │   │
+│  │                                                                 │   │
+│  │  📊 Límites de recomendación:                                   │   │
+│  │  Máx. productos por respuesta: [3  ]                           │   │
+│  │                                                                 │   │
+│  │  🔍 Si no encuentra productos:                                  │   │
+│  │  (●) Sugerir alternativas similares                            │   │
+│  │  ( ) Pedir más información al cliente                          │   │
+│  │  ( ) Escalar a humano                                          │   │
+│  │                                                                 │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │ 🎯 COMPORTAMIENTO DEL BOT                              [▼ Abrir]│   │
+│  │                                                                 │   │
+│  │  Objetivo principal:                                            │   │
+│  │  (●) Vender / Recomendar productos                             │   │
+│  │  ( ) Informar / Resolver dudas                                 │   │
+│  │  ( ) Captar leads / Recopilar datos                            │   │
+│  │  ( ) Soporte post-venta                                        │   │
+│  │                                                                 │   │
+│  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │   │
+│  │                                                                 │   │
+│  │  🚫 El bot NO debe:                                             │   │
+│  │  [✓] Dar consejos médicos o diagnósticos                       │   │
+│  │  [✓] Hablar de la competencia                                  │   │
+│  │  [✓] Prometer descuentos sin autorización                      │   │
+│  │  [✓] Inventar información de productos                         │   │
+│  │  [+ Añadir restricción]                                        │   │
+│  │                                                                 │   │
+│  │  📝 Instrucciones especiales:                                   │   │
+│  │  [Si preguntan por ingredientes, siempre recomendar revisar ]  │   │
+│  │  [la web del producto para información completa.             ]  │   │
 │  │                                                                 │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
@@ -260,7 +326,15 @@ El bot detecta automáticamente el idioma del cliente y responde en ese idioma.
 Colapsable. Contiene:
 - Nombre y descripción del negocio
 - Contacto (email, tel, web)
-- Políticas (envío, devoluciones, pagos)
+- Horario de atención + mensaje fuera de horario
+
+### 📦 ENVÍOS Y PAGOS (E-commerce)
+Colapsable. Solo relevante para tiendas online. Contiene:
+- **Métodos de envío**: Nombre, tiempo, precio, envío gratis desde X€
+- **Zonas de envío**: Checkboxes de regiones
+- **Métodos de pago**: Tarjeta, PayPal, Bizum, etc.
+- **Devoluciones**: Plazo, coste, condiciones
+- **Garantías**: Información de garantía
 
 ### 🛒 PRODUCTOS
 Solo visible si elige "Sí, tengo productos". Contiene:
@@ -275,6 +349,14 @@ Solo visible si elige "Sí, tengo productos". Contiene:
   - Máximo de preguntas (input libre - la IA elige las mejores según contexto)
   - Reglas especiales (opcional)
 - **Formato de recomendación**: Checkboxes de qué incluir al recomendar
+- **Límite de productos**: Máximo por respuesta
+- **Comportamiento sin resultados**: Alternativas, pedir más info, o escalar
+
+### 🎯 COMPORTAMIENTO DEL BOT
+Colapsable. Contiene:
+- **Objetivo principal**: Vender, informar, captar leads, soporte
+- **Restricciones**: Cosas que el bot NO debe hacer/decir
+- **Instrucciones especiales**: Comportamientos específicos
 
 **Sincronización API**:
 - Al pulsar [🔄 Sincronizar] se vuelven a extraer todos los productos de la tienda
@@ -341,13 +423,28 @@ interface ChatbotConfig {
   business_name: string
   business_description: string
   contact: { email?: string, phone?: string, website?: string }
-  policies: { shipping?: string, returns?: string, payments?: string }
+  business_hours: string                  // "Lunes a Viernes 9:00-18:00"
+  out_of_hours_message: string            // Mensaje cuando no hay nadie
+  
+  // Envíos y Pagos (E-commerce)
+  shipping_methods: ShippingMethod[]
+  shipping_zones: string[]                // ['spain_peninsula', 'europe', ...]
+  payment_methods: string[]               // ['card', 'paypal', 'bizum', ...]
+  returns: { days: number, cost: string, conditions: string }
+  warranty: string
   
   // Productos
   recommend_products: boolean
   ecommerce_connection_ids: string[]
   categories: Category[]
-  recommendation_format: string[]  // ['name', 'price', 'benefits', ...]
+  recommendation_format: string[]         // ['name', 'price', 'benefits', ...]
+  max_products_per_response: number       // Límite de productos por respuesta
+  no_results_behavior: 'alternatives' | 'ask_more' | 'escalate'
+  
+  // Comportamiento del Bot
+  bot_objective: 'sell' | 'inform' | 'leads' | 'support'
+  restrictions: string[]                  // Cosas que NO debe hacer
+  special_instructions: string
   
   // Conversación
   welcome_message: string
@@ -356,15 +453,22 @@ interface ChatbotConfig {
   // Escalación
   escalation_triggers: string[]
   custom_escalation_triggers: string[]
-  escalation_after_messages?: number      // Escalar después de X mensajes sin resolver
+  escalation_after_messages?: number
   escalation_message: string
   
   // Información a recopilar (se guarda en CRM)
-  info_fields_to_collect: string[]        // ['name', 'email', 'phone', 'order_number', ...]
-  custom_info_fields: string[]            // Campos personalizados
+  info_fields_to_collect: string[]
+  custom_info_fields: string[]
   
   // Adicional
   additional_info: string
+}
+
+interface ShippingMethod {
+  name: string           // "Estándar", "Express"
+  delivery_time: string  // "3-5 días", "24-48h"
+  price: number          // 4.99
+  free_from?: number     // Gratis a partir de X€
 }
 
 interface Category {
