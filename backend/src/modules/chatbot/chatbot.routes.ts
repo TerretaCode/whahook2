@@ -231,4 +231,212 @@ router.get('/whatsapp/:sessionId/api-key', async (req: Request, res: Response) =
   }
 })
 
+// ==============================================
+// WEB CHATBOT ROUTES
+// ==============================================
+
+/**
+ * GET /api/chatbot/web/:widgetId
+ * Get chatbot config for a web widget
+ */
+router.get('/web/:widgetId', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { widgetId } = req.params
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    // Verify widget belongs to user
+    const { data: widget } = await supabaseAdmin
+      .from('chat_widgets')
+      .select('id')
+      .eq('id', widgetId)
+      .eq('user_id', userId)
+      .single()
+
+    if (!widget) {
+      return res.status(404).json({ success: false, error: 'Widget not found' })
+    }
+
+    const { data: config, error } = await supabaseAdmin
+      .from('chatbot_configs')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('widget_id', widgetId)
+      .single()
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching web chatbot config:', error)
+      return res.status(500).json({ success: false, error: 'Error fetching config' })
+    }
+
+    if (!config) {
+      return res.status(404).json({ success: false, error: 'Config not found' })
+    }
+
+    const responseConfig = {
+      ...config,
+      api_key: undefined,
+      api_key_encrypted: undefined,
+      has_api_key: !!config.api_key_encrypted
+    }
+
+    res.json({ success: true, data: responseConfig })
+  } catch (error: any) {
+    console.error('Error in GET /chatbot/web/:widgetId:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
+ * POST /api/chatbot/web/:widgetId
+ * Create or update chatbot config for a web widget
+ */
+router.post('/web/:widgetId', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { widgetId } = req.params
+    const body = req.body
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    // Verify widget belongs to user
+    const { data: widget } = await supabaseAdmin
+      .from('chat_widgets')
+      .select('id')
+      .eq('id', widgetId)
+      .eq('user_id', userId)
+      .single()
+
+    if (!widget) {
+      return res.status(404).json({ success: false, error: 'Widget not found' })
+    }
+
+    const configData: any = {
+      user_id: userId,
+      widget_id: widgetId,
+      provider: body.provider || 'google',
+      model: body.model || 'gemini-2.5-flash',
+      bot_name: body.bot_name || 'Asistente',
+      language: body.language || 'es',
+      tone: body.tone || 'professional',
+      auto_reply: body.auto_reply !== undefined ? body.auto_reply : true,
+      use_ecommerce_api: body.use_ecommerce_api || false,
+      ecommerce_connection_ids: body.ecommerce_connection_ids || [],
+      ecommerce_search_message: body.ecommerce_search_message || 'Estoy buscando la mejor solución para ti...',
+      system_prompt: body.system_prompt,
+      custom_instructions: body.custom_instructions,
+      fallback_message: body.fallback_message,
+      temperature: body.temperature,
+      max_tokens: body.max_tokens,
+      context_window: body.context_window,
+      max_conversation_length: body.max_conversation_length,
+      enable_memory: body.enable_memory,
+      enable_typing_indicator: body.enable_typing_indicator,
+      handoff_enabled: body.handoff_enabled,
+      handoff_keywords: body.handoff_keywords,
+      handoff_message: body.handoff_message,
+      // Web-specific fields
+      collect_visitor_data: body.collect_visitor_data,
+      collect_name: body.collect_name,
+      collect_email: body.collect_email,
+      collect_phone: body.collect_phone,
+      collect_data_timing: body.collect_data_timing,
+      human_handoff_email: body.human_handoff_email,
+      updated_at: new Date().toISOString()
+    }
+
+    if (body.api_key && body.api_key !== '••••••••') {
+      configData.api_key_encrypted = encrypt(body.api_key)
+      configData.has_api_key = true
+    }
+
+    const { data: config, error } = await supabaseAdmin
+      .from('chatbot_configs')
+      .upsert(configData, { 
+        onConflict: 'user_id,widget_id',
+        ignoreDuplicates: false 
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error saving web chatbot config:', error)
+      return res.status(500).json({ success: false, error: 'Error saving config' })
+    }
+
+    res.json({ success: true, data: config })
+  } catch (error: any) {
+    console.error('Error in POST /chatbot/web/:widgetId:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
+ * POST /api/chatbot/web/:widgetId/toggle
+ * Toggle auto_reply for a web widget
+ */
+router.post('/web/:widgetId/toggle', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { widgetId } = req.params
+    const { auto_reply } = req.body
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const { error } = await supabaseAdmin
+      .from('chatbot_configs')
+      .update({ auto_reply, updated_at: new Date().toISOString() })
+      .eq('user_id', userId)
+      .eq('widget_id', widgetId)
+
+    if (error) {
+      console.error('Error toggling web chatbot:', error)
+      return res.status(500).json({ success: false, error: 'Error toggling config' })
+    }
+
+    res.json({ success: true })
+  } catch (error: any) {
+    console.error('Error in POST /chatbot/web/:widgetId/toggle:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
+ * DELETE /api/chatbot/web/:widgetId
+ * Delete chatbot config for a web widget
+ */
+router.delete('/web/:widgetId', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { widgetId } = req.params
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const { error } = await supabaseAdmin
+      .from('chatbot_configs')
+      .delete()
+      .eq('user_id', userId)
+      .eq('widget_id', widgetId)
+
+    if (error) {
+      console.error('Error deleting web chatbot config:', error)
+      return res.status(500).json({ success: false, error: 'Error deleting config' })
+    }
+
+    res.json({ success: true })
+  } catch (error: any) {
+    console.error('Error in DELETE /chatbot/web/:widgetId:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
 export { router as chatbotRoutes }

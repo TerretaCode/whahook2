@@ -47,6 +47,22 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_clients_user_visitor ON clients(user_id, v
 ALTER TABLE chat_widget_conversations
 ADD COLUMN IF NOT EXISTS client_id UUID REFERENCES clients(id) ON DELETE SET NULL;
 
+-- Add widget_id to chatbot_configs for web chatbot configs
+ALTER TABLE chatbot_configs
+ADD COLUMN IF NOT EXISTS widget_id UUID REFERENCES chat_widgets(id) ON DELETE CASCADE;
+
+-- Add web-specific fields to chatbot_configs
+ALTER TABLE chatbot_configs
+ADD COLUMN IF NOT EXISTS collect_visitor_data BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS collect_name BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS collect_email BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS collect_phone BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS collect_data_timing VARCHAR(20) DEFAULT 'during_chat',
+ADD COLUMN IF NOT EXISTS human_handoff_email VARCHAR(255);
+
+-- Create unique constraint for web chatbot configs
+CREATE UNIQUE INDEX IF NOT EXISTS idx_chatbot_configs_user_widget ON chatbot_configs(user_id, widget_id) WHERE widget_id IS NOT NULL;
+
 -- Comments for documentation
 COMMENT ON COLUMN chat_widgets.launcher_animation IS 'Animation type: pulse, bounce, or none';
 COMMENT ON COLUMN chat_widgets.z_index IS 'CSS z-index for widget positioning (default 9999)';
