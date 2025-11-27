@@ -74,35 +74,7 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
 │  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │ 📦 ENVÍOS Y PAGOS (E-commerce)                        [▼ Abrir]│   │
-│  │                                                                 │   │
-│  │  🚚 Métodos de envío                                            │   │
-│  │  ┌────────────────────────────────────────────────────────────┐│   │
-│  │  │ (vacío - el usuario añade los suyos)                       ││   │
-│  │  │ [+ Añadir método de envío]                                 ││   │
-│  │  │                                                            ││   │
-│  │  │ Campos por método: Nombre, Tiempo, Precio, Gratis desde    ││   │
-│  │  └────────────────────────────────────────────────────────────┘│   │
-│  │                                                                 │   │
-│  │  🌍 Zonas de envío                                              │   │
-│  │  (vacío - el usuario añade las suyas)                          │   │
-│  │  [+ Añadir zona]                                               │   │
-│  │                                                                 │   │
-│  │  💳 Métodos de pago                                             │   │
-│  │  (vacío - el usuario añade los suyos)                          │   │
-│  │  [+ Añadir método de pago]                                     │   │
-│  │                                                                 │   │
-│  │  🔄 Devoluciones                                                │   │
-│  │  Plazo: [30 ] días    Coste: [Gratis            ]              │   │
-│  │  Condiciones: [Producto sin abrir, con etiquetas          ]   │   │
-│  │                                                                 │   │
-│  │  🛡️ Garantías                                                   │   │
-│  │  [2 años en todos los productos. Garantía de satisfacción  ]  │   │
-│  │                                                                 │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
-│                                                                         │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │ 🛒 PRODUCTOS                                                    │   │
+│  │  PRODUCTOS                                                    │   │
 │  │                                                                 │   │
 │  │  ┌───────────────────────────────────────────────────────────┐ │   │
 │  │  │  ¿Quieres que el bot recomiende productos?                │ │   │
@@ -169,6 +141,34 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │  [✓] Sugerir alternativas similares                            │   │
 │  │  [✓] Pedir más información al cliente                          │   │
 │  │  [✓] Ofrecer atención humana                                   │   │
+│  │                                                                 │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │ 📦 ENVÍOS Y PAGOS (E-commerce)                        [▼ Abrir]│   │
+│  │                                                                 │   │
+│  │  🚚 Métodos de envío                                            │   │
+│  │  ┌────────────────────────────────────────────────────────────┐│   │
+│  │  │ (vacío - el usuario añade los suyos)                       ││   │
+│  │  │ [+ Añadir método de envío]                                 ││   │
+│  │  │                                                            ││   │
+│  │  │ Campos por método: Nombre, Tiempo, Precio, Gratis desde    ││   │
+│  │  └────────────────────────────────────────────────────────────┘│   │
+│  │                                                                 │   │
+│  │  🌍 Zonas de envío                                              │   │
+│  │  (vacío - el usuario añade las suyas)                          │   │
+│  │  [+ Añadir zona]                                               │   │
+│  │                                                                 │   │
+│  │  💳 Métodos de pago                                             │   │
+│  │  (vacío - el usuario añade los suyos)                          │   │
+│  │  [+ Añadir método de pago]                                     │   │
+│  │                                                                 │   │
+│  │  🔄 Devoluciones                                                │   │
+│  │  Plazo: [30 ] días    Coste: [Gratis            ]              │   │
+│  │  Condiciones: [Producto sin abrir, con etiquetas          ]   │   │
+│  │                                                                 │   │
+│  │  🛡️ Garantías                                                   │   │
+│  │  [2 años en todos los productos. Garantía de satisfacción  ]  │   │
 │  │                                                                 │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
@@ -360,15 +360,7 @@ Colapsable. Contiene:
 - Redes sociales (ilimitadas, el usuario añade las que quiera)
 - Ubicaciones físicas (ilimitadas, con integración Google Maps para link directo)
 
-### 📦 ENVÍOS Y PAGOS (E-commerce)
-Colapsable. Solo relevante para tiendas online. Contiene:
-- **Métodos de envío**: Nombre, tiempo, precio, envío gratis desde X€
-- **Zonas de envío**: Checkboxes de regiones
-- **Métodos de pago**: Tarjeta, PayPal, Bizum, etc.
-- **Devoluciones**: Plazo, coste, condiciones
-- **Garantías**: Información de garantía
-
-### 🛒 PRODUCTOS
+###  PRODUCTOS
 Solo visible si elige "Sí, tengo productos". Contiene:
 - **Botón [Ver todos]**: Abre modal con lista completa de productos (todos editables)
 - **3 cards de fuentes**:
@@ -383,6 +375,14 @@ Solo visible si elige "Sí, tengo productos". Contiene:
 - **Formato de recomendación**: Checkboxes de qué incluir al recomendar
 - **Límite de productos**: Máximo por respuesta
 - **Comportamiento sin resultados**: Multi-opción (alternativas + pedir info + ofrecer humano)
+
+### 📦 ENVÍOS Y PAGOS (E-commerce)
+Colapsable. Solo relevante para tiendas online. Contiene:
+- **Métodos de envío**: Nombre, tiempo, precio, envío gratis desde X€
+- **Zonas de envío**: El usuario añade las suyas
+- **Métodos de pago**: El usuario añade los suyos
+- **Devoluciones**: Plazo, coste, condiciones
+- **Garantías**: Información de garantía
 
 ### 🎯 COMPORTAMIENTO DEL BOT
 Colapsable. Contiene:
