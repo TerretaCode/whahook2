@@ -662,11 +662,6 @@
 
     // Toggle chat
     function toggleChat() {
-      // If closing and user has interacted, show rating
-      if (isOpen && hasInteracted && !ratingContainer.classList.contains('rated')) {
-        ratingContainer.classList.add('visible');
-      }
-      
       isOpen = !isOpen;
       chat.classList.toggle('open', isOpen);
       container.classList.toggle('chat-open', isOpen);
@@ -676,6 +671,13 @@
           addMessage(cfg.welcome_message || '¡Hola! ¿Cómo puedo ayudarte?', 'bot');
         }
         input.focus();
+      }
+    }
+    
+    // Show rating (called by backend when AI detects conversation ended)
+    function showRating() {
+      if (!ratingContainer.classList.contains('rated')) {
+        ratingContainer.classList.add('visible');
       }
     }
 
@@ -753,6 +755,11 @@
         if (data.success) {
           conversationId = data.data.conversation_id;
           addMessage(data.data.response, 'bot');
+          
+          // Show rating if AI detected conversation ended
+          if (data.data.show_rating) {
+            showRating();
+          }
         } else {
           addMessage('Lo siento, algo salió mal. Por favor, inténtalo de nuevo.', 'bot');
         }
