@@ -9,9 +9,12 @@ import {
   ChevronDown,
   ChevronUp,
   Bot,
-  AlertCircle
+  AlertCircle,
+  Pause,
+  Play
 } from "lucide-react"
 import Link from "next/link"
+import { toast } from "@/lib/toast"
 
 interface ChatWidget {
   id: string
@@ -27,6 +30,7 @@ interface WebChatbotConfigProps {
 
 export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
   const [isLoading, setIsLoading] = useState(true)
+  const [isToggling, setIsToggling] = useState<string | null>(null)
   const [widgets, setWidgets] = useState<ChatWidget[]>([])
   const [expandedWidget, setExpandedWidget] = useState<string | null>(selectedWidgetId || null)
 
@@ -50,6 +54,33 @@ export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
       console.error('Error fetching widgets:', error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const toggleWidgetActive = async (widgetId: string, currentlyActive: boolean) => {
+    setIsToggling(widgetId)
+    try {
+      const response = await ApiClient.request(`/api/chat-widgets/${widgetId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ is_active: !currentlyActive })
+      })
+      
+      if (response.success) {
+        setWidgets(prev => prev.map(w => 
+          w.id === widgetId ? { ...w, is_active: !currentlyActive } : w
+        ))
+        toast.success(
+          !currentlyActive ? 'IA Activada' : 'IA Pausada',
+          !currentlyActive 
+            ? 'El chatbot responderá automáticamente' 
+            : 'El chatbot no responderá hasta que lo reactives'
+        )
+      }
+    } catch (error) {
+      console.error('Error toggling widget:', error)
+      toast.error('Error', 'No se pudo cambiar el estado del chatbot')
+    } finally {
+      setIsToggling(null)
     }
   }
 
@@ -120,11 +151,40 @@ export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {!widget.is_active && (
-                    <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">
-                      Inactive
-                    </span>
-                  )}
+                  {/* Pause/Resume Button */}
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      toggleWidgetActive(widget.id, widget.is_active)
+                    }}
+                    variant={!widget.is_active ? "default" : "outline"}
+                    size="sm"
+                    disabled={isToggling === widget.id}
+                    className={!widget.is_active ? "bg-green-600 hover:bg-green-700" : ""}
+                  >
+                    {isToggling === widget.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : !widget.is_active ? (
+                      <>
+                        <Play className="w-4 h-4 mr-1" />
+                        Reanudar IA
+                      </>
+                    ) : (
+                      <>
+                        <Pause className="w-4 h-4 mr-1" />
+                        Pausar IA
+                      </>
+                    )}
+                  </Button>
+                  
+                  <span className={`px-2 py-1 text-xs rounded-full ${
+                    !widget.is_active 
+                      ? 'bg-yellow-100 text-yellow-700' 
+                      : 'bg-green-100 text-green-700'
+                  }`}>
+                    {!widget.is_active ? '⏸ Pausado' : '✓ Activo'}
+                  </span>
+                  
                   {isExpanded ? (
                     <ChevronUp className="w-5 h-5 text-gray-400" />
                   ) : (
