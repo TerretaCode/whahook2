@@ -185,10 +185,13 @@ export function EcommerceConnectionsSection() {
       })
 
       if (response.success) {
-        setConnections([response.data as EcommerceConnection, ...connections])
+        const newConnection = response.data as EcommerceConnection
+        setConnections([newConnection, ...connections])
         setShowForm(false)
         resetForm()
-        toast.success('Connected!', 'Store connected successfully. You can now sync products.')
+        // Auto-expand webhook section for the new connection
+        setExpandedConnection(newConnection.id)
+        toast.success('Connected!', 'Store connected! Now set up the webhook below for auto-sync.')
       }
     } catch (error) {
       console.error('Error creating connection:', error)
@@ -477,75 +480,17 @@ export function EcommerceConnectionsSection() {
               </div>
             </div>
 
-            {/* Step 3: Webhook for auto-sync (Optional) */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-lg font-medium">
-                <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center">3</span>
-                Auto-sync Orders (Optional)
-              </div>
-
-              <div className="ml-8 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <Webhook className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm font-medium text-purple-900">
-                        Want orders to sync automatically?
-                      </p>
-                      <p className="text-sm text-purple-800 mt-1">
-                        Set up a webhook in your store so new orders appear instantly. You can do this now or later.
-                      </p>
-                    </div>
-
-                    {formData.store_url ? (
-                      <div className="space-y-3 pt-2 border-t border-purple-200">
-                        <div>
-                          <p className="text-xs font-medium text-purple-900 mb-1">1. Copy this Webhook URL:</p>
-                          <div className="flex items-center gap-2">
-                            <Input 
-                              value={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/ecommerce/webhook/[will-be-generated]`}
-                              readOnly 
-                              className="bg-white text-xs font-mono flex-1"
-                            />
-                            <p className="text-xs text-purple-600">(Full URL after connecting)</p>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <p className="text-xs font-medium text-purple-900 mb-1">2. Go to webhook settings:</p>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="bg-white"
-                            onClick={() => window.open(getWebhookSettingsUrl(formData.store_url, formData.platform), '_blank')}
-                          >
-                            <Bell className="h-4 w-4 mr-2" />
-                            Open {platformConfig[formData.platform].name} Webhook Settings
-                            <ExternalLink className="w-3 h-3 ml-2" />
-                          </Button>
-                        </div>
-
-                        <div>
-                          <p className="text-xs font-medium text-purple-900 mb-1">3. Create webhooks for these events:</p>
-                          <div className="text-xs text-purple-800 space-y-1 mt-1">
-                            {platformConfig[formData.platform].webhookTopics.map((t, i) => (
-                              <div key={i} className="flex items-center gap-2">
-                                <span className="w-16 text-purple-600 font-medium">{t.name}:</span>
-                                <code className="bg-purple-100 px-1 rounded">{t.topic}</code>
-                                <span className="text-purple-500">({t.description})</span>
-                              </div>
-                            ))}
-                          </div>
-                          <p className="text-xs text-purple-600 mt-2">Format: JSON • Same URL for all webhooks</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-xs text-purple-600 italic">
-                        Enter your store URL above to see the webhook setup instructions.
-                      </p>
-                    )}
-                  </div>
+            {/* Info about auto-sync */}
+            <div className="ml-0 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Webhook className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-purple-900">
+                    🚀 Auto-sync available after connecting
+                  </p>
+                  <p className="text-sm text-purple-800 mt-1">
+                    Once connected, you'll get a unique webhook URL to set up automatic sync for orders and products.
+                  </p>
                 </div>
               </div>
             </div>
