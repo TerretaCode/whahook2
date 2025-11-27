@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { ApiClient } from "@/lib/api-client"
-import { Prompt2ApiClient } from "@/lib/prompt2-api"
 import { Button } from "@/components/ui/button"
 import { 
   Save,
@@ -357,51 +356,6 @@ export function WhatsAppChatbotConfig() {
       })
       
       console.log('✅ Main config saved:', response)
-      
-      // 2. Save Prompt2 config (if there's any Prompt2 data)
-      const prompt2Fields = [
-        // 1. Business Info
-        'business_name', 'business_description', 'business_values', 'store_type',
-        // 2. Products
-        'recommend_products', 'featured_products',
-        // 3. Catalog
-        'product_categories', 'subcategories',
-        // 4. Key Questions
-        'key_questions', 'max_questions_per_category', 'max_questions_before_recommend',
-        // 5. Policies
-        'shipping_policy', 'return_policy', 'payment_methods', 'delivery_time', 'shipping_cost', 'guarantees_certifications',
-        // 6. Contact
-        'contact_email', 'contact_phone', 'contact_hours', 'physical_address', 'social_media', 'out_of_hours_message',
-        // 7. Recommendation Rules
-        'recommendation_rules', 'response_structure_items', 'special_recommendation_rules',
-        // 8. Escalation
-        'escalation_reasons', 'custom_escalation_reasons', 'escalation_instructions', 
-        'escalation_message_user', 'info_fields_to_collect',
-        // 9. Communication Style
-        'communication_style', 'emoji_usage', 'use_emojis', 'communication_priority', 
-        'max_response_length', 'brand_voice_keywords',
-        // 10. FAQs
-        'faqs',
-        // 11. Additional Info
-        'additional_context', 'special_instructions', 'seasonal_info'
-      ]
-      
-      const hasPrompt2Data = prompt2Fields.some(field => data[field] !== undefined && data[field] !== null)
-      
-      if (hasPrompt2Data) {
-        console.log('💾 Saving Prompt2 config...')
-        const prompt2Data: any = {}
-        prompt2Fields.forEach(field => {
-          if (data[field] !== undefined && data[field] !== null) {
-            prompt2Data[field] = data[field]
-          }
-        })
-        
-        console.log('📦 Prompt2 data to save:', prompt2Data)
-        
-        const prompt2Response = await Prompt2ApiClient.saveWhatsAppConfig(sessionId, prompt2Data)
-        console.log('✅ Prompt2 config saved:', prompt2Response)
-      }
       
       toast.success("Success", "Configuration saved successfully")
       

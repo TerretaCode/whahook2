@@ -8,9 +8,9 @@ import {
   Clock,
   Zap,
   Shield,
-  Sparkles
+  Settings
 } from "lucide-react"
-import { Prompt2ConfigTab } from "./config-tabs/Prompt2ConfigTab"
+import { ChatbotSettingsTab } from "./config-tabs/ChatbotSettingsTab"
 import { ModelConfigTab } from "./config-tabs/ModelConfigTab"
 import { ConversationConfigTab } from "./config-tabs/ConversationConfigTab"
 import { HoursConfigTab } from "./config-tabs/HoursConfigTab"
@@ -46,7 +46,7 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
         ? `chatbot-tab-widget-${props.widgetId}`
         : 'chatbot-tab'
     const savedTab = localStorage.getItem(storageKey)
-    return savedTab || 'prompt2'
+    return savedTab || 'config'
   }
   
   const [activeTab, setActiveTab] = useState(getInitialTab())
@@ -103,9 +103,9 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
       <div className="overflow-x-auto -mx-4 px-4 mb-4">
         <TabsList className="inline-flex w-auto min-w-full">
-          <TabsTrigger value="prompt2" className="flex-shrink-0">
-            <Sparkles className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Prompt</span>
+          <TabsTrigger value="config" className="flex-shrink-0">
+            <Settings className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Configuración</span>
           </TabsTrigger>
           <TabsTrigger value="model" className="flex-shrink-0">
             <Zap className="w-4 h-4 sm:mr-2" />
@@ -126,7 +126,9 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
         </TabsList>
       </div>
 
-      <TabsContent value="prompt2"><Prompt2ConfigTab {...tabProps} /></TabsContent>
+      <TabsContent value="config">
+          <ChatbotSettingsTab {...tabProps} />
+        </TabsContent>
       <TabsContent value="model"><ModelConfigTab {...tabProps} /></TabsContent>
       <TabsContent value="conversation"><ConversationConfigTab {...tabProps} /></TabsContent>
       <TabsContent value="hours"><HoursConfigTab {...tabProps} /></TabsContent>
