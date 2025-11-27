@@ -380,29 +380,114 @@ export function EcommerceConnectionsSection() {
                 API Credentials
               </div>
 
-              {/* Help box with direct link */}
+              {/* Help box with detailed instructions */}
               {formData.store_url && (
-                <div className="ml-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="ml-8 p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-4">
                   <div className="flex items-start gap-3">
-                    <HelpCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div className="space-y-2">
+                    <Key className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 space-y-3">
                       <p className="text-sm font-medium text-blue-900">
-                        Where do I find my {platformConfig[formData.platform].name} credentials?
+                        How to get your {platformConfig[formData.platform].name} API credentials:
                       </p>
-                      <p className="text-sm text-blue-800">
-                        {platformConfig[formData.platform].instructions}
-                      </p>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="bg-white border-blue-300 text-blue-700 hover:bg-blue-100"
-                        onClick={() => window.open(getApiUrl(formData.store_url, formData.platform), '_blank')}
-                      >
-                        <Key className="w-4 h-4 mr-2" />
-                        Get my API keys
-                        <ExternalLink className="w-3 h-3 ml-2" />
-                      </Button>
+                      
+                      {/* Step 1: Open settings */}
+                      <div className="flex items-start gap-2">
+                        <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center flex-shrink-0">1</span>
+                        <div>
+                          <p className="text-sm text-blue-800">Open your API settings:</p>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="mt-1 bg-white border-blue-300 text-blue-700 hover:bg-blue-100"
+                            onClick={() => window.open(getApiUrl(formData.store_url, formData.platform), '_blank')}
+                          >
+                            <ExternalLink className="w-3 h-3 mr-2" />
+                            Open {platformConfig[formData.platform].name} API Settings
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Step 2: Fill form - Platform specific */}
+                      <div className="flex items-start gap-2">
+                        <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center flex-shrink-0">2</span>
+                        <div className="flex-1">
+                          <p className="text-sm text-blue-800 mb-2">Click "Add key" and fill in:</p>
+                          
+                          {formData.platform === 'woocommerce' && (
+                            <div className="bg-white border border-blue-200 rounded-lg p-3 space-y-2 text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-24 text-blue-700 font-medium">Description:</span>
+                                <span className="text-gray-700">Whahook Sync</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-24 text-blue-700 font-medium">User:</span>
+                                <span className="text-gray-700">Select an admin user</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-24 text-blue-700 font-medium">Permissions:</span>
+                                <code className="bg-blue-100 px-2 py-0.5 rounded text-xs">Read</code>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {formData.platform === 'shopify' && (
+                            <div className="bg-white border border-blue-200 rounded-lg p-3 space-y-2 text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-24 text-blue-700 font-medium">App name:</span>
+                                <span className="text-gray-700">Whahook Sync</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="w-24 text-blue-700 font-medium flex-shrink-0">Scopes:</span>
+                                <div className="text-gray-700 text-xs">
+                                  <code className="bg-blue-100 px-1 rounded">read_orders</code>,{' '}
+                                  <code className="bg-blue-100 px-1 rounded">read_products</code>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {formData.platform === 'prestashop' && (
+                            <div className="bg-white border border-blue-200 rounded-lg p-3 space-y-2 text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-24 text-blue-700 font-medium">Key:</span>
+                                <span className="text-gray-700">(auto-generated)</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="w-24 text-blue-700 font-medium flex-shrink-0">Permissions:</span>
+                                <div className="text-gray-700 text-xs">
+                                  Enable <code className="bg-blue-100 px-1 rounded">orders</code> and{' '}
+                                  <code className="bg-blue-100 px-1 rounded">products</code> (View only)
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {formData.platform === 'magento' && (
+                            <div className="bg-white border border-blue-200 rounded-lg p-3 space-y-2 text-sm">
+                              <div className="flex items-center gap-2">
+                                <span className="w-24 text-blue-700 font-medium">Name:</span>
+                                <span className="text-gray-700">Whahook Sync</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="w-24 text-blue-700 font-medium flex-shrink-0">Resources:</span>
+                                <div className="text-gray-700 text-xs">
+                                  <code className="bg-blue-100 px-1 rounded">Sales</code>,{' '}
+                                  <code className="bg-blue-100 px-1 rounded">Catalog</code> (Read only)
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Step 3: Generate and copy */}
+                      <div className="flex items-start gap-2">
+                        <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center flex-shrink-0">3</span>
+                        <p className="text-sm text-blue-800">
+                          Click "Generate API key" and copy the keys below 👇
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -411,7 +496,7 @@ export function EcommerceConnectionsSection() {
               {!formData.store_url && (
                 <div className="ml-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-sm text-yellow-800">
-                    👆 First enter your store URL above to see the direct link to your credentials.
+                    👆 First enter your store URL above to see the instructions.
                   </p>
                 </div>
               )}
