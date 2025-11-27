@@ -56,21 +56,19 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │                                                                 │   │
 │  │  🚚 Métodos de envío                                            │   │
 │  │  ┌────────────────────────────────────────────────────────────┐│   │
-│  │  │ [Estándar     ] [3-5 días ] [4.99€  ] [Gratis +50€ ✓]     ││   │
-│  │  │ [Express      ] [24-48h   ] [9.99€  ] [            ]      ││   │
-│  │  │ [Recogida     ] [Inmediato] [Gratis ] [            ]      ││   │
+│  │  │ (vacío - el usuario añade los suyos)                       ││   │
 │  │  │ [+ Añadir método de envío]                                 ││   │
+│  │  │                                                            ││   │
+│  │  │ Campos por método: Nombre, Tiempo, Precio, Gratis desde    ││   │
 │  │  └────────────────────────────────────────────────────────────┘│   │
 │  │                                                                 │   │
 │  │  🌍 Zonas de envío                                              │   │
-│  │  [✓] España peninsular  [ ] Baleares  [ ] Canarias            │   │
-│  │  [ ] Portugal           [ ] Europa    [ ] Internacional       │   │
+│  │  (vacío - el usuario añade las suyas)                          │   │
 │  │  [+ Añadir zona]                                               │   │
 │  │                                                                 │   │
 │  │  💳 Métodos de pago                                             │   │
-│  │  [✓] Tarjeta  [✓] PayPal  [✓] Bizum  [ ] Transferencia        │   │
-│  │  [ ] Contra reembolso  [ ] Financiación                        │   │
-│  │  [+ Añadir método]                                             │   │
+│  │  (vacío - el usuario añade los suyos)                          │   │
+│  │  [+ Añadir método de pago]                                     │   │
 │  │                                                                 │   │
 │  │  🔄 Devoluciones                                                │   │
 │  │  Plazo: [30 ] días    Coste: [Gratis            ]              │   │
