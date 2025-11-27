@@ -160,10 +160,7 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │   │
 │  │                                                                 │   │
 │  │  🚫 El bot NO debe:                                             │   │
-│  │  [✓] Dar consejos médicos o diagnósticos                       │   │
-│  │  [✓] Hablar de la competencia                                  │   │
-│  │  [✓] Prometer descuentos sin autorización                      │   │
-│  │  [✓] Inventar información de productos                         │   │
+│  │  (vacío - el usuario añade las suyas)                          │   │
 │  │  [+ Añadir restricción]                                        │   │
 │  │                                                                 │   │
 │  │  📝 Instrucciones especiales:                                   │   │
