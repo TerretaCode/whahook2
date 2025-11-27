@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MessageSquare, Users, Settings } from 'lucide-react'
+import { LayoutDashboard, MessageSquare, Users, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function MobileBottomNav({ className }: { className?: string }) {
@@ -11,27 +11,33 @@ export function MobileBottomNav({ className }: { className?: string }) {
   return (
     <nav className={cn(
       "fixed bottom-0 left-0 right-0 z-40",
-      "bg-white",
+      "bg-white border-t border-gray-200",
       "safe-bottom",
       className
     )}>
       <div className="flex items-center justify-around h-16 px-2">
         <BottomNavItem
+          href="/dashboard"
+          icon={LayoutDashboard}
+          label="Dashboard"
+          active={pathname === '/dashboard'}
+        />
+        <BottomNavItem
           href="/conversations"
           icon={MessageSquare}
-          label="Messages"
+          label="Mensajes"
           active={pathname === '/conversations'}
         />
         <BottomNavItem
           href="/clients"
           icon={Users}
-          label="Clients"
+          label="Clientes"
           active={pathname === '/clients'}
         />
         <BottomNavItem
           href="/settings"
           icon={Settings}
-          label="Settings"
+          label="Ajustes"
           active={pathname?.startsWith('/settings')}
         />
       </div>
