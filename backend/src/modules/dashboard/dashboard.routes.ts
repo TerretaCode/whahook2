@@ -96,6 +96,15 @@ router.get('/stats', async (req: Request, res: Response) => {
       todayWeb = count || 0
     }
 
+    // Get clients AI (auto_capture) setting
+    const { data: clientSettings } = await supabaseAdmin
+      .from('user_settings')
+      .select('auto_capture_enabled')
+      .eq('user_id', userId)
+      .single()
+    
+    const clientsAiActive = clientSettings?.auto_capture_enabled ?? false
+
     res.json({
       success: true,
       data: {
@@ -115,7 +124,8 @@ router.get('/stats', async (req: Request, res: Response) => {
         // AI Status
         whatsappAiActive,
         webAiActive,
-        totalAiActive: whatsappAiActive + webAiActive
+        totalAiActive: whatsappAiActive + webAiActive,
+        clientsAiActive
       }
     })
   } catch (error) {

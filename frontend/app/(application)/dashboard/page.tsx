@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { ApiClient } from "@/lib/api-client"
 import { toast } from "@/lib/toast"
 import { 
