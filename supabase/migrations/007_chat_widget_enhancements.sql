@@ -8,7 +8,6 @@ ALTER TABLE chat_widgets
 ADD COLUMN IF NOT EXISTS launcher_animation VARCHAR(20) DEFAULT 'pulse',
 ADD COLUMN IF NOT EXISTS z_index INTEGER DEFAULT 9999,
 ADD COLUMN IF NOT EXISTS sound_enabled BOOLEAN DEFAULT true,
-ADD COLUMN IF NOT EXISTS proactive_delay INTEGER DEFAULT 0,
 ADD COLUMN IF NOT EXISTS collect_visitor_data BOOLEAN DEFAULT false,
 ADD COLUMN IF NOT EXISTS collect_name BOOLEAN DEFAULT false,
 ADD COLUMN IF NOT EXISTS collect_email BOOLEAN DEFAULT false,
@@ -23,7 +22,6 @@ ADD COLUMN IF NOT EXISTS rated_at TIMESTAMPTZ;
 COMMENT ON COLUMN chat_widgets.launcher_animation IS 'Animation type: pulse, bounce, or none';
 COMMENT ON COLUMN chat_widgets.z_index IS 'CSS z-index for widget positioning (default 9999)';
 COMMENT ON COLUMN chat_widgets.sound_enabled IS 'Enable notification sound on new messages';
-COMMENT ON COLUMN chat_widgets.proactive_delay IS 'Seconds before showing proactive message (0 = disabled)';
 COMMENT ON COLUMN chat_widgets.collect_visitor_data IS 'Enable AI to collect visitor data during conversation';
 COMMENT ON COLUMN chat_widgets.collect_name IS 'AI should ask for visitor name';
 COMMENT ON COLUMN chat_widgets.collect_email IS 'AI should ask for visitor email';

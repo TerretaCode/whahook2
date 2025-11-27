@@ -58,7 +58,6 @@
     var zIndex = cfg.z_index || 9999;
     var animation = cfg.launcher_animation || 'pulse';
     var soundEnabled = cfg.sound_enabled !== false;
-    var proactiveDelay = cfg.proactive_delay || 0; // 0 = disabled
 
     // Position styles
     var positionStyles = position === 'bottom-left' 
@@ -543,56 +542,6 @@
         }
       }
       
-      /* Proactive message popup */
-      #whahook-proactive {
-        display: none;
-        position: absolute;
-        bottom: 70px;
-        ${chatPosition}
-        background: white;
-        padding: 12px 16px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        max-width: 280px;
-        font-size: 14px;
-        color: #1f2937;
-        cursor: pointer;
-        animation: whahook-fadeIn 0.3s ease;
-      }
-      
-      #whahook-proactive.visible {
-        display: block;
-      }
-      
-      #whahook-proactive::after {
-        content: '';
-        position: absolute;
-        bottom: -8px;
-        ${position === 'bottom-left' ? 'left: 20px;' : 'right: 20px;'}
-        width: 0;
-        height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-top: 8px solid white;
-      }
-      
-      #whahook-proactive-close {
-        position: absolute;
-        top: 4px;
-        right: 4px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: #9ca3af;
-        padding: 4px;
-        font-size: 16px;
-        line-height: 1;
-      }
-      
-      @keyframes whahook-fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
     `;
     document.head.appendChild(styles);
 
@@ -603,10 +552,6 @@
     var container = document.createElement('div');
     container.id = 'whahook-widget-container';
     container.innerHTML = `
-      <div id="whahook-proactive">
-        <button id="whahook-proactive-close">&times;</button>
-        <span id="whahook-proactive-text">${cfg.welcome_message || 'Hello! How can I help you?'}</span>
-      </div>
       <div id="whahook-widget-chat">
         <div id="whahook-widget-header">
           <div id="whahook-widget-header-logo">
@@ -671,14 +616,12 @@
     var typingIndicator = document.getElementById('whahook-typing-indicator');
     var emojiBtn = document.getElementById('whahook-emoji-btn');
     var emojiPicker = document.getElementById('whahook-emoji-picker');
-    var proactive = document.getElementById('whahook-proactive');
-    var proactiveClose = document.getElementById('whahook-proactive-close');
     var ratingContainer = document.getElementById('whahook-rating');
     var ratingBtns = document.querySelectorAll('.whahook-rating-btn');
 
     var conversationId = null;
     var isOpen = false;
-    var messageCount = 0;
+    var hasInteracted = false; // Track if user sent at least one message
 
     // Notification sound (base64 encoded short beep)
     var notificationSound = null;
@@ -719,12 +662,14 @@
 
     // Toggle chat
     function toggleChat() {
+      // If closing and user has interacted, show rating
+      if (isOpen && hasInteracted && !ratingContainer.classList.contains('rated')) {
+        ratingContainer.classList.add('visible');
+      }
+      
       isOpen = !isOpen;
       chat.classList.toggle('open', isOpen);
       container.classList.toggle('chat-open', isOpen);
-      
-      // Hide proactive message
-      proactive.classList.remove('visible');
       
       if (isOpen) {
         if (messagesContainer.children.length === 0) {
@@ -750,16 +695,14 @@
       messagesContainer.appendChild(messageDiv);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
       
-      messageCount++;
-      
-      // Play sound for bot messages
-      if (type === 'bot' && notificationSound && soundEnabled && messageCount > 1) {
+      // Play sound for bot messages (not for the first welcome message)
+      if (type === 'bot' && notificationSound && soundEnabled && hasInteracted) {
         try { notificationSound.play(); } catch(e) {}
       }
       
-      // Show rating after 5 messages
-      if (messageCount >= 5 && !ratingContainer.classList.contains('visible') && !ratingContainer.classList.contains('rated')) {
-        ratingContainer.classList.add('visible');
+      // Track if user has sent a message
+      if (type === 'user') {
+        hasInteracted = true;
       }
     }
 
@@ -884,27 +827,6 @@
         sendRating(btn.dataset.rating);
       });
     });
-
-    // Proactive message
-    proactive.addEventListener('click', function(e) {
-      if (e.target !== proactiveClose) {
-        toggleChat();
-      }
-    });
-
-    proactiveClose.addEventListener('click', function(e) {
-      e.stopPropagation();
-      proactive.classList.remove('visible');
-    });
-
-    // Show proactive message after delay
-    if (proactiveDelay > 0) {
-      setTimeout(function() {
-        if (!isOpen && !localStorage.getItem('whahook_proactive_closed_' + widgetId)) {
-          proactive.classList.add('visible');
-        }
-      }, proactiveDelay * 1000);
-    }
 
     console.log('Whahook Widget v2.0 loaded successfully');
   }
