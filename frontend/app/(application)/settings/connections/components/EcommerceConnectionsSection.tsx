@@ -21,6 +21,12 @@ interface EcommerceConnection {
   created_at: string
 }
 
+interface WebhookTopic {
+  name: string
+  topic: string
+  description: string
+}
+
 interface PlatformConfig {
   name: string
   color: string
@@ -29,7 +35,7 @@ interface PlatformConfig {
   instructions: string
   webhookPath: string
   webhookInstructions: string
-  webhookTopic: string
+  webhookTopics: WebhookTopic[]
 }
 
 const platformConfig: Record<Platform, PlatformConfig> = {
@@ -40,8 +46,13 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     apiPath: '/wp-admin/admin.php?page=wc-settings&tab=advanced&section=keys',
     instructions: 'Go to WooCommerce → Settings → Advanced → REST API → Add key. Permissions: Read.',
     webhookPath: '/wp-admin/admin.php?page=wc-settings&tab=advanced&section=webhooks',
-    webhookInstructions: 'Go to WooCommerce → Settings → Advanced → Webhooks → Add webhook',
-    webhookTopic: 'Order created'
+    webhookInstructions: 'Create one webhook for each event you want to sync:',
+    webhookTopics: [
+      { name: 'Orders', topic: 'Order created', description: 'New orders' },
+      { name: 'Orders', topic: 'Order updated', description: 'Order status changes' },
+      { name: 'Products', topic: 'Product created', description: 'New products' },
+      { name: 'Products', topic: 'Product updated', description: 'Product changes' },
+    ]
   },
   shopify: { 
     name: 'Shopify', 
@@ -50,8 +61,13 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     apiPath: '/admin/settings/apps/development',
     instructions: 'Go to Settings → Apps → Develop apps → Create app → Configure API permissions.',
     webhookPath: '/admin/settings/notifications',
-    webhookInstructions: 'Go to Settings → Notifications → Webhooks → Create webhook',
-    webhookTopic: 'Order creation'
+    webhookInstructions: 'Create webhooks for each event:',
+    webhookTopics: [
+      { name: 'Orders', topic: 'orders/create', description: 'New orders' },
+      { name: 'Orders', topic: 'orders/updated', description: 'Order changes' },
+      { name: 'Products', topic: 'products/create', description: 'New products' },
+      { name: 'Products', topic: 'products/update', description: 'Product changes' },
+    ]
   },
   prestashop: { 
     name: 'PrestaShop', 
@@ -60,8 +76,13 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     apiPath: '/admin/index.php?controller=AdminWebservice',
     instructions: 'Go to Advanced Parameters → Webservice → Add key. Enable product permissions.',
     webhookPath: '/admin/index.php?controller=AdminModules',
-    webhookInstructions: 'Install a webhook module or use the API to poll for new orders',
-    webhookTopic: 'actionValidateOrder'
+    webhookInstructions: 'Install a webhook module and configure:',
+    webhookTopics: [
+      { name: 'Orders', topic: 'actionValidateOrder', description: 'New orders' },
+      { name: 'Orders', topic: 'actionOrderStatusUpdate', description: 'Order status changes' },
+      { name: 'Products', topic: 'actionProductAdd', description: 'New products' },
+      { name: 'Products', topic: 'actionProductUpdate', description: 'Product changes' },
+    ]
   },
   magento: { 
     name: 'Magento', 
@@ -70,8 +91,11 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     apiPath: '/admin/system_config/edit/section/oauth/',
     instructions: 'Go to System → Integrations → Add new integration → Generate token.',
     webhookPath: '/admin/system/webhook',
-    webhookInstructions: 'Go to System → Webhooks → Add new webhook',
-    webhookTopic: 'sales_order_save_after'
+    webhookInstructions: 'Create webhooks for each event:',
+    webhookTopics: [
+      { name: 'Orders', topic: 'sales_order_save_after', description: 'New/updated orders' },
+      { name: 'Products', topic: 'catalog_product_save_after', description: 'New/updated products' },
+    ]
   },
 }
 
@@ -503,11 +527,17 @@ export function EcommerceConnectionsSection() {
                         </div>
 
                         <div>
-                          <p className="text-xs font-medium text-purple-900 mb-1">3. Create webhook with:</p>
-                          <ul className="text-xs text-purple-800 space-y-0.5 ml-3 list-disc">
-                            <li><strong>Topic:</strong> {platformConfig[formData.platform].webhookTopic}</li>
-                            <li><strong>Format:</strong> JSON</li>
-                          </ul>
+                          <p className="text-xs font-medium text-purple-900 mb-1">3. Create webhooks for these events:</p>
+                          <div className="text-xs text-purple-800 space-y-1 mt-1">
+                            {platformConfig[formData.platform].webhookTopics.map((t, i) => (
+                              <div key={i} className="flex items-center gap-2">
+                                <span className="w-16 text-purple-600 font-medium">{t.name}:</span>
+                                <code className="bg-purple-100 px-1 rounded">{t.topic}</code>
+                                <span className="text-purple-500">({t.description})</span>
+                              </div>
+                            ))}
+                          </div>
+                          <p className="text-xs text-purple-600 mt-2">Format: JSON • Same URL for all webhooks</p>
                         </div>
                       </div>
                     ) : (
@@ -685,13 +715,17 @@ export function EcommerceConnectionsSection() {
                         <div className="flex items-start gap-3">
                           <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">3</span>
                           <div className="flex-1">
-                            <p className="text-sm font-medium text-purple-900">Create a new webhook with these settings:</p>
-                            <ul className="text-sm text-purple-800 mt-1 space-y-1 ml-4 list-disc">
-                              <li><strong>Delivery URL:</strong> Paste the URL from step 1</li>
-                              <li><strong>Topic/Event:</strong> {config.webhookTopic}</li>
-                              <li><strong>Format:</strong> JSON</li>
-                              <li><strong>Status:</strong> Active</li>
-                            </ul>
+                            <p className="text-sm font-medium text-purple-900">Create webhooks for these events (same URL for all):</p>
+                            <div className="mt-2 space-y-1">
+                              {config.webhookTopics.map((t, i) => (
+                                <div key={i} className="flex items-center gap-2 text-sm text-purple-800">
+                                  <span className="w-20 font-medium text-purple-600">{t.name}:</span>
+                                  <code className="bg-purple-100 px-2 py-0.5 rounded text-xs">{t.topic}</code>
+                                  <span className="text-purple-500 text-xs">({t.description})</span>
+                                </div>
+                              ))}
+                            </div>
+                            <p className="text-xs text-purple-600 mt-2">Format: JSON • Status: Active</p>
                           </div>
                         </div>
 
@@ -701,7 +735,7 @@ export function EcommerceConnectionsSection() {
                           <div className="flex-1">
                             <p className="text-sm font-medium text-purple-900">Save and you're done! 🎉</p>
                             <p className="text-sm text-purple-800 mt-1">
-                              New orders will now sync automatically. You can test it by placing a test order.
+                              Products and orders will now sync automatically when created or updated.
                             </p>
                           </div>
                         </div>

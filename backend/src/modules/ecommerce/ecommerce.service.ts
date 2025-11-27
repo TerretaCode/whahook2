@@ -677,22 +677,25 @@ class EcommerceService {
     platform: EcommercePlatform,
     payload: Record<string, unknown>,
     headers: Record<string, unknown>
-  ): Promise<{ processed: boolean; type: string; orderId?: string }> {
+  ): Promise<{ processed: boolean; type: string; entityType?: string; entityId?: string }> {
     console.log(`🔄 Processing ${platform} webhook for connection ${connectionId}`)
     
     try {
       // Determine webhook type based on platform and payload
       let webhookType = 'unknown'
       let orderData: Record<string, unknown> | null = null
+      let productData: Record<string, unknown> | null = null
       
       switch (platform) {
         case 'woocommerce': {
           // WooCommerce sends topic in header
           const topic = headers['x-wc-webhook-topic'] as string
-          webhookType = topic || 'order.created'
+          webhookType = topic || 'unknown'
           
-          if (topic?.includes('order')) {
+          if (topic?.toLowerCase().includes('order')) {
             orderData = payload as Record<string, unknown>
+          } else if (topic?.toLowerCase().includes('product')) {
+            productData = payload as Record<string, unknown>
           }
           break
         }
@@ -700,41 +703,61 @@ class EcommerceService {
         case 'shopify': {
           // Shopify sends topic in header
           const topic = headers['x-shopify-topic'] as string
-          webhookType = topic || 'orders/create'
+          webhookType = topic || 'unknown'
           
-          if (topic?.includes('order')) {
+          if (topic?.toLowerCase().includes('order')) {
             orderData = payload as Record<string, unknown>
+          } else if (topic?.toLowerCase().includes('product')) {
+            productData = payload as Record<string, unknown>
           }
           break
         }
         
         case 'prestashop': {
-          webhookType = (payload.event as string) || 'order.created'
-          if (payload.order) {
-            orderData = payload.order as Record<string, unknown>
+          webhookType = (payload.event as string) || 'unknown'
+          if (webhookType.toLowerCase().includes('order')) {
+            orderData = (payload.order || payload) as Record<string, unknown>
+          } else if (webhookType.toLowerCase().includes('product')) {
+            productData = (payload.product || payload) as Record<string, unknown>
           }
           break
         }
         
         case 'magento': {
-          webhookType = (payload.event as string) || 'sales_order_save_after'
-          if (payload.data) {
-            orderData = payload.data as Record<string, unknown>
+          webhookType = (payload.event as string) || 'unknown'
+          const data = payload.data as Record<string, unknown>
+          if (webhookType.toLowerCase().includes('order')) {
+            orderData = data
+          } else if (webhookType.toLowerCase().includes('product')) {
+            productData = data
           }
           break
         }
       }
       
-      // If it's an order webhook, save the order
-      if (orderData && webhookType.includes('order')) {
+      // Process order webhook
+      if (orderData) {
         const order = await this.saveOrderFromWebhook(connectionId, platform, orderData)
-        
         console.log(`✅ Order saved from webhook: ${order?.external_id}`)
         
         return {
           processed: true,
           type: webhookType,
-          orderId: order?.external_id,
+          entityType: 'order',
+          entityId: order?.external_id,
+        }
+      }
+      
+      // Process product webhook
+      if (productData) {
+        const product = await this.saveProductFromWebhook(connectionId, platform, productData)
+        console.log(`✅ Product saved from webhook: ${product?.external_id}`)
+        
+        return {
+          processed: true,
+          type: webhookType,
+          entityType: 'product',
+          entityId: product?.external_id,
         }
       }
       
@@ -838,6 +861,95 @@ class EcommerceService {
       return data
     } catch (error) {
       console.error('Error in saveOrderFromWebhook:', error)
+      return null
+    }
+  }
+
+  /**
+   * Save product from webhook payload
+   */
+  private async saveProductFromWebhook(
+    connectionId: string,
+    platform: EcommercePlatform,
+    productData: Record<string, unknown>
+  ): Promise<EcommerceProduct | null> {
+    try {
+      // Normalize product data based on platform
+      let normalizedProduct: Partial<EcommerceProduct>
+      
+      switch (platform) {
+        case 'woocommerce':
+          normalizedProduct = {
+            connection_id: connectionId,
+            external_id: String(productData.id),
+            name: String(productData.name || ''),
+            description: String(productData.description || ''),
+            short_description: String(productData.short_description || ''),
+            sku: String(productData.sku || ''),
+            price: parseFloat(String(productData.price || 0)),
+            regular_price: parseFloat(String(productData.regular_price || 0)),
+            sale_price: productData.sale_price ? parseFloat(String(productData.sale_price)) : undefined,
+            stock_quantity: productData.stock_quantity ? parseInt(String(productData.stock_quantity)) : undefined,
+            stock_status: String(productData.stock_status || 'instock'),
+            manage_stock: Boolean(productData.manage_stock),
+            categories: productData.categories as unknown[],
+            tags: productData.tags as unknown[],
+            images: productData.images as unknown[],
+            featured_image: (productData.images as Array<{src?: string}>)?.[0]?.src,
+            status: String(productData.status || 'publish'),
+            raw_data: productData,
+          }
+          break
+          
+        case 'shopify':
+          const variants = productData.variants as Array<Record<string, unknown>> || []
+          const firstVariant = variants[0] || {}
+          normalizedProduct = {
+            connection_id: connectionId,
+            external_id: String(productData.id),
+            name: String(productData.title || ''),
+            description: String(productData.body_html || ''),
+            sku: String(firstVariant.sku || ''),
+            price: parseFloat(String(firstVariant.price || 0)),
+            stock_quantity: firstVariant.inventory_quantity ? parseInt(String(firstVariant.inventory_quantity)) : undefined,
+            stock_status: firstVariant.inventory_quantity && parseInt(String(firstVariant.inventory_quantity)) > 0 ? 'instock' : 'outofstock',
+            images: productData.images as unknown[],
+            featured_image: (productData.images as Array<{src?: string}>)?.[0]?.src,
+            status: String(productData.status || 'active'),
+            raw_data: productData,
+          }
+          break
+          
+        default:
+          // Generic handling for other platforms
+          normalizedProduct = {
+            connection_id: connectionId,
+            external_id: String(productData.id || productData.product_id),
+            name: String(productData.name || productData.title || ''),
+            description: String(productData.description || ''),
+            price: parseFloat(String(productData.price || 0)),
+            status: 'publish',
+            raw_data: productData,
+          }
+      }
+      
+      // Upsert product (insert or update if exists)
+      const { data, error } = await supabaseAdmin
+        .from('ecommerce_products')
+        .upsert(normalizedProduct, {
+          onConflict: 'connection_id,external_id',
+        })
+        .select()
+        .single()
+      
+      if (error) {
+        console.error('Error saving product from webhook:', error)
+        throw error
+      }
+      
+      return data
+    } catch (error) {
+      console.error('Error in saveProductFromWebhook:', error)
       return null
     }
   }
