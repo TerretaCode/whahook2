@@ -48,7 +48,7 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     color: '#96588a',
     fields: ['consumer_key', 'consumer_secret'],
     apiPath: '/wp-admin/admin.php?page=wc-settings&tab=advanced&section=keys',
-    instructions: 'Go to WooCommerce → Settings → Advanced → REST API → Add key. Permissions: Read.',
+    instructions: 'Go to WooCommerce → Settings → Advanced → REST API → Add key',
     webhookPath: '/wp-admin/admin.php?page=wc-settings&tab=advanced&section=webhooks',
     webhookInstructions: 'Go to WooCommerce → Settings → Advanced → Webhooks → Add webhook',
     webhookTopics: [
@@ -68,9 +68,9 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     color: '#96bf48',
     fields: ['shop_name', 'access_token'],
     apiPath: '/admin/settings/apps/development',
-    instructions: 'Go to Settings → Apps → Develop apps → Create app → Configure API permissions.',
+    instructions: 'Go to Settings → Apps and sales channels → Develop apps',
     webhookPath: '/admin/settings/notifications',
-    webhookInstructions: 'Go to Settings → Notifications → Webhooks (scroll down) → Create webhook',
+    webhookInstructions: 'Go to Settings → Notifications → scroll to Webhooks → Create webhook',
     webhookTopics: [
       { name: 'Orders', topic: 'Order creation', description: 'New orders' },
       { name: 'Orders', topic: 'Order update', description: 'Order changes' },
@@ -80,39 +80,39 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     urlLabel: 'URL',
     extraFields: [
       { label: 'Format', value: 'JSON' },
-      { label: 'API version', value: '2024-01 (latest)' },
+      { label: 'API version', value: '2024-10 (latest)' },
     ],
   },
   prestashop: { 
     name: 'PrestaShop', 
     color: '#df0067',
     fields: ['api_key'],
-    apiPath: '/admin/index.php?controller=AdminWebservice',
-    instructions: 'Go to Advanced Parameters → Webservice → Add key. Enable product permissions.',
-    webhookPath: '/modules/webhooks/admin',
-    webhookInstructions: 'Install "Webhooks" module, then create one webhook per event:',
+    apiPath: '/adminXXX/index.php?controller=AdminWebservice',
+    instructions: 'Go to Advanced Parameters → Webservice → Add new webservice key',
+    webhookPath: '/adminXXX/index.php?controller=AdminModules&configure=webhooks',
+    webhookInstructions: 'Install "Webhooks Integration" module, then configure each event:',
     webhookTopics: [
       { name: 'Orders', topic: 'actionValidateOrder', description: 'New orders' },
       { name: 'Orders', topic: 'actionOrderStatusUpdate', description: 'Status changes' },
       { name: 'Products', topic: 'actionProductAdd', description: 'New products' },
       { name: 'Products', topic: 'actionProductUpdate', description: 'Product changes' },
     ],
-    urlLabel: 'URL',
+    urlLabel: 'Callback URL',
     extraFields: [
       { label: 'Method', value: 'POST' },
-      { label: 'Content Type', value: 'application/json' },
+      { label: 'Headers', value: 'Content-Type: application/json' },
       { label: 'Active', value: 'Yes' },
     ],
-    webhookNote: 'PrestaShop requires a webhook module. Search "Webhooks" in Modules → Module Manager.',
+    webhookNote: 'PrestaShop needs a webhook module. Install "Webhooks Integration" from PrestaShop Addons or search in Module Manager.',
   },
   magento: { 
-    name: 'Magento', 
+    name: 'Magento 2', 
     color: '#f26322',
     fields: ['access_token'],
-    apiPath: '/admin/system_config/edit/section/oauth/',
-    instructions: 'Go to System → Integrations → Add new integration → Generate token.',
-    webhookPath: '/admin/system/config/edit/section/mageplaza_webhook/',
-    webhookInstructions: 'Install Mageplaza Webhook extension, then create one webhook per event:',
+    apiPath: '/admin/admin/integration/',
+    instructions: 'Go to System → Extensions → Integrations → Add New Integration',
+    webhookPath: '/admin/mageplaza_webhook/manage_hooks/',
+    webhookInstructions: 'Install Mageplaza Webhook, then go to System → Webhook → Manage Hooks → Add new',
     webhookTopics: [
       { name: 'Orders', topic: 'New Order', description: 'New orders' },
       { name: 'Orders', topic: 'Update Order', description: 'Order changes' },
@@ -123,8 +123,9 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     extraFields: [
       { label: 'Method', value: 'POST' },
       { label: 'Content Type', value: 'application/json' },
+      { label: 'Status', value: 'Enable' },
     ],
-    webhookNote: 'Magento requires Mageplaza Webhook extension (free). Install via composer.',
+    webhookNote: 'Magento needs Mageplaza Webhook extension. Install: composer require mageplaza/module-webhook',
   },
 }
 
@@ -435,31 +436,43 @@ export function EcommerceConnectionsSection() {
                           
                           {formData.platform === 'shopify' && (
                             <div className="bg-white border border-blue-200 rounded-lg p-3 space-y-2 text-sm">
+                              <p className="text-xs text-blue-600 mb-2">Click "Create an app" → then "Configure Admin API scopes"</p>
                               <div className="flex items-center gap-2">
-                                <span className="w-24 text-blue-700 font-medium">App name:</span>
+                                <span className="w-28 text-blue-700 font-medium">App name:</span>
                                 <span className="text-gray-700">Whahook Sync</span>
                               </div>
                               <div className="flex items-start gap-2">
-                                <span className="w-24 text-blue-700 font-medium flex-shrink-0">Scopes:</span>
-                                <div className="text-gray-700 text-xs">
-                                  <code className="bg-blue-100 px-1 rounded">read_orders</code>,{' '}
-                                  <code className="bg-blue-100 px-1 rounded">read_products</code>
+                                <span className="w-28 text-blue-700 font-medium flex-shrink-0">API scopes:</span>
+                                <div className="text-gray-700 text-xs space-y-1">
+                                  <div>✓ <code className="bg-blue-100 px-1 rounded">read_orders</code></div>
+                                  <div>✓ <code className="bg-blue-100 px-1 rounded">read_products</code></div>
                                 </div>
                               </div>
+                              <p className="text-xs text-blue-600 mt-2">After saving, click "Install app" → then "Reveal token once"</p>
                             </div>
                           )}
                           
                           {formData.platform === 'prestashop' && (
                             <div className="bg-white border border-blue-200 rounded-lg p-3 space-y-2 text-sm">
+                              <p className="text-xs text-blue-600 mb-2">First enable Webservice: Configuration → General → Enable</p>
                               <div className="flex items-center gap-2">
-                                <span className="w-24 text-blue-700 font-medium">Key:</span>
-                                <span className="text-gray-700">(auto-generated)</span>
+                                <span className="w-28 text-blue-700 font-medium">Key:</span>
+                                <span className="text-gray-700">(click Generate to create)</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-28 text-blue-700 font-medium">Description:</span>
+                                <span className="text-gray-700">Whahook Sync</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-28 text-blue-700 font-medium">Status:</span>
+                                <code className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">Yes</code>
                               </div>
                               <div className="flex items-start gap-2">
-                                <span className="w-24 text-blue-700 font-medium flex-shrink-0">Permissions:</span>
-                                <div className="text-gray-700 text-xs">
-                                  Enable <code className="bg-blue-100 px-1 rounded">orders</code> and{' '}
-                                  <code className="bg-blue-100 px-1 rounded">products</code> (View only)
+                                <span className="w-28 text-blue-700 font-medium flex-shrink-0">Permissions:</span>
+                                <div className="text-gray-700 text-xs space-y-1">
+                                  <div>✓ <code className="bg-blue-100 px-1 rounded">orders</code> → View (GET)</div>
+                                  <div>✓ <code className="bg-blue-100 px-1 rounded">products</code> → View (GET)</div>
+                                  <div>✓ <code className="bg-blue-100 px-1 rounded">customers</code> → View (GET)</div>
                                 </div>
                               </div>
                             </div>
@@ -467,17 +480,24 @@ export function EcommerceConnectionsSection() {
                           
                           {formData.platform === 'magento' && (
                             <div className="bg-white border border-blue-200 rounded-lg p-3 space-y-2 text-sm">
+                              <p className="text-xs text-blue-600 mb-2">Go to System → Extensions → Integrations → Add New</p>
                               <div className="flex items-center gap-2">
-                                <span className="w-24 text-blue-700 font-medium">Name:</span>
+                                <span className="w-28 text-blue-700 font-medium">Name:</span>
                                 <span className="text-gray-700">Whahook Sync</span>
                               </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-28 text-blue-700 font-medium">Email:</span>
+                                <span className="text-gray-700">your@email.com</span>
+                              </div>
                               <div className="flex items-start gap-2">
-                                <span className="w-24 text-blue-700 font-medium flex-shrink-0">Resources:</span>
-                                <div className="text-gray-700 text-xs">
-                                  <code className="bg-blue-100 px-1 rounded">Sales</code>,{' '}
-                                  <code className="bg-blue-100 px-1 rounded">Catalog</code> (Read only)
+                                <span className="w-28 text-blue-700 font-medium flex-shrink-0">API tab:</span>
+                                <div className="text-gray-700 text-xs space-y-1">
+                                  <div>Resource Access: <code className="bg-blue-100 px-1 rounded">Custom</code></div>
+                                  <div>✓ <code className="bg-blue-100 px-1 rounded">Sales</code> → Orders (Read)</div>
+                                  <div>✓ <code className="bg-blue-100 px-1 rounded">Catalog</code> → Products (Read)</div>
                                 </div>
                               </div>
+                              <p className="text-xs text-blue-600 mt-2">After saving, click "Activate" → copy the Access Token</p>
                             </div>
                           )}
                         </div>
