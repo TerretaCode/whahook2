@@ -130,14 +130,14 @@ export default function DashboardPage() {
         </div>
 
         {/* AI Control Panel */}
-        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl shadow-lg p-6 mb-8 text-white">
+        <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl shadow-lg p-6 mb-8 text-white">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-white/20 rounded-lg">
               <Sparkles className="w-6 h-6" />
             </div>
             <h2 className="text-xl font-bold">Control de IA</h2>
           </div>
-          <p className="text-purple-100 mb-6">Activa o desactiva la IA de tus chatbots con un solo clic</p>
+          <p className="text-green-100 mb-6">Activa o desactiva la IA de tus chatbots con un solo clic</p>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Activar Todas las IA */}
@@ -150,7 +150,7 @@ export default function DashboardPage() {
                 <Power className="w-5 h-5" />
                 <div className="text-left">
                   <p className="font-semibold">Activar Todas</p>
-                  <p className="text-xs text-purple-200">{stats.totalAiActive} activas</p>
+                  <p className="text-xs text-green-200">{stats.totalAiActive} activas</p>
                 </div>
               </div>
               {togglingAi === 'all' && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -166,7 +166,7 @@ export default function DashboardPage() {
                 <Smartphone className="w-5 h-5" />
                 <div className="text-left">
                   <p className="font-semibold">WhatsApp AI</p>
-                  <p className="text-xs text-purple-200">
+                  <p className="text-xs text-green-200">
                     {stats.whatsappAiActive > 0 ? `${stats.whatsappAiActive} activa(s)` : 'Desactivada'}
                   </p>
                 </div>
@@ -190,7 +190,7 @@ export default function DashboardPage() {
                 <Globe className="w-5 h-5" />
                 <div className="text-left">
                   <p className="font-semibold">Web Chatbot AI</p>
-                  <p className="text-xs text-purple-200">
+                  <p className="text-xs text-green-200">
                     {stats.webAiActive > 0 ? `${stats.webAiActive} activa(s)` : 'Desactivada'}
                   </p>
                 </div>
@@ -272,8 +272,8 @@ export default function DashboardPage() {
           {/* Total Clients */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-purple-50 rounded-lg">
-                <Users className="w-6 h-6 text-purple-600" />
+              <div className="p-3 bg-green-50 rounded-lg">
+                <Users className="w-6 h-6 text-green-600" />
               </div>
               <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">CRM</span>
             </div>
@@ -282,7 +282,7 @@ export default function DashboardPage() {
             </h3>
             <p className="text-sm text-gray-600">Clientes</p>
             <div className="mt-4 pt-4 border-t border-gray-100">
-              <Link href="/clients" className="text-sm text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1">
+              <Link href="/clients" className="text-sm text-green-600 hover:text-green-700 font-medium flex items-center gap-1">
                 Ver clientes
                 <ArrowRight className="w-3 h-3" />
               </Link>
