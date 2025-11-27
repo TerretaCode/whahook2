@@ -74,7 +74,7 @@ export function ShippingSection({
               </h4>
               <p className="text-sm text-muted-foreground mb-3">Añade las opciones de envío que ofreces. Ej: "Envío estándar - 3-5 días - 4,95€"</p>
               <div className="space-y-2">
-                {(formData?.shipping_methods || []).map((method: any, index: number) => (
+                {(formData?.shipping_methods || []).map((method: { name?: string; delivery_time?: string; price?: string; free_from?: string }, index: number) => (
                   <Card key={index} className="p-3">
                     <div className="grid grid-cols-4 gap-2">
                       <Input

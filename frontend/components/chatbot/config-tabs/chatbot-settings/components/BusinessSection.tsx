@@ -167,7 +167,7 @@ export function BusinessSection({
               </h4>
               <p className="text-sm text-muted-foreground mb-3">Si un cliente pregunta "¿Tenéis Instagram?" o "¿Dónde os puedo seguir?", el bot le dará estos enlaces.</p>
               <div className="space-y-2">
-                {(formData?.social_media || []).map((social: any, index: number) => (
+                {(formData?.social_media || []).map((social: { platform?: string; handle?: string }, index: number) => (
                   <div key={index} className="flex gap-2">
                     <Input
                       placeholder="Instagram, TikTok..."
@@ -209,7 +209,7 @@ export function BusinessSection({
               </h4>
               <p className="text-sm text-muted-foreground mb-3">Si tienes tienda física, añádela aquí. El bot podrá decir "Estamos en Calle Mayor 123" o enviar el enlace de Google Maps.</p>
               <div className="space-y-3">
-                {(formData?.locations || []).map((location: any, index: number) => (
+                {(formData?.locations || []).map((location: { name?: string; address?: string; google_maps_url?: string }, index: number) => (
                   <Card key={index} className="p-3">
                     <div className="space-y-2">
                       <div className="flex gap-2">

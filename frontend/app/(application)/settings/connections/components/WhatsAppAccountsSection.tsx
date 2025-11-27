@@ -48,7 +48,8 @@ export function WhatsAppAccountsSection() {
     if (account?.label) return account.label
     
     // Fallback: check if session itself has label (same table)
-    if ((session as any).label) return (session as any).label
+    const sessionWithLabel = session as typeof session & { label?: string }
+    if (sessionWithLabel.label) return sessionWithLabel.label
     
     return 'WhatsApp Account'
   }

@@ -1,6 +1,6 @@
 "use client"
 
-import { Edit, Trash2, Mail, Phone, Building2, Users, Sparkles, Loader2, MessageSquare, Smile, Meh, Frown, ExternalLink } from "lucide-react"
+import { Edit, Trash2, Mail, Phone, Building2, Users, Sparkles, Loader2, MessageSquare, Smile, Meh, Frown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useState } from "react"

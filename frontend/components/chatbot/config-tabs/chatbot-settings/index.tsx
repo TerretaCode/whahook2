@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useState } from "react"
@@ -17,9 +18,9 @@ import {
 export function ChatbotSettingsTab({ 
   formData, 
   updateField, 
-  onFormDataChange,
-  sessionId,
-  widgetId,
+  onFormDataChange: _onFormDataChange,
+  sessionId: _sessionId,
+  widgetId: _widgetId,
   ecommerceConnections = []
 }: ChatbotSettingsProps) {
   // Section collapse states

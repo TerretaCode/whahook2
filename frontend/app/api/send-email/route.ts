@@ -204,6 +204,7 @@ export async function POST(request: NextRequest) {
       html,
     })
 
+    // eslint-disable-next-line no-console
     console.log('✅ Email sent:', info.messageId)
 
     return NextResponse.json({

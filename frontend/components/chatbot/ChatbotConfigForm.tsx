@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
@@ -16,9 +16,12 @@ import { ConversationConfigTab } from "./config-tabs/ConversationConfigTab"
 import { HoursConfigTab } from "./config-tabs/HoursConfigTab"
 import { AdvancedConfigTab } from "./config-tabs/AdvancedConfigTab"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FormData = Record<string, any>
+
 interface ChatbotConfigFormProps {
-  formData: any
-  onFormDataChange: (data: any) => void
+  formData: FormData
+  onFormDataChange: (data: FormData) => void
   onSave: () => void
   isLoading: boolean
   showApiKey: boolean
@@ -30,7 +33,7 @@ interface ChatbotConfigFormProps {
 }
 
 export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
-  const router = useRouter()
+  const _router = useRouter()
   const searchParams = useSearchParams()
   
   // Get active tab from URL or localStorage
@@ -69,7 +72,7 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
     window.history.replaceState({}, '', url.toString())
   }
   
-  const updateField = (field: string, value: any) => {
+  const updateField = (field: string, value: FormData[string]) => {
     props.onFormDataChange({ ...props.formData, [field]: value })
   }
 
@@ -87,7 +90,7 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
 
   const removeArrayItem = (field: string, index: number) => {
     const array = props.formData[field] || []
-    updateField(field, array.filter((_: any, i: number) => i !== index))
+    updateField(field, array.filter((_: unknown, i: number) => i !== index))
   }
 
   const tabProps = {

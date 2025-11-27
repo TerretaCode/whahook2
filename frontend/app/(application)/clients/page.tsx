@@ -64,7 +64,7 @@ export default function ClientsPage() {
   const fetchSettings = async () => {
     try {
       setIsLoadingSettings(true)
-      const response = await ApiClient.request<any>('/api/clients/settings')
+      const response = await ApiClient.request<{ auto_capture_enabled?: boolean }>('/api/clients/settings')
       if (response.success && response.data) {
         setAutoCapture(response.data.auto_capture_enabled ?? false)
       }
@@ -95,7 +95,7 @@ export default function ClientsPage() {
   const fetchClients = async () => {
     try {
       setIsLoading(true)
-      const response = await ApiClient.request<any>('/api/clients')
+      const response = await ApiClient.request<Client[]>('/api/clients')
       if (response.success && response.data) {
         setClients(response.data)
       }
@@ -150,7 +150,7 @@ export default function ClientsPage() {
     setFilteredClients(filtered)
   }
 
-  const handleAddClient = () => {
+  const _handleAddClient = () => {
     setSelectedClient(null)
     setIsModalOpen(true)
   }

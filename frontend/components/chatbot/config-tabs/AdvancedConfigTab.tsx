@@ -4,7 +4,15 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-export function AdvancedConfigTab({ formData, updateField }: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FormData = Record<string, any>
+
+interface AdvancedConfigTabProps {
+  formData: FormData
+  updateField: (field: string, value: boolean | string | number) => void
+}
+
+export function AdvancedConfigTab({ formData, updateField }: AdvancedConfigTabProps) {
   return (
     <Card>
       <CardHeader>

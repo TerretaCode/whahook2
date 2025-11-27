@@ -82,7 +82,7 @@ export function ConversationSection({
                 <br/><span className="text-xs">Ej: "¿Hacéis envíos a Canarias?" → "Sí, enviamos a Canarias. El envío tarda 5-7 días y cuesta 8€."</span>
               </p>
               <div className="space-y-3">
-                {(formData?.faqs || []).map((faq: any, index: number) => (
+                {(formData?.faqs || []).map((faq: { question?: string; answer?: string }, index: number) => (
                   <Card key={index} className="p-3">
                     <div className="space-y-2">
                       <div className="flex gap-2">

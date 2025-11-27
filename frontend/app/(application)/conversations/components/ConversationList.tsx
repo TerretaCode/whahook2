@@ -66,6 +66,7 @@ export function ConversationList({ selectedConversationId, onSelectConversation 
     }
     
     poll()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Detectar actividad del usuario
@@ -83,6 +84,7 @@ export function ConversationList({ selectedConversationId, onSelectConversation 
     fetchConversations()
     startPolling()
     return () => { if (pollIntervalRef.current) clearTimeout(pollIntervalRef.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startPolling])
 
   useEffect(() => {

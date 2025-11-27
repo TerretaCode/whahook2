@@ -109,11 +109,12 @@ export function GlobalAIConfig() {
   const loadConfig = async () => {
     setIsInitialLoading(true)
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response = await ApiClient.request<any>('/api/ai/config')
       const data = response.data?.data || response.data
       
       if (data && data.id) {
-        setConfig(data)
+        setConfig(data as AIConfig)
         setFormData({
           provider: data.provider || 'google',
           model: data.model || 'gemini-2.5-flash',

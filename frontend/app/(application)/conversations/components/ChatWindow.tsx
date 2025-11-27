@@ -50,7 +50,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
-  const [hasMoreMessages, setHasMoreMessages] = useState(true)
+  const [_hasMoreMessages, setHasMoreMessages] = useState(true)
   const [isSending, setIsSending] = useState(false)
   const [chatbotEnabled, setChatbotEnabled] = useState(true)
   const [conversationInfo, setConversationInfo] = useState({
@@ -60,7 +60,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     isOnline: false,
     source: 'whatsapp' as 'whatsapp' | 'web'
   })
-  const [chatbotConfig, setChatbotConfig] = useState<{
+  const [chatbotConfig, _setChatbotConfig] = useState<{
     conversation_starters?: string[]
     quick_replies?: string[]
   }>({})
@@ -168,10 +168,11 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
   }, [messages])
 
   // Cargar TODOS los mensajes desde WhatsApp
-  const loadAllMessages = useCallback(async () => {
+  const _loadAllMessages = useCallback(async () => {
     if (isLoadingMore) return
     
     setIsLoadingMore(true)
+    // eslint-disable-next-line no-console
     console.log('🔄 Iniciando carga de todo el historial...')
     
     try {
@@ -180,10 +181,12 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
         `/api/whatsapp/conversations/${conversationId}/load-all`
       )
       
+      // eslint-disable-next-line no-console
       console.log('📥 Respuesta load-all:', response)
       
       if (response.success) {
         const result = response as { newMessages?: number, totalInWhatsApp?: number }
+        // eslint-disable-next-line no-console
         console.log(`📜 Nuevos: ${result.newMessages}, Total en WhatsApp: ${result.totalInWhatsApp}`)
         
         // Siempre recargar mensajes desde la DB después de load-all
@@ -193,6 +196,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
         
         if (messagesResponse.success && messagesResponse.data) {
           const data = messagesResponse.data as ApiMessage[]
+          // eslint-disable-next-line no-console
           console.log(`📬 Mensajes cargados desde DB: ${data.length}`)
           setMessages(data.map(mapApiMessage))
         }
