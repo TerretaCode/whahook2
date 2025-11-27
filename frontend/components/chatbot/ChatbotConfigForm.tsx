@@ -5,7 +5,6 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   MessageSquare,
-  Clock,
   Zap,
   Shield,
   Bot
@@ -13,7 +12,6 @@ import {
 import { ChatbotSettingsTab } from "./config-tabs/chatbot-settings"
 import { ModelConfigTab } from "./config-tabs/ModelConfigTab"
 import { ConversationConfigTab } from "./config-tabs/ConversationConfigTab"
-import { HoursConfigTab } from "./config-tabs/HoursConfigTab"
 import { AdvancedConfigTab } from "./config-tabs/AdvancedConfigTab"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -118,10 +116,6 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
             <MessageSquare className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Chat</span>
           </TabsTrigger>
-          <TabsTrigger value="hours" className="flex-shrink-0">
-            <Clock className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Horarios</span>
-          </TabsTrigger>
           <TabsTrigger value="advanced" className="flex-shrink-0">
             <Shield className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Avanzado</span>
@@ -134,7 +128,6 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
         </TabsContent>
       <TabsContent value="model"><ModelConfigTab {...tabProps} /></TabsContent>
       <TabsContent value="conversation"><ConversationConfigTab {...tabProps} /></TabsContent>
-      <TabsContent value="hours"><HoursConfigTab {...tabProps} /></TabsContent>
       <TabsContent value="advanced"><AdvancedConfigTab {...tabProps} /></TabsContent>
     </Tabs>
   )
