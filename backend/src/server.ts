@@ -63,7 +63,9 @@ app.use('/api/auth', authRoutes)
 app.use('/api/users', authRoutes)
 app.use('/api/whatsapp', whatsappRoutes)
 app.use('/api/chat-widgets', chatWidgetRoutes)
-app.use('/api/public/chat-widgets', chatWidgetPublicRoutes)
+
+// Public widget routes - CORS abierto para permitir embed en cualquier web
+app.use('/api/public/chat-widgets', cors({ origin: '*', methods: ['GET', 'POST', 'OPTIONS'] }), chatWidgetPublicRoutes)
 app.use('/api/ecommerce', ecommerceRoutes)
 app.use('/api/webhooks', webhookRoutes)
 app.use('/api/chatbot', chatbotRoutes)
