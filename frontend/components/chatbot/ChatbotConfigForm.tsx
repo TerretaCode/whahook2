@@ -8,9 +8,9 @@ import {
   Clock,
   Zap,
   Shield,
-  Settings
+  Bot
 } from "lucide-react"
-import { ChatbotSettingsTab } from "./config-tabs/ChatbotSettingsTab"
+import { ChatbotSettingsTab } from "./config-tabs/chatbot-settings"
 import { ModelConfigTab } from "./config-tabs/ModelConfigTab"
 import { ConversationConfigTab } from "./config-tabs/ConversationConfigTab"
 import { HoursConfigTab } from "./config-tabs/HoursConfigTab"
@@ -104,8 +104,8 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
       <div className="overflow-x-auto -mx-4 px-4 mb-4">
         <TabsList className="inline-flex w-auto min-w-full">
           <TabsTrigger value="config" className="flex-shrink-0">
-            <Settings className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Configuración</span>
+            <Bot className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Asistente</span>
           </TabsTrigger>
           <TabsTrigger value="model" className="flex-shrink-0">
             <Zap className="w-4 h-4 sm:mr-2" />
