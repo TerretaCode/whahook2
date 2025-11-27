@@ -151,17 +151,7 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │  [ ] Empresa                                                   │   │
 │  │  [+ Añadir campo personalizado]                                │   │
 │  │                                                                 │   │
-│  │  📞 ¿Cómo prefiere ser contactado?                              │   │
-│  │  [✓] Preguntar al cliente su preferencia                       │   │
-│  │                                                                 │   │
-│  │  Opciones disponibles:                                          │   │
-│  │  [✓] WhatsApp (este chat)                                      │   │
-│  │  [✓] Llamada telefónica                                        │   │
-│  │  [✓] Email                                                     │   │
-│  │  [ ] Otro número de WhatsApp                                   │   │
-│  │  [+ Añadir método]                                             │   │
-│  │                                                                 │   │
-│  │  💡 Esta info se guarda en la ficha del cliente (CRM)          │   │
+│  │   Esta info se guarda en la ficha del cliente (CRM)          │   │
 │  │                                                                 │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
@@ -330,7 +320,6 @@ Colapsable. Contiene:
 - **Motivos de escalación**: Checkboxes predefinidos + personalizables
 - **Mensaje al escalar**: Texto que verá el cliente
 - **Información a recopilar**: Campos que el bot pedirá (nombre, email, teléfono, etc.)
-- **Método de contacto preferido**: El bot pregunta cómo prefiere ser contactado
 
 Toda la información recopilada se guarda automáticamente en la ficha del cliente (CRM).
 
@@ -370,11 +359,9 @@ interface ChatbotConfig {
   escalation_after_messages?: number      // Escalar después de X mensajes sin resolver
   escalation_message: string
   
-  // Información a recopilar
+  // Información a recopilar (se guarda en CRM)
   info_fields_to_collect: string[]        // ['name', 'email', 'phone', 'order_number', ...]
   custom_info_fields: string[]            // Campos personalizados
-  ask_contact_preference: boolean         // Preguntar cómo prefiere ser contactado
-  contact_methods_available: string[]     // ['whatsapp', 'call', 'email', 'other_whatsapp', ...]
   
   // Adicional
   additional_info: string
