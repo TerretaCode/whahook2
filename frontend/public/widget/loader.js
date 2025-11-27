@@ -26,8 +26,17 @@
   }
   window.WhahookWidgetLoaded = true;
 
-  // Fetch widget configuration from API
-  fetch(apiUrl + '/api/public/chat-widgets/' + widgetId + '/config')
+  // Detect visitor's language from browser
+  function getVisitorLanguage() {
+    var lang = navigator.language || navigator.userLanguage || 'en';
+    // Get primary language code (e.g., 'es' from 'es-ES')
+    return lang.split('-')[0].toLowerCase();
+  }
+
+  var visitorLanguage = getVisitorLanguage();
+
+  // Fetch widget configuration from API with language parameter
+  fetch(apiUrl + '/api/public/chat-widgets/' + widgetId + '/config?lang=' + visitorLanguage)
     .then(function(response) {
       if (!response.ok) {
         throw new Error('Widget not found or inactive');
