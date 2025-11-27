@@ -225,18 +225,19 @@ class ChatWidgetService {
   /**
    * Generar código de embed
    */
-  generateEmbedCode(widgetId: string, backendUrl: string): string {
-    const url = backendUrl.replace(/\/$/, '')
+  generateEmbedCode(widgetId: string, backendUrl: string, frontendUrl: string): string {
+    const apiUrl = backendUrl.replace(/\/$/, '')
+    const loaderUrl = frontendUrl.replace(/\/$/, '')
     
     return `<!-- Whahook Chat Widget -->
 <script>
   (function() {
     window.WhahookWidget = {
       widgetId: '${widgetId}',
-      apiUrl: '${url}'
+      apiUrl: '${apiUrl}'
     };
     var script = document.createElement('script');
-    script.src = '${url}/widget/loader.js';
+    script.src = '${loaderUrl}/widget/loader.js';
     script.async = true;
     document.head.appendChild(script);
   })();
