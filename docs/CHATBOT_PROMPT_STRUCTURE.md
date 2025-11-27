@@ -27,6 +27,11 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │  Nombre                    Tono                                 │   │
 │  │  [Asistente          ]     [Profesional         ▼]             │   │
 │  │                                                                 │   │
+│  │  Emojis                    Longitud de respuestas               │   │
+│  │  [Moderado       ▼]        [Normal            ▼]               │   │
+│  │  (Ninguno/Pocos/            (Cortas/Normal/                     │   │
+│  │   Moderado/Muchos)          Detalladas)                         │   │
+│  │                                                                 │   │
 │  │  💡 El bot responde automáticamente en el idioma del cliente   │   │
 │  │                                                                 │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
@@ -136,7 +141,9 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │     preguntas de esa categoría para filtrar productos.         │   │
 │  │                                                                 │   │
 │  │  📋 Al recomendar incluir:                                     │   │
-│  │  [✓] Nombre  [✓] Precio  [✓] Beneficios  [ ] Ingredientes     │   │
+│  │  [✓] Nombre  [✓] Precio  [✓] Beneficios  [✓] Link             │   │
+│  │  [ ] Ingredientes  [ ] Modo de uso                             │   │
+│  │  [+ Añadir campo personalizado]                                │   │
 │  │                                                                 │   │
 │  │  📊 Límites de recomendación:                                   │   │
 │  │  Máx. productos por respuesta: [3  ]                           │   │
@@ -314,7 +321,12 @@ Al hacer click en [✏️] se abre el formulario de edición:
 ## Secciones de la UI
 
 ### 🤖 TU BOT
-Siempre visible. Campos: Nombre y Tono.
+Siempre visible. Campos:
+- **Nombre**: Cómo se presenta el bot
+- **Tono**: Profesional, Amigable, Formal, Casual
+- **Emojis**: Ninguno, Pocos, Moderado, Muchos
+- **Longitud**: Cortas, Normal, Detalladas
+
 El bot detecta automáticamente el idioma del cliente y responde en ese idioma.
 
 ### 🏢 TU NEGOCIO  
@@ -411,7 +423,9 @@ Colapsable. Textarea libre para promociones, reglas especiales, etc.
 interface ChatbotConfig {
   // Bot
   bot_name: string
-  tone: string  // 'profesional' | 'amigable' | 'formal' | 'casual'
+  tone: 'profesional' | 'amigable' | 'formal' | 'casual'
+  emoji_usage: 'ninguno' | 'pocos' | 'moderado' | 'muchos'
+  response_length: 'cortas' | 'normal' | 'detalladas'
   // Nota: No hay campo de idioma - el bot detecta automáticamente el idioma del cliente
   
   // Negocio
@@ -432,7 +446,8 @@ interface ChatbotConfig {
   recommend_products: boolean
   ecommerce_connection_ids: string[]
   categories: Category[]
-  recommendation_format: string[]         // ['name', 'price', 'benefits', ...]
+  recommendation_format: string[]         // ['name', 'price', 'benefits', 'link', ...]
+  custom_recommendation_fields: string[] // Campos personalizados añadidos por el usuario
   max_products_per_response: number       // Límite de productos por respuesta
   no_results_behavior: 'alternatives' | 'ask_more' | 'escalate'
   
