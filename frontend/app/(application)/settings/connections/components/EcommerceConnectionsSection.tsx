@@ -27,12 +27,6 @@ interface WebhookTopic {
   description: string
 }
 
-interface WebhookFormField {
-  label: string
-  value: string
-  type: 'text' | 'select' | 'url' | 'note'
-}
-
 interface PlatformConfig {
   name: string
   color: string
@@ -42,8 +36,10 @@ interface PlatformConfig {
   webhookPath: string
   webhookInstructions: string
   webhookTopics: WebhookTopic[]
-  webhookFormFields: WebhookFormField[]
   webhookNote?: string
+  // Platform-specific field labels
+  urlLabel: string
+  extraFields?: { label: string; value: string }[]
 }
 
 const platformConfig: Record<Platform, PlatformConfig> = {
@@ -61,12 +57,10 @@ const platformConfig: Record<Platform, PlatformConfig> = {
       { name: 'Products', topic: 'Product created', description: 'New products' },
       { name: 'Products', topic: 'Product updated', description: 'Product changes' },
     ],
-    webhookFormFields: [
-      { label: 'Name', value: 'Whahook Sync (or any name)', type: 'text' },
-      { label: 'Status', value: 'Active', type: 'select' },
-      { label: 'Delivery URL', value: '', type: 'url' },
-      { label: 'Secret', value: 'Leave empty (optional)', type: 'text' },
-      { label: 'API Version', value: 'WP REST API v3', type: 'select' },
+    urlLabel: 'Delivery URL',
+    extraFields: [
+      { label: 'Secret', value: 'Leave empty' },
+      { label: 'API Version', value: 'WP REST API v3' },
     ],
   },
   shopify: { 
@@ -83,11 +77,10 @@ const platformConfig: Record<Platform, PlatformConfig> = {
       { name: 'Products', topic: 'Product creation', description: 'New products' },
       { name: 'Products', topic: 'Product update', description: 'Product changes' },
     ],
-    webhookFormFields: [
-      { label: 'Event', value: 'Order creation (select from dropdown)', type: 'select' },
-      { label: 'Format', value: 'JSON', type: 'select' },
-      { label: 'URL', value: '', type: 'url' },
-      { label: 'Webhook API version', value: '2024-01 (or latest)', type: 'select' },
+    urlLabel: 'URL',
+    extraFields: [
+      { label: 'Format', value: 'JSON' },
+      { label: 'API version', value: '2024-01 (latest)' },
     ],
   },
   prestashop: { 
@@ -97,19 +90,18 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     apiPath: '/admin/index.php?controller=AdminWebservice',
     instructions: 'Go to Advanced Parameters → Webservice → Add key. Enable product permissions.',
     webhookPath: '/modules/webhooks/admin',
-    webhookInstructions: 'Install "Webhooks" module from PrestaShop Addons, then configure:',
+    webhookInstructions: 'Install "Webhooks" module, then create one webhook per event:',
     webhookTopics: [
-      { name: 'Orders', topic: 'Order (actionValidateOrder)', description: 'New orders' },
-      { name: 'Orders', topic: 'Order Status (actionOrderStatusUpdate)', description: 'Status changes' },
-      { name: 'Products', topic: 'Product (actionProductAdd)', description: 'New products' },
-      { name: 'Products', topic: 'Product (actionProductUpdate)', description: 'Product changes' },
+      { name: 'Orders', topic: 'actionValidateOrder', description: 'New orders' },
+      { name: 'Orders', topic: 'actionOrderStatusUpdate', description: 'Status changes' },
+      { name: 'Products', topic: 'actionProductAdd', description: 'New products' },
+      { name: 'Products', topic: 'actionProductUpdate', description: 'Product changes' },
     ],
-    webhookFormFields: [
-      { label: 'Hook/Event', value: 'actionValidateOrder (for orders)', type: 'select' },
-      { label: 'URL', value: '', type: 'url' },
-      { label: 'Method', value: 'POST', type: 'select' },
-      { label: 'Content Type', value: 'application/json', type: 'select' },
-      { label: 'Active', value: 'Yes', type: 'select' },
+    urlLabel: 'URL',
+    extraFields: [
+      { label: 'Method', value: 'POST' },
+      { label: 'Content Type', value: 'application/json' },
+      { label: 'Active', value: 'Yes' },
     ],
     webhookNote: 'PrestaShop requires a webhook module. Search "Webhooks" in Modules → Module Manager.',
   },
@@ -120,21 +112,17 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     apiPath: '/admin/system_config/edit/section/oauth/',
     instructions: 'Go to System → Integrations → Add new integration → Generate token.',
     webhookPath: '/admin/system/config/edit/section/mageplaza_webhook/',
-    webhookInstructions: 'Install Mageplaza Webhook extension, then go to Stores → Configuration → Mageplaza → Webhook',
+    webhookInstructions: 'Install Mageplaza Webhook extension, then create one webhook per event:',
     webhookTopics: [
       { name: 'Orders', topic: 'New Order', description: 'New orders' },
       { name: 'Orders', topic: 'Update Order', description: 'Order changes' },
       { name: 'Products', topic: 'New Product', description: 'New products' },
       { name: 'Products', topic: 'Update Product', description: 'Product changes' },
     ],
-    webhookFormFields: [
-      { label: 'Name', value: 'Whahook Sync', type: 'text' },
-      { label: 'Status', value: 'Enable', type: 'select' },
-      { label: 'Entity', value: 'Order / Product', type: 'select' },
-      { label: 'Hook Type', value: 'Before Save / After Save', type: 'select' },
-      { label: 'Payload URL', value: '', type: 'url' },
-      { label: 'Method', value: 'POST', type: 'select' },
-      { label: 'Content Type', value: 'application/json', type: 'select' },
+    urlLabel: 'Payload URL',
+    extraFields: [
+      { label: 'Method', value: 'POST' },
+      { label: 'Content Type', value: 'application/json' },
     ],
     webhookNote: 'Magento requires Mageplaza Webhook extension (free). Install via composer.',
   },
@@ -659,15 +647,11 @@ export function EcommerceConnectionsSection() {
                         </div>
                       )}
                       
-                      <p className="text-sm text-purple-900">
-                        {config.webhookInstructions}
-                      </p>
-                      
                       {/* Step 1: Open settings */}
                       <div className="flex items-start gap-3">
                         <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">1</span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-purple-900">Open webhook settings:</p>
+                          <p className="text-sm font-medium text-purple-900">{config.webhookInstructions}</p>
                           <Button
                             size="sm"
                             variant="outline"
@@ -680,67 +664,96 @@ export function EcommerceConnectionsSection() {
                         </div>
                       </div>
 
-                      {/* Step 2: Fill form with dynamic fields */}
+                      {/* Step 2: Create webhooks - one card per topic */}
                       <div className="flex items-start gap-3">
                         <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">2</span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-purple-900 mb-2">Fill in the webhook form:</p>
+                          <p className="text-sm font-medium text-purple-900 mb-3">Create these webhooks (one per event):</p>
                           
-                          <div className="bg-white border border-purple-200 rounded-lg p-3 space-y-3 text-sm">
-                            {/* Dynamic form fields based on platform */}
-                            {config.webhookFormFields.map((field, i) => (
-                              <div key={i} className="flex items-start gap-2">
-                                <span className="w-32 text-purple-700 font-medium flex-shrink-0">{field.label}:</span>
-                                {field.type === 'url' ? (
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2">
-                                      <Input 
-                                        value={webhookUrl} 
-                                        readOnly 
-                                        className="bg-gray-50 text-xs font-mono flex-1"
-                                      />
-                                      <Button 
-                                        size="sm" 
-                                        variant="outline"
-                                        onClick={() => copyToClipboard(webhookUrl)}
-                                        className="flex-shrink-0"
-                                      >
-                                        <Copy className="h-4 w-4" />
-                                      </Button>
+                          <div className="space-y-3">
+                            {config.webhookTopics.map((topic, idx) => (
+                              <div key={idx} className="bg-white border border-purple-200 rounded-lg p-3">
+                                <div className="flex items-center gap-2 mb-2 pb-2 border-b border-purple-100">
+                                  <span className="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded">
+                                    Webhook {idx + 1}
+                                  </span>
+                                  <span className="text-sm font-medium text-gray-900">{topic.description}</span>
+                                </div>
+                                
+                                <div className="space-y-2 text-sm">
+                                  {/* Name */}
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-28 text-purple-700 font-medium">Name:</span>
+                                    <span className="text-gray-700">{topic.topic}</span>
+                                  </div>
+                                  
+                                  {/* Status */}
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-28 text-purple-700 font-medium">Status:</span>
+                                    <code className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">Active</code>
+                                  </div>
+                                  
+                                  {/* Topic */}
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-28 text-purple-700 font-medium">Topic:</span>
+                                    <code className="bg-purple-100 px-2 py-0.5 rounded text-xs">{topic.topic}</code>
+                                  </div>
+                                  
+                                  {/* URL */}
+                                  <div className="flex items-start gap-2">
+                                    <span className="w-28 text-purple-700 font-medium flex-shrink-0">{config.urlLabel}:</span>
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <Input 
+                                          value={webhookUrl} 
+                                          readOnly 
+                                          className="bg-gray-50 text-xs font-mono flex-1 h-8"
+                                        />
+                                        <Button 
+                                          size="sm" 
+                                          variant="outline"
+                                          onClick={() => copyToClipboard(webhookUrl)}
+                                          className="flex-shrink-0 h-8"
+                                        >
+                                          <Copy className="h-3 w-3" />
+                                        </Button>
+                                      </div>
                                     </div>
                                   </div>
-                                ) : field.type === 'select' ? (
-                                  <code className="bg-purple-100 px-2 py-0.5 rounded text-xs">{field.value}</code>
-                                ) : (
-                                  <span className="text-gray-700">{field.value}</span>
-                                )}
+                                  
+                                  {/* Extra fields */}
+                                  {config.extraFields?.map((field, i) => (
+                                    <div key={i} className="flex items-center gap-2">
+                                      <span className="w-28 text-purple-700 font-medium">{field.label}:</span>
+                                      <code className="bg-purple-100 px-2 py-0.5 rounded text-xs">{field.value}</code>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             ))}
-                            
-                            {/* Topics/Events */}
-                            <div className="flex items-start gap-2 pt-2 border-t border-purple-100">
-                              <span className="w-32 text-purple-700 font-medium flex-shrink-0">Event/Topic:</span>
-                              <div className="space-y-1">
-                                {config.webhookTopics.map((t, i) => (
-                                  <div key={i}>
-                                    <code className="bg-purple-100 px-2 py-0.5 rounded text-xs">{t.topic}</code>
-                                    <span className="text-gray-500 text-xs ml-2">({t.description})</span>
-                                  </div>
-                                ))}
-                                <p className="text-xs text-purple-600 mt-1">Create one webhook per event, or just orders to start</p>
-                              </div>
-                            </div>
                           </div>
+                          
+                          <p className="text-xs text-purple-600 mt-2 italic">
+                            Tip: Start with just "Order created" if you want to test first.
+                          </p>
                         </div>
                       </div>
 
-                      {/* Step 3: Save */}
+                      {/* Step 3: Complete setup */}
                       <div className="flex items-start gap-3">
                         <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">3</span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-purple-900">Save and you're done! 🎉</p>
-                          <p className="text-sm text-purple-700 mt-1">
-                            New orders and products will sync automatically.
+                          <p className="text-sm font-medium text-purple-900">Save webhooks in your store, then click below:</p>
+                          <Button
+                            size="sm"
+                            className="mt-2 bg-green-600 hover:bg-green-700"
+                            onClick={() => handleSync(connection.id)}
+                          >
+                            <Check className="h-4 w-4 mr-2" />
+                            Complete Setup & Sync Now
+                          </Button>
+                          <p className="text-xs text-purple-600 mt-2">
+                            This will do an initial sync. After that, new orders and products will sync automatically.
                           </p>
                         </div>
                       </div>
