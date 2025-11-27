@@ -140,7 +140,6 @@ export function ChatWidgetsSection() {
     name: '',
     domain: '',
     platform: 'wordpress' as WebsitePlatform,
-    default_language: 'es',
     primary_color: '#10B981',
     header_text: 'Chat Support',
     header_logo_url: '',
@@ -149,28 +148,11 @@ export function ChatWidgetsSection() {
     position: 'bottom-right',
   })
 
-  const supportedLanguages = [
-    { code: 'es', name: 'Español' },
-    { code: 'en', name: 'English' },
-    { code: 'fr', name: 'Français' },
-    { code: 'de', name: 'Deutsch' },
-    { code: 'it', name: 'Italiano' },
-    { code: 'pt', name: 'Português' },
-    { code: 'ca', name: 'Català' },
-    { code: 'nl', name: 'Nederlands' },
-    { code: 'ru', name: 'Русский' },
-    { code: 'zh', name: '中文' },
-    { code: 'ja', name: '日本語' },
-    { code: 'ko', name: '한국어' },
-    { code: 'ar', name: 'العربية' },
-  ]
-
   const resetForm = () => {
     setFormData({
       name: '',
       domain: '',
       platform: 'wordpress',
-      default_language: 'es',
       primary_color: '#10B981',
       header_text: 'Chat Support',
       header_logo_url: '',
@@ -246,12 +228,11 @@ export function ChatWidgetsSection() {
     }
   }
 
-  const handleEdit = (widget: ChatWidget & { default_language?: string }) => {
+  const handleEdit = (widget: ChatWidget) => {
     setFormData({
       name: widget.name,
       domain: widget.domain || '',
       platform: 'wordpress', // Default, we don't store this
-      default_language: widget.default_language || 'es',
       primary_color: widget.primary_color,
       header_text: widget.header_text,
       header_logo_url: widget.header_logo_url || '',
@@ -384,20 +365,7 @@ export function ChatWidgetsSection() {
                     placeholder="https://mystore.com"
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">Your website address</p>
-                </div>
-                <div>
-                  <Label>Default Language</Label>
-                  <select
-                    className="w-full p-2 border rounded-md bg-white"
-                    value={formData.default_language}
-                    onChange={(e) => setFormData({ ...formData, default_language: e.target.value })}
-                  >
-                    {supportedLanguages.map((lang) => (
-                      <option key={lang.code} value={lang.code}>{lang.name}</option>
-                    ))}
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">Language of your welcome message (auto-translates for visitors)</p>
+                  <p className="text-xs text-gray-500 mt-1">Your website address (we'll generate direct links for you)</p>
                 </div>
               </div>
             </div>

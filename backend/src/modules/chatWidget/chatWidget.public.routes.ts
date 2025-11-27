@@ -153,14 +153,13 @@ router.get('/:id/config', async (req: Request, res: Response) => {
     // Get widget's user_id for AI translation
     const { data: widget } = await supabaseAdmin
       .from('chat_widgets')
-      .select('user_id, default_language')
+      .select('user_id')
       .eq('id', req.params.id)
       .single()
 
-    // Only translate if visitor language differs from widget's default
-    const widgetLang = widget?.default_language || 'es'
-    
-    if (widget?.user_id && visitorLang !== widgetLang && config.welcome_message) {
+    // Translate welcome message and placeholder to visitor's language
+    // AI will auto-detect the source language
+    if (widget?.user_id && config.welcome_message) {
       const translatedWelcome = await translateWithAI(
         config.welcome_message,
         visitorLang,
