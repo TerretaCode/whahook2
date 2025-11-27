@@ -40,13 +40,14 @@ interface ApiConversation {
 interface ConversationListProps {
   selectedConversationId?: string | null
   onSelectConversation: (id: string) => void
+  initialFilter?: 'all' | 'whatsapp' | 'web' | 'attention'
 }
 
-export function ConversationList({ selectedConversationId, onSelectConversation }: ConversationListProps) {
+export function ConversationList({ selectedConversationId, onSelectConversation, initialFilter = 'all' }: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([])
   const [searchQuery, setSearchQuery] = useState("")
-  const [activeFilter, setActiveFilter] = useState<'all' | 'whatsapp' | 'web' | 'attention'>('all')
+  const [activeFilter, setActiveFilter] = useState<'all' | 'whatsapp' | 'web' | 'attention'>(initialFilter)
   const [isLoading, setIsLoading] = useState(true)
   const lastActivityRef = useRef<number>(Date.now())
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)

@@ -20,7 +20,8 @@ import {
   PowerOff,
   Loader2,
   Smartphone,
-  Sparkles
+  Sparkles,
+  AlertCircle
 } from "lucide-react"
 
 interface DashboardStats {
@@ -31,6 +32,9 @@ interface DashboardStats {
   totalClients: number
   whatsappSessions: number
   webWidgets: number
+  needsAttention: number
+  whatsappNeedsAttention: number
+  webNeedsAttention: number
   whatsappAiActive: number
   webAiActive: number
   clientsAiActive: boolean
@@ -48,6 +52,9 @@ export default function DashboardPage() {
     totalClients: 0,
     whatsappSessions: 0,
     webWidgets: 0,
+    needsAttention: 0,
+    whatsappNeedsAttention: 0,
+    webNeedsAttention: 0,
     whatsappAiActive: 0,
     webAiActive: 0,
     clientsAiActive: false,
@@ -248,6 +255,35 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
+
+        {/* Needs Attention Alert */}
+        {stats.needsAttention > 0 && (
+          <Link href="/conversations?filter=attention">
+            <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-xl shadow-lg p-4 mb-8 text-white cursor-pointer hover:from-red-600 hover:to-red-700 transition-all">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-white/20 rounded-full animate-pulse">
+                    <AlertCircle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold">
+                      {stats.needsAttention} {stats.needsAttention === 1 ? 'mensaje requiere' : 'mensajes requieren'} atención
+                    </h3>
+                    <p className="text-red-100 text-sm">
+                      {stats.whatsappNeedsAttention > 0 && `${stats.whatsappNeedsAttention} WhatsApp`}
+                      {stats.whatsappNeedsAttention > 0 && stats.webNeedsAttention > 0 && ' · '}
+                      {stats.webNeedsAttention > 0 && `${stats.webNeedsAttention} Web`}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">Ver mensajes</span>
+                  <ArrowRight className="w-5 h-5" />
+                </div>
+              </div>
+            </div>
+          </Link>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

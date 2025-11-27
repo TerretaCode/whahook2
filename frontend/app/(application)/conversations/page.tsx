@@ -20,6 +20,12 @@ function ConversationsContent() {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
   const [initialPhoneProcessed, setInitialPhoneProcessed] = useState(false)
 
+  // Get initial filter from URL
+  const filterParam = searchParams.get('filter')
+  const initialFilter = (filterParam === 'attention' || filterParam === 'whatsapp' || filterParam === 'web') 
+    ? filterParam 
+    : 'all'
+
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login')
@@ -65,6 +71,7 @@ function ConversationsContent() {
         <ConversationList
           selectedConversationId={selectedConversationId}
           onSelectConversation={setSelectedConversationId}
+          initialFilter={initialFilter}
         />
       </div>
 

@@ -61,6 +61,24 @@ router.get('/stats', async (req: Request, res: Response) => {
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
 
+    // Get conversations needing attention (WhatsApp)
+    const { count: whatsappNeedsAttention } = await supabaseAdmin
+      .from('conversations')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('needs_attention', true)
+
+    // Get web conversations with unread messages (needs attention)
+    let webNeedsAttention = 0
+    if (widgetIds.length > 0) {
+      const { count } = await supabaseAdmin
+        .from('chat_widget_conversations')
+        .select('*', { count: 'exact', head: true })
+        .in('widget_id', widgetIds)
+        .gt('unread_count', 0)
+      webNeedsAttention = count || 0
+    }
+
     // Get WhatsApp sessions count
     const { count: whatsappSessions } = await supabaseAdmin
       .from('whatsapp_sessions')
@@ -120,6 +138,11 @@ router.get('/stats', async (req: Request, res: Response) => {
         // Connections
         whatsappSessions: whatsappSessions || 0,
         webWidgets: widgetIds.length,
+        
+        // Needs Attention
+        needsAttention: (whatsappNeedsAttention || 0) + webNeedsAttention,
+        whatsappNeedsAttention: whatsappNeedsAttention || 0,
+        webNeedsAttention: webNeedsAttention,
         
         // AI Status
         whatsappAiActive,
