@@ -80,10 +80,15 @@ El usuario ve todo de un vistazo y expande solo lo que necesita.
 │  │  │    │Hidratante││Antiedad││Limpiadores││ + │                │  │   │
 │  │  │    └────────┘└────────┘└──────────┘└───┘                │  │   │
 │  │  │                                                          │  │   │
-│  │  │    ❓ Preguntas para recomendar:        Máx: [2 ▼]       │  │   │
+│  │  │    ❓ Preguntas para recomendar:        Máx: [2  ]        │  │   │
 │  │  │    1. [¿Qué tipo de piel tienes?                    ] 🗑️│  │   │
 │  │  │    2. [¿Cuál es tu objetivo? (hidratar, antiarrugas)]🗑️│  │   │
+│  │  │    3. [¿Tienes alguna alergia o sensibilidad?       ]🗑️│  │   │
+│  │  │    4. [¿Prefieres textura ligera o rica?            ]🗑️│  │   │
 │  │  │    [+ Añadir pregunta]                                   │  │   │
+│  │  │                                                          │  │   │
+│  │  │    💡 Tienes 4 preguntas. La IA elegirá las 2 mejores    │  │   │
+│  │  │       según el contexto de la conversación.              │  │   │
 │  │  │                                                          │  │   │
 │  │  │    📝 Reglas especiales (opcional):                      │  │   │
 │  │  │    [Retinol solo nocturno. Vit C solo mañana.       ]   │  │   │
@@ -253,7 +258,8 @@ Solo visible si elige "Sí, tengo productos". Contiene:
   - **Manual**: Botón [+ Añadir] para crear producto
 - **Categorías expandibles**: Cada categoría contiene:
   - Subcategorías (tags para filtrar)
-  - Preguntas de filtrado (personalizables, con máximo configurable)
+  - Preguntas de filtrado (ilimitadas, el usuario añade las que quiera)
+  - Máximo de preguntas (input libre - la IA elige las mejores según contexto)
   - Reglas especiales (opcional)
 - **Formato de recomendación**: Checkboxes de qué incluir al recomendar
 
@@ -342,25 +348,16 @@ interface ChatbotConfig {
 interface Category {
   name: string
   subcategories: string[]           // Tags para filtrar (Hidratante, Antiedad...)
-  questions: string[]               // Preguntas personalizables
-  max_questions: number             // Máximo de preguntas antes de recomendar (1-5)
+  questions: string[]               // Preguntas ilimitadas - el usuario añade las que quiera
+  max_questions: number             // Máximo a preguntar - la IA elige las mejores
   rules?: string                    // Reglas especiales (opcional)
   product_count: number             // Calculado automáticamente
 }
 
-// Ejemplo de categorías para diferentes negocios:
-// 
-// COSMÉTICA:
-// { name: "Facial", subcategories: ["Hidratante", "Antiedad", "Limpiador"],
-//   questions: ["¿Tipo de piel?", "¿Objetivo principal?"], max_questions: 2 }
-//
-// MOTOS:
-// { name: "Scooter", subcategories: ["125cc", "300cc", "Eléctrico"],
-//   questions: ["¿Uso principal?", "¿Presupuesto?"], max_questions: 2 }
-//
-// ROPA:
-// { name: "Mujer", subcategories: ["Vestidos", "Pantalones", "Camisetas"],
-//   questions: ["¿Talla?", "¿Ocasión?"], max_questions: 2 }
+// Ejemplo: Usuario configura 30 preguntas pero pone máximo 2
+// → La IA analiza la conversación y elige las 2 más relevantes
+// → Si el cliente ya dijo "tengo piel seca", la IA no preguntará tipo de piel
+// → La IA es inteligente y adapta las preguntas al contexto
 
 interface Product {
   id: string
