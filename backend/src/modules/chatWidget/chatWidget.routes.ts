@@ -47,6 +47,26 @@ router.get('/', async (req: Request, res: Response) => {
 })
 
 /**
+ * GET /api/chat-widgets/conversations/all
+ * Listar todas las conversaciones de todos los widgets del usuario
+ * IMPORTANTE: Esta ruta debe estar ANTES de /:id para no ser capturada
+ */
+router.get('/conversations/all', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const conversations = await chatWidgetService.listAllConversations(userId)
+    res.json({ success: true, data: conversations })
+  } catch (error) {
+    console.error('List all conversations error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch conversations' })
+  }
+})
+
+/**
  * GET /api/chat-widgets/:id
  * Obtener widget específico
  */
@@ -186,6 +206,50 @@ router.get('/:id/stats', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Get stats error:', error)
     res.status(500).json({ success: false, error: 'Failed to fetch stats' })
+  }
+})
+
+/**
+ * GET /api/chat-widgets/:id/conversations
+ * Listar conversaciones de un widget específico
+ */
+router.get('/:id/conversations', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const conversations = await chatWidgetService.listConversations(req.params.id, userId)
+    res.json({ success: true, data: conversations })
+  } catch (error) {
+    console.error('List conversations error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch conversations' })
+  }
+})
+
+/**
+ * GET /api/chat-widgets/:widgetId/conversations/:conversationId/messages
+ * Obtener mensajes de una conversación
+ */
+router.get('/:widgetId/conversations/:conversationId/messages', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    // Verify widget belongs to user
+    const widget = await chatWidgetService.getWidget(req.params.widgetId, userId)
+    if (!widget) {
+      return res.status(404).json({ success: false, error: 'Widget not found' })
+    }
+
+    const messages = await chatWidgetService.getMessages(req.params.widgetId, req.params.conversationId)
+    res.json({ success: true, data: messages })
+  } catch (error) {
+    console.error('Get messages error:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch messages' })
   }
 })
 

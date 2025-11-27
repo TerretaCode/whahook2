@@ -223,6 +223,142 @@ class ChatWidgetService {
   }
 
   /**
+   * Listar todas las conversaciones de todos los widgets del usuario
+   */
+  async listAllConversations(userId: string): Promise<{
+    id: string
+    widget_id: string
+    widget_name: string
+    visitor_id: string
+    visitor_name: string | null
+    visitor_email: string | null
+    last_message_preview: string | null
+    last_message_at: string | null
+    unread_count: number
+    status: string
+  }[]> {
+    // First get all widgets for this user
+    const widgets = await this.listWidgets(userId)
+    if (widgets.length === 0) return []
+
+    const widgetIds = widgets.map(w => w.id)
+    const widgetMap = new Map(widgets.map(w => [w.id, w.name]))
+
+    // Get all conversations for these widgets
+    const { data, error } = await supabaseAdmin
+      .from('chat_widget_conversations')
+      .select(`
+        id,
+        widget_id,
+        visitor_id,
+        visitor_name,
+        visitor_email,
+        status,
+        last_message_at,
+        created_at
+      `)
+      .in('widget_id', widgetIds)
+      .order('last_message_at', { ascending: false, nullsFirst: false })
+
+    if (error) throw error
+
+    // Get last message for each conversation
+    const conversations = await Promise.all((data || []).map(async (conv) => {
+      const { data: messages } = await supabaseAdmin
+        .from('chat_widget_messages')
+        .select('message')
+        .eq('conversation_id', conv.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      const { count: unreadCount } = await supabaseAdmin
+        .from('chat_widget_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('conversation_id', conv.id)
+        .eq('sender_type', 'visitor')
+        .eq('is_read', false)
+
+      return {
+        id: conv.id,
+        widget_id: conv.widget_id,
+        widget_name: widgetMap.get(conv.widget_id) || 'Unknown Widget',
+        visitor_id: conv.visitor_id,
+        visitor_name: conv.visitor_name,
+        visitor_email: conv.visitor_email,
+        last_message_preview: messages?.[0]?.message || null,
+        last_message_at: conv.last_message_at,
+        unread_count: unreadCount || 0,
+        status: conv.status || 'active'
+      }
+    }))
+
+    return conversations
+  }
+
+  /**
+   * Listar conversaciones de un widget específico
+   */
+  async listConversations(widgetId: string, userId: string): Promise<{
+    id: string
+    visitor_id: string
+    visitor_name: string | null
+    visitor_email: string | null
+    last_message_preview: string | null
+    last_message_at: string | null
+    unread_count: number
+    status: string
+  }[]> {
+    // Verify widget belongs to user
+    const widget = await this.getWidget(widgetId, userId)
+    if (!widget) throw new Error('Widget not found')
+
+    const { data, error } = await supabaseAdmin
+      .from('chat_widget_conversations')
+      .select(`
+        id,
+        visitor_id,
+        visitor_name,
+        visitor_email,
+        status,
+        last_message_at
+      `)
+      .eq('widget_id', widgetId)
+      .order('last_message_at', { ascending: false, nullsFirst: false })
+
+    if (error) throw error
+
+    // Get last message and unread count for each conversation
+    const conversations = await Promise.all((data || []).map(async (conv) => {
+      const { data: messages } = await supabaseAdmin
+        .from('chat_widget_messages')
+        .select('message')
+        .eq('conversation_id', conv.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      const { count: unreadCount } = await supabaseAdmin
+        .from('chat_widget_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('conversation_id', conv.id)
+        .eq('sender_type', 'visitor')
+        .eq('is_read', false)
+
+      return {
+        id: conv.id,
+        visitor_id: conv.visitor_id,
+        visitor_name: conv.visitor_name,
+        visitor_email: conv.visitor_email,
+        last_message_preview: messages?.[0]?.message || null,
+        last_message_at: conv.last_message_at,
+        unread_count: unreadCount || 0,
+        status: conv.status || 'active'
+      }
+    }))
+
+    return conversations
+  }
+
+  /**
    * Generar código de embed
    */
   generateEmbedCode(widgetId: string, backendUrl: string, frontendUrl: string): string {

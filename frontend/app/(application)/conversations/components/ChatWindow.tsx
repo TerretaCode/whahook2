@@ -89,25 +89,39 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     return scrollHeight - scrollTop - clientHeight < 150
   }, [])
 
+  // Check if this is a web conversation (prefixed with 'web_')
+  const isWebConversation = conversationId.startsWith('web_')
+  const actualConversationId = isWebConversation ? conversationId.replace('web_', '') : conversationId
+
   const fetchConversation = useCallback(async () => {
     try {
-      const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}`)
-      
-      if (response.success && response.data) {
-        const conv = response.data as ApiConversation
-        setConversationInfo({
-          name: conv.contact_name || conv.contact_phone || 'Unknown',
-          phone: conv.contact_phone || '',
-          avatar: conv.contact_avatar || '',
-          isOnline: conv.is_online || false,
-          source: 'whatsapp'
-        })
-        setChatbotEnabled(conv.chatbot_enabled ?? true)
+      if (isWebConversation) {
+        // For web conversations, we already have basic info from the list
+        // Just set the source as web
+        setConversationInfo(prev => ({
+          ...prev,
+          source: 'web'
+        }))
+        setChatbotEnabled(true)
+      } else {
+        const response = await ApiClient.request(`/api/whatsapp/conversations/${actualConversationId}`)
+        
+        if (response.success && response.data) {
+          const conv = response.data as ApiConversation
+          setConversationInfo({
+            name: conv.contact_name || conv.contact_phone || 'Unknown',
+            phone: conv.contact_phone || '',
+            avatar: conv.contact_avatar || '',
+            isOnline: conv.is_online || false,
+            source: 'whatsapp'
+          })
+          setChatbotEnabled(conv.chatbot_enabled ?? true)
+        }
       }
     } catch (error) {
       console.error('Error fetching conversation:', error)
     }
-  }, [conversationId])
+  }, [actualConversationId, isWebConversation])
 
   const mapApiMessage = (msg: ApiMessage): Message => ({
     id: msg.id,
@@ -124,24 +138,59 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
         setIsLoading(true)
       }
       
-      // Cargar TODOS los mensajes de la DB (limit alto)
-      const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}/messages?limit=10000`)
+      let response
       
-      if (response.success && response.data) {
-        const data = response.data as ApiMessage[]
-        const newMessages = data.map(mapApiMessage)
+      if (isWebConversation) {
+        // For web conversations, we need to get the widget_id first
+        // The conversation list should have passed this info, but for now we'll fetch all and filter
+        const allConvResponse = await ApiClient.request('/api/chat-widgets/conversations/all')
+        if (allConvResponse.success && allConvResponse.data) {
+          interface WebConv { id: string; widget_id: string }
+          const webConv = (allConvResponse.data as WebConv[]).find(c => c.id === actualConversationId)
+          if (webConv) {
+            response = await ApiClient.request(`/api/chat-widgets/${webConv.widget_id}/conversations/${actualConversationId}/messages`)
+          }
+        }
+      } else {
+        // WhatsApp conversation
+        response = await ApiClient.request(`/api/whatsapp/conversations/${actualConversationId}/messages?limit=10000`)
+      }
+      
+      if (response?.success && response.data) {
+        interface WebMessage {
+          id: string
+          message: string
+          sender_type: 'visitor' | 'bot'
+          created_at: string
+        }
+        
+        let newMessages: Message[]
+        
+        if (isWebConversation) {
+          // Map web messages
+          newMessages = (response.data as WebMessage[]).map((msg): Message => ({
+            id: msg.id,
+            content: msg.message || '',
+            timestamp: msg.created_at,
+            isOwn: msg.sender_type === 'bot',
+            status: 'read',
+            type: 'text'
+          }))
+        } else {
+          // Map WhatsApp messages
+          const data = response.data as ApiMessage[]
+          newMessages = data.map(mapApiMessage)
+        }
         
         if (isInitial) {
           setMessages(newMessages)
-          // Ya no hay más mensajes que cargar desde la DB
           setHasMoreMessages(false)
         } else {
-          // Polling: solo añadir mensajes nuevos al final, sin borrar los antiguos
+          // Polling: solo añadir mensajes nuevos al final
           setMessages(prev => {
             const existingIds = new Set(prev.map(m => m.id))
             const trulyNew = newMessages.filter(m => !existingIds.has(m.id))
             if (trulyNew.length > 0) {
-              // Añadir solo los mensajes que son más recientes
               const lastExisting = prev[prev.length - 1]?.timestamp
               const newerMessages = trulyNew.filter(m => !lastExisting || m.timestamp > lastExisting)
               return newerMessages.length > 0 ? [...prev, ...newerMessages] : prev
@@ -155,7 +204,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     } finally {
       if (isInitial) setIsLoading(false)
     }
-  }, [conversationId])
+  }, [actualConversationId, isWebConversation])
 
   // Ref para el timestamp más antiguo (evita dependencia de messages en useCallback)
   const oldestTimestampRef = useRef<string | null>(null)
