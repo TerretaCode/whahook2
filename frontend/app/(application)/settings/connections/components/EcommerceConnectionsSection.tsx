@@ -255,7 +255,9 @@ export function EcommerceConnectionsSection() {
       })
 
       if (response.success) {
-        toast.success('Syncing!', 'Products are being synchronized. This may take a few minutes.')
+        toast.success('Setup Complete!', 'Syncing products and orders. Webhooks will handle future updates automatically.')
+        // Close the expanded section
+        setExpandedConnection(null)
         // Refetch after a delay
         setTimeout(fetchConnections, 3000)
       }
