@@ -152,7 +152,7 @@ router.get('/:id/embed-code', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Widget not found' })
     }
 
-    const backendUrl = env.corsOrigin || 'http://localhost:4000'
+    const backendUrl = env.backendUrl || 'http://localhost:4000'
     const frontendUrl = env.frontendUrl || 'http://localhost:3000'
     const embedCode = chatWidgetService.generateEmbedCode(req.params.id, backendUrl, frontendUrl)
 

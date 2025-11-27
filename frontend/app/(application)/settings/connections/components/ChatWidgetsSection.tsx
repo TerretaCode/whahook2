@@ -635,6 +635,34 @@ export function ChatWidgetsSection() {
                           </p>
                         </div>
                       </div>
+
+                      {/* Cache Warning & Complete Button */}
+                      <div className="mt-4 pt-4 border-t border-green-200">
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
+                          <p className="text-sm font-medium text-amber-800 flex items-center gap-2">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            Don't see the widget?
+                          </p>
+                          <ul className="text-xs text-amber-700 mt-2 space-y-1 ml-6">
+                            <li>• <strong>Clear your browser cache</strong> (Ctrl+Shift+R or Cmd+Shift+R)</li>
+                            <li>• <strong>Clear your website cache</strong> (LiteSpeed, WP Super Cache, etc.)</li>
+                            <li>• <strong>Wait 2-5 minutes</strong> for CDN cache to refresh</li>
+                            <li>• Check the browser console (F12) for errors</li>
+                          </ul>
+                        </div>
+                        <Button
+                          className="w-full bg-green-600 hover:bg-green-700"
+                          onClick={() => {
+                            setExpandedWidget(null)
+                            toast.success('Setup Complete!', 'Your chat widget is ready. Remember to clear your website cache if you don\'t see it immediately.')
+                          }}
+                        >
+                          <Check className="w-4 h-4 mr-2" />
+                          Complete Setup
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}

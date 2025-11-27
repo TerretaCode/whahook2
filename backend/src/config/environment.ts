@@ -23,9 +23,10 @@ export const env = {
   port: parseInt(process.env.PORT!, 10),
   nodeEnv: process.env.NODE_ENV!,
   
-  // CORS / Frontend
+  // CORS / Frontend / Backend
   corsOrigin: process.env.CORS_ORIGIN!,
   frontendUrl: process.env.FRONTEND_URL!,
+  backendUrl: process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 4000}`,
   
   // Supabase
   supabaseUrl: process.env.SUPABASE_URL!,
