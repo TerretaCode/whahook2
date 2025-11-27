@@ -9,7 +9,6 @@ import {
   ChevronDown,
   ChevronUp,
   Bot,
-  AlertCircle,
   Pause,
   Play,
   TestTube,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "@/lib/toast"
+import { WebChatbotConfigForm } from "./WebChatbotConfigForm"
 
 interface ChatWidget {
   id: string
@@ -24,20 +24,69 @@ interface ChatWidget {
   domain: string
   primary_color: string
   is_active: boolean
+  assistant_name?: string
+  system_prompt?: string
+  greeting_message?: string
+  fallback_message?: string
+  collect_visitor_data?: boolean
+  collect_name?: boolean
+  collect_email?: boolean
+  collect_phone?: boolean
+  collect_data_timing?: 'before_chat' | 'during_chat' | 'end_of_chat'
+  human_handoff_email?: string
+  ecommerce_connection_id?: string
+}
+
+interface EcommerceConnection {
+  id: string
+  platform: string
+  store_name: string
+}
+
+interface FormData {
+  assistant_name: string
+  system_prompt: string
+  greeting_message: string
+  fallback_message: string
+  collect_visitor_data: boolean
+  collect_name: boolean
+  collect_email: boolean
+  collect_phone: boolean
+  collect_data_timing: 'before_chat' | 'during_chat' | 'end_of_chat'
+  human_handoff_email: string
+  ecommerce_connection_id: string
 }
 
 interface WebChatbotConfigProps {
   selectedWidgetId?: string | null
 }
 
+const defaultFormData: FormData = {
+  assistant_name: 'Asistente',
+  system_prompt: '',
+  greeting_message: '',
+  fallback_message: 'Lo siento, no he podido entender tu mensaje. ¿Podrías reformularlo?',
+  collect_visitor_data: false,
+  collect_name: false,
+  collect_email: false,
+  collect_phone: false,
+  collect_data_timing: 'during_chat',
+  human_handoff_email: '',
+  ecommerce_connection_id: ''
+}
+
 export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
   const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState<string | null>(null)
   const [isToggling, setIsToggling] = useState<string | null>(null)
   const [widgets, setWidgets] = useState<ChatWidget[]>([])
   const [expandedWidget, setExpandedWidget] = useState<string | null>(selectedWidgetId || null)
+  const [formData, setFormData] = useState<Record<string, FormData>>({})
+  const [ecommerceConnections, setEcommerceConnections] = useState<EcommerceConnection[]>([])
 
   useEffect(() => {
     fetchWidgets()
+    fetchEcommerceConnections()
   }, [])
 
   useEffect(() => {
@@ -50,12 +99,63 @@ export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
     try {
       const response = await ApiClient.request('/api/chat-widgets')
       if (response.success) {
-        setWidgets(response.data as ChatWidget[])
+        const widgetsData = response.data as ChatWidget[]
+        setWidgets(widgetsData)
+        
+        // Initialize form data for each widget
+        const initialFormData: Record<string, FormData> = {}
+        widgetsData.forEach(widget => {
+          initialFormData[widget.id] = {
+            assistant_name: widget.assistant_name || defaultFormData.assistant_name,
+            system_prompt: widget.system_prompt || defaultFormData.system_prompt,
+            greeting_message: widget.greeting_message || defaultFormData.greeting_message,
+            fallback_message: widget.fallback_message || defaultFormData.fallback_message,
+            collect_visitor_data: widget.collect_visitor_data || defaultFormData.collect_visitor_data,
+            collect_name: widget.collect_name || defaultFormData.collect_name,
+            collect_email: widget.collect_email || defaultFormData.collect_email,
+            collect_phone: widget.collect_phone || defaultFormData.collect_phone,
+            collect_data_timing: widget.collect_data_timing || defaultFormData.collect_data_timing,
+            human_handoff_email: widget.human_handoff_email || defaultFormData.human_handoff_email,
+            ecommerce_connection_id: widget.ecommerce_connection_id || defaultFormData.ecommerce_connection_id
+          }
+        })
+        setFormData(initialFormData)
       }
     } catch (error) {
       console.error('Error fetching widgets:', error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const fetchEcommerceConnections = async () => {
+    try {
+      const response = await ApiClient.request('/api/ecommerce/connections')
+      if (response.success) {
+        setEcommerceConnections(response.data as EcommerceConnection[])
+      }
+    } catch (error) {
+      console.error('Error fetching ecommerce connections:', error)
+    }
+  }
+
+  const handleSave = async (widgetId: string) => {
+    setIsSaving(widgetId)
+    try {
+      const data = formData[widgetId]
+      const response = await ApiClient.request(`/api/chat-widgets/${widgetId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data)
+      })
+      
+      if (response.success) {
+        toast.success('Guardado', 'La configuración se ha guardado correctamente')
+      }
+    } catch (error) {
+      console.error('Error saving config:', error)
+      toast.error('Error', 'No se pudo guardar la configuración')
+    } finally {
+      setIsSaving(null)
     }
   }
 
@@ -196,30 +296,19 @@ export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
               </button>
 
               {/* Expanded Configuration */}
-              {isExpanded && (
-                <div className="border-t bg-gray-50 p-6">
-                  <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                    <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm font-medium text-amber-800">
-                        Configuration Coming Soon
-                      </p>
-                      <p className="text-sm text-amber-700 mt-1">
-                        The AI configuration for Chatbot Web is under development. 
-                        For now, the chatbot uses the same AI settings as your WhatsApp chatbot.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Placeholder for future configuration */}
-                  <div className="mt-4 p-4 border border-dashed border-gray-300 rounded-lg">
-                    <p className="text-sm text-gray-500 text-center">
-                      AI prompt configuration will appear here
-                    </p>
-                  </div>
+              {isExpanded && formData[widget.id] && (
+                <div className="border-t bg-white p-6">
+                  {/* Configuration Form */}
+                  <WebChatbotConfigForm
+                    formData={formData[widget.id]}
+                    onFormDataChange={(newData) => setFormData(prev => ({ ...prev, [widget.id]: newData }))}
+                    onSave={() => handleSave(widget.id)}
+                    isLoading={isSaving === widget.id}
+                    ecommerceConnections={ecommerceConnections}
+                  />
 
                   {/* Test Bot Button */}
-                  <div className="mt-4 flex gap-2">
+                  <div className="mt-6 pt-4 border-t flex gap-2">
                     <Link href={`/config/chatbot/test-web?widgetId=${widget.id}`}>
                       <Button 
                         variant="outline"

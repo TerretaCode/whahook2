@@ -25,10 +25,6 @@ interface ChatWidget {
   launcher_animation: string
   z_index: number
   sound_enabled: boolean
-  collect_visitor_data: boolean
-  collect_name: boolean
-  collect_email: boolean
-  collect_phone: boolean
   total_conversations: number
   total_messages: number
   created_at: string
@@ -157,10 +153,6 @@ export function ChatWidgetsSection() {
     launcher_animation: 'pulse',
     z_index: 9999,
     sound_enabled: true,
-    collect_visitor_data: false,
-    collect_name: false,
-    collect_email: false,
-    collect_phone: false,
   })
 
   const resetForm = () => {
@@ -177,10 +169,6 @@ export function ChatWidgetsSection() {
       launcher_animation: 'pulse',
       z_index: 9999,
       sound_enabled: true,
-      collect_visitor_data: false,
-      collect_name: false,
-      collect_email: false,
-      collect_phone: false,
     })
     setEditingWidget(null)
   }
@@ -264,10 +252,6 @@ export function ChatWidgetsSection() {
       launcher_animation: widget.launcher_animation || 'pulse',
       z_index: widget.z_index || 9999,
       sound_enabled: widget.sound_enabled !== false,
-      collect_visitor_data: widget.collect_visitor_data || false,
-      collect_name: widget.collect_name || false,
-      collect_email: widget.collect_email || false,
-      collect_phone: widget.collect_phone || false,
     })
     setEditingWidget(widget.id)
     setShowForm(true)
@@ -507,64 +491,6 @@ export function ChatWidgetsSection() {
                     />
                     <span className="text-sm text-gray-700">Enable notification sound for new messages</span>
                   </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Step 4: Visitor Data Collection (Coming Soon) */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-md font-medium">
-                <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center">4</span>
-                Visitor Data Collection
-                <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">Coming Soon</span>
-              </div>
-              <div className="pl-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-sm text-gray-600 mb-4">
-                  The AI will naturally ask visitors for their information during the conversation and save it to your Clients database.
-                </p>
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2 cursor-pointer opacity-60">
-                    <input
-                      type="checkbox"
-                      checked={formData.collect_visitor_data}
-                      onChange={(e) => setFormData({ ...formData, collect_visitor_data: e.target.checked })}
-                      className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                      disabled
-                    />
-                    <span className="text-sm text-gray-700">Enable visitor data collection</span>
-                  </label>
-                  <div className="ml-6 space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer opacity-60">
-                      <input
-                        type="checkbox"
-                        checked={formData.collect_name}
-                        onChange={(e) => setFormData({ ...formData, collect_name: e.target.checked })}
-                        className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                        disabled
-                      />
-                      <span className="text-sm text-gray-600">Ask for name</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer opacity-60">
-                      <input
-                        type="checkbox"
-                        checked={formData.collect_email}
-                        onChange={(e) => setFormData({ ...formData, collect_email: e.target.checked })}
-                        className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                        disabled
-                      />
-                      <span className="text-sm text-gray-600">Ask for email</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer opacity-60">
-                      <input
-                        type="checkbox"
-                        checked={formData.collect_phone}
-                        onChange={(e) => setFormData({ ...formData, collect_phone: e.target.checked })}
-                        className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                        disabled
-                      />
-                      <span className="text-sm text-gray-600">Ask for phone</span>
-                    </label>
-                  </div>
                 </div>
               </div>
             </div>
