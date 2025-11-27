@@ -95,8 +95,9 @@ const getWebhookSettingsUrl = (storeUrl: string, platform: Platform): string => 
 
 // Get the webhook URL for this connection
 const getWebhookUrl = (connectionId: string): string => {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-  return `${baseUrl}/api/webhooks/ecommerce/${connectionId}`
+  // Use backend URL for webhooks (not frontend)
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+  return `${backendUrl}/api/ecommerce/webhook/${connectionId}`
 }
 
 export function EcommerceConnectionsSection() {

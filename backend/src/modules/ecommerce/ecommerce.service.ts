@@ -612,6 +612,235 @@ class EcommerceService {
       },
     }
   }
+
+  /**
+   * Validate webhook signature based on platform
+   */
+  validateWebhookSignature(
+    platform: EcommercePlatform,
+    headers: Record<string, unknown>,
+    body: unknown,
+    secret: string
+  ): boolean {
+    const crypto = require('crypto')
+    
+    try {
+      switch (platform) {
+        case 'woocommerce': {
+          // WooCommerce uses X-WC-Webhook-Signature header with base64 HMAC-SHA256
+          const signature = headers['x-wc-webhook-signature'] as string
+          if (!signature) return false
+          
+          const payload = typeof body === 'string' ? body : JSON.stringify(body)
+          const expectedSignature = crypto
+            .createHmac('sha256', secret)
+            .update(payload)
+            .digest('base64')
+          
+          return signature === expectedSignature
+        }
+        
+        case 'shopify': {
+          // Shopify uses X-Shopify-Hmac-Sha256 header
+          const signature = headers['x-shopify-hmac-sha256'] as string
+          if (!signature) return false
+          
+          const payload = typeof body === 'string' ? body : JSON.stringify(body)
+          const expectedSignature = crypto
+            .createHmac('sha256', secret)
+            .update(payload)
+            .digest('base64')
+          
+          return signature === expectedSignature
+        }
+        
+        case 'prestashop':
+        case 'magento':
+          // These platforms may not have built-in signature validation
+          // For now, accept if secret matches a header or skip validation
+          return true
+        
+        default:
+          return true
+      }
+    } catch (error) {
+      console.error('Webhook signature validation error:', error)
+      return false
+    }
+  }
+
+  /**
+   * Process incoming webhook from ecommerce platform
+   */
+  async processWebhook(
+    connectionId: string,
+    platform: EcommercePlatform,
+    payload: Record<string, unknown>,
+    headers: Record<string, unknown>
+  ): Promise<{ processed: boolean; type: string; orderId?: string }> {
+    console.log(`🔄 Processing ${platform} webhook for connection ${connectionId}`)
+    
+    try {
+      // Determine webhook type based on platform and payload
+      let webhookType = 'unknown'
+      let orderData: Record<string, unknown> | null = null
+      
+      switch (platform) {
+        case 'woocommerce': {
+          // WooCommerce sends topic in header
+          const topic = headers['x-wc-webhook-topic'] as string
+          webhookType = topic || 'order.created'
+          
+          if (topic?.includes('order')) {
+            orderData = payload as Record<string, unknown>
+          }
+          break
+        }
+        
+        case 'shopify': {
+          // Shopify sends topic in header
+          const topic = headers['x-shopify-topic'] as string
+          webhookType = topic || 'orders/create'
+          
+          if (topic?.includes('order')) {
+            orderData = payload as Record<string, unknown>
+          }
+          break
+        }
+        
+        case 'prestashop': {
+          webhookType = (payload.event as string) || 'order.created'
+          if (payload.order) {
+            orderData = payload.order as Record<string, unknown>
+          }
+          break
+        }
+        
+        case 'magento': {
+          webhookType = (payload.event as string) || 'sales_order_save_after'
+          if (payload.data) {
+            orderData = payload.data as Record<string, unknown>
+          }
+          break
+        }
+      }
+      
+      // If it's an order webhook, save the order
+      if (orderData && webhookType.includes('order')) {
+        const order = await this.saveOrderFromWebhook(connectionId, platform, orderData)
+        
+        console.log(`✅ Order saved from webhook: ${order?.external_id}`)
+        
+        return {
+          processed: true,
+          type: webhookType,
+          orderId: order?.external_id,
+        }
+      }
+      
+      return {
+        processed: true,
+        type: webhookType,
+      }
+    } catch (error) {
+      console.error('Error processing webhook:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Save order from webhook payload
+   */
+  private async saveOrderFromWebhook(
+    connectionId: string,
+    platform: EcommercePlatform,
+    orderData: Record<string, unknown>
+  ): Promise<EcommerceOrder | null> {
+    try {
+      // Normalize order data based on platform
+      let normalizedOrder: Partial<EcommerceOrder>
+      
+      switch (platform) {
+        case 'woocommerce':
+          normalizedOrder = {
+            connection_id: connectionId,
+            external_id: String(orderData.id),
+            order_number: String(orderData.number || orderData.id),
+            status: String(orderData.status || 'pending'),
+            customer_email: (orderData.billing as Record<string, unknown>)?.email as string,
+            customer_name: `${(orderData.billing as Record<string, unknown>)?.first_name || ''} ${(orderData.billing as Record<string, unknown>)?.last_name || ''}`.trim(),
+            customer_phone: (orderData.billing as Record<string, unknown>)?.phone as string,
+            total: parseFloat(String(orderData.total || 0)),
+            subtotal: parseFloat(String(orderData.subtotal || 0)),
+            tax_total: parseFloat(String(orderData.total_tax || 0)),
+            shipping_total: parseFloat(String(orderData.shipping_total || 0)),
+            discount_total: parseFloat(String(orderData.discount_total || 0)),
+            currency: String(orderData.currency || 'EUR'),
+            order_date: new Date(orderData.date_created as string || new Date()).toISOString(),
+            shipping_address: orderData.shipping as Record<string, unknown>,
+            billing_address: orderData.billing as Record<string, unknown>,
+            line_items: orderData.line_items as unknown[],
+            raw_data: orderData,
+          }
+          break
+          
+        case 'shopify':
+          normalizedOrder = {
+            connection_id: connectionId,
+            external_id: String(orderData.id),
+            order_number: String(orderData.order_number || orderData.name),
+            status: String(orderData.financial_status || 'pending'),
+            customer_email: (orderData.customer as Record<string, unknown>)?.email as string,
+            customer_name: `${(orderData.customer as Record<string, unknown>)?.first_name || ''} ${(orderData.customer as Record<string, unknown>)?.last_name || ''}`.trim(),
+            customer_phone: (orderData.customer as Record<string, unknown>)?.phone as string,
+            total: parseFloat(String(orderData.total_price || 0)),
+            subtotal: parseFloat(String(orderData.subtotal_price || 0)),
+            tax_total: parseFloat(String(orderData.total_tax || 0)),
+            shipping_total: parseFloat(String((orderData.shipping_lines as Array<{price?: string}>)?.[0]?.price || 0)),
+            discount_total: parseFloat(String(orderData.total_discounts || 0)),
+            currency: String(orderData.currency || 'EUR'),
+            order_date: new Date(orderData.created_at as string || new Date()).toISOString(),
+            shipping_address: orderData.shipping_address as Record<string, unknown>,
+            billing_address: orderData.billing_address as Record<string, unknown>,
+            line_items: orderData.line_items as unknown[],
+            raw_data: orderData,
+          }
+          break
+          
+        default:
+          // Generic handling for other platforms
+          normalizedOrder = {
+            connection_id: connectionId,
+            external_id: String(orderData.id || orderData.order_id),
+            order_number: String(orderData.order_number || orderData.reference || orderData.id),
+            status: String(orderData.status || 'pending'),
+            total: parseFloat(String(orderData.total || orderData.grand_total || 0)),
+            currency: String(orderData.currency || 'EUR'),
+            order_date: new Date().toISOString(),
+            raw_data: orderData,
+          }
+      }
+      
+      // Upsert order (insert or update if exists)
+      const { data, error } = await supabaseAdmin
+        .from('ecommerce_orders')
+        .upsert(normalizedOrder, {
+          onConflict: 'connection_id,external_id',
+        })
+        .select()
+        .single()
+      
+      if (error) {
+        console.error('Error saving order from webhook:', error)
+        throw error
+      }
+      
+      return data
+    } catch (error) {
+      console.error('Error in saveOrderFromWebhook:', error)
+      return null
+    }
+  }
 }
 
 export const ecommerceService = new EcommerceService()

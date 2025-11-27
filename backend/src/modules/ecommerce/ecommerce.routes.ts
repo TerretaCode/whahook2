@@ -301,4 +301,100 @@ router.post('/connections/:id/webhook/setup', async (req: Request, res: Response
   }
 })
 
+// ==============================================
+// WEBHOOK ENDPOINTS (Public - no auth required)
+// ==============================================
+
+/**
+ * POST /api/webhooks/ecommerce/:connectionId
+ * Receive webhook from ecommerce platforms
+ * This endpoint is PUBLIC - platforms send data here
+ */
+router.post('/webhook/:connectionId', async (req: Request, res: Response) => {
+  const { connectionId } = req.params
+  
+  try {
+    console.log(`📦 Webhook received for connection: ${connectionId}`)
+    console.log(`📦 Headers:`, JSON.stringify(req.headers, null, 2))
+    
+    // Get connection (without user check - this is a public webhook)
+    const { data: connection, error } = await supabaseAdmin
+      .from('ecommerce_connections')
+      .select('*')
+      .eq('id', connectionId)
+      .single()
+
+    if (error || !connection) {
+      console.error(`❌ Webhook: Connection not found: ${connectionId}`)
+      return res.status(404).json({ success: false, error: 'Connection not found' })
+    }
+
+    // Validate webhook signature if secret is set
+    const webhookSecret = connection.webhook_secret
+    if (webhookSecret) {
+      const isValid = ecommerceService.validateWebhookSignature(
+        connection.platform,
+        req.headers,
+        req.body,
+        webhookSecret
+      )
+      
+      if (!isValid) {
+        console.error(`❌ Webhook: Invalid signature for connection: ${connectionId}`)
+        return res.status(401).json({ success: false, error: 'Invalid webhook signature' })
+      }
+    }
+
+    // Process the webhook based on platform
+    const result = await ecommerceService.processWebhook(
+      connectionId,
+      connection.platform,
+      req.body,
+      req.headers
+    )
+
+    console.log(`✅ Webhook processed successfully for connection: ${connectionId}`)
+    res.json({ success: true, data: result })
+  } catch (error) {
+    console.error(`❌ Webhook processing error for ${connectionId}:`, error)
+    // Always return 200 to prevent retries for processing errors
+    res.status(200).json({ 
+      success: false, 
+      error: 'Webhook received but processing failed',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+/**
+ * GET /api/webhooks/ecommerce/:connectionId
+ * Verify webhook endpoint (some platforms require GET verification)
+ */
+router.get('/webhook/:connectionId', async (req: Request, res: Response) => {
+  const { connectionId } = req.params
+  
+  // Shopify verification
+  if (req.query['hub.mode'] === 'subscribe') {
+    return res.send(req.query['hub.challenge'])
+  }
+  
+  // WooCommerce and others - just confirm endpoint exists
+  const { data: connection } = await supabaseAdmin
+    .from('ecommerce_connections')
+    .select('id, platform')
+    .eq('id', connectionId)
+    .single()
+
+  if (!connection) {
+    return res.status(404).json({ success: false, error: 'Connection not found' })
+  }
+
+  res.json({ 
+    success: true, 
+    message: 'Webhook endpoint is active',
+    connection_id: connectionId,
+    platform: connection.platform
+  })
+})
+
 export { router as ecommerceRoutes }
