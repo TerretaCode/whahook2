@@ -605,84 +605,109 @@ export function EcommerceConnectionsSection() {
                   <div className="border-t bg-gray-50 p-4 space-y-4">
                     <div className="flex items-center gap-2 text-lg font-medium text-gray-900">
                       <Webhook className="w-5 h-5 text-purple-600" />
-                      Auto-sync Orders (Webhook)
+                      Auto-sync (Webhook Setup)
                     </div>
                     
-                    <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                      <p className="text-sm text-purple-900 mb-3">
-                        <strong>What is this?</strong> A webhook automatically notifies us when a new order is placed in your store. 
-                        This way, orders sync instantly without manual clicking.
+                    <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg space-y-4">
+                      <p className="text-sm text-purple-900">
+                        Create a webhook in your store to automatically sync orders and products.
                       </p>
                       
-                      <div className="space-y-4">
-                        {/* Step 1 */}
-                        <div className="flex items-start gap-3">
-                          <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">1</span>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-purple-900">Copy this Webhook URL:</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Input 
-                                value={webhookUrl} 
-                                readOnly 
-                                className="bg-white text-xs font-mono"
-                              />
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => copyToClipboard(webhookUrl)}
-                                className="flex-shrink-0"
-                              >
-                                <Copy className="h-4 w-4" />
-                              </Button>
+                      {/* Step 1: Open settings */}
+                      <div className="flex items-start gap-3">
+                        <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">1</span>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-purple-900">Open webhook settings and click "Add webhook":</p>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="mt-2 bg-white"
+                            onClick={() => window.open(getWebhookSettingsUrl(connection.store_url, connection.platform), '_blank')}
+                          >
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Open Webhook Settings
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Step 2: Fill form */}
+                      <div className="flex items-start gap-3">
+                        <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">2</span>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-purple-900 mb-2">Fill in the webhook form:</p>
+                          
+                          <div className="bg-white border border-purple-200 rounded-lg p-3 space-y-3 text-sm">
+                            {/* Name */}
+                            <div className="flex items-center gap-2">
+                              <span className="w-28 text-purple-700 font-medium">Name:</span>
+                              <span className="text-gray-700">Whahook Sync (or any name)</span>
                             </div>
-                          </div>
-                        </div>
-
-                        {/* Step 2 */}
-                        <div className="flex items-start gap-3">
-                          <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">2</span>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-purple-900">Go to your store's webhook settings:</p>
-                            <p className="text-sm text-purple-800 mt-1">{config.webhookInstructions}</p>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="mt-2 bg-white"
-                              onClick={() => window.open(getWebhookSettingsUrl(connection.store_url, connection.platform), '_blank')}
-                            >
-                              <ExternalLink className="h-4 w-4 mr-2" />
-                              Open Webhook Settings
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* Step 3 */}
-                        <div className="flex items-start gap-3">
-                          <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">3</span>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-purple-900">Create webhooks for these events (same URL for all):</p>
-                            <div className="mt-2 space-y-1">
-                              {config.webhookTopics.map((t, i) => (
-                                <div key={i} className="flex items-center gap-2 text-sm text-purple-800">
-                                  <span className="w-20 font-medium text-purple-600">{t.name}:</span>
-                                  <code className="bg-purple-100 px-2 py-0.5 rounded text-xs">{t.topic}</code>
-                                  <span className="text-purple-500 text-xs">({t.description})</span>
+                            
+                            {/* Status */}
+                            <div className="flex items-center gap-2">
+                              <span className="w-28 text-purple-700 font-medium">Status:</span>
+                              <code className="bg-green-100 text-green-800 px-2 py-0.5 rounded">Active</code>
+                            </div>
+                            
+                            {/* Topic */}
+                            <div className="flex items-start gap-2">
+                              <span className="w-28 text-purple-700 font-medium flex-shrink-0">Topic:</span>
+                              <div className="space-y-1">
+                                {config.webhookTopics.map((t, i) => (
+                                  <div key={i}>
+                                    <code className="bg-purple-100 px-2 py-0.5 rounded text-xs">{t.topic}</code>
+                                    <span className="text-gray-500 text-xs ml-2">({t.description})</span>
+                                  </div>
+                                ))}
+                                <p className="text-xs text-purple-600 mt-1">Create one webhook per topic, or just "Order created" to start</p>
+                              </div>
+                            </div>
+                            
+                            {/* Delivery URL */}
+                            <div className="flex items-start gap-2">
+                              <span className="w-28 text-purple-700 font-medium flex-shrink-0">Delivery URL:</span>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <Input 
+                                    value={webhookUrl} 
+                                    readOnly 
+                                    className="bg-gray-50 text-xs font-mono flex-1"
+                                  />
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => copyToClipboard(webhookUrl)}
+                                    className="flex-shrink-0"
+                                  >
+                                    <Copy className="h-4 w-4" />
+                                  </Button>
                                 </div>
-                              ))}
+                              </div>
                             </div>
-                            <p className="text-xs text-purple-600 mt-2">Format: JSON • Status: Active</p>
+                            
+                            {/* Secret */}
+                            <div className="flex items-center gap-2">
+                              <span className="w-28 text-purple-700 font-medium">Secret:</span>
+                              <span className="text-gray-500 italic">Leave empty (optional)</span>
+                            </div>
+                            
+                            {/* API Version */}
+                            <div className="flex items-center gap-2">
+                              <span className="w-28 text-purple-700 font-medium">API Version:</span>
+                              <code className="bg-purple-100 px-2 py-0.5 rounded text-xs">WP REST API v3</code>
+                            </div>
                           </div>
                         </div>
+                      </div>
 
-                        {/* Step 4 */}
-                        <div className="flex items-start gap-3">
-                          <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">4</span>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-purple-900">Save and you're done! 🎉</p>
-                            <p className="text-sm text-purple-800 mt-1">
-                              Products and orders will now sync automatically when created or updated.
-                            </p>
-                          </div>
+                      {/* Step 3: Save */}
+                      <div className="flex items-start gap-3">
+                        <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">3</span>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-purple-900">Click "Save webhook" and you're done! 🎉</p>
+                          <p className="text-sm text-purple-700 mt-1">
+                            New orders will sync automatically. Test it by placing a test order.
+                          </p>
                         </div>
                       </div>
                     </div>
