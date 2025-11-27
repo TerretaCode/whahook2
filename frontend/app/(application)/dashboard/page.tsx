@@ -33,6 +33,7 @@ interface DashboardStats {
   webWidgets: number
   whatsappAiActive: number
   webAiActive: number
+  clientsAiActive: boolean
   totalAiActive: number
 }
 
@@ -49,6 +50,7 @@ export default function DashboardPage() {
     webWidgets: 0,
     whatsappAiActive: 0,
     webAiActive: 0,
+    clientsAiActive: false,
     totalAiActive: 0
   })
   const [isLoading, setIsLoading] = useState(true)
@@ -80,7 +82,7 @@ export default function DashboardPage() {
     }
   }
 
-  const toggleAi = async (type: 'all' | 'whatsapp' | 'web', enable: boolean) => {
+  const toggleAi = async (type: 'all' | 'whatsapp' | 'web' | 'clients', enable: boolean) => {
     try {
       setTogglingAi(type)
       const response = await ApiClient.request('/api/dashboard/toggle-ai', {
@@ -140,7 +142,7 @@ export default function DashboardPage() {
           </div>
           <p className="text-green-100 mb-6">Activa o desactiva la IA de tus chatbots con un solo clic</p>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Activar Todas las IA */}
             <button
               onClick={() => toggleAi('all', true)}
@@ -199,6 +201,30 @@ export default function DashboardPage() {
               {togglingAi === 'web' ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : stats.webAiActive > 0 ? (
+                <Power className="w-4 h-4 text-green-400" />
+              ) : (
+                <PowerOff className="w-4 h-4 text-red-300" />
+              )}
+            </button>
+
+            {/* Clients AI */}
+            <button
+              onClick={() => toggleAi('clients', !stats.clientsAiActive)}
+              disabled={togglingAi !== null}
+              className="flex items-center justify-between p-4 bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20"
+            >
+              <div className="flex items-center gap-3">
+                <Users className="w-5 h-5" />
+                <div className="text-left">
+                  <p className="font-semibold">AI Clientes</p>
+                  <p className="text-xs text-green-200">
+                    {stats.clientsAiActive ? 'Activa' : 'Desactivada'}
+                  </p>
+                </div>
+              </div>
+              {togglingAi === 'clients' ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : stats.clientsAiActive ? (
                 <Power className="w-4 h-4 text-green-400" />
               ) : (
                 <PowerOff className="w-4 h-4 text-red-300" />

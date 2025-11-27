@@ -76,6 +76,15 @@ router.get('/stats', async (req: Request, res: Response) => {
     const whatsappAiActive = chatbotConfigs?.filter(c => c.session_id && c.auto_reply).length || 0
     const webAiActive = chatbotConfigs?.filter(c => c.widget_id && c.auto_reply).length || 0
 
+    // Get clients AI auto-capture setting
+    const { data: clientSettings } = await supabaseAdmin
+      .from('user_settings')
+      .select('auto_capture_enabled')
+      .eq('user_id', userId)
+      .single()
+    
+    const clientsAiActive = clientSettings?.auto_capture_enabled ?? false
+
     // Get today's conversations (WhatsApp)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -96,15 +105,6 @@ router.get('/stats', async (req: Request, res: Response) => {
       todayWeb = count || 0
     }
 
-    // Get clients AI (auto_capture) setting
-    const { data: clientSettings } = await supabaseAdmin
-      .from('user_settings')
-      .select('auto_capture_enabled')
-      .eq('user_id', userId)
-      .single()
-    
-    const clientsAiActive = clientSettings?.auto_capture_enabled ?? false
-
     res.json({
       success: true,
       data: {
@@ -124,8 +124,8 @@ router.get('/stats', async (req: Request, res: Response) => {
         // AI Status
         whatsappAiActive,
         webAiActive,
-        totalAiActive: whatsappAiActive + webAiActive,
-        clientsAiActive
+        clientsAiActive,
+        totalAiActive: whatsappAiActive + webAiActive + (clientsAiActive ? 1 : 0)
       }
     })
   } catch (error) {
@@ -165,7 +165,16 @@ router.post('/toggle-ai', async (req: Request, res: Response) => {
         .not('widget_id', 'is', null)
     }
 
-    // Note: 'clients' AI would be a separate feature for client management AI
+    if (type === 'all' || type === 'clients') {
+      // Toggle Clients AI auto-capture
+      await supabaseAdmin
+        .from('user_settings')
+        .upsert({ 
+          user_id: userId, 
+          auto_capture_enabled: enabled,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' })
+    }
 
     res.json({ success: true, message: `AI ${enabled ? 'activated' : 'deactivated'} for ${type}` })
   } catch (error) {

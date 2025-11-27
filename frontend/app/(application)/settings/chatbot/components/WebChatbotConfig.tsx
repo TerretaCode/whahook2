@@ -13,10 +13,9 @@ import {
   ChevronDown,
   ChevronUp,
   Trash2,
-  Pause,
-  Play,
   TestTube
 } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
 import Link from "next/link"
 import { toast } from "@/lib/toast"
 import { ChatbotConfigForm } from "./ChatbotConfigForm"
@@ -428,38 +427,18 @@ export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {/* Quick Pause/Resume Button */}
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        toggleAutoReply(widget.id, currentAutoReply !== false)
-                      }}
-                      variant={currentAutoReply === false ? "default" : "outline"}
-                      size="sm"
-                      disabled={isLoading}
-                      className={currentAutoReply === false ? "bg-green-600 hover:bg-green-700" : ""}
-                    >
-                      {currentAutoReply === false ? (
-                        <>
-                          <Play className="w-4 h-4 mr-1" />
-                          Reanudar IA
-                        </>
-                      ) : (
-                        <>
-                          <Pause className="w-4 h-4 mr-1" />
-                          Pausar IA
-                        </>
-                      )}
-                    </Button>
-                    
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      currentAutoReply === false 
-                        ? 'bg-yellow-100 text-yellow-700' 
-                        : 'bg-green-100 text-green-700'
-                    }`}>
-                      {currentAutoReply === false ? '⏸ Pausado' : '✓ Activo'}
-                    </span>
-                    
+                    {hasConfig && (
+                      <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                        <span className={`text-sm font-medium ${currentAutoReply !== false ? 'text-green-600' : 'text-gray-500'}`}>
+                          {currentAutoReply !== false ? 'IA Activa' : 'IA Pausada'}
+                        </span>
+                        <Switch
+                          checked={currentAutoReply !== false}
+                          onCheckedChange={() => toggleAutoReply(widget.id, currentAutoReply !== false)}
+                          disabled={isLoading}
+                        />
+                      </div>
+                    )}
                     {isExpanded ? (
                       <ChevronUp className="w-5 h-5 text-gray-400" />
                     ) : (
