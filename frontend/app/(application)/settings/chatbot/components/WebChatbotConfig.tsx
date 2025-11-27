@@ -11,7 +11,9 @@ import {
   Bot,
   AlertCircle,
   Pause,
-  Play
+  Play,
+  TestTube,
+  ExternalLink
 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "@/lib/toast"
@@ -214,6 +216,34 @@ export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
                     <p className="text-sm text-gray-500 text-center">
                       AI prompt configuration will appear here
                     </p>
+                  </div>
+
+                  {/* Test Bot Button */}
+                  <div className="mt-4 flex gap-2">
+                    <Link href={`/config/chatbot/test-web?widgetId=${widget.id}`}>
+                      <Button 
+                        variant="outline"
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      >
+                        <TestTube className="w-4 h-4 mr-2" />
+                        Probar Bot
+                      </Button>
+                    </Link>
+                    {widget.domain && (
+                      <a 
+                        href={widget.domain.startsWith('http') ? widget.domain : `https://${widget.domain}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        <Button 
+                          variant="outline"
+                          className="text-gray-600 hover:text-gray-700"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Ver en sitio
+                        </Button>
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
