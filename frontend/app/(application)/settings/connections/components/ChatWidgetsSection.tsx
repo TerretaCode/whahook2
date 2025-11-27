@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Plus, MessageSquare, Trash2, Code, Copy, Check, Loader2, ExternalLink, ChevronDown, ChevronUp, Settings, Download, Puzzle } from 'lucide-react'
+import { Plus, MessageSquare, Trash2, Code, Copy, Check, Loader2, ExternalLink, ChevronDown, ChevronUp, Settings, Download, Puzzle, Bot } from 'lucide-react'
 import { ApiClient } from '@/lib/api-client'
 import { toast } from '@/lib/toast'
 
@@ -306,9 +307,9 @@ export function ChatWidgetsSection() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Chat Widgets</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Chatbot Web</h3>
           <p className="text-sm text-gray-600 mt-1">
-            Create custom chat widgets for your website
+            Create AI chatbots for your website with automatic language translation
           </p>
         </div>
         <Button
@@ -317,7 +318,7 @@ export function ChatWidgetsSection() {
           className="bg-green-600 hover:bg-green-700"
         >
           <Plus className="w-4 h-4 mr-2" />
-          New Widget
+          New Chatbot
         </Button>
       </div>
 
@@ -325,7 +326,7 @@ export function ChatWidgetsSection() {
       {showForm && (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
           <h4 className="text-lg font-medium mb-4">
-            {editingWidget ? 'Edit Widget' : 'Create New Widget'}
+            {editingWidget ? 'Edit Chatbot' : 'Create New Chatbot'}
           </h4>
           <form onSubmit={editingWidget ? handleUpdate : handleCreate} className="space-y-6">
             {/* Step 1: Basic Info */}
@@ -426,7 +427,7 @@ export function ChatWidgetsSection() {
 
             <div className="flex gap-2 pt-4 border-t">
               <Button type="submit" className="bg-green-600 hover:bg-green-700">
-                {editingWidget ? 'Save Changes' : 'Create Widget'}
+                {editingWidget ? 'Save Changes' : 'Create Chatbot'}
               </Button>
               <Button type="button" variant="outline" onClick={() => { setShowForm(false); resetForm() }}>
                 Cancel
@@ -440,13 +441,13 @@ export function ChatWidgetsSection() {
       {widgets.length === 0 && !showForm ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
           <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Chat Widgets</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No Chatbots Yet</h3>
           <p className="text-sm text-gray-600 mb-4">
-            Create your first chat widget to embed on your website
+            Create your first AI chatbot to embed on your website
           </p>
           <Button onClick={() => setShowForm(true)} className="bg-green-600 hover:bg-green-700">
             <Plus className="w-4 h-4 mr-2" />
-            Create Your First Widget
+            Create Your First Chatbot
           </Button>
         </div>
       ) : (
@@ -478,11 +479,21 @@ export function ChatWidgetsSection() {
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      <Link href={`/settings/chatbot?widget=${widget.id}`}>
+                        <Button
+                          size="sm"
+                          className="bg-purple-600 hover:bg-purple-700"
+                          title="Configure AI Chatbot"
+                        >
+                          <Bot className="h-4 w-4 mr-1" />
+                          Configure
+                        </Button>
+                      </Link>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleEdit(widget)}
-                        title="Edit widget"
+                        title="Edit appearance"
                       >
                         <Settings className="h-4 w-4" />
                       </Button>
