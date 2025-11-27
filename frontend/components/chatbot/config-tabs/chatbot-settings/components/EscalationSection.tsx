@@ -43,8 +43,8 @@ export function EscalationSection({
                   <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">Escalación</h3>
-                  <p className="text-sm text-muted-foreground">Cuándo pasar a humano e info a recopilar</p>
+                  <h3 className="font-semibold text-lg">Escalación a Humano</h3>
+                  <p className="text-sm text-muted-foreground">Cuándo el bot debe pasar la conversación a una persona</p>
                 </div>
               </div>
               {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -53,9 +53,17 @@ export function EscalationSection({
         </CollapsibleTrigger>
         <CollapsibleContent>
           <CardContent className="pt-0 space-y-6">
+            {/* Info box */}
+            <div className="p-4 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                <strong>¿Para qué sirve esto?</strong> A veces el bot no puede resolver algo y necesita pasar la conversación a una persona real. Aquí configuras cuándo debe hacerlo y qué datos pedir al cliente antes.
+              </p>
+            </div>
+
             {/* Escalation triggers */}
             <div>
-              <h4 className="font-medium mb-3">Pasar a humano cuando:</h4>
+              <h4 className="font-medium mb-2">El bot debe pasar a un humano cuando:</h4>
+              <p className="text-sm text-muted-foreground mb-3">Marca las situaciones en las que quieres que el bot deje de responder y avise a tu equipo.</p>
               <div className="space-y-2">
                 {[
                   'Cliente pide hablar con persona',
@@ -106,9 +114,10 @@ export function EscalationSection({
 
             {/* Escalation message */}
             <div>
-              <h4 className="font-medium mb-3">Mensaje al escalar:</h4>
+              <h4 className="font-medium mb-2">Mensaje al escalar:</h4>
+              <p className="text-sm text-muted-foreground mb-3">Este mensaje se envía al cliente cuando el bot decide pasar la conversación a una persona.</p>
               <Textarea
-                placeholder="Te paso con un compañero que te ayudará mejor. Un momento."
+                placeholder="Ej: Entiendo que necesitas ayuda más personalizada. Te paso con un compañero de mi equipo que te atenderá enseguida. ¡Un momento!"
                 rows={2}
                 value={formData?.escalation_message || ''}
                 onChange={(e) => updateField('escalation_message', e.target.value)}
@@ -119,7 +128,8 @@ export function EscalationSection({
 
             {/* Info to collect */}
             <div>
-              <h4 className="font-medium mb-3">Información a recopilar del cliente:</h4>
+              <h4 className="font-medium mb-2">Antes de escalar, pedir al cliente:</h4>
+              <p className="text-sm text-muted-foreground mb-3">El bot pedirá estos datos al cliente antes de pasarlo a un humano. Así tu equipo ya tiene la info cuando recibe la conversación.</p>
               <div className="space-y-2">
                 {['Nombre completo', 'Email', 'Teléfono', 'Número de pedido', 'Empresa'].map((field) => (
                   <label key={field} className="flex items-center gap-2 cursor-pointer">

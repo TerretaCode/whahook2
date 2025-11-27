@@ -19,26 +19,33 @@ export function BotSection({ formData, updateField }: BotSectionProps) {
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-2">
           <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
             <Bot className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
           <h3 className="font-semibold text-lg">Tu Bot</h3>
         </div>
+        
+        <p className="text-sm text-muted-foreground mb-6">
+          Configura la personalidad de tu asistente virtual. Estos ajustes definen cómo se presenta y comunica con tus clientes.
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="bot_name">Nombre del bot</Label>
             <Input
               id="bot_name"
-              placeholder="Asistente"
+              placeholder="Ej: Ana, Asistente, SoporteBot..."
               value={formData?.bot_name || ''}
               onChange={(e) => updateField('bot_name', e.target.value)}
             />
+            <p className="text-xs text-muted-foreground">
+              El nombre con el que se presentará. Ej: "Hola, soy <strong>Ana</strong>, tu asistente virtual"
+            </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="tone">Tono</Label>
+            <Label htmlFor="tone">Tono de comunicación</Label>
             <Select 
               value={formData?.tone || 'profesional'} 
               onValueChange={(value) => updateField('tone', value)}
@@ -47,12 +54,15 @@ export function BotSection({ formData, updateField }: BotSectionProps) {
                 <SelectValue placeholder="Selecciona tono" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="profesional">Profesional</SelectItem>
-                <SelectItem value="amigable">Amigable</SelectItem>
-                <SelectItem value="formal">Formal</SelectItem>
-                <SelectItem value="casual">Casual</SelectItem>
+                <SelectItem value="profesional">Profesional - Serio pero cercano</SelectItem>
+                <SelectItem value="amigable">Amigable - Cálido y simpático</SelectItem>
+                <SelectItem value="formal">Formal - Muy serio y corporativo</SelectItem>
+                <SelectItem value="casual">Casual - Relajado y coloquial</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              Cómo habla el bot: ¿como un amigo o como un empleado de banco?
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -65,12 +75,15 @@ export function BotSection({ formData, updateField }: BotSectionProps) {
                 <SelectValue placeholder="Selecciona uso" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ninguno">Ninguno</SelectItem>
-                <SelectItem value="pocos">Pocos</SelectItem>
-                <SelectItem value="moderado">Moderado</SelectItem>
-                <SelectItem value="muchos">Muchos</SelectItem>
+                <SelectItem value="ninguno">Ninguno - Sin emojis</SelectItem>
+                <SelectItem value="pocos">Pocos - Solo ocasionalmente</SelectItem>
+                <SelectItem value="moderado">Moderado - Equilibrado 👍</SelectItem>
+                <SelectItem value="muchos">Muchos - Muy expresivo 🎉😊✨</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              ¿Quieres que use 😊 en sus mensajes? Depende de tu marca.
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -83,18 +96,22 @@ export function BotSection({ formData, updateField }: BotSectionProps) {
                 <SelectValue placeholder="Selecciona longitud" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="cortas">Cortas</SelectItem>
-                <SelectItem value="normal">Normal</SelectItem>
-                <SelectItem value="detalladas">Detalladas</SelectItem>
+                <SelectItem value="cortas">Cortas - Directo al grano</SelectItem>
+                <SelectItem value="normal">Normal - Equilibrado</SelectItem>
+                <SelectItem value="detalladas">Detalladas - Explicaciones completas</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              Respuestas cortas = más rápido. Detalladas = más información.
+            </p>
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground mt-4 flex items-center gap-2">
-          <span className="text-blue-500">💡</span>
-          El bot responde automáticamente en el idioma del cliente
-        </p>
+        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+          <p className="text-sm text-blue-800 dark:text-blue-200">
+            <strong>💡 Idioma automático:</strong> El bot detecta en qué idioma escribe el cliente y responde en ese mismo idioma. No necesitas configurar nada.
+          </p>
+        </div>
       </CardContent>
     </Card>
   )

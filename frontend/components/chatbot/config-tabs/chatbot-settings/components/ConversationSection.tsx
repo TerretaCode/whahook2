@@ -44,7 +44,7 @@ export function ConversationSection({
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Conversación</h3>
-                  <p className="text-sm text-muted-foreground">Mensaje de bienvenida y FAQs</p>
+                  <p className="text-sm text-muted-foreground">Cómo saluda el bot y respuestas a preguntas frecuentes</p>
                 </div>
               </div>
               {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -53,11 +53,19 @@ export function ConversationSection({
         </CollapsibleTrigger>
         <CollapsibleContent>
           <CardContent className="pt-0 space-y-6">
+            {/* Info box */}
+            <div className="p-4 bg-cyan-50 dark:bg-cyan-950 rounded-lg border border-cyan-200 dark:border-cyan-800">
+              <p className="text-sm text-cyan-800 dark:text-cyan-200">
+                <strong>¿Para qué sirve esto?</strong> Configura cómo empieza la conversación y añade respuestas predefinidas a preguntas que te hacen siempre.
+              </p>
+            </div>
+
             {/* Welcome message */}
             <div>
-              <h4 className="font-medium mb-3">Mensaje de bienvenida:</h4>
+              <h4 className="font-medium mb-2">Mensaje de bienvenida:</h4>
+              <p className="text-sm text-muted-foreground mb-3">Este es el primer mensaje que verá el cliente cuando empiece a chatear. Déjalo vacío si no quieres mensaje automático.</p>
               <Textarea
-                placeholder="¡Hola! Soy el asistente de [tu negocio]. ¿En qué puedo ayudarte?"
+                placeholder="Ej: ¡Hola! 👋 Soy Ana, la asistente virtual de Floristería María. ¿En qué puedo ayudarte hoy?"
                 rows={2}
                 value={formData?.welcome_message || ''}
                 onChange={(e) => updateField('welcome_message', e.target.value)}
@@ -68,7 +76,11 @@ export function ConversationSection({
 
             {/* FAQs */}
             <div>
-              <h4 className="font-medium mb-3">FAQs (el bot responderá automáticamente):</h4>
+              <h4 className="font-medium mb-2">Preguntas frecuentes (FAQs):</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                Añade preguntas que te hacen siempre con sus respuestas exactas. El bot las usará cuando detecte esas preguntas.
+                <br/><span className="text-xs">Ej: "¿Hacéis envíos a Canarias?" → "Sí, enviamos a Canarias. El envío tarda 5-7 días y cuesta 8€."</span>
+              </p>
               <div className="space-y-3">
                 {(formData?.faqs || []).map((faq: any, index: number) => (
                   <Card key={index} className="p-3">

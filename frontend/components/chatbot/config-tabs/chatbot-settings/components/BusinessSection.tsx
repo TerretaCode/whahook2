@@ -50,7 +50,7 @@ export function BusinessSection({
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Tu Negocio</h3>
-                  <p className="text-sm text-muted-foreground">Información, contacto, horarios y ubicaciones</p>
+                  <p className="text-sm text-muted-foreground">Cuéntale al bot sobre tu empresa para que pueda informar a los clientes</p>
                 </div>
               </div>
               {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -60,25 +60,33 @@ export function BusinessSection({
         <CollapsibleContent>
           <CardContent className="pt-0 space-y-6">
             {/* Business Info */}
+            <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-200 dark:border-purple-800 mb-4">
+              <p className="text-sm text-purple-800 dark:text-purple-200">
+                <strong>¿Para qué sirve esto?</strong> El bot usará esta información para responder preguntas como "¿Qué vendéis?", "¿Cómo os contacto?" o "¿Dónde estáis ubicados?".
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="business_name">Nombre del negocio *</Label>
                 <Input
                   id="business_name"
-                  placeholder="Mi Empresa"
+                  placeholder="Ej: Floristería María, TechStore, Clínica Dental Sonrisa..."
                   value={formData?.business_name || ''}
                   onChange={(e) => updateField('business_name', e.target.value)}
                 />
+                <p className="text-xs text-muted-foreground">El nombre comercial de tu empresa o tienda</p>
               </div>
               <div className="space-y-2 md:col-span-1">
                 <Label htmlFor="business_description">Descripción breve *</Label>
                 <Textarea
                   id="business_description"
-                  placeholder="Describe tu negocio en 2-3 líneas..."
+                  placeholder="Ej: Somos una floristería familiar con 20 años de experiencia. Vendemos flores frescas, plantas y hacemos arreglos para bodas y eventos."
                   rows={3}
                   value={formData?.business_description || ''}
                   onChange={(e) => updateField('business_description', e.target.value)}
                 />
+                <p className="text-xs text-muted-foreground">Explica qué hace tu negocio en 2-3 frases. El bot usará esto para presentarse.</p>
               </div>
             </div>
 
@@ -86,9 +94,10 @@ export function BusinessSection({
 
             {/* Contact */}
             <div>
-              <h4 className="font-medium mb-3 flex items-center gap-2">
+              <h4 className="font-medium mb-2 flex items-center gap-2">
                 <Globe className="w-4 h-4" /> Contacto
               </h4>
+              <p className="text-sm text-muted-foreground mb-3">Cuando un cliente pregunte cómo contactaros, el bot le dará esta información.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Email</Label>
@@ -122,26 +131,29 @@ export function BusinessSection({
 
             {/* Business Hours */}
             <div>
-              <h4 className="font-medium mb-3 flex items-center gap-2">
+              <h4 className="font-medium mb-2 flex items-center gap-2">
                 <Clock className="w-4 h-4" /> Horario de atención
               </h4>
+              <p className="text-sm text-muted-foreground mb-3">El bot informará de tu horario cuando pregunten "¿A qué hora abrís?" o "¿Estáis abiertos?"</p>
               <div className="space-y-3">
                 <div className="space-y-2">
                   <Label>Horario</Label>
                   <Input
-                    placeholder="Lunes a Viernes 9:00-18:00, Sábados 10:00-14:00"
+                    placeholder="Ej: Lunes a Viernes 9:00-18:00, Sábados 10:00-14:00"
                     value={formData?.business_hours || ''}
                     onChange={(e) => updateField('business_hours', e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground">Escríbelo como quieras que el bot lo diga a los clientes</p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Mensaje fuera de horario</Label>
+                  <Label>Mensaje fuera de horario (opcional)</Label>
                   <Textarea
-                    placeholder="Ahora no hay nadie disponible. Te contactamos mañana."
+                    placeholder="Ej: Gracias por escribirnos. Ahora mismo estamos cerrados pero te responderemos mañana a primera hora."
                     rows={2}
                     value={formData?.out_of_hours_message || ''}
                     onChange={(e) => updateField('out_of_hours_message', e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground">Este mensaje se envía cuando alguien escribe fuera de tu horario (si tienes activada esa opción)</p>
                 </div>
               </div>
             </div>
@@ -150,9 +162,10 @@ export function BusinessSection({
 
             {/* Social Media */}
             <div>
-              <h4 className="font-medium mb-3 flex items-center gap-2">
+              <h4 className="font-medium mb-2 flex items-center gap-2">
                 <Link2 className="w-4 h-4" /> Redes sociales
               </h4>
+              <p className="text-sm text-muted-foreground mb-3">Si un cliente pregunta "¿Tenéis Instagram?" o "¿Dónde os puedo seguir?", el bot le dará estos enlaces.</p>
               <div className="space-y-2">
                 {(formData?.social_media || []).map((social: any, index: number) => (
                   <div key={index} className="flex gap-2">
@@ -191,9 +204,10 @@ export function BusinessSection({
 
             {/* Locations */}
             <div>
-              <h4 className="font-medium mb-3 flex items-center gap-2">
+              <h4 className="font-medium mb-2 flex items-center gap-2">
                 <MapPin className="w-4 h-4" /> Ubicaciones físicas
               </h4>
+              <p className="text-sm text-muted-foreground mb-3">Si tienes tienda física, añádela aquí. El bot podrá decir "Estamos en Calle Mayor 123" o enviar el enlace de Google Maps.</p>
               <div className="space-y-3">
                 {(formData?.locations || []).map((location: any, index: number) => (
                   <Card key={index} className="p-3">

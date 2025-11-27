@@ -51,7 +51,7 @@ export function ShippingSection({
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Envíos y Pagos</h3>
-                  <p className="text-sm text-muted-foreground">Métodos de envío, pago, devoluciones</p>
+                  <p className="text-sm text-muted-foreground">Info para responder "¿Cuánto cuesta el envío?" o "¿Aceptáis Bizum?"</p>
                 </div>
               </div>
               {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -60,11 +60,19 @@ export function ShippingSection({
         </CollapsibleTrigger>
         <CollapsibleContent>
           <CardContent className="pt-0 space-y-6">
+            {/* Info box */}
+            <div className="p-4 bg-orange-50 dark:bg-orange-950 rounded-lg border border-orange-200 dark:border-orange-800">
+              <p className="text-sm text-orange-800 dark:text-orange-200">
+                <strong>¿Para qué sirve esto?</strong> Cuando un cliente pregunte sobre envíos, pagos o devoluciones, el bot usará esta información para responder.
+              </p>
+            </div>
+
             {/* Shipping methods */}
             <div>
-              <h4 className="font-medium mb-3 flex items-center gap-2">
+              <h4 className="font-medium mb-2 flex items-center gap-2">
                 <Truck className="w-4 h-4" /> Métodos de envío
               </h4>
+              <p className="text-sm text-muted-foreground mb-3">Añade las opciones de envío que ofreces. Ej: "Envío estándar - 3-5 días - 4,95€"</p>
               <div className="space-y-2">
                 {(formData?.shipping_methods || []).map((method: any, index: number) => (
                   <Card key={index} className="p-3">
@@ -111,9 +119,10 @@ export function ShippingSection({
 
             {/* Shipping zones */}
             <div>
-              <h4 className="font-medium mb-3 flex items-center gap-2">
+              <h4 className="font-medium mb-2 flex items-center gap-2">
                 <Globe className="w-4 h-4" /> Zonas de envío
               </h4>
+              <p className="text-sm text-muted-foreground mb-3">¿A dónde envías? Escribe y pulsa Enter. Ej: "España", "Europa", "Todo el mundo"</p>
               <div className="flex flex-wrap gap-2">
                 {(formData?.shipping_zones || []).map((zone: string, index: number) => (
                   <Badge key={index} variant="secondary" className="px-3 py-1">
@@ -142,9 +151,10 @@ export function ShippingSection({
 
             {/* Payment methods */}
             <div>
-              <h4 className="font-medium mb-3 flex items-center gap-2">
+              <h4 className="font-medium mb-2 flex items-center gap-2">
                 <CreditCard className="w-4 h-4" /> Métodos de pago
               </h4>
+              <p className="text-sm text-muted-foreground mb-3">¿Cómo pueden pagar tus clientes? Escribe y pulsa Enter. Ej: "Tarjeta", "PayPal", "Bizum"</p>
               <div className="flex flex-wrap gap-2">
                 {(formData?.payment_methods || []).map((method: string, index: number) => (
                   <Badge key={index} variant="secondary" className="px-3 py-1">
@@ -173,9 +183,10 @@ export function ShippingSection({
 
             {/* Returns */}
             <div>
-              <h4 className="font-medium mb-3 flex items-center gap-2">
+              <h4 className="font-medium mb-2 flex items-center gap-2">
                 <RotateCcw className="w-4 h-4" /> Devoluciones
               </h4>
+              <p className="text-sm text-muted-foreground mb-3">Cuando pregunten "¿Puedo devolver un producto?", el bot dará esta info.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Plazo (días)</Label>
@@ -209,11 +220,12 @@ export function ShippingSection({
 
             {/* Warranty */}
             <div>
-              <h4 className="font-medium mb-3 flex items-center gap-2">
+              <h4 className="font-medium mb-2 flex items-center gap-2">
                 <Shield className="w-4 h-4" /> Garantías
               </h4>
+              <p className="text-sm text-muted-foreground mb-3">¿Ofreces garantía en tus productos? Descríbela aquí.</p>
               <Textarea
-                placeholder="2 años en todos los productos..."
+                placeholder="Ej: 2 años de garantía en todos los productos. Garantía de satisfacción: si no te gusta, te devolvemos el dinero."
                 rows={2}
                 value={formData?.warranty || ''}
                 onChange={(e) => updateField('warranty', e.target.value)}
