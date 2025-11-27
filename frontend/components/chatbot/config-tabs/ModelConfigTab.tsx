@@ -2,10 +2,17 @@
 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-export function ModelConfigTab({ formData, updateField }: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FormData = Record<string, any>
+
+interface ModelConfigTabProps {
+  formData: FormData
+  updateField: (field: string, value: number) => void
+}
+
+export function ModelConfigTab({ formData, updateField }: ModelConfigTabProps) {
   return (
     <Card>
       <CardHeader>
@@ -24,7 +31,7 @@ export function ModelConfigTab({ formData, updateField }: any) {
             max="2"
             step="0.1"
             value={formData.temperature || 0.7}
-            onChange={(e: any) => updateField('temperature', parseFloat(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('temperature', parseFloat(e.target.value))}
           />
           <p className="text-xs text-muted-foreground">0 = Determinista | 0.7 = Balanceado (recomendado) | 2 = Muy creativo</p>
         </div>
@@ -35,7 +42,7 @@ export function ModelConfigTab({ formData, updateField }: any) {
             type="number"
             min="50"
             value={formData.max_tokens || 1000}
-            onChange={(e: any) => updateField('max_tokens', parseInt(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('max_tokens', parseInt(e.target.value))}
           />
           <p className="text-xs text-muted-foreground">
             Máximo de tokens en la respuesta. Mayor = respuestas más largas pero más costo.
@@ -57,7 +64,7 @@ export function ModelConfigTab({ formData, updateField }: any) {
             max="1"
             step="0.05"
             value={formData.top_p || 1.0}
-            onChange={(e: any) => updateField('top_p', parseFloat(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('top_p', parseFloat(e.target.value))}
           />
           <p className="text-xs text-muted-foreground">Alternativa a temperature. 1.0 = usar temperature</p>
         </div>
@@ -73,7 +80,7 @@ export function ModelConfigTab({ formData, updateField }: any) {
             max="2"
             step="0.1"
             value={formData.frequency_penalty || 0.0}
-            onChange={(e: any) => updateField('frequency_penalty', parseFloat(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('frequency_penalty', parseFloat(e.target.value))}
           />
           <p className="text-xs text-muted-foreground">Reduce la repetición de palabras. 0 = sin penalización</p>
         </div>
@@ -89,7 +96,7 @@ export function ModelConfigTab({ formData, updateField }: any) {
             max="2"
             step="0.1"
             value={formData.presence_penalty || 0.0}
-            onChange={(e: any) => updateField('presence_penalty', parseFloat(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('presence_penalty', parseFloat(e.target.value))}
           />
           <p className="text-xs text-muted-foreground">Fomenta hablar de nuevos temas. 0 = sin penalización</p>
         </div>
@@ -102,7 +109,7 @@ export function ModelConfigTab({ formData, updateField }: any) {
               type="number"
               min="100"
               value={formData.intent_classifier_max_tokens || 1000}
-              onChange={(e: any) => updateField('intent_classifier_max_tokens', parseInt(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('intent_classifier_max_tokens', parseInt(e.target.value))}
             />
             <p className="text-xs text-muted-foreground">
               Tokens máximos para el análisis de intenciones (uso interno). 

@@ -1,12 +1,19 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-export function ConversationConfigTab({ formData, updateField, updateArrayField, addArrayItem, removeArrayItem }: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FormData = Record<string, any>
+
+interface ConversationConfigTabProps {
+  formData: FormData
+  updateField: (field: string, value: number | string | boolean) => void
+}
+
+export function ConversationConfigTab({ formData, updateField }: ConversationConfigTabProps) {
   return (
     <Card>
       <CardHeader>
@@ -21,7 +28,7 @@ export function ConversationConfigTab({ formData, updateField, updateArrayField,
             min="0"
             max="50"
             value={formData.context_window || 10}
-            onChange={(e: any) => updateField('context_window', parseInt(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('context_window', parseInt(e.target.value))}
           />
           <p className="text-xs text-muted-foreground">Número de mensajes previos a incluir en el contexto</p>
         </div>
@@ -33,7 +40,7 @@ export function ConversationConfigTab({ formData, updateField, updateArrayField,
             min="1"
             max="100"
             value={formData.max_conversation_length || 20}
-            onChange={(e: any) => updateField('max_conversation_length', parseInt(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('max_conversation_length', parseInt(e.target.value))}
           />
           <p className="text-xs text-muted-foreground">Máximo de mensajes antes de reiniciar la conversación</p>
         </div>
@@ -70,7 +77,7 @@ export function ConversationConfigTab({ formData, updateField, updateArrayField,
               min="1"
               max="30"
               value={Math.round((formData.debounce_delay_ms || 5000) / 1000)}
-              onChange={(e: any) => updateField('debounce_delay_ms', parseInt(e.target.value) * 1000)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('debounce_delay_ms', parseInt(e.target.value) * 1000)}
             />
             <div className="text-xs text-muted-foreground space-y-1">
               <p>⏱️ <strong>¿Qué hace?</strong> Espera este tiempo antes de responder para agrupar mensajes rápidos.</p>
@@ -86,7 +93,7 @@ export function ConversationConfigTab({ formData, updateField, updateArrayField,
               min="1"
               max="20"
               value={formData.max_batch_size || 20}
-              onChange={(e: any) => updateField('max_batch_size', parseInt(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('max_batch_size', parseInt(e.target.value))}
             />
             <div className="text-xs text-muted-foreground space-y-1">
               <p>📦 <strong>¿Qué hace?</strong> Límite de mensajes a agrupar antes de responder automáticamente.</p>
@@ -102,7 +109,7 @@ export function ConversationConfigTab({ formData, updateField, updateArrayField,
               min="10"
               max="20"
               value={Math.round((formData.max_wait_ms || 15000) / 1000)}
-              onChange={(e: any) => updateField('max_wait_ms', parseInt(e.target.value) * 1000)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('max_wait_ms', parseInt(e.target.value) * 1000)}
             />
             <p className="text-xs text-muted-foreground">
               ⏰ Tiempo máximo desde el primer mensaje. Evita esperar indefinidamente.
@@ -117,7 +124,7 @@ export function ConversationConfigTab({ formData, updateField, updateArrayField,
               max="2000"
               step="100"
               value={formData.typing_indicator_delay_ms || 500}
-              onChange={(e: any) => updateField('typing_indicator_delay_ms', parseInt(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('typing_indicator_delay_ms', parseInt(e.target.value))}
             />
             <p className="text-xs text-muted-foreground">
               ⌨️ Tiempo antes de mostrar "escribiendo...". 500ms recomendado.

@@ -8,7 +8,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-export function HoursConfigTab({ formData, updateField, updateArrayField, addArrayItem, removeArrayItem }: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FormData = Record<string, any>
+
+interface HoursConfigTabProps {
+  formData: FormData
+  updateField: (field: string, value: string | boolean) => void
+  updateArrayField: (field: string, index: number, value: string) => void
+  addArrayItem: (field: string) => void
+  removeArrayItem: (field: string, index: number) => void
+}
+
+export function HoursConfigTab({ formData, updateField, updateArrayField, addArrayItem, removeArrayItem }: HoursConfigTabProps) {
   return (
     <Card>
       <CardHeader>
@@ -47,7 +58,7 @@ export function HoursConfigTab({ formData, updateField, updateArrayField, addArr
                 <Input
                   type="time"
                   value={formData.active_hours_start || '09:00'}
-                  onChange={(e: any) => updateField('active_hours_start', e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('active_hours_start', e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -55,7 +66,7 @@ export function HoursConfigTab({ formData, updateField, updateArrayField, addArr
                 <Input
                   type="time"
                   value={formData.active_hours_end || '18:00'}
-                  onChange={(e: any) => updateField('active_hours_end', e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('active_hours_end', e.target.value)}
                 />
               </div>
             </div>
@@ -64,7 +75,7 @@ export function HoursConfigTab({ formData, updateField, updateArrayField, addArr
               <Label>Mensaje Fuera de Horario</Label>
               <Textarea
                 value={formData.out_of_hours_message || ''}
-                onChange={(e: any) => updateField('out_of_hours_message', e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateField('out_of_hours_message', e.target.value)}
                 placeholder="Gracias por contactarnos. Estamos fuera de horario..."
                 rows={4}
               />
@@ -89,7 +100,7 @@ export function HoursConfigTab({ formData, updateField, updateArrayField, addArr
                 <div key={index} className="flex gap-2">
                   <Input
                     value={keyword}
-                    onChange={(e: any) => updateArrayField('handoff_keywords', index, e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateArrayField('handoff_keywords', index, e.target.value)}
                     placeholder="humano"
                   />
                   <Button type="button" variant="outline" size="icon" onClick={() => removeArrayItem('handoff_keywords', index)}>×</Button>
@@ -135,7 +146,7 @@ export function HoursConfigTab({ formData, updateField, updateArrayField, addArr
                     <div key={index} className="flex gap-2">
                       <Input
                         value={keyword}
-                        onChange={(e: any) => updateArrayField('handoff_frustration_keywords', index, e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateArrayField('handoff_frustration_keywords', index, e.target.value)}
                         placeholder="no sirve"
                       />
                       <Button type="button" variant="outline" size="icon" onClick={() => removeArrayItem('handoff_frustration_keywords', index)}>×</Button>
