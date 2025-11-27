@@ -8,6 +8,7 @@ import {
   ProductsSection,
   ShippingSection,
   BehaviorSection,
+  AvailabilitySection,
   ConversationSection,
   EscalationSection,
   AdditionalSection
@@ -28,6 +29,7 @@ export function ChatbotSettingsTab({
     products: false,
     shipping: false,
     behavior: false,
+    availability: false,
     conversation: false,
     escalation: false,
     additional: false
@@ -105,6 +107,14 @@ export function ChatbotSettingsTab({
         {...sectionProps}
         isOpen={openSections.behavior}
         onToggle={() => toggleSection('behavior')}
+      />
+
+      {/* ⏰ DISPONIBILIDAD */}
+      <AvailabilitySection 
+        formData={formData}
+        updateField={updateField}
+        isOpen={openSections.availability}
+        onToggle={() => toggleSection('availability')}
       />
 
       {/* 💬 CONVERSACIÓN */}
