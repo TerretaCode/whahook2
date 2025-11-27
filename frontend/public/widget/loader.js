@@ -171,7 +171,7 @@
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: rgba(255,255,255,0.2);
+        background: white;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -183,7 +183,7 @@
         width: 100%;
         height: 100%;
         object-fit: contain;
-        padding: 4px;
+        padding: 2px;
       }
       
       #whahook-widget-header-text {
