@@ -10,6 +10,7 @@ import {
   Bot
 } from "lucide-react"
 import { ChatbotSettingsTab } from "./chatbot-settings"
+import { WebChatbotSettingsTab } from "./webchatbot-settings"
 import { ModelConfigTab } from "./ModelConfigTab"
 import { ConversationConfigTab } from "./ConversationConfigTab"
 import { AdvancedConfigTab } from "./AdvancedConfigTab"
@@ -124,7 +125,11 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
       </div>
 
       <TabsContent value="config">
-          <ChatbotSettingsTab {...tabProps} />
+          {props.widgetId ? (
+            <WebChatbotSettingsTab {...tabProps} />
+          ) : (
+            <ChatbotSettingsTab {...tabProps} />
+          )}
         </TabsContent>
       <TabsContent value="model"><ModelConfigTab {...tabProps} /></TabsContent>
       <TabsContent value="conversation"><ConversationConfigTab {...tabProps} /></TabsContent>
