@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { ShoppingCart, Plus, Trash2, RefreshCw, Check, AlertCircle, Loader2, ExternalLink, HelpCircle, Key } from "lucide-react"
+import { ShoppingCart, Plus, Trash2, RefreshCw, Check, AlertCircle, Loader2, ExternalLink, HelpCircle, Key, ChevronDown, ChevronUp, Copy, Webhook, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -27,6 +27,9 @@ interface PlatformConfig {
   fields: string[]
   apiPath: string
   instructions: string
+  webhookPath: string
+  webhookInstructions: string
+  webhookTopic: string
 }
 
 const platformConfig: Record<Platform, PlatformConfig> = {
@@ -35,28 +38,40 @@ const platformConfig: Record<Platform, PlatformConfig> = {
     color: '#96588a',
     fields: ['consumer_key', 'consumer_secret'],
     apiPath: '/wp-admin/admin.php?page=wc-settings&tab=advanced&section=keys',
-    instructions: 'Go to WooCommerce → Settings → Advanced → REST API → Add key. Permissions: Read.'
+    instructions: 'Go to WooCommerce → Settings → Advanced → REST API → Add key. Permissions: Read.',
+    webhookPath: '/wp-admin/admin.php?page=wc-settings&tab=advanced&section=webhooks',
+    webhookInstructions: 'Go to WooCommerce → Settings → Advanced → Webhooks → Add webhook',
+    webhookTopic: 'Order created'
   },
   shopify: { 
     name: 'Shopify', 
     color: '#96bf48',
     fields: ['shop_name', 'access_token'],
     apiPath: '/admin/settings/apps/development',
-    instructions: 'Go to Settings → Apps → Develop apps → Create app → Configure API permissions.'
+    instructions: 'Go to Settings → Apps → Develop apps → Create app → Configure API permissions.',
+    webhookPath: '/admin/settings/notifications',
+    webhookInstructions: 'Go to Settings → Notifications → Webhooks → Create webhook',
+    webhookTopic: 'Order creation'
   },
   prestashop: { 
     name: 'PrestaShop', 
     color: '#df0067',
     fields: ['api_key'],
     apiPath: '/admin/index.php?controller=AdminWebservice',
-    instructions: 'Go to Advanced Parameters → Webservice → Add key. Enable product permissions.'
+    instructions: 'Go to Advanced Parameters → Webservice → Add key. Enable product permissions.',
+    webhookPath: '/admin/index.php?controller=AdminModules',
+    webhookInstructions: 'Install a webhook module or use the API to poll for new orders',
+    webhookTopic: 'actionValidateOrder'
   },
   magento: { 
     name: 'Magento', 
     color: '#f26322',
     fields: ['access_token'],
     apiPath: '/admin/system_config/edit/section/oauth/',
-    instructions: 'Go to System → Integrations → Add new integration → Generate token.'
+    instructions: 'Go to System → Integrations → Add new integration → Generate token.',
+    webhookPath: '/admin/system/webhook',
+    webhookInstructions: 'Go to System → Webhooks → Add new webhook',
+    webhookTopic: 'sales_order_save_after'
   },
 }
 
@@ -64,11 +79,24 @@ const platformConfig: Record<Platform, PlatformConfig> = {
 const getApiUrl = (storeUrl: string, platform: Platform): string => {
   if (!storeUrl) return ''
   let url = storeUrl.trim()
-  // Remove trailing slash
   if (url.endsWith('/')) url = url.slice(0, -1)
-  // Add https if missing
   if (!url.startsWith('http')) url = 'https://' + url
   return url + platformConfig[platform].apiPath
+}
+
+// Helper to build webhook settings URL
+const getWebhookSettingsUrl = (storeUrl: string, platform: Platform): string => {
+  if (!storeUrl) return ''
+  let url = storeUrl.trim()
+  if (url.endsWith('/')) url = url.slice(0, -1)
+  if (!url.startsWith('http')) url = 'https://' + url
+  return url + platformConfig[platform].webhookPath
+}
+
+// Get the webhook URL for this connection
+const getWebhookUrl = (connectionId: string): string => {
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  return `${baseUrl}/api/webhooks/ecommerce/${connectionId}`
 }
 
 export function EcommerceConnectionsSection() {
@@ -76,6 +104,7 @@ export function EcommerceConnectionsSection() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [syncing, setSyncing] = useState<string | null>(null)
+  const [expandedConnection, setExpandedConnection] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     platform: 'woocommerce' as Platform,
@@ -192,6 +221,11 @@ export function EcommerceConnectionsSection() {
       access_token: '',
       api_key: '',
     })
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    toast.success('Copied!', 'Webhook URL copied to clipboard')
   }
 
   const getStatusBadge = (status: string) => {
@@ -448,65 +482,168 @@ export function EcommerceConnectionsSection() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {connections.map((connection) => (
-            <div key={connection.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 flex-1">
-                  <div 
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm"
-                    style={{ backgroundColor: platformConfig[connection.platform].color }}
-                  >
-                    {platformConfig[connection.platform].name.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-gray-900">{connection.name}</h3>
-                      {getStatusBadge(connection.status)}
+          {connections.map((connection) => {
+            const isExpanded = expandedConnection === connection.id
+            const webhookUrl = getWebhookUrl(connection.id)
+            const config = platformConfig[connection.platform]
+            
+            return (
+              <div key={connection.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                {/* Main row */}
+                <div className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div 
+                        className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm"
+                        style={{ backgroundColor: config.color }}
+                      >
+                        {config.name.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-gray-900">{connection.name}</h3>
+                          {getStatusBadge(connection.status)}
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          {config.name} • {connection.store_url}
+                        </p>
+                        {connection.last_sync_at && (
+                          <p className="text-xs text-gray-500">
+                            Last sync: {new Date(connection.last_sync_at).toLocaleString()}
+                          </p>
+                        )}
+                        {connection.last_error && (
+                          <p className="text-xs text-red-500">{connection.last_error}</p>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      {platformConfig[connection.platform].name} • {connection.store_url}
-                    </p>
-                    {connection.last_sync_at && (
-                      <p className="text-xs text-gray-500">
-                        Last sync: {new Date(connection.last_sync_at).toLocaleString()}
-                      </p>
-                    )}
-                    {connection.last_error && (
-                      <p className="text-xs text-red-500">{connection.last_error}</p>
-                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={() => handleSync(connection.id)}
+                        disabled={syncing === connection.id}
+                      >
+                        <RefreshCw className={`h-4 w-4 mr-2 ${syncing === connection.id ? 'animate-spin' : ''}`} />
+                        {syncing === connection.id ? 'Syncing...' : 'Sync'}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setExpandedConnection(isExpanded ? null : connection.id)}
+                        title="Configure webhooks"
+                      >
+                        <Bell className="h-4 w-4 mr-1" />
+                        {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => window.open(connection.store_url, '_blank')}
+                        title="Open store"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDelete(connection.id, connection.name)}
+                        title="Disconnect"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={() => handleSync(connection.id)}
-                    disabled={syncing === connection.id}
-                  >
-                    <RefreshCw className={`h-4 w-4 mr-2 ${syncing === connection.id ? 'animate-spin' : ''}`} />
-                    {syncing === connection.id ? 'Syncing...' : 'Sync'}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => window.open(connection.store_url, '_blank')}
-                    title="Open store"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDelete(connection.id, connection.name)}
-                    title="Disconnect"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+
+                {/* Expanded webhook section */}
+                {isExpanded && (
+                  <div className="border-t bg-gray-50 p-4 space-y-4">
+                    <div className="flex items-center gap-2 text-lg font-medium text-gray-900">
+                      <Webhook className="w-5 h-5 text-purple-600" />
+                      Auto-sync Orders (Webhook)
+                    </div>
+                    
+                    <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                      <p className="text-sm text-purple-900 mb-3">
+                        <strong>What is this?</strong> A webhook automatically notifies us when a new order is placed in your store. 
+                        This way, orders sync instantly without manual clicking.
+                      </p>
+                      
+                      <div className="space-y-4">
+                        {/* Step 1 */}
+                        <div className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">1</span>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-purple-900">Copy this Webhook URL:</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Input 
+                                value={webhookUrl} 
+                                readOnly 
+                                className="bg-white text-xs font-mono"
+                              />
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => copyToClipboard(webhookUrl)}
+                                className="flex-shrink-0"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">2</span>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-purple-900">Go to your store's webhook settings:</p>
+                            <p className="text-sm text-purple-800 mt-1">{config.webhookInstructions}</p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="mt-2 bg-white"
+                              onClick={() => window.open(getWebhookSettingsUrl(connection.store_url, connection.platform), '_blank')}
+                            >
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Open Webhook Settings
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">3</span>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-purple-900">Create a new webhook with these settings:</p>
+                            <ul className="text-sm text-purple-800 mt-1 space-y-1 ml-4 list-disc">
+                              <li><strong>Delivery URL:</strong> Paste the URL from step 1</li>
+                              <li><strong>Topic/Event:</strong> {config.webhookTopic}</li>
+                              <li><strong>Format:</strong> JSON</li>
+                              <li><strong>Status:</strong> Active</li>
+                            </ul>
+                          </div>
+                        </div>
+
+                        {/* Step 4 */}
+                        <div className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">4</span>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-purple-900">Save and you're done! 🎉</p>
+                            <p className="text-sm text-purple-800 mt-1">
+                              New orders will now sync automatically. You can test it by placing a test order.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
