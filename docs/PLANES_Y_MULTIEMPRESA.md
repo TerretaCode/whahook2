@@ -4,6 +4,11 @@
 
 Este documento define la estrategia de planes de suscripción y el sistema multi-tenant (multi-empresa) para Whahook, permitiendo que agencias de marketing y empresas con múltiples marcas gestionen varios negocios desde una sola cuenta.
 
+### Modelo de negocio IA
+> **IMPORTANTE**: El coste de la IA (Google Gemini) NO está incluido en los planes.
+> Cada usuario/empresa configura su propia API Key de Gemini y paga directamente a Google.
+> Whahook solo cobra por el uso de la plataforma.
+
 ---
 
 ## 1. Estructura de Planes
@@ -22,7 +27,7 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 | Widgets Web | 1 |
 | Workspaces (empresas) | 1 |
 | Usuarios | 1 |
-| Mensajes IA/mes | 500 |
+| IA | Ilimitada (API propia) |
 | CRM | Básico (solo contactos) |
 | Historial mensajes | 30 días |
 | Soporte | Email |
@@ -31,7 +36,7 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 - ✅ Lista de contactos/clientes
 - ✅ Historial de conversaciones
 - ✅ Etiquetas básicas
-- ❌ Campañas automáticas
+- ❌ Campañas WhatsApp/Email
 - ❌ Segmentación avanzada
 - ❌ Exportación de datos
 
@@ -44,14 +49,15 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 | Widgets Web | 3 |
 | Workspaces (empresas) | 3 |
 | Usuarios por workspace | 3 |
-| Mensajes IA/mes | 5,000 |
+| IA | Ilimitada (API propia) |
 | CRM | Completo |
 | Historial mensajes | 1 año |
 | Soporte | Prioritario |
 
 **Funcionalidades CRM Completo**:
 - ✅ Todo lo del CRM Básico
-- ✅ Campañas automáticas (mensajes programados)
+- ✅ **Campañas WhatsApp** (mensajes masivos programados)
+- ✅ **Campañas Email** (a contactos con email registrado)
 - ✅ Segmentación por etiquetas
 - ✅ Notas y campos personalizados
 - ✅ Exportación CSV
@@ -71,17 +77,19 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 | Widgets Web | 10 |
 | Workspaces (empresas) | 10 |
 | Usuarios por workspace | Ilimitados |
-| Mensajes IA/mes | Ilimitados |
+| IA | Ilimitada (API por workspace) |
 | CRM | Completo + API |
 | Historial mensajes | Ilimitado |
 | Soporte | Dedicado + Onboarding |
 
-**Funcionalidades adicionales**:
+**Funcionalidades exclusivas Enterprise**:
 - ✅ Todo lo del Professional
 - ✅ API de acceso
 - ✅ Webhooks personalizados
-- ✅ White-label (sin marca Whahook en widgets)
-- ✅ Enlaces de acceso para clientes
+- ✅ **White-label completo** (ver sección 3)
+- ✅ **Enlaces de acceso para clientes** (ver sección 2.3)
+- ✅ **Envío de QR remoto** (ver sección 2.4)
+- ✅ **API Key por workspace** con tracking de gastos opcional
 - ✅ Roles y permisos avanzados
 - ✅ Reportes personalizados
 
@@ -118,15 +126,17 @@ Un **Workspace** es un espacio aislado que representa una empresa/cliente. Cada 
 
 #### Owner (Propietario de la cuenta)
 - Acceso total a todos los workspaces
-- Gestión de facturación
 - Crear/eliminar workspaces
 - Invitar usuarios
+- Configurar API Keys por workspace
+- Ver gastos de IA (opcional)
 
 #### Admin (Administrador de workspace)
 - Acceso total a UN workspace específico
 - Configurar chatbot, conexiones
 - Ver analytics
 - Gestionar clientes y campañas
+- Enviar QR de conexión WhatsApp
 
 #### Agent (Agente/Operador)
 - Solo acceso a conversaciones
@@ -138,13 +148,18 @@ Un **Workspace** es un espacio aislado que representa una empresa/cliente. Cada 
 
 La funcionalidad clave para agencias: generar un enlace único que permite al cliente final acceder SOLO a su workspace.
 
-**URL de ejemplo**: `https://app.whahook.com/workspace/abc123-token`
+> **OBJETIVO**: El panel del cliente debe parecer de la propia agencia, no de Whahook.
+> El cliente NO debe saber que la agencia usa Whahook para evitar que se vayan directamente a nosotros.
+
+**URL de ejemplo**: `https://app.whahook.com/w/abc123-token`
+O con dominio personalizado: `https://panel.agencia.com/cliente/abc123`
 
 **Lo que ve el cliente al acceder**:
 - Dashboard simplificado (solo su workspace)
 - Bandeja de mensajes (conversaciones que necesitan atención)
 - Lista de clientes (su CRM)
-- NO ve: Configuración, otros workspaces, facturación
+- Gastos de IA (si la agencia lo activa)
+- NO ve: Configuración, otros workspaces, marca Whahook
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -152,42 +167,191 @@ La funcionalidad clave para agencias: generar un enlace único que permite al cl
 ├─────────────────────────────────────────────────────────────┤
 │  ✅ Dashboard global             ✅ Dashboard workspace      │
 │  ✅ Todos los workspaces         ❌ Solo SU workspace        │
-│  ✅ Configuración                ❌ Sin configuración        │
-│  ✅ Facturación                  ❌ Sin facturación          │
+│  ✅ Configuración completa       ❌ Sin configuración        │
 │  ✅ Crear workspaces             ❌ No puede crear           │
 │  ✅ Analytics global             ✅ Analytics propio         │
 │  ✅ Gestión chatbot              ❌ Solo ver chatbot         │
+│  ✅ Ver gastos IA todos          ⚙️ Ver gastos IA (opcional) │
+│  ✅ Marca Whahook visible        ❌ Marca agencia/ninguna    │
 └─────────────────────────────────────────────────────────────┘
+```
+
+### 2.4 Envío de QR Remoto (Enterprise)
+
+Para conectar WhatsApp sin necesidad de tener el móvil del cliente presencialmente:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  FLUJO DE CONEXIÓN REMOTA                                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  1. Agencia crea workspace para cliente                     │
+│                    ↓                                         │
+│  2. Agencia genera "Enlace de conexión WhatsApp"            │
+│                    ↓                                         │
+│  3. Enlace se envía al cliente por email/WhatsApp           │
+│     https://app.whahook.com/connect/xyz789                  │
+│                    ↓                                         │
+│  4. Cliente abre enlace en su móvil                         │
+│                    ↓                                         │
+│  5. Ve página con QR + instrucciones                        │
+│     "Abre WhatsApp > Dispositivos vinculados > Escanear"    │
+│                    ↓                                         │
+│  6. Cliente escanea QR desde su WhatsApp                    │
+│                    ↓                                         │
+│  7. Conexión establecida ✅                                  │
+│     Agencia recibe notificación                             │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Página de conexión (vista del cliente)**:
+- Logo de la agencia (white-label)
+- Instrucciones paso a paso
+- QR code que se actualiza automáticamente
+- Estado de conexión en tiempo real
+- Sin mencionar Whahook
+
+---
+
+## 3. White-Label Completo (Enterprise)
+
+### 3.1 Elementos personalizables
+
+| Elemento | Descripción |
+|----------|-------------|
+| **Widget Web Footer** | Cambiar "Powered by Whahook" por "Powered by [Agencia]" con link personalizado |
+| **Panel de cliente** | Logo, colores, nombre de la agencia |
+| **Emails transaccionales** | Remitente y branding de la agencia |
+| **Página de conexión QR** | Branding completo de la agencia |
+| **Dominio** (futuro) | Posibilidad de usar subdominio propio |
+
+### 3.2 Configuración en el workspace
+
+```typescript
+workspace.white_label = {
+  enabled: true,
+  brand_name: "Marketing Pro Agency",
+  brand_logo_url: "https://...",
+  brand_color: "#FF5722",
+  widget_footer_text: "Powered by Marketing Pro",
+  widget_footer_url: "https://marketingpro.com",
+  hide_whahook_branding: true,
+  show_ai_costs_to_client: false, // Opcional
+}
 ```
 
 ---
 
-## 3. Flujo de Trabajo para Agencias
+## 4. Gestión de API Keys y Costes IA (Enterprise)
 
-### 3.1 Onboarding de nuevo cliente
+### 4.1 API Key por Workspace
+
+En el plan Enterprise, cada workspace puede tener su propia API Key de Gemini:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  CONFIGURACIÓN IA - Workspace "Restaurante"                 │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  API Key de Gemini:                                         │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ AIza●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●  [Cambiar]     ││
+│  └─────────────────────────────────────────────────────────┘│
+│                                                              │
+│  ☑️ Usar API Key del workspace (no la global)               │
+│                                                              │
+│  Mostrar costes al cliente:                                 │
+│  ○ No mostrar (el cliente no ve gastos)                     │
+│  ● Mostrar solo total mensual                               │
+│  ○ Mostrar desglose completo                                │
+│                                                              │
+│  ⚠️ Si no configuras API Key, se usará la global de la      │
+│     cuenta y los costes se agregarán al total.              │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 4.2 Tracking de costes (opcional)
+
+Si la agencia activa "Mostrar costes al cliente":
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  PANEL CLIENTE - Gastos IA (Noviembre 2024)                 │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Total este mes: 12.45€                                     │
+│                                                              │
+│  Desglose:                                                  │
+│  • Mensajes procesados: 1,234                               │
+│  • Tokens entrada: 245,000                                  │
+│  • Tokens salida: 89,000                                    │
+│                                                              │
+│  📊 Ver historial de meses anteriores                       │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+> **NOTA**: La agencia puede decidir NO mostrar esto si prefiere cobrar un precio fijo
+> a sus clientes sin revelar el coste real de la IA.
+
+---
+
+## 5. Campañas WhatsApp y Email
+
+### 5.1 Tipos de campañas (Professional y Enterprise)
+
+| Tipo | Descripción |
+|------|-------------|
+| **WhatsApp Broadcast** | Mensaje masivo a contactos seleccionados |
+| **Email Marketing** | Campañas a contactos con email registrado |
+| **Secuencias** | Mensajes automáticos tras X días sin respuesta |
+| **Recordatorios** | Citas, pagos pendientes, etc. |
+
+### 5.2 Segmentación
+
+Las campañas pueden segmentarse por:
+- Etiquetas de cliente
+- Última interacción (hace X días)
+- Estado de conversación
+- Campos personalizados
+
+---
+
+## 6. Flujo de Trabajo para Agencias
+
+### 6.1 Onboarding de nuevo cliente (REMOTO)
 
 ```
 1. Agencia crea nuevo Workspace "Restaurante El Buen Sabor"
    └── Configura nombre, logo, colores
+   └── Configura white-label (logo agencia, ocultar Whahook)
 
-2. Agencia conecta WhatsApp del cliente
-   └── Cliente escanea QR desde su teléfono
-   └── La sesión queda vinculada al workspace
+2. Agencia genera enlace de conexión WhatsApp
+   └── https://app.whahook.com/connect/xyz789
+   └── Envía por email/WhatsApp al cliente
 
-3. Agencia configura el chatbot
+3. Cliente abre enlace en su móvil
+   └── Ve página con branding de la agencia
+   └── Escanea QR desde su WhatsApp
+   └── Conexión establecida ✅
+
+4. Agencia configura el chatbot
    └── Prompt personalizado para el restaurante
    └── Horarios, menú, reservas, etc.
+   └── (Opcional) Configura API Key específica
 
-4. Agencia instala widget en web del cliente
+5. Agencia instala widget en web del cliente
    └── Copia código embed
-   └── Personaliza colores para la marca
+   └── Footer muestra "Powered by [Agencia]"
 
-5. Agencia genera enlace de acceso
-   └── https://app.whahook.com/workspace/xyz789
+6. Agencia genera enlace de acceso al panel
+   └── https://app.whahook.com/w/abc123
    └── Envía enlace al cliente
 
-6. Cliente accede con el enlace
-   └── Ve solo SU dashboard
+7. Cliente accede con el enlace
+   └── Ve panel con branding de la agencia
    └── Puede responder mensajes que necesitan atención
    └── Ve sus clientes y conversaciones
 ```
@@ -208,9 +372,9 @@ La funcionalidad clave para agencias: generar un enlace único que permite al cl
 
 ---
 
-## 4. Modelo de Datos
+## 7. Modelo de Datos
 
-### 4.1 Nuevas tablas necesarias
+### 7.1 Nuevas tablas necesarias
 
 ```sql
 -- Workspaces (empresas/clientes)
@@ -220,6 +384,22 @@ CREATE TABLE workspaces (
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   logo_url TEXT,
+  
+  -- White-label settings
+  white_label JSONB DEFAULT '{
+    "enabled": false,
+    "brand_name": null,
+    "brand_logo_url": null,
+    "brand_color": null,
+    "widget_footer_text": null,
+    "widget_footer_url": null,
+    "hide_whahook_branding": false,
+    "show_ai_costs_to_client": false
+  }',
+  
+  -- API Key específica del workspace (Enterprise)
+  gemini_api_key TEXT, -- Encriptada
+  
   settings JSONB DEFAULT '{}',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -237,6 +417,59 @@ CREATE TABLE workspace_members (
   invited_at TIMESTAMPTZ,
   joined_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enlaces de conexión WhatsApp (para envío remoto de QR)
+CREATE TABLE workspace_connection_links (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+  token TEXT UNIQUE NOT NULL,
+  whatsapp_account_id UUID REFERENCES whatsapp_accounts(id),
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'connected', 'expired')),
+  expires_at TIMESTAMPTZ NOT NULL,
+  connected_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Tracking de uso de IA por workspace
+CREATE TABLE workspace_ai_usage (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+  month DATE NOT NULL, -- Primer día del mes
+  messages_count INTEGER DEFAULT 0,
+  tokens_input BIGINT DEFAULT 0,
+  tokens_output BIGINT DEFAULT 0,
+  estimated_cost_eur DECIMAL(10,4) DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(workspace_id, month)
+);
+
+-- Campañas (WhatsApp y Email)
+CREATE TABLE campaigns (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id),
+  name TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('whatsapp', 'email')),
+  status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'scheduled', 'sending', 'completed', 'cancelled')),
+  message_template TEXT NOT NULL,
+  subject TEXT, -- Solo para email
+  scheduled_at TIMESTAMPTZ,
+  sent_at TIMESTAMPTZ,
+  
+  -- Segmentación
+  filters JSONB DEFAULT '{}', -- {"tags": ["vip"], "last_interaction_days": 30}
+  
+  -- Estadísticas
+  total_recipients INTEGER DEFAULT 0,
+  sent_count INTEGER DEFAULT 0,
+  delivered_count INTEGER DEFAULT 0,
+  read_count INTEGER DEFAULT 0,
+  failed_count INTEGER DEFAULT 0,
+  
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Modificar tablas existentes para añadir workspace_id
@@ -390,19 +623,23 @@ Vista que muestra resumen de TODOS los workspaces:
 
 ---
 
-## 6. Comparativa con Competencia
+## 9. Comparativa con Competencia
 
 | Característica | Whahook | Respond.io | WATI | Manychat |
 |----------------|---------|------------|------|----------|
 | Multi-workspace | ✅ | ✅ | ❌ | ✅ |
-| Enlaces de acceso | ✅ | ❌ | ❌ | ❌ |
-| White-label | ✅ Enterprise | ✅ | ❌ | ❌ |
+| Enlaces de acceso clientes | ✅ | ❌ | ❌ | ❌ |
+| Envío QR remoto | ✅ | ❌ | ❌ | ❌ |
+| White-label completo | ✅ Enterprise | ✅ | ❌ | ❌ |
+| Campañas WhatsApp | ✅ | ✅ | ✅ | ✅ |
+| Campañas Email | ✅ | ❌ | ❌ | ✅ |
+| API Key por cliente | ✅ | ❌ | ❌ | ❌ |
 | Precio entrada | 12€ | $79 | $49 | $15 |
-| IA incluida | ✅ | Extra | Extra | Extra |
+| IA incluida | API propia | Extra | Extra | Extra |
 
 ---
 
-## 7. Implementación por Fases
+## 10. Implementación por Fases
 
 ### Fase 1: Fundamentos (2-3 semanas)
 - [ ] Crear tabla `workspaces`
@@ -423,28 +660,51 @@ Vista que muestra resumen de TODOS los workspaces:
 - [ ] Vista simplificada para clientes
 - [ ] Gestión de enlaces activos
 
-### Fase 4: Roles y Permisos (1 semana)
-- [ ] Implementar roles (owner, admin, agent)
-- [ ] Restricciones por rol en UI
-- [ ] Restricciones por rol en API
+### Fase 4: Envío QR Remoto (1 semana)
+- [ ] Crear tabla `workspace_connection_links`
+- [ ] Página pública de conexión con QR
+- [ ] Notificaciones de conexión exitosa
+- [ ] Expiración automática de enlaces
 
-### Fase 5: Dashboard Global (1 semana)
+### Fase 5: White-Label (1-2 semanas)
+- [ ] Configuración de branding por workspace
+- [ ] Footer personalizable en widgets
+- [ ] Branding en página de conexión QR
+- [ ] Branding en panel de cliente
+
+### Fase 6: API Keys y Tracking IA (1 semana)
+- [ ] API Key por workspace
+- [ ] Tabla `workspace_ai_usage`
+- [ ] Tracking de tokens y costes
+- [ ] Panel de gastos para clientes (opcional)
+
+### Fase 7: Campañas (2-3 semanas)
+- [ ] Crear tabla `campaigns`
+- [ ] UI de creación de campañas
+- [ ] Segmentación por etiquetas
+- [ ] Envío masivo WhatsApp
+- [ ] Envío masivo Email
+- [ ] Estadísticas de campañas
+
+### Fase 8: Dashboard Global (1 semana)
 - [ ] Vista resumen de todos los workspaces
 - [ ] Métricas agregadas
 - [ ] Alertas globales
 
 ---
 
-## 8. Preguntas Frecuentes
+## 11. Preguntas Frecuentes
 
 **¿Qué pasa si un cliente quiere su propia cuenta?**
 > Puede registrarse con plan Starter. La agencia puede transferir el workspace si es necesario.
 
-**¿Cómo se factura?**
-> La agencia paga por el plan. Puede cobrar a sus clientes lo que quiera.
+**¿Cómo se factura a la agencia?**
+> La agencia paga solo el plan de Whahook (12€, 28€ o 89€/mes). No hay costes adicionales por nuestra parte.
+> Los costes de IA (Gemini) los paga cada uno con su propia API Key directamente a Google.
 
 **¿El cliente puede ver que usa Whahook?**
-> En Enterprise con white-label, no. En otros planes, sí aparece "Powered by Whahook".
+> En Enterprise con white-label activado, NO. Todo aparece con la marca de la agencia.
+> En otros planes, sí aparece "Powered by Whahook" en el widget.
 
 **¿Qué pasa si la agencia cancela?**
 > Los workspaces se desactivan. Se puede exportar datos antes.
@@ -452,9 +712,18 @@ Vista que muestra resumen de TODOS los workspaces:
 **¿Puede un workspace tener múltiples WhatsApp?**
 > Sí, según el plan. Starter: 1, Professional: 3, Enterprise: 10.
 
+**¿Cómo conecta la agencia el WhatsApp de un cliente remoto?**
+> Genera un "Enlace de conexión" que envía al cliente. El cliente abre el enlace,
+> ve el QR con branding de la agencia, y lo escanea desde su WhatsApp.
+
+**¿La agencia puede cobrar a sus clientes?**
+> Sí, la agencia puede cobrar lo que quiera a sus clientes. Whahook no interviene.
+> Si activa "Mostrar gastos IA", el cliente ve el coste real de Gemini.
+> Si lo desactiva, puede cobrar un precio fijo sin revelar costes.
+
 ---
 
-## 9. Resumen de Planes Final
+## 12. Resumen de Planes Final
 
 | | Trial | Starter | Professional | Enterprise |
 |---|---|---|---|---|
@@ -463,10 +732,15 @@ Vista que muestra resumen de TODOS los workspaces:
 | **Widgets Web** | 1 | 1 | 3 | 10 |
 | **Workspaces** | 1 | 1 | 3 | 10 |
 | **Usuarios** | 1 | 1 | 3/workspace | Ilimitados |
+| **IA** | Ilimitada (API propia) | Ilimitada (API propia) | Ilimitada (API propia) | Ilimitada (API por workspace) |
 | **CRM** | Básico | Básico | Completo | Completo + API |
-| **Campañas** | ❌ | ❌ | ✅ | ✅ |
-| **Enlaces acceso** | ❌ | ❌ | ❌ | ✅ |
+| **Campañas WhatsApp** | ❌ | ❌ | ✅ | ✅ |
+| **Campañas Email** | ❌ | ❌ | ✅ | ✅ |
+| **Enlaces acceso clientes** | ❌ | ❌ | ❌ | ✅ |
+| **Envío QR remoto** | ❌ | ❌ | ❌ | ✅ |
 | **White-label** | ❌ | ❌ | ❌ | ✅ |
+| **API Key por workspace** | ❌ | ❌ | ❌ | ✅ |
+| **Tracking gastos IA** | ❌ | ❌ | ❌ | ✅ (opcional) |
 | **Soporte** | Email | Email | Prioritario | Dedicado |
 
 ---
