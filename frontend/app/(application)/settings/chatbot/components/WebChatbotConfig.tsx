@@ -42,11 +42,12 @@ interface WebChatbotConfigProps {
 
 export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: WebChatbotConfigProps) {
   const { user } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
-  const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isPageReady, setIsPageReady] = useState(false)
   const [showApiKey, setShowApiKey] = useState(false)
   const [widgets, setWidgets] = useState<ChatWidget[]>([])
   const [ecommerceConnections, setEcommerceConnections] = useState<EcommerceConnection[]>([])
+  const [configs, setConfigs] = useState<Record<string, any>>({})
   
   // Persist expanded widget state
   const getInitialExpandedWidget = () => {
@@ -65,13 +66,6 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
       localStorage.removeItem('web-expanded-widget')
     }
   }, [expandedWidget])
-
-  const [configs, setConfigs] = useState<Record<string, any>>({})
-  const [loadingStates, setLoadingStates] = useState({
-    widgets: true,
-    ecommerce: true,
-    configs: true
-  })
 
   const providerModels: Record<string, { value: string; label: string; description: string }[]> = {
     google: [
@@ -97,105 +91,162 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
   const [originalData, setOriginalData] = useState<Record<string, any>>({})
 
   useEffect(() => {
-    if (user) {
-      loadInitialData()
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, workspaceId])
-
-  useEffect(() => {
     if (selectedWidgetId) {
       setExpandedWidget(selectedWidgetId)
     }
   }, [selectedWidgetId])
-  
-  // Check if all loading is complete
-  useEffect(() => {
-    const allLoaded = !loadingStates.widgets && !loadingStates.ecommerce && !loadingStates.configs
-    if (allLoaded && isInitialLoading) {
-      const timer = setTimeout(() => {
-        setIsInitialLoading(false)
-        onLoaded?.()
-      }, 100)
-      return () => clearTimeout(timer)
-    }
-  }, [loadingStates, isInitialLoading, onLoaded])
-  
-  const loadInitialData = async () => {
-    setIsInitialLoading(true)
-    await Promise.all([
-      loadWidgets(),
-      loadEcommerceConnections()
-    ])
-  }
 
-  const loadWidgets = async () => {
-    setLoadingStates(prev => ({ ...prev, widgets: true }))
+  // ============================================
+  // SIMPLIFIED LOADING PATTERN
+  // ============================================
+  useEffect(() => {
+    if (!user) return
+    
+    let isMounted = true
+    
+    const loadAllData = async () => {
+      try {
+        // 1. Fetch widgets and ecommerce in parallel
+        const [widgetsResult, ecommerceResult] = await Promise.all([
+          fetchWidgets(),
+          fetchEcommerceConnections()
+        ])
+        
+        if (!isMounted) return
+        
+        setWidgets(widgetsResult)
+        setEcommerceConnections(ecommerceResult)
+        
+        // 2. Load configs for all widgets in parallel
+        if (widgetsResult.length > 0) {
+          const configPromises = widgetsResult.map(widget => fetchConfig(widget.id))
+          const configResults = await Promise.all(configPromises)
+          
+          if (!isMounted) return
+          
+          const newConfigs: Record<string, any> = {}
+          const newFormData: Record<string, any> = {}
+          const newOriginalData: Record<string, any> = {}
+          
+          configResults.forEach((result, index) => {
+            const widgetId = widgetsResult[index].id
+            if (result.config) {
+              newConfigs[widgetId] = result.config
+            }
+            newFormData[widgetId] = result.formData
+            newOriginalData[widgetId] = { ...result.formData }
+          })
+          
+          setConfigs(newConfigs)
+          setFormData(newFormData)
+          setOriginalData(newOriginalData)
+        }
+        
+        // 3. Mark as ready
+        if (isMounted) {
+          setIsPageReady(true)
+          onLoaded?.()
+        }
+      } catch (error) {
+        console.error('Error loading data:', error)
+        if (isMounted) {
+          setIsPageReady(true)
+          onLoaded?.()
+        }
+      }
+    }
+    
+    loadAllData()
+    
+    return () => {
+      isMounted = false
+    }
+  }, [user, workspaceId, onLoaded])
+
+  // ============================================
+  // PURE DATA FETCHING FUNCTIONS
+  // ============================================
+  const fetchWidgets = async (): Promise<ChatWidget[]> => {
     try {
       const url = workspaceId 
         ? `/api/chat-widgets?workspace_id=${workspaceId}`
         : '/api/chat-widgets'
       const response = await ApiClient.request(url)
-      console.log('Chat widgets response:', response)
       
       if (response.success && response.data) {
-        const widgetsData = response.data as ChatWidget[]
-        setWidgets(widgetsData)
-        
-        // Load config for each widget
-        if (widgetsData.length > 0) {
-          await Promise.all(widgetsData.map(widget => loadConfig(widget.id)))
-        }
+        return response.data as ChatWidget[]
       }
+      return []
     } catch (error) {
-      console.error('Error loading widgets:', error)
-    } finally {
-      setLoadingStates(prev => ({ ...prev, widgets: false, configs: false }))
+      console.error('Error fetching widgets:', error)
+      return []
     }
   }
 
-  const loadEcommerceConnections = async () => {
-    setLoadingStates(prev => ({ ...prev, ecommerce: true }))
+  const fetchEcommerceConnections = async (): Promise<EcommerceConnection[]> => {
     try {
       const url = workspaceId 
         ? `/api/ecommerce/connections?workspace_id=${workspaceId}`
         : '/api/ecommerce/connections'
       const response = await ApiClient.request(url)
-      console.log('Ecommerce connections response:', response)
       
       if (response.success && response.data) {
-        const connections = (response.data as any[]).map((conn: any) => ({
+        return (response.data as any[]).map((conn: any) => ({
           id: conn.id,
           platform: conn.platform,
           store_name: conn.store_name || conn.shop_name || conn.store_url || 'Unknown Store'
         }))
-        setEcommerceConnections(connections)
       }
+      return []
     } catch (error) {
-      console.error('Error loading ecommerce connections:', error)
-    } finally {
-      setLoadingStates(prev => ({ ...prev, ecommerce: false }))
+      console.error('Error fetching ecommerce connections:', error)
+      return []
     }
   }
 
-  const loadConfig = async (widgetId: string) => {
+  const fetchConfig = async (widgetId: string): Promise<{ config: any | null; formData: any }> => {
+    const defaultFormData = {
+      api_key: "",
+      provider: "google",
+      model: "gemini-2.5-flash",
+      bot_name: "Asistente",
+      language: "es",
+      tone: "professional",
+      auto_reply: true,
+      use_ecommerce_api: false,
+      ecommerce_connection_ids: [],
+      ecommerce_search_message: "Estoy buscando la mejor solución para ti...",
+      system_prompt: "Eres un asistente útil y profesional.",
+      custom_instructions: "",
+      fallback_message: "Disculpa, no estoy seguro de cómo ayudarte con eso.",
+      temperature: 0.7,
+      max_tokens: 1000,
+      top_p: 1.0,
+      frequency_penalty: 0.0,
+      presence_penalty: 0.0,
+      response_format: "text",
+      context_window: 10,
+      max_conversation_length: 20,
+      enable_memory: true,
+      enable_typing_indicator: true,
+      collect_visitor_data: false,
+      collect_name: false,
+      collect_email: false,
+      collect_phone: false,
+      collect_data_timing: 'during_chat',
+      human_handoff_email: '',
+      handoff_enabled: false,
+      handoff_keywords: ['humano', 'agente', 'representante', 'soporte'],
+      handoff_message: 'Entiendo que necesitas ayuda adicional.',
+    }
+
     try {
-      console.log('Loading config for widget:', widgetId)
       const response: any = await ApiClient.request(`/api/chatbot/web/${widgetId}`)
-      console.log('Web chatbot config response:', response)
-      
       const config = response.data?.data || response.data
       
       if (config && config.id) {
-        console.log('Web chatbot config data:', config)
-        setConfigs(prev => ({ ...prev, [widgetId]: config }))
-        
-        // Preserve existing api_key if already set in form
-        const existingApiKey = formData[widgetId]?.api_key
-        const shouldKeepApiKey = existingApiKey && existingApiKey !== '••••••••'
-        
-        const configData = {
-          api_key: shouldKeepApiKey ? existingApiKey : (config.has_api_key ? '••••••••' : ''),
+        const configFormData = {
+          api_key: config.has_api_key ? '••••••••' : '',
           provider: config.provider || 'google',
           model: config.model || 'gemini-2.5-flash',
           bot_name: config.bot_name || 'Asistente',
@@ -204,10 +255,10 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
           auto_reply: config.auto_reply !== undefined ? config.auto_reply : true,
           use_ecommerce_api: config.use_ecommerce_api || false,
           ecommerce_connection_ids: config.ecommerce_connection_ids || [],
-          ecommerce_search_message: config.ecommerce_search_message || 'Estoy buscando la mejor solución para ti...',
-          system_prompt: config.system_prompt || 'Eres un asistente útil y profesional.',
+          ecommerce_search_message: config.ecommerce_search_message || defaultFormData.ecommerce_search_message,
+          system_prompt: config.system_prompt || defaultFormData.system_prompt,
           custom_instructions: config.custom_instructions || '',
-          fallback_message: config.fallback_message || 'Disculpa, no estoy seguro de cómo ayudarte con eso.',
+          fallback_message: config.fallback_message || defaultFormData.fallback_message,
           temperature: config.temperature ?? 0.7,
           max_tokens: config.max_tokens ?? 1000,
           top_p: config.top_p ?? 1.0,
@@ -218,7 +269,6 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
           max_conversation_length: config.max_conversation_length ?? 20,
           enable_memory: config.enable_memory ?? true,
           enable_typing_indicator: config.enable_typing_indicator ?? true,
-          // Web-specific fields
           collect_visitor_data: config.collect_visitor_data || false,
           collect_name: config.collect_name || false,
           collect_email: config.collect_email || false,
@@ -226,58 +276,29 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
           collect_data_timing: config.collect_data_timing || 'during_chat',
           human_handoff_email: config.human_handoff_email || '',
           handoff_enabled: config.handoff_enabled || false,
-          handoff_keywords: config.handoff_keywords || ['humano', 'agente', 'representante', 'soporte'],
-          handoff_message: config.handoff_message || 'Entiendo que necesitas ayuda adicional. Te contactaremos lo antes posible.',
+          handoff_keywords: config.handoff_keywords || defaultFormData.handoff_keywords,
+          handoff_message: config.handoff_message || defaultFormData.handoff_message,
         }
-        
-        setFormData(prev => ({ ...prev, [widgetId]: configData }))
-        setOriginalData(prev => ({ ...prev, [widgetId]: { ...configData } }))
+        return { config, formData: configFormData }
       }
+      return { config: null, formData: defaultFormData }
     } catch (error) {
-      console.log('No config found for widget, setting defaults:', widgetId)
-      // No config exists yet - set defaults
-      const defaultData = {
-        api_key: "",
-        provider: "google",
-        model: "gemini-2.5-flash",
-        bot_name: "Asistente",
-        language: "es",
-        tone: "professional",
-        auto_reply: true,
-        use_ecommerce_api: false,
-        ecommerce_connection_ids: [],
-        ecommerce_search_message: "Estoy buscando la mejor solución para ti...",
-        system_prompt: "Eres un asistente útil y profesional.",
-        custom_instructions: "",
-        fallback_message: "Disculpa, no estoy seguro de cómo ayudarte con eso.",
-        temperature: 0.7,
-        max_tokens: 1000,
-        top_p: 1.0,
-        frequency_penalty: 0.0,
-        presence_penalty: 0.0,
-        response_format: "text",
-        context_window: 10,
-        max_conversation_length: 20,
-        enable_memory: true,
-        enable_typing_indicator: true,
-        // Web-specific fields
-        collect_visitor_data: false,
-        collect_name: false,
-        collect_email: false,
-        collect_phone: false,
-        collect_data_timing: 'during_chat',
-        human_handoff_email: '',
-        handoff_enabled: false,
-        handoff_keywords: ['humano', 'agente', 'representante', 'soporte'],
-        handoff_message: 'Entiendo que necesitas ayuda adicional. Te contactaremos lo antes posible.',
-      }
-      setFormData(prev => ({ ...prev, [widgetId]: defaultData }))
-      setOriginalData(prev => ({ ...prev, [widgetId]: { ...defaultData } }))
+      console.log('No config found for widget:', widgetId)
+      return { config: null, formData: defaultFormData }
     }
   }
 
+  const reloadConfig = async (widgetId: string) => {
+    const result = await fetchConfig(widgetId)
+    if (result.config) {
+      setConfigs(prev => ({ ...prev, [widgetId]: result.config }))
+    }
+    setFormData(prev => ({ ...prev, [widgetId]: result.formData }))
+    setOriginalData(prev => ({ ...prev, [widgetId]: { ...result.formData } }))
+  }
+
   const handleSave = async (widgetId: string) => {
-    setIsLoading(true)
+    setIsSaving(true)
     try {
       const data = formData[widgetId]
       console.log('Saving web chatbot config:', widgetId, data)
@@ -289,8 +310,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
       
       if (response.success) {
         toast.success('Configuración guardada', 'Los cambios se han aplicado correctamente')
-        // Reload config to get updated data
-        await loadConfig(widgetId)
+        await reloadConfig(widgetId)
       } else {
         throw new Error('Failed to save')
       }
@@ -298,14 +318,14 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
       console.error('Error saving config:', error)
       toast.error('Error', 'No se pudo guardar la configuración')
     } finally {
-      setIsLoading(false)
+      setIsSaving(false)
     }
   }
 
   const handleDelete = async (widgetId: string) => {
     if (!confirm('¿Estás seguro de que quieres eliminar esta configuración?')) return
     
-    setIsLoading(true)
+    setIsSaving(true)
     try {
       await ApiClient.request(`/api/chatbot/web/${widgetId}`, { method: 'DELETE' })
       toast.success('Configuración eliminada', 'La configuración ha sido eliminada')
@@ -314,18 +334,17 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
         delete newConfigs[widgetId]
         return newConfigs
       })
-      // Reset to defaults
-      await loadConfig(widgetId)
+      await reloadConfig(widgetId)
     } catch (error) {
       console.error('Error deleting config:', error)
       toast.error('Error', 'No se pudo eliminar la configuración')
     } finally {
-      setIsLoading(false)
+      setIsSaving(false)
     }
   }
 
   const toggleAutoReply = async (widgetId: string, currentlyEnabled: boolean) => {
-    setIsLoading(true)
+    setIsSaving(true)
     try {
       const newValue = !currentlyEnabled
       console.log(`Toggling auto_reply for widget ${widgetId}: ${currentlyEnabled} -> ${newValue}`)
@@ -361,12 +380,12 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
       console.error('Error toggling auto_reply:', error)
       toast.error('Error', 'No se pudo cambiar el estado')
     } finally {
-      setIsLoading(false)
+      setIsSaving(false)
     }
   }
 
   // Don't render while loading - parent handles the loader
-  if (isInitialLoading) return null
+  if (!isPageReady) return null
 
   return (
     <div className="space-y-4">
@@ -436,7 +455,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
                         <Switch
                           checked={currentAutoReply !== false}
                           onCheckedChange={() => toggleAutoReply(widget.id, currentAutoReply !== false)}
-                          disabled={isLoading}
+                          disabled={isSaving}
                         />
                       </div>
                     )}
@@ -454,7 +473,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
                       formData={data}
                       onFormDataChange={(newData) => setFormData(prev => ({ ...prev, [widget.id]: newData }))}
                       onSave={() => handleSave(widget.id)}
-                      isLoading={isLoading}
+                      isLoading={isSaving}
                       showApiKey={showApiKey}
                       onToggleApiKey={() => setShowApiKey(!showApiKey)}
                       providerModels={providerModels}
@@ -466,10 +485,10 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
                     <div className="flex gap-3 pt-4 mt-4 border-t">
                       <Button 
                         onClick={() => handleSave(widget.id)}
-                        disabled={isLoading || !canSave}
+                        disabled={isSaving || !canSave}
                         className="bg-green-600 hover:bg-green-700"
                       >
-                        {isLoading ? (
+                        {isSaving ? (
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         ) : (
                           <Save className="w-4 h-4 mr-2" />
@@ -482,7 +501,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
                           <Link href={`/config/chatbot/test-web?widgetId=${widget.id}`}>
                             <Button 
                               variant="outline"
-                              disabled={isLoading}
+                              disabled={isSaving}
                               className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                             >
                               <TestTube className="w-4 h-4 mr-2" />
@@ -493,7 +512,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
                           <Button 
                             variant="outline"
                             onClick={() => handleDelete(widget.id)}
-                            disabled={isLoading}
+                            disabled={isSaving}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
                             <Trash2 className="w-4 h-4" />
