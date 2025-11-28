@@ -6,8 +6,10 @@ import { useAuth } from "@/contexts/AuthContext"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { WhatsAppAccountsSection } from "./components/WhatsAppAccountsSection"
 import { ChatWidgetsSection } from "./components/ChatWidgetsSection"
+import { EcommerceConnectionsSection } from "./components/EcommerceConnectionsSection"
+import { WebhooksSection } from "./components/WebhooksSection"
 import { WorkspaceSelector } from "@/components/workspace-selector"
-import { Loader2, Smartphone, Globe, Building2, AlertCircle } from "lucide-react"
+import { Loader2, Smartphone, Globe, Building2, AlertCircle, ShoppingCart, Webhook } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -64,31 +66,45 @@ function ConnectionsPageContent() {
       {/* Content - Only show if workspace is selected */}
       {selectedWorkspace ? (
         <Tabs defaultValue={defaultTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="whatsapp" className="flex items-center gap-2">
               <Smartphone className="w-4 h-4" />
-              <span>WhatsApp</span>
+              <span className="hidden sm:inline">WhatsApp</span>
               {selectedWorkspace.whatsapp_session_id && (
                 <span className="w-2 h-2 bg-green-500 rounded-full" />
               )}
             </TabsTrigger>
             <TabsTrigger value="web" className="flex items-center gap-2">
               <Globe className="w-4 h-4" />
-              <span>Web Widget</span>
+              <span className="hidden sm:inline">Web Widget</span>
               {selectedWorkspace.web_widget_id && (
                 <span className="w-2 h-2 bg-green-500 rounded-full" />
               )}
             </TabsTrigger>
+            <TabsTrigger value="ecommerce" className="flex items-center gap-2">
+              <ShoppingCart className="w-4 h-4" />
+              <span className="hidden sm:inline">E-commerce</span>
+            </TabsTrigger>
+            <TabsTrigger value="webhooks" className="flex items-center gap-2">
+              <Webhook className="w-4 h-4" />
+              <span className="hidden sm:inline">Webhooks</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="whatsapp" className="space-y-6">
-            {/* TODO: Pass workspaceId to filter/link connections */}
             <WhatsAppAccountsSection />
           </TabsContent>
 
           <TabsContent value="web" className="space-y-6">
-            {/* TODO: Pass workspaceId to filter/link connections */}
             <ChatWidgetsSection />
+          </TabsContent>
+
+          <TabsContent value="ecommerce" className="space-y-6">
+            <EcommerceConnectionsSection />
+          </TabsContent>
+
+          <TabsContent value="webhooks" className="space-y-6">
+            <WebhooksSection />
           </TabsContent>
         </Tabs>
       ) : (
