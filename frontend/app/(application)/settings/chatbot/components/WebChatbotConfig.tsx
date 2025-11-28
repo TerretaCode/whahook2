@@ -518,29 +518,55 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
   // Show global loader while initial data is loading
   if (isInitialLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <Globe className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Web Widget Chatbot</h3>
+              <p className="text-sm text-gray-600 mt-0.5">
+                Configure AI for your web chat widgets
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex flex-col items-center justify-center py-16 space-y-4">
+          <Loader2 className="w-12 h-12 text-green-600 animate-spin" />
+          <div className="text-center">
+            <p className="text-sm font-medium text-gray-900">Loading configuration...</p>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Chatbot Web</h3>
-          <p className="text-sm text-gray-600">Configura la IA para tus widgets de chat web</p>
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-green-100 rounded-lg">
+            <Globe className="w-5 h-5 text-green-600" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Web Widget Chatbot</h3>
+            <p className="text-sm text-gray-600 mt-0.5">
+              Configure AI for your web chat widgets
+            </p>
+          </div>
         </div>
       </div>
 
       {widgets.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <Globe className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-          <p className="text-sm">No hay widgets de chat disponibles</p>
-          <p className="text-xs mt-1">Crea un widget en la sección de Conexiones primero</p>
+          <p className="text-sm">No web chat widgets available</p>
+          <p className="text-xs mt-1">Please create a widget first in the Connections section</p>
           <Link href="/settings/connections">
             <Button className="mt-4 bg-green-600 hover:bg-green-700">
-              Ir a Conexiones
+              Go to Connections
             </Button>
           </Link>
         </div>
