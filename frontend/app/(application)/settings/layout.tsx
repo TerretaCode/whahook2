@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { 
   Smartphone, 
-  Sparkles,
   Bot,
   Menu,
   X,
@@ -24,38 +23,31 @@ interface SettingsLayoutProps {
 const settingsNavigation = [
   {
     id: 'connections',
-    name: 'Conexiones',
+    name: 'Connections',
     href: '/settings/connections',
     icon: Smartphone,
-    description: 'WhatsApp y Widgets'
+    description: 'WhatsApp & Web Widgets'
   },
   {
     id: 'chatbot',
     name: 'Chatbot',
     href: '/settings/chatbot',
     icon: Bot,
-    description: 'Configuración de IA'
-  },
-  {
-    id: 'ia',
-    name: 'API Keys',
-    href: '/settings/ia',
-    icon: Sparkles,
-    description: 'Claves de API'
+    description: 'AI & API Keys'
   },
   {
     id: 'billing',
-    name: 'Facturación',
+    name: 'Billing',
     href: '/settings/billing',
     icon: CreditCard,
-    description: 'Plan y pagos'
+    description: 'Plan & payments'
   },
   {
     id: 'profile',
-    name: 'Perfil',
+    name: 'Profile',
     href: '/settings/profile',
     icon: User,
-    description: 'Tu cuenta y preferencias'
+    description: 'Your account'
   }
 ]
 
@@ -73,8 +65,8 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
             <div className="sticky top-24">
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">Ajustes</h2>
-                  <p className="text-sm text-gray-500 mt-1">Gestiona tu cuenta</p>
+                  <h2 className="text-lg font-semibold text-gray-900">Settings</h2>
+                  <p className="text-sm text-gray-500 mt-1">Manage your account</p>
                 </div>
                 <nav className="p-2">
                   {settingsNavigation.map((section) => {
@@ -126,7 +118,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
             >
               <span className="flex items-center gap-2">
                 <Menu className="w-4 h-4" />
-                Menú de Ajustes
+                Settings Menu
               </span>
               {mobileMenuOpen ? (
                 <X className="w-4 h-4" />

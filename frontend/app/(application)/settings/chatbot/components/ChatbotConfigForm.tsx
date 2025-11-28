@@ -7,8 +7,10 @@ import {
   MessageSquare,
   Zap,
   Shield,
-  Bot
+  Bot,
+  Key
 } from "lucide-react"
+import { ApiKeysTab } from "./ApiKeysTab"
 import { ChatbotSettingsTab } from "./chatbot-settings"
 import { WebChatbotSettingsTab } from "./webchatbot-settings"
 import { ModelConfigTab } from "./ModelConfigTab"
@@ -48,7 +50,7 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
         ? `chatbot-tab-widget-${props.widgetId}`
         : 'chatbot-tab'
     const savedTab = localStorage.getItem(storageKey)
-    return savedTab || 'config'
+    return savedTab || 'apikeys'
   }
   
   const [activeTab, setActiveTab] = useState(getInitialTab())
@@ -105,13 +107,17 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
       <div className="overflow-x-auto -mx-4 px-4 mb-4">
         <TabsList className="inline-flex w-auto min-w-full">
+          <TabsTrigger value="apikeys" className="flex-shrink-0">
+            <Key className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">API Keys</span>
+          </TabsTrigger>
           <TabsTrigger value="config" className="flex-shrink-0">
             <Bot className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Asistente</span>
+            <span className="hidden sm:inline">Assistant</span>
           </TabsTrigger>
           <TabsTrigger value="model" className="flex-shrink-0">
             <Zap className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Modelo</span>
+            <span className="hidden sm:inline">Model</span>
           </TabsTrigger>
           <TabsTrigger value="conversation" className="flex-shrink-0">
             <MessageSquare className="w-4 h-4 sm:mr-2" />
@@ -119,11 +125,12 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
           </TabsTrigger>
           <TabsTrigger value="advanced" className="flex-shrink-0">
             <Shield className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Avanzado</span>
+            <span className="hidden sm:inline">Advanced</span>
           </TabsTrigger>
         </TabsList>
       </div>
 
+      <TabsContent value="apikeys"><ApiKeysTab /></TabsContent>
       <TabsContent value="config">
           {props.widgetId ? (
             <WebChatbotSettingsTab {...tabProps} />

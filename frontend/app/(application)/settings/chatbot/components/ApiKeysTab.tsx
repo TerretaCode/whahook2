@@ -9,13 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   Save,
   Loader2,
-  Sparkles,
   Eye,
   EyeOff,
   CheckCircle2,
   AlertCircle,
   ExternalLink,
-  HelpCircle
+  HelpCircle,
+  Key
 } from "lucide-react"
 
 interface AIConfig {
@@ -94,7 +94,7 @@ const defaultConfig: AIConfig = {
   model: "gemini-2.5-flash",
 }
 
-export function GlobalAIConfig() {
+export function ApiKeysTab() {
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [showApiKey, setShowApiKey] = useState(false)
@@ -174,14 +174,14 @@ export function GlobalAIConfig() {
 
   if (isInitialLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center gap-3 mb-6">
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
           <div className="p-2 bg-green-100 rounded-lg">
-            <Sparkles className="w-5 h-5 text-green-600" />
+            <Key className="w-5 h-5 text-green-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">AI Configuration</h3>
-            <p className="text-sm text-gray-600">Configure AI model for all app features</p>
+            <h3 className="text-lg font-semibold text-gray-900">API Keys</h3>
+            <p className="text-sm text-gray-600">Configure your AI provider API key</p>
           </div>
         </div>
         <div className="flex flex-col items-center justify-center py-16">
@@ -193,20 +193,20 @@ export function GlobalAIConfig() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
         <div className="p-2 bg-green-100 rounded-lg">
-          <Sparkles className="w-5 h-5 text-green-600" />
+          <Key className="w-5 h-5 text-green-600" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">AI Configuration</h3>
-          <p className="text-sm text-gray-600">Configure AI model for all app features</p>
+          <h3 className="text-lg font-semibold text-gray-900">API Keys</h3>
+          <p className="text-sm text-gray-600">Configure your AI provider API key for this workspace</p>
         </div>
       </div>
 
       {/* Status indicator */}
       {config?.has_api_key && (
-        <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+        <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
           <CheckCircle2 className="w-5 h-5 text-green-600" />
           <span className="text-sm text-green-700">
             AI configured with <strong>{config.provider === 'google' ? 'Google Gemini' : config.provider === 'openai' ? 'OpenAI' : 'Anthropic'}</strong> - {config.model}
@@ -215,10 +215,10 @@ export function GlobalAIConfig() {
       )}
 
       {!config?.has_api_key && (
-        <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
+        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
           <AlertCircle className="w-5 h-5 text-yellow-600" />
           <span className="text-sm text-yellow-700">
-            Configure your API key to enable AI features
+            Configure your API key to enable AI features for this workspace
           </span>
         </div>
       )}
@@ -341,25 +341,6 @@ export function GlobalAIConfig() {
           </p>
         </div>
 
-        {/* Info about usage */}
-        <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">This configuration is used for:</h4>
-          <ul className="text-sm text-gray-600 space-y-1">
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-              WhatsApp Chatbot (automatic responses)
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-              Client capture (information extraction)
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-              Conversation analysis
-            </li>
-          </ul>
-        </div>
-
         {/* Save Button */}
         <Button 
           onClick={handleSave} 
@@ -384,7 +365,7 @@ export function GlobalAIConfig() {
           ) : (
             <>
               <Save className="w-4 h-4 mr-2" />
-              Save Configuration
+              Save API Key
             </>
           )}
         </Button>
