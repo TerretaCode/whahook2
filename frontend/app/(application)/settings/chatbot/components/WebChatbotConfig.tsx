@@ -34,18 +34,34 @@ interface EcommerceConnection {
   store_name: string
 }
 
+interface AIConfig {
+  id: string
+  provider: string
+  model: string
+  has_api_key: boolean
+}
+
+interface InitialData {
+  widgets: any[]
+  ecommerceConnections: any[]
+  webChatbotConfigs: Record<string, any>
+  aiConfig: AIConfig | null
+}
+
 interface WebChatbotConfigProps {
   selectedWidgetId?: string | null
   workspaceId?: string
+  initialData?: InitialData
 }
 
-export function WebChatbotConfig({ selectedWidgetId, workspaceId }: WebChatbotConfigProps) {
+export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }: WebChatbotConfigProps) {
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
-  const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [isInitialLoading, setIsInitialLoading] = useState(!initialData)
   const [showApiKey, setShowApiKey] = useState(false)
   const [widgets, setWidgets] = useState<ChatWidget[]>([])
   const [ecommerceConnections, setEcommerceConnections] = useState<EcommerceConnection[]>([])
+  const [aiConfig, setAiConfig] = useState<AIConfig | null>(initialData?.aiConfig || null)
   
   // Persist expanded widget state
   const getInitialExpandedWidget = () => {
@@ -97,10 +113,142 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId }: WebChatbotCo
 
   useEffect(() => {
     if (user) {
-      loadInitialData()
+      // If we have initialData, use it instead of fetching
+      if (initialData) {
+        processInitialData()
+      } else {
+        loadInitialData()
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, workspaceId])
+  }, [user, workspaceId, initialData])
+
+  // Process pre-loaded data from parent
+  const processInitialData = () => {
+    if (!initialData) return
+    
+    // Process widgets
+    const mappedWidgets = (initialData.widgets || []).map((w: any) => ({
+      id: w.id,
+      name: w.name || 'Widget',
+      domain: w.domain || '',
+      primary_color: w.primary_color || '#10B981',
+      is_active: w.is_active !== false
+    }))
+    setWidgets(mappedWidgets)
+    
+    // Process ecommerce connections
+    const mappedConnections = (initialData.ecommerceConnections || []).map((c: any) => ({
+      id: c.id,
+      platform: c.platform || 'Unknown',
+      store_name: c.name || c.store_name || c.shop_name || 'Unnamed Store'
+    }))
+    setEcommerceConnections(mappedConnections)
+    
+    // Process web chatbot configs
+    const newFormData: Record<string, any> = {}
+    const newOriginalData: Record<string, any> = {}
+    const newConfigs: Record<string, any> = {}
+    
+    for (const widget of mappedWidgets) {
+      const config = initialData.webChatbotConfigs[widget.id]
+      if (config) {
+        newConfigs[widget.id] = config
+        const configData = {
+          api_key: config.has_api_key ? '••••••••' : '',
+          provider: config.provider || 'google',
+          model: config.model || 'gemini-2.5-flash',
+          bot_name: config.bot_name || 'Asistente',
+          language: config.language || 'es',
+          tone: config.tone || 'professional',
+          auto_reply: config.auto_reply !== undefined ? config.auto_reply : true,
+          use_ecommerce_api: config.use_ecommerce_api || false,
+          ecommerce_connection_ids: config.ecommerce_connection_ids || [],
+          ecommerce_search_message: config.ecommerce_search_message || 'Estoy buscando la mejor solución para ti...',
+          system_prompt: config.system_prompt || 'Eres un asistente útil y profesional.',
+          custom_instructions: config.custom_instructions || '',
+          fallback_message: config.fallback_message || 'Disculpa, no estoy seguro de cómo ayudarte con eso.',
+          temperature: config.temperature ?? 0.7,
+          max_tokens: config.max_tokens ?? 1000,
+          top_p: config.top_p ?? 1.0,
+          frequency_penalty: config.frequency_penalty ?? 0.0,
+          presence_penalty: config.presence_penalty ?? 0.0,
+          response_format: config.response_format || 'text',
+          context_window: config.context_window ?? 10,
+          max_conversation_length: config.max_conversation_length ?? 20,
+          enable_memory: config.enable_memory ?? true,
+          enable_typing_indicator: config.enable_typing_indicator ?? true,
+          // Web-specific fields
+          collect_visitor_data: config.collect_visitor_data || false,
+          collect_name: config.collect_name || false,
+          collect_email: config.collect_email || false,
+          collect_phone: config.collect_phone || false,
+          collect_data_timing: config.collect_data_timing || 'during_chat',
+          human_handoff_email: config.human_handoff_email || '',
+          handoff_enabled: config.handoff_enabled || false,
+          handoff_keywords: config.handoff_keywords || ['humano', 'agente', 'representante', 'soporte'],
+          handoff_message: config.handoff_message || 'Entiendo que necesitas ayuda adicional. Te contactaremos lo antes posible.',
+        }
+        newFormData[widget.id] = configData
+        newOriginalData[widget.id] = { ...configData }
+      } else {
+        // No config exists - set defaults
+        const defaultData = getDefaultWebConfigData()
+        newFormData[widget.id] = defaultData
+        newOriginalData[widget.id] = { ...defaultData }
+      }
+    }
+    
+    setConfigs(newConfigs)
+    setFormData(newFormData)
+    setOriginalData(newOriginalData)
+    
+    // Auto-expand first widget or selected widget
+    if (selectedWidgetId) {
+      setExpandedWidget(selectedWidgetId)
+    } else if (mappedWidgets.length > 0 && !expandedWidget) {
+      setExpandedWidget(mappedWidgets[0].id)
+    }
+    
+    // Mark loading as complete immediately
+    setIsInitialLoading(false)
+  }
+  
+  const getDefaultWebConfigData = () => ({
+    api_key: "",
+    provider: "google",
+    model: "gemini-2.5-flash",
+    bot_name: "Asistente",
+    language: "es",
+    tone: "professional",
+    auto_reply: true,
+    use_ecommerce_api: false,
+    ecommerce_connection_ids: [],
+    ecommerce_search_message: "Estoy buscando la mejor solución para ti...",
+    system_prompt: "Eres un asistente útil y profesional.",
+    custom_instructions: "",
+    fallback_message: "Disculpa, no estoy seguro de cómo ayudarte con eso.",
+    temperature: 0.7,
+    max_tokens: 1000,
+    top_p: 1.0,
+    frequency_penalty: 0.0,
+    presence_penalty: 0.0,
+    response_format: "text",
+    context_window: 10,
+    max_conversation_length: 20,
+    enable_memory: true,
+    enable_typing_indicator: true,
+    // Web-specific fields
+    collect_visitor_data: false,
+    collect_name: false,
+    collect_email: false,
+    collect_phone: false,
+    collect_data_timing: 'during_chat',
+    human_handoff_email: '',
+    handoff_enabled: false,
+    handoff_keywords: ['humano', 'agente', 'representante', 'soporte'],
+    handoff_message: 'Entiendo que necesitas ayuda adicional. Te contactaremos lo antes posible.',
+  })
 
   useEffect(() => {
     if (selectedWidgetId) {
@@ -108,8 +256,10 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId }: WebChatbotCo
     }
   }, [selectedWidgetId])
   
-  // Check if all loading is complete
+  // Check if all loading is complete (only for non-initialData case)
   useEffect(() => {
+    if (initialData) return // Skip if using initialData
+    
     const allLoaded = !loadingStates.widgets && !loadingStates.ecommerce && !loadingStates.configs
     if (allLoaded) {
       const timer = setTimeout(() => {
@@ -117,7 +267,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId }: WebChatbotCo
       }, 100)
       return () => clearTimeout(timer)
     }
-  }, [loadingStates])
+  }, [loadingStates, initialData])
   
   const loadInitialData = async () => {
     setIsInitialLoading(true)
@@ -466,6 +616,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId }: WebChatbotCo
                       providerModels={providerModels}
                       ecommerceConnections={ecommerceConnections}
                       widgetId={widget.id}
+                      aiConfig={aiConfig}
                     />
                     
                     {/* Action Buttons */}

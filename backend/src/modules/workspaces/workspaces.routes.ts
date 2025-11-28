@@ -335,7 +335,8 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
     const [
       sessionsResult,
       ecommerceResult,
-      aiConfigResult
+      aiConfigResult,
+      widgetsResult
     ] = await Promise.all([
       // WhatsApp sessions for this workspace
       supabaseAdmin
@@ -358,12 +359,21 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
         .from('ai_configs')
         .select('id, provider, model, has_api_key, created_at, updated_at')
         .eq('user_id', userId)
-        .single()
+        .single(),
+      
+      // Chat widgets for this workspace
+      supabaseAdmin
+        .from('chat_widgets')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('workspace_id', id)
+        .order('created_at', { ascending: false })
     ])
 
     const sessions = sessionsResult.data || []
     const ecommerceConnections = ecommerceResult.data || []
     const aiConfig = aiConfigResult.data || null
+    const widgets = widgetsResult.data || []
 
     // Fetch chatbot configs for all sessions
     const sessionIds = sessions.map(s => s.session_id)
@@ -378,10 +388,29 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
       chatbotConfigs = configs || []
     }
 
+    // Fetch web chatbot configs for all widgets
+    const widgetIds = widgets.map(w => w.id)
+    let webChatbotConfigs: any[] = []
+    
+    if (widgetIds.length > 0) {
+      const { data: webConfigs } = await supabaseAdmin
+        .from('web_chatbot_configs')
+        .select('*')
+        .in('widget_id', widgetIds)
+      
+      webChatbotConfigs = webConfigs || []
+    }
+
     // Map configs by session_id for easy lookup
     const configsBySession: Record<string, any> = {}
     for (const config of chatbotConfigs) {
       configsBySession[config.whatsapp_session_id] = config
+    }
+
+    // Map web configs by widget_id for easy lookup
+    const configsByWidget: Record<string, any> = {}
+    for (const config of webChatbotConfigs) {
+      configsByWidget[config.widget_id] = config
     }
 
     res.json({
@@ -391,7 +420,9 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
         sessions,
         ecommerceConnections,
         chatbotConfigs: configsBySession,
-        aiConfig
+        aiConfig,
+        widgets,
+        webChatbotConfigs: configsByWidget
       }
     })
   } catch (error: any) {

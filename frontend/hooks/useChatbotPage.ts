@@ -64,12 +64,34 @@ export interface AIConfig {
   updated_at?: string
 }
 
+export interface ChatWidget {
+  id: string
+  name: string
+  domain: string
+  primary_color: string
+  is_active: boolean
+  workspace_id: string
+}
+
+export interface WebChatbotConfig {
+  id: string
+  widget_id: string
+  provider: string
+  model: string
+  has_api_key?: boolean
+  bot_name: string
+  auto_reply: boolean
+  [key: string]: any
+}
+
 export interface ChatbotPageData {
   workspace: Workspace
   sessions: WhatsAppSession[]
   ecommerceConnections: EcommerceConnection[]
   chatbotConfigs: Record<string, ChatbotConfig>
   aiConfig: AIConfig | null
+  widgets: ChatWidget[]
+  webChatbotConfigs: Record<string, WebChatbotConfig>
 }
 
 interface UseChatbotPageReturn {

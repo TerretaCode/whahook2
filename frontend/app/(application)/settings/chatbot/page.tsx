@@ -197,7 +197,16 @@ function ChatbotSettingsContent() {
             )
           ) : (
             hasWebWidgetConnection ? (
-              <WebChatbotConfig selectedWidgetId={selectedWorkspace.web_widget_id} workspaceId={selectedWorkspace.id} />
+              <WebChatbotConfig 
+                selectedWidgetId={selectedWorkspace.web_widget_id} 
+                workspaceId={selectedWorkspace.id}
+                initialData={chatbotData ? {
+                  widgets: chatbotData.widgets,
+                  ecommerceConnections: chatbotData.ecommerceConnections,
+                  webChatbotConfigs: chatbotData.webChatbotConfigs,
+                  aiConfig: chatbotData.aiConfig
+                } : undefined}
+              />
             ) : (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
                 <Globe className="w-12 h-12 text-amber-400 mx-auto mb-4" />
