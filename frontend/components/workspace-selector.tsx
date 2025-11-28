@@ -60,10 +60,11 @@ export function WorkspaceSelector({
   const loadWorkspaces = async () => {
     try {
       setIsLoading(true)
-      const response = await ApiClient.request<{ data: { workspaces: Workspace[] } }>('/api/workspaces')
+      const response = await ApiClient.request<{ workspaces: Workspace[] }>('/api/workspaces')
+      console.log('WorkspaceSelector response:', response)
       
-      if (response.success && response.data?.data?.workspaces) {
-        const list = response.data.data.workspaces
+      if (response.success && response.data?.workspaces) {
+        const list = response.data.workspaces
         setWorkspaces(list)
         
         // Try to restore selected workspace
@@ -180,9 +181,9 @@ export function useWorkspace() {
           return
         }
 
-        const response = await ApiClient.request<{ data: Workspace }>(`/api/workspaces/${savedId}`)
-        if (response.success && response.data?.data) {
-          setWorkspace(response.data.data)
+        const response = await ApiClient.request<Workspace>(`/api/workspaces/${savedId}`)
+        if (response.success && response.data) {
+          setWorkspace(response.data)
         }
       } catch (error) {
         console.error('Error loading workspace:', error)
