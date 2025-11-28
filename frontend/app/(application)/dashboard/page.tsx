@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
 import { ApiClient } from "@/lib/api-client"
 import { toast } from "@/lib/toast"
 import { 
@@ -21,7 +20,10 @@ import {
   Loader2,
   Smartphone,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  TrendingUp,
+  Zap,
+  RefreshCw
 } from "lucide-react"
 
 interface DashboardStats {
@@ -61,6 +63,7 @@ export default function DashboardPage() {
     totalAiActive: 0
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [togglingAi, setTogglingAi] = useState<string | null>(null)
 
   useEffect(() => {
@@ -72,12 +75,17 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user) {
       fetchStats()
+      // Auto-refresh every 30 seconds
+      const interval = setInterval(fetchStats, 30000)
+      return () => clearInterval(interval)
     }
   }, [user])
 
-  const fetchStats = async () => {
+  const fetchStats = async (showRefresh = false) => {
     try {
-      setIsLoading(true)
+      if (showRefresh) setIsRefreshing(true)
+      else setIsLoading(true)
+      
       const response = await ApiClient.request('/api/dashboard/stats')
       if (response.success && response.data) {
         setStats(response.data as DashboardStats)
@@ -86,6 +94,7 @@ export default function DashboardPage() {
       console.error('Failed to fetch stats:', error)
     } finally {
       setIsLoading(false)
+      setIsRefreshing(false)
     }
   }
 
@@ -98,7 +107,7 @@ export default function DashboardPage() {
       })
       if (response.success) {
         toast.success(`IA ${enable ? 'activada' : 'desactivada'} correctamente`)
-        fetchStats() // Refresh stats
+        fetchStats()
       }
     } catch (error) {
       console.error('Failed to toggle AI:', error)
@@ -111,376 +120,368 @@ export default function DashboardPage() {
   if (authLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
       </div>
     )
   }
 
+  const getPlanName = () => {
+    switch (user.profile?.subscription_tier) {
+      case 'free': return 'Trial Gratuito'
+      case 'pro': return 'Plan Pro'
+      case 'business': return 'Plan Business'
+      case 'admin': return 'Administrador'
+      default: return 'Trial'
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              Dashboard
+            <h1 className="text-2xl font-bold text-gray-900">
+              ¡Hola, {user.profile?.full_name?.split(' ')[0] || 'Usuario'}!
             </h1>
-            <p className="mt-1 text-sm text-gray-600">
-              Bienvenido, <span className="font-medium text-gray-900">{user.profile?.full_name || user.email}</span>
+            <p className="text-sm text-gray-500 mt-1">
+              Aquí tienes el resumen de tu actividad
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => fetchStats(true)}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Actualizar
+            </Button>
             <Link href="/settings">
               <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4 mr-2" />
-                Configuración
+                <Settings className="w-4 h-4" />
               </Button>
             </Link>
           </div>
         </div>
 
-        {/* AI Control Panel */}
-        <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl shadow-lg p-6 mb-8 text-white">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-white/20 rounded-lg">
-              <Sparkles className="w-6 h-6" />
+        {/* Alert Banner - Needs Attention (only if > 0) */}
+        {stats.needsAttention > 0 && (
+          <Link href="/conversations?filter=attention">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 hover:bg-red-100 transition-colors cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-red-800">
+                    {stats.needsAttention} {stats.needsAttention === 1 ? 'conversación requiere' : 'conversaciones requieren'} tu atención
+                  </p>
+                  <p className="text-sm text-red-600">
+                    {stats.whatsappNeedsAttention > 0 && `${stats.whatsappNeedsAttention} WhatsApp`}
+                    {stats.whatsappNeedsAttention > 0 && stats.webNeedsAttention > 0 && ' · '}
+                    {stats.webNeedsAttention > 0 && `${stats.webNeedsAttention} Web`}
+                  </p>
+                </div>
+                <ArrowRight className="w-5 h-5 text-red-400" />
+              </div>
             </div>
-            <h2 className="text-xl font-bold">Control de IA</h2>
-          </div>
-          <p className="text-green-100 mb-6">Activa o desactiva la IA de tus chatbots con un solo clic</p>
+          </Link>
+        )}
+
+        {/* Main Stats Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {/* Activar Todas las IA */}
+          {/* Needs Attention Card */}
+          <Link href="/conversations?filter=attention" className="block">
+            <div className={`bg-white rounded-xl border-2 p-5 hover:shadow-md transition-all h-full ${
+              stats.needsAttention > 0 ? 'border-red-200 hover:border-red-300' : 'border-gray-100'
+            }`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className={`p-2.5 rounded-lg ${stats.needsAttention > 0 ? 'bg-red-100' : 'bg-gray-100'}`}>
+                  <AlertCircle className={`w-5 h-5 ${stats.needsAttention > 0 ? 'text-red-600' : 'text-gray-400'}`} />
+                </div>
+                {stats.needsAttention > 0 && (
+                  <span className="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded-full animate-pulse">
+                    URGENTE
+                  </span>
+                )}
+              </div>
+              <p className={`text-3xl font-bold ${stats.needsAttention > 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                {isLoading ? '-' : stats.needsAttention}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">Requieren atención</p>
+            </div>
+          </Link>
+
+          {/* Today's Conversations */}
+          <Link href="/conversations" className="block">
+            <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-md hover:border-green-200 transition-all h-full">
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2.5 bg-green-100 rounded-lg">
+                  <TrendingUp className="w-5 h-5 text-green-600" />
+                </div>
+                <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                  HOY
+                </span>
+              </div>
+              <p className="text-3xl font-bold text-gray-900">
+                {isLoading ? '-' : stats.todayConversations}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">Conversaciones</p>
+            </div>
+          </Link>
+
+          {/* Total Conversations */}
+          <Link href="/conversations" className="block">
+            <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-md hover:border-blue-200 transition-all h-full">
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2.5 bg-blue-100 rounded-lg">
+                  <MessageSquare className="w-5 h-5 text-blue-600" />
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-gray-900">
+                {isLoading ? '-' : stats.totalConversations}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">Total conversaciones</p>
+              <div className="flex gap-3 mt-2 text-xs text-gray-400">
+                <span className="flex items-center gap-1">
+                  <Smartphone className="w-3 h-3" /> {stats.whatsappConversations}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Globe className="w-3 h-3" /> {stats.webConversations}
+                </span>
+              </div>
+            </div>
+          </Link>
+
+          {/* Clients */}
+          <Link href="/clients" className="block">
+            <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-md hover:border-purple-200 transition-all h-full">
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2.5 bg-purple-100 rounded-lg">
+                  <Users className="w-5 h-5 text-purple-600" />
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-gray-900">
+                {isLoading ? '-' : stats.totalClients}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">Clientes</p>
+            </div>
+          </Link>
+        </div>
+
+        {/* Secondary Stats Row */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          
+          {/* WhatsApp Sessions */}
+          <Link href="/settings/connections" className="block">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-sm transition-all">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Smartphone className="w-4 h-4 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-xl font-bold text-gray-900">{stats.whatsappSessions}</p>
+                  <p className="text-xs text-gray-500">WhatsApp conectados</p>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Web Widgets */}
+          <Link href="/settings/connections" className="block">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-sm transition-all">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Globe className="w-4 h-4 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-xl font-bold text-gray-900">{stats.webWidgets}</p>
+                  <p className="text-xs text-gray-500">Widgets Web</p>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Active AIs */}
+          <Link href="/settings/chatbot" className="block">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-sm transition-all">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-100 rounded-lg">
+                  <Bot className="w-4 h-4 text-amber-600" />
+                </div>
+                <div>
+                  <p className="text-xl font-bold text-gray-900">{stats.whatsappAiActive + stats.webAiActive}</p>
+                  <p className="text-xs text-gray-500">IAs activas</p>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Plan */}
+          <Link href="/pricing" className="block">
+            <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 hover:shadow-sm transition-all text-white">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold">{getPlanName()}</p>
+                  <p className="text-xs text-green-100">Ver planes</p>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6">
+          <h2 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Zap className="w-4 h-4 text-amber-500" />
+            Acciones rápidas
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <Link href="/conversations">
+              <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
+                <MessageSquare className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
+                <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Mensajes</p>
+              </div>
+            </Link>
+            <Link href="/clients">
+              <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
+                <Users className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
+                <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Clientes</p>
+              </div>
+            </Link>
+            <Link href="/settings/chatbot">
+              <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
+                <Bot className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
+                <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Chatbots</p>
+              </div>
+            </Link>
+            <Link href="/settings/connections">
+              <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
+                <Settings className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
+                <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Conexiones</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* AI Control Panel - At the bottom */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-green-600" />
+              Control de IA
+            </h2>
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${stats.totalAiActive > 0 ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+              <span className="text-xs text-gray-500">{stats.totalAiActive} activas</span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {/* Activar Todas */}
             <button
               onClick={() => toggleAi('all', true)}
               disabled={togglingAi !== null}
-              className="flex items-center justify-between p-4 bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20"
+              className="flex items-center gap-3 p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors border border-green-200 disabled:opacity-50"
             >
-              <div className="flex items-center gap-3">
-                <Power className="w-5 h-5" />
-                <div className="text-left">
-                  <p className="font-semibold">Activar Todas</p>
-                  <p className="text-xs text-green-200">{stats.totalAiActive} activas</p>
-                </div>
+              {togglingAi === 'all' ? (
+                <Loader2 className="w-4 h-4 text-green-600 animate-spin" />
+              ) : (
+                <Power className="w-4 h-4 text-green-600" />
+              )}
+              <div className="text-left">
+                <p className="text-xs font-semibold text-green-700">Activar todas</p>
               </div>
-              {togglingAi === 'all' && <Loader2 className="w-4 h-4 animate-spin" />}
             </button>
 
             {/* WhatsApp AI */}
             <button
               onClick={() => toggleAi('whatsapp', stats.whatsappAiActive === 0)}
               disabled={togglingAi !== null}
-              className="flex items-center justify-between p-4 bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20"
+              className={`flex items-center gap-3 p-3 rounded-lg transition-colors border disabled:opacity-50 ${
+                stats.whatsappAiActive > 0 
+                  ? 'bg-green-50 border-green-200 hover:bg-green-100' 
+                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+              }`}
             >
-              <div className="flex items-center gap-3">
-                <Smartphone className="w-5 h-5" />
-                <div className="text-left">
-                  <p className="font-semibold">WhatsApp AI</p>
-                  <p className="text-xs text-green-200">
-                    {stats.whatsappAiActive > 0 ? `${stats.whatsappAiActive} activa(s)` : 'Desactivada'}
-                  </p>
-                </div>
-              </div>
               {togglingAi === 'whatsapp' ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
-              ) : stats.whatsappAiActive > 0 ? (
-                <Power className="w-4 h-4 text-green-400" />
               ) : (
-                <PowerOff className="w-4 h-4 text-red-300" />
+                <Smartphone className={`w-4 h-4 ${stats.whatsappAiActive > 0 ? 'text-green-600' : 'text-gray-400'}`} />
               )}
+              <div className="text-left">
+                <p className="text-xs font-semibold text-gray-700">WhatsApp</p>
+                <p className="text-[10px] text-gray-400">{stats.whatsappAiActive > 0 ? 'Activa' : 'Inactiva'}</p>
+              </div>
             </button>
 
             {/* Web AI */}
             <button
               onClick={() => toggleAi('web', stats.webAiActive === 0)}
               disabled={togglingAi !== null}
-              className="flex items-center justify-between p-4 bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20"
+              className={`flex items-center gap-3 p-3 rounded-lg transition-colors border disabled:opacity-50 ${
+                stats.webAiActive > 0 
+                  ? 'bg-green-50 border-green-200 hover:bg-green-100' 
+                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+              }`}
             >
-              <div className="flex items-center gap-3">
-                <Globe className="w-5 h-5" />
-                <div className="text-left">
-                  <p className="font-semibold">Web Chatbot AI</p>
-                  <p className="text-xs text-green-200">
-                    {stats.webAiActive > 0 ? `${stats.webAiActive} activa(s)` : 'Desactivada'}
-                  </p>
-                </div>
-              </div>
               {togglingAi === 'web' ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
-              ) : stats.webAiActive > 0 ? (
-                <Power className="w-4 h-4 text-green-400" />
               ) : (
-                <PowerOff className="w-4 h-4 text-red-300" />
+                <Globe className={`w-4 h-4 ${stats.webAiActive > 0 ? 'text-green-600' : 'text-gray-400'}`} />
               )}
+              <div className="text-left">
+                <p className="text-xs font-semibold text-gray-700">Web</p>
+                <p className="text-[10px] text-gray-400">{stats.webAiActive > 0 ? 'Activa' : 'Inactiva'}</p>
+              </div>
             </button>
 
             {/* Clients AI */}
             <button
               onClick={() => toggleAi('clients', !stats.clientsAiActive)}
               disabled={togglingAi !== null}
-              className="flex items-center justify-between p-4 bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20"
+              className={`flex items-center gap-3 p-3 rounded-lg transition-colors border disabled:opacity-50 ${
+                stats.clientsAiActive 
+                  ? 'bg-green-50 border-green-200 hover:bg-green-100' 
+                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+              }`}
             >
-              <div className="flex items-center gap-3">
-                <Users className="w-5 h-5" />
-                <div className="text-left">
-                  <p className="font-semibold">AI Clientes</p>
-                  <p className="text-xs text-green-200">
-                    {stats.clientsAiActive ? 'Activa' : 'Desactivada'}
-                  </p>
-                </div>
-              </div>
               {togglingAi === 'clients' ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
-              ) : stats.clientsAiActive ? (
-                <Power className="w-4 h-4 text-green-400" />
               ) : (
-                <PowerOff className="w-4 h-4 text-red-300" />
+                <Users className={`w-4 h-4 ${stats.clientsAiActive ? 'text-green-600' : 'text-gray-400'}`} />
               )}
+              <div className="text-left">
+                <p className="text-xs font-semibold text-gray-700">Clientes</p>
+                <p className="text-[10px] text-gray-400">{stats.clientsAiActive ? 'Activa' : 'Inactiva'}</p>
+              </div>
             </button>
 
             {/* Desactivar Todas */}
             <button
               onClick={() => toggleAi('all', false)}
               disabled={togglingAi !== null}
-              className="flex items-center justify-between p-4 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-all border border-red-400/30"
+              className="flex items-center gap-3 p-3 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-200 disabled:opacity-50"
             >
-              <div className="flex items-center gap-3">
-                <PowerOff className="w-5 h-5" />
-                <div className="text-left">
-                  <p className="font-semibold">Desactivar Todas</p>
-                  <p className="text-xs text-red-200">Pausar IA</p>
-                </div>
+              {togglingAi === 'all' ? (
+                <Loader2 className="w-4 h-4 text-red-600 animate-spin" />
+              ) : (
+                <PowerOff className="w-4 h-4 text-red-600" />
+              )}
+              <div className="text-left">
+                <p className="text-xs font-semibold text-red-700">Pausar todas</p>
               </div>
-              {togglingAi === 'all' && <Loader2 className="w-4 h-4 animate-spin" />}
             </button>
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          {/* Total Conversations */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <MessageSquare className="w-6 h-6 text-blue-600" />
-              </div>
-              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">Total</span>
-            </div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-1">
-              {isLoading ? '-' : stats.totalConversations}
-            </h3>
-            <p className="text-sm text-gray-600">Conversaciones</p>
-            <div className="mt-3 flex gap-2 text-xs">
-              <span className="flex items-center gap-1 text-green-600">
-                <Smartphone className="w-3 h-3" /> {stats.whatsappConversations}
-              </span>
-              <span className="flex items-center gap-1 text-blue-600">
-                <Globe className="w-3 h-3" /> {stats.webConversations}
-              </span>
-            </div>
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <Link href="/conversations" className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
-                Ver todas
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Today's Activity */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-green-50 rounded-lg">
-                <Activity className="w-6 h-6 text-green-600" />
-              </div>
-              <span className="text-xs font-medium text-green-700 bg-green-100 px-2 py-1 rounded">Hoy</span>
-            </div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-1">
-              {isLoading ? '-' : stats.todayConversations}
-            </h3>
-            <p className="text-sm text-gray-600">Conversaciones hoy</p>
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <span className="text-xs text-gray-500">Actualizado ahora</span>
-            </div>
-          </div>
-
-          {/* Needs Attention */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-lg ${stats.needsAttention > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
-                <AlertCircle className={`w-6 h-6 ${stats.needsAttention > 0 ? 'text-red-600' : 'text-gray-400'}`} />
-              </div>
-              {stats.needsAttention > 0 && (
-                <span className="text-xs font-medium text-red-700 bg-red-100 px-2 py-1 rounded">Urgente</span>
-              )}
-            </div>
-            <h3 className={`text-3xl font-bold mb-1 ${stats.needsAttention > 0 ? 'text-red-600' : 'text-gray-900'}`}>
-              {isLoading ? '-' : stats.needsAttention}
-            </h3>
-            <p className="text-sm text-gray-600">Requieren atención</p>
-            <div className="mt-3 flex gap-2 text-xs">
-              <span className="flex items-center gap-1 text-green-600">
-                <Smartphone className="w-3 h-3" /> {stats.whatsappNeedsAttention}
-              </span>
-              <span className="flex items-center gap-1 text-blue-600">
-                <Globe className="w-3 h-3" /> {stats.webNeedsAttention}
-              </span>
-            </div>
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <Link href="/conversations?filter=attention" className="text-sm text-red-600 hover:text-red-700 font-medium flex items-center gap-1">
-                Ver mensajes
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Total Clients */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-green-50 rounded-lg">
-                <Users className="w-6 h-6 text-green-600" />
-              </div>
-              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">CRM</span>
-            </div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-1">
-              {isLoading ? '-' : stats.totalClients}
-            </h3>
-            <p className="text-sm text-gray-600">Clientes</p>
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <Link href="/clients" className="text-sm text-green-600 hover:text-green-700 font-medium flex items-center gap-1">
-                Ver clientes
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Connections */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-orange-50 rounded-lg">
-                <Bot className="w-6 h-6 text-orange-600" />
-              </div>
-              <span className="text-xs font-medium text-orange-700 bg-orange-100 px-2 py-1 rounded">Conexiones</span>
-            </div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-1">
-              {isLoading ? '-' : stats.whatsappSessions + stats.webWidgets}
-            </h3>
-            <p className="text-sm text-gray-600">Canales activos</p>
-            <div className="mt-3 flex gap-2 text-xs">
-              <span className="flex items-center gap-1 text-green-600">
-                <Smartphone className="w-3 h-3" /> {stats.whatsappSessions} WhatsApp
-              </span>
-              <span className="flex items-center gap-1 text-blue-600">
-                <Globe className="w-3 h-3" /> {stats.webWidgets} Web
-              </span>
-            </div>
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <Link href="/settings/connections" className="text-sm text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1">
-                Gestionar
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <Bot className="w-5 h-5 text-green-600" />
-              Acciones rápidas
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <Link href="/conversations">
-                <div className="group p-4 border-2 border-gray-200 rounded-lg hover:border-green-600 hover:bg-green-50 transition-all cursor-pointer">
-                  <div className="flex items-center justify-between mb-2">
-                    <MessageSquare className="w-5 h-5 text-gray-600 group-hover:text-green-600" />
-                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-green-600" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Mensajes</h3>
-                  <p className="text-sm text-gray-600">Ver y gestionar chats</p>
-                </div>
-              </Link>
-
-              <Link href="/settings/chatbot">
-                <div className="group p-4 border-2 border-gray-200 rounded-lg hover:border-green-600 hover:bg-green-50 transition-all cursor-pointer">
-                  <div className="flex items-center justify-between mb-2">
-                    <Bot className="w-5 h-5 text-gray-600 group-hover:text-green-600" />
-                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-green-600" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Configurar IA</h3>
-                  <p className="text-sm text-gray-600">Ajustar chatbots</p>
-                </div>
-              </Link>
-
-              <Link href="/clients">
-                <div className="group p-4 border-2 border-gray-200 rounded-lg hover:border-green-600 hover:bg-green-50 transition-all cursor-pointer">
-                  <div className="flex items-center justify-between mb-2">
-                    <Users className="w-5 h-5 text-gray-600 group-hover:text-green-600" />
-                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-green-600" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Clientes</h3>
-                  <p className="text-sm text-gray-600">Gestionar CRM</p>
-                </div>
-              </Link>
-
-              <Link href="/settings/connections">
-                <div className="group p-4 border-2 border-gray-200 rounded-lg hover:border-green-600 hover:bg-green-50 transition-all cursor-pointer">
-                  <div className="flex items-center justify-between mb-2">
-                    <Settings className="w-5 h-5 text-gray-600 group-hover:text-green-600" />
-                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-green-600" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Conexiones</h3>
-                  <p className="text-sm text-gray-600">WhatsApp y Web widgets</p>
-                </div>
-              </Link>
-            </div>
-          </div>
-
-          {/* Plan Status */}
-          <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-xl shadow-sm p-6 text-white">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Sparkles className="w-5 h-5" />
-              Tu Plan
-            </h2>
-            <div className="space-y-4">
-              <div className="text-center py-4">
-                <span className="inline-block px-4 py-2 bg-white/20 rounded-full text-lg font-bold capitalize">
-                  {user.profile?.subscription_tier === 'free' ? 'Trial Gratuito' : 
-                   user.profile?.subscription_tier === 'pro' ? 'Plan Pro' :
-                   user.profile?.subscription_tier === 'business' ? 'Plan Business' :
-                   user.profile?.subscription_tier === 'admin' ? 'Administrador' :
-                   user.profile?.subscription_tier || 'Trial'}
-                </span>
-              </div>
-              
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-between p-2 bg-white/10 rounded">
-                  <span>Sesiones WhatsApp</span>
-                  <span className="font-semibold">{stats.whatsappSessions} activas</span>
-                </div>
-                <div className="flex items-center justify-between p-2 bg-white/10 rounded">
-                  <span>Widgets Web</span>
-                  <span className="font-semibold">{stats.webWidgets} activos</span>
-                </div>
-                <div className="flex items-center justify-between p-2 bg-white/10 rounded">
-                  <span>IAs Configuradas</span>
-                  <span className="font-semibold">{stats.whatsappAiActive + stats.webAiActive}</span>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-green-500">
-                <Link href="/pricing">
-                  <Button className="w-full bg-white text-green-600 hover:bg-gray-100">
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    {user.profile?.subscription_tier === 'free' || !user.profile?.subscription_tier 
-                      ? 'Mejorar Plan' 
-                      : 'Ver Planes'}
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )
