@@ -48,10 +48,18 @@ class WhatsAppService {
   async startSession(sessionId: string, userId: string): Promise<string> {
     console.log(`📱 Starting session: ${sessionId}`)
     
-    // Verificar sesión activa
-    const existing = this.getSessionByUserId(userId)
-    if (existing?.status === 'ready') {
-      throw new Error('Ya tienes una sesión de WhatsApp activa')
+    // Verificar si esta sesión específica ya está activa en memoria
+    const existingSession = this.sessions.get(sessionId)
+    if (existingSession?.status === 'ready') {
+      throw new Error('Esta sesión de WhatsApp ya está activa')
+    }
+    
+    // Verificar límites del plan del usuario
+    const planLimits = await this.getUserPlanLimits(userId)
+    const activeSessionsCount = this.getActiveSessionsCountByUserId(userId)
+    
+    if (activeSessionsCount >= planLimits.whatsapp_sessions) {
+      throw new Error(`Has alcanzado el límite de ${planLimits.whatsapp_sessions} sesión(es) de WhatsApp de tu plan. Actualiza tu plan para conectar más cuentas.`)
     }
 
     // Actualizar estado en DB
@@ -407,6 +415,45 @@ class WhatsAppService {
       if (session.userId === userId) return session
     }
     return undefined
+  }
+
+  /**
+   * Contar sesiones activas (ready) de un usuario
+   */
+  getActiveSessionsCountByUserId(userId: string): number {
+    let count = 0
+    for (const session of this.sessions.values()) {
+      if (session.userId === userId && session.status === 'ready') {
+        count++
+      }
+    }
+    return count
+  }
+
+  /**
+   * Obtener límites del plan del usuario desde la tabla profiles
+   */
+  private async getUserPlanLimits(userId: string): Promise<{ whatsapp_sessions: number }> {
+    const PLAN_LIMITS: Record<string, number> = {
+      trial: 1,
+      starter: 1,
+      professional: 3,
+      enterprise: 10
+    }
+
+    try {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('subscription_tier')
+        .eq('id', userId)
+        .single()
+
+      const tier = profile?.subscription_tier || 'trial'
+      return { whatsapp_sessions: PLAN_LIMITS[tier] || 1 }
+    } catch {
+      // Default to trial limits if error
+      return { whatsapp_sessions: 1 }
+    }
   }
 
   getAllSessions(): Map<string, WhatsAppSession> {
