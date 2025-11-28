@@ -21,42 +21,62 @@ const PRICE_IDS = {
 
 // Plan features configuration
 const PLAN_FEATURES = {
-  free: {
-    name: 'Trial Gratuito',
+  trial: {
+    name: 'Trial',
     whatsapp_sessions: 1,
     web_widgets: 1,
-    messages_per_month: 100,
-    ai_responses: true,
-    support: 'community',
+    workspaces: 1,
+    users_per_workspace: 1,
+    messages_ai_month: 500,
+    crm: 'basic',
+    campaigns: false,
+    client_access_links: false,
+    white_label: false,
+    support: 'email',
+    history_days: 30,
   },
   starter: {
     name: 'Starter',
     whatsapp_sessions: 1,
     web_widgets: 1,
-    messages_per_month: 100,
-    ai_responses: true,
+    workspaces: 1,
+    users_per_workspace: 1,
+    messages_ai_month: 500,
+    crm: 'basic',
+    campaigns: false,
+    client_access_links: false,
+    white_label: false,
     support: 'email',
+    history_days: 30,
   },
   professional: {
     name: 'Professional',
     whatsapp_sessions: 3,
     web_widgets: 3,
-    messages_per_month: -1, // unlimited
-    ai_responses: true,
+    workspaces: 3,
+    users_per_workspace: 3,
+    messages_ai_month: 5000,
+    crm: 'full',
+    campaigns: true,
+    client_access_links: false,
+    white_label: false,
     support: 'priority',
-    priority_support: true,
-    api_access: true,
+    history_days: 365,
   },
   enterprise: {
     name: 'Enterprise',
     whatsapp_sessions: 10,
-    web_widgets: -1, // unlimited
-    messages_per_month: -1, // unlimited
-    ai_responses: true,
+    web_widgets: 10,
+    workspaces: 10,
+    users_per_workspace: -1, // unlimited
+    messages_ai_month: -1, // unlimited
+    crm: 'full',
+    campaigns: true,
+    client_access_links: true,
+    white_label: true,
+    api_access: true,
     support: 'dedicated',
-    priority_support: true,
-    custom_integrations: true,
-    custom_workflows: true,
+    history_days: -1, // unlimited
   },
 }
 
@@ -82,8 +102,8 @@ router.get('/plans', async (req: Request, res: Response) => {
         id: 'starter',
         name: 'Starter',
         description: 'Perfecto para pequeños negocios',
-        price_monthly: 49,
-        price_yearly: 490,
+        price_monthly: 12,
+        price_yearly: 120,
         price_id_monthly: PRICE_IDS.starter_monthly,
         price_id_yearly: PRICE_IDS.starter_yearly,
         features: PLAN_FEATURES.starter,
@@ -92,9 +112,9 @@ router.get('/plans', async (req: Request, res: Response) => {
       {
         id: 'professional',
         name: 'Professional',
-        description: 'Para negocios en crecimiento',
-        price_monthly: 99,
-        price_yearly: 990,
+        description: 'Para negocios en crecimiento y pequeñas agencias',
+        price_monthly: 28,
+        price_yearly: 280,
         price_id_monthly: PRICE_IDS.professional_monthly,
         price_id_yearly: PRICE_IDS.professional_yearly,
         features: PLAN_FEATURES.professional,
@@ -103,9 +123,9 @@ router.get('/plans', async (req: Request, res: Response) => {
       {
         id: 'enterprise',
         name: 'Enterprise',
-        description: 'Para grandes organizaciones',
-        price_monthly: 149,
-        price_yearly: 1490,
+        description: 'Para agencias y empresas con múltiples marcas',
+        price_monthly: 89,
+        price_yearly: 890,
         price_id_monthly: PRICE_IDS.enterprise_monthly,
         price_id_yearly: PRICE_IDS.enterprise_yearly,
         features: PLAN_FEATURES.enterprise,
@@ -128,13 +148,13 @@ router.get('/subscription', async (req: Request, res: Response) => {
     const user = await getUserFromToken(req)
     
     const subscription = {
-      plan: user.user_metadata?.subscription_tier || 'free',
+      plan: user.user_metadata?.subscription_tier || 'trial',
       status: user.user_metadata?.subscription_status || 'active',
       current_period_end: user.user_metadata?.subscription_period_end || null,
       cancel_at_period_end: user.user_metadata?.cancel_at_period_end || false,
       stripe_customer_id: user.user_metadata?.stripe_customer_id || null,
       stripe_subscription_id: user.user_metadata?.stripe_subscription_id || null,
-      features: PLAN_FEATURES[user.user_metadata?.subscription_tier as keyof typeof PLAN_FEATURES] || PLAN_FEATURES.free,
+      features: PLAN_FEATURES[user.user_metadata?.subscription_tier as keyof typeof PLAN_FEATURES] || PLAN_FEATURES.trial,
     }
 
     res.json({ success: true, data: { subscription } })

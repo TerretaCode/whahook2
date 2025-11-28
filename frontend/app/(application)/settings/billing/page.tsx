@@ -31,11 +31,16 @@ interface Plan {
     name: string
     whatsapp_sessions: number
     web_widgets: number
-    messages_per_month: number
-    ai_responses: boolean
+    workspaces: number
+    users_per_workspace: number
+    messages_ai_month: number
+    crm: string
+    campaigns: boolean
+    client_access_links: boolean
+    white_label: boolean
     support: string
-    priority_support?: boolean
-    custom_branding?: boolean
+    history_days: number
+    api_access?: boolean
   }
   highlighted: boolean
 }
@@ -208,7 +213,7 @@ function BillingPageContent() {
                       : 'bg-gray-100 text-gray-700'
                   }`}>
                     {getPlanIcon(subscription.plan)}
-                    {subscription.plan === 'free' ? 'Trial Gratuito' : 
+                    {subscription.plan === 'trial' ? 'Trial (7 días)' : 
                      subscription.plan === 'starter' ? 'Starter' : 
                      subscription.plan === 'professional' ? 'Professional' : 
                      subscription.plan === 'enterprise' ? 'Enterprise' :
@@ -261,23 +266,19 @@ function BillingPageContent() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                 <div className="bg-gray-50 rounded-lg p-3">
                   <p className="text-gray-500">WhatsApp</p>
-                  <p className="font-semibold text-gray-900">{subscription.features.whatsapp_sessions} sesiones</p>
+                  <p className="font-semibold text-gray-900">{subscription.features.whatsapp_sessions} conexiones</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
                   <p className="text-gray-500">Widgets Web</p>
                   <p className="font-semibold text-gray-900">{subscription.features.web_widgets} widgets</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-gray-500">Mensajes/mes</p>
-                  <p className="font-semibold text-gray-900">
-                    {subscription.features.messages_per_month === -1 
-                      ? 'Ilimitados' 
-                      : subscription.features.messages_per_month.toLocaleString()}
-                  </p>
+                  <p className="text-gray-500">Workspaces</p>
+                  <p className="font-semibold text-gray-900">{subscription.features.workspaces} empresas</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-gray-500">Soporte</p>
-                  <p className="font-semibold text-gray-900 capitalize">{subscription.features.support}</p>
+                  <p className="text-gray-500">CRM</p>
+                  <p className="font-semibold text-gray-900 capitalize">{subscription.features.crm === 'full' ? 'Completo' : 'Básico'}</p>
                 </div>
               </div>
             </div>
@@ -363,38 +364,42 @@ function BillingPageContent() {
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-center gap-2 text-sm">
                     <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>{plan.features.whatsapp_sessions} sesiones WhatsApp</span>
+                    <span>{plan.features.whatsapp_sessions} conexión{plan.features.whatsapp_sessions > 1 ? 'es' : ''} WhatsApp</span>
                   </li>
                   <li className="flex items-center gap-2 text-sm">
                     <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>{plan.features.web_widgets} widgets web</span>
+                    <span>{plan.features.web_widgets} widget{plan.features.web_widgets > 1 ? 's' : ''} web</span>
                   </li>
                   <li className="flex items-center gap-2 text-sm">
                     <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>
-                      {plan.features.messages_per_month === -1 
-                        ? 'Mensajes ilimitados' 
-                        : `${plan.features.messages_per_month.toLocaleString()} mensajes/mes`}
-                    </span>
+                    <span>{plan.features.workspaces} workspace{plan.features.workspaces > 1 ? 's' : ''} (empresa{plan.features.workspaces > 1 ? 's' : ''})</span>
                   </li>
                   <li className="flex items-center gap-2 text-sm">
                     <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>Respuestas IA incluidas</span>
+                    <span>CRM {plan.features.crm === 'full' ? 'completo' : 'básico'}</span>
                   </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>Soporte {plan.features.support}</span>
-                  </li>
-                  {plan.features.priority_support && (
+                  {plan.features.campaigns && (
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span>Soporte prioritario</span>
+                      <span>Campañas automáticas</span>
                     </li>
                   )}
-                  {plan.features.custom_branding && (
+                  {plan.features.client_access_links && (
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span>Marca personalizada</span>
+                      <span>Enlaces de acceso para clientes</span>
+                    </li>
+                  )}
+                  {plan.features.white_label && (
+                    <li className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <span>White-label (sin marca Whahook)</span>
+                    </li>
+                  )}
+                  {plan.features.api_access && (
+                    <li className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <span>Acceso API</span>
                     </li>
                   )}
                 </ul>
@@ -407,14 +412,6 @@ function BillingPageContent() {
                     disabled
                   >
                     Plan actual
-                  </Button>
-                ) : plan.id === 'free' ? (
-                  <Button 
-                    variant="outline" 
-                    className="w-full" 
-                    disabled
-                  >
-                    Plan gratuito
                   </Button>
                 ) : (
                   <Button 
