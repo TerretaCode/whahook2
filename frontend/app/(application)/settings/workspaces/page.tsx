@@ -77,13 +77,28 @@ export default function WorkspacesPage() {
   const loadWorkspaces = async () => {
     try {
       setIsLoading(true)
-      const response = await ApiClient.request<{ data: WorkspacesData }>('/api/workspaces')
+      const response = await ApiClient.request<WorkspacesData>('/api/workspaces')
+      console.log('Workspaces response:', response)
       if (response.success && response.data) {
-        setData(response.data.data)
+        setData(response.data)
+      } else {
+        console.error('Failed to load workspaces:', response)
+        // Set default data so UI shows create button
+        setData({
+          workspaces: [],
+          limits: { max: 1, used: 0, canCreate: true },
+          plan: 'trial'
+        })
       }
     } catch (error) {
       console.error('Error loading workspaces:', error)
       toast.error('Failed to load workspaces')
+      // Set default data so UI shows create button
+      setData({
+        workspaces: [],
+        limits: { max: 1, used: 0, canCreate: true },
+        plan: 'trial'
+      })
     } finally {
       setIsLoading(false)
     }
