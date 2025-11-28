@@ -63,9 +63,9 @@ export function WhatsAppChatbotConfig({ workspaceId, onLoaded }: WhatsAppChatbot
   }, [expandedSession])
   const [configs, setConfigs] = useState<Record<string, any>>({})
   const [loadingStates, setLoadingStates] = useState({
-    sessions: false,
-    ecommerce: false,
-    configs: false
+    sessions: true,
+    ecommerce: true,
+    configs: true
   })
 
   const providerModels: Record<string, { value: string; label: string; description: string }[]> = {
@@ -159,12 +159,7 @@ export function WhatsAppChatbotConfig({ workspaceId, onLoaded }: WhatsAppChatbot
         
         // Load configs for all sessions
         if (sessions.length > 0) {
-          setLoadingStates(prev => ({ ...prev, configs: true }))
           await Promise.all(sessions.map((session: WhatsAppSession) => loadConfig(session.id)))
-          setLoadingStates(prev => ({ ...prev, configs: false }))
-        } else {
-          // No sessions, mark configs as loaded
-          setLoadingStates(prev => ({ ...prev, configs: false }))
         }
       } else {
         console.warn('No sessions data found in response')
@@ -172,7 +167,7 @@ export function WhatsAppChatbotConfig({ workspaceId, onLoaded }: WhatsAppChatbot
     } catch (error) {
       console.error('Error loading sessions:', error)
     } finally {
-      setLoadingStates(prev => ({ ...prev, sessions: false }))
+      setLoadingStates(prev => ({ ...prev, sessions: false, configs: false }))
     }
   }
 

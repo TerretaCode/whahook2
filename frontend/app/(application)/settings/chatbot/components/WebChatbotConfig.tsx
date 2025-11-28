@@ -68,9 +68,9 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
 
   const [configs, setConfigs] = useState<Record<string, any>>({})
   const [loadingStates, setLoadingStates] = useState({
-    widgets: false,
-    ecommerce: false,
-    configs: false
+    widgets: true,
+    ecommerce: true,
+    configs: true
   })
 
   const providerModels: Record<string, { value: string; label: string; description: string }[]> = {
@@ -143,16 +143,14 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: We
         setWidgets(widgetsData)
         
         // Load config for each widget
-        setLoadingStates(prev => ({ ...prev, configs: true }))
-        for (const widget of widgetsData) {
-          await loadConfig(widget.id)
+        if (widgetsData.length > 0) {
+          await Promise.all(widgetsData.map(widget => loadConfig(widget.id)))
         }
-        setLoadingStates(prev => ({ ...prev, configs: false }))
       }
     } catch (error) {
       console.error('Error loading widgets:', error)
     } finally {
-      setLoadingStates(prev => ({ ...prev, widgets: false }))
+      setLoadingStates(prev => ({ ...prev, widgets: false, configs: false }))
     }
   }
 
