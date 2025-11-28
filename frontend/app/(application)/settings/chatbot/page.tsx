@@ -205,8 +205,9 @@ function ChatbotSettingsContent() {
   )
 }
 
+// Force redeploy v2
 export default function ChatbotSettingsPage() {
-  console.log('🚀 [ChatbotSettingsPage] Component mounted')
+  console.log('🚀 [ChatbotSettingsPage] Component mounted - v2')
   return (
     <Suspense fallback={
       <SuspenseFallback />
