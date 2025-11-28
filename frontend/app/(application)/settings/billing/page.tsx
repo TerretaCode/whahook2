@@ -162,8 +162,9 @@ function BillingPageContent() {
 
   const getPlanIcon = (planId: string) => {
     switch (planId) {
-      case 'pro': return <Zap className="w-5 h-5" />
-      case 'business': return <Building2 className="w-5 h-5" />
+      case 'starter': return <Sparkles className="w-5 h-5" />
+      case 'professional': return <Zap className="w-5 h-5" />
+      case 'enterprise': return <Building2 className="w-5 h-5" />
       default: return <Sparkles className="w-5 h-5" />
     }
   }
@@ -198,16 +199,19 @@ function BillingPageContent() {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${
-                    subscription.plan === 'business' 
+                    subscription.plan === 'enterprise' 
                       ? 'bg-purple-100 text-purple-700'
-                      : subscription.plan === 'pro'
+                      : subscription.plan === 'professional'
                       ? 'bg-green-100 text-green-700'
+                      : subscription.plan === 'starter'
+                      ? 'bg-blue-100 text-blue-700'
                       : 'bg-gray-100 text-gray-700'
                   }`}>
                     {getPlanIcon(subscription.plan)}
                     {subscription.plan === 'free' ? 'Trial Gratuito' : 
-                     subscription.plan === 'pro' ? 'Plan Pro' : 
-                     subscription.plan === 'business' ? 'Plan Business' : 
+                     subscription.plan === 'starter' ? 'Starter' : 
+                     subscription.plan === 'professional' ? 'Professional' : 
+                     subscription.plan === 'enterprise' ? 'Enterprise' :
                      subscription.plan}
                   </span>
                   {subscription.status === 'active' && (

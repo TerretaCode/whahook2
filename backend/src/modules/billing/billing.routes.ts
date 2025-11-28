@@ -11,10 +11,12 @@ const stripe = process.env.STRIPE_SECRET_KEY
 
 // Price IDs from environment
 const PRICE_IDS = {
-  pro_monthly: process.env.STRIPE_PRICE_PRO_MONTHLY,
-  pro_yearly: process.env.STRIPE_PRICE_PRO_YEARLY,
-  business_monthly: process.env.STRIPE_PRICE_BUSINESS_MONTHLY,
-  business_yearly: process.env.STRIPE_PRICE_BUSINESS_YEARLY,
+  starter_monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY,
+  starter_yearly: process.env.STRIPE_PRICE_STARTER_YEARLY,
+  professional_monthly: process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY,
+  professional_yearly: process.env.STRIPE_PRICE_PROFESSIONAL_YEARLY,
+  enterprise_monthly: process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY,
+  enterprise_yearly: process.env.STRIPE_PRICE_ENTERPRISE_YEARLY,
 }
 
 // Plan features configuration
@@ -27,24 +29,34 @@ const PLAN_FEATURES = {
     ai_responses: true,
     support: 'community',
   },
-  pro: {
-    name: 'Pro',
-    whatsapp_sessions: 3,
-    web_widgets: 5,
-    messages_per_month: 5000,
+  starter: {
+    name: 'Starter',
+    whatsapp_sessions: 1,
+    web_widgets: 1,
+    messages_per_month: 100,
     ai_responses: true,
     support: 'email',
-    priority_support: false,
   },
-  business: {
-    name: 'Business',
-    whatsapp_sessions: 10,
-    web_widgets: 20,
+  professional: {
+    name: 'Professional',
+    whatsapp_sessions: 3,
+    web_widgets: 3,
     messages_per_month: -1, // unlimited
     ai_responses: true,
     support: 'priority',
     priority_support: true,
-    custom_branding: true,
+    api_access: true,
+  },
+  enterprise: {
+    name: 'Enterprise',
+    whatsapp_sessions: 10,
+    web_widgets: -1, // unlimited
+    messages_per_month: -1, // unlimited
+    ai_responses: true,
+    support: 'dedicated',
+    priority_support: true,
+    custom_integrations: true,
+    custom_workflows: true,
   },
 }
 
@@ -67,34 +79,36 @@ router.get('/plans', async (req: Request, res: Response) => {
   try {
     const plans = [
       {
-        id: 'free',
-        name: 'Trial Gratuito',
-        description: 'Perfecto para probar',
-        price_monthly: 0,
-        price_yearly: 0,
-        features: PLAN_FEATURES.free,
+        id: 'starter',
+        name: 'Starter',
+        description: 'Perfecto para pequeños negocios',
+        price_monthly: 49,
+        price_yearly: 490,
+        price_id_monthly: PRICE_IDS.starter_monthly,
+        price_id_yearly: PRICE_IDS.starter_yearly,
+        features: PLAN_FEATURES.starter,
         highlighted: false,
       },
       {
-        id: 'pro',
-        name: 'Pro',
+        id: 'professional',
+        name: 'Professional',
         description: 'Para negocios en crecimiento',
-        price_monthly: 29,
-        price_yearly: 290,
-        price_id_monthly: PRICE_IDS.pro_monthly,
-        price_id_yearly: PRICE_IDS.pro_yearly,
-        features: PLAN_FEATURES.pro,
+        price_monthly: 99,
+        price_yearly: 990,
+        price_id_monthly: PRICE_IDS.professional_monthly,
+        price_id_yearly: PRICE_IDS.professional_yearly,
+        features: PLAN_FEATURES.professional,
         highlighted: true,
       },
       {
-        id: 'business',
-        name: 'Business',
-        description: 'Para empresas establecidas',
-        price_monthly: 79,
-        price_yearly: 790,
-        price_id_monthly: PRICE_IDS.business_monthly,
-        price_id_yearly: PRICE_IDS.business_yearly,
-        features: PLAN_FEATURES.business,
+        id: 'enterprise',
+        name: 'Enterprise',
+        description: 'Para grandes organizaciones',
+        price_monthly: 149,
+        price_yearly: 1490,
+        price_id_monthly: PRICE_IDS.enterprise_monthly,
+        price_id_yearly: PRICE_IDS.enterprise_yearly,
+        features: PLAN_FEATURES.enterprise,
         highlighted: false,
       },
     ]
@@ -335,10 +349,12 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const priceId = subscription.items.data[0]?.price.id
   let plan = 'free'
 
-  if (priceId === PRICE_IDS.pro_monthly || priceId === PRICE_IDS.pro_yearly) {
-    plan = 'pro'
-  } else if (priceId === PRICE_IDS.business_monthly || priceId === PRICE_IDS.business_yearly) {
-    plan = 'business'
+  if (priceId === PRICE_IDS.starter_monthly || priceId === PRICE_IDS.starter_yearly) {
+    plan = 'starter'
+  } else if (priceId === PRICE_IDS.professional_monthly || priceId === PRICE_IDS.professional_yearly) {
+    plan = 'professional'
+  } else if (priceId === PRICE_IDS.enterprise_monthly || priceId === PRICE_IDS.enterprise_yearly) {
+    plan = 'enterprise'
   }
 
   // Update user metadata
