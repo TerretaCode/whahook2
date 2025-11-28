@@ -33,7 +33,8 @@ export default function PricingPage() {
                 "1 Workspace",
                 "1 User",
                 "Unlimited AI (your own API key)",
-                "Basic CRM with contacts",
+                "Basic CRM (contacts & tags)",
+                "Conversation history",
                 "CSV export",
                 "30-day message history",
                 "Email support"
@@ -54,15 +55,19 @@ export default function PricingPage() {
                 "3 Workspaces",
                 "3 Users per workspace",
                 "Unlimited AI (API key per workspace)",
-                "Full CRM with tags & notes",
-                "WhatsApp & Email campaigns",
+                "Full CRM (tags, notes, custom fields)",
+                "WhatsApp campaigns (scheduled bulk)",
+                "Email campaigns",
+                "Advanced segmentation",
+                "Advanced analytics",
                 "Client access links",
                 "Remote QR connection",
+                "API Key per workspace",
                 "CSV export",
                 "90-day message history",
                 "Email support"
               ]}
-              cta="Start Free Trial"
+              cta="Get Started"
               ctaLink="/register"
               highlighted={true}
             />
@@ -79,17 +84,21 @@ export default function PricingPage() {
                 "10 Workspaces",
                 "10 Users per workspace",
                 "Unlimited AI (API key per workspace)",
-                "Full CRM with tags & notes",
-                "WhatsApp & Email campaigns",
+                "Full CRM (tags, notes, custom fields)",
+                "WhatsApp campaigns (scheduled bulk)",
+                "Email campaigns",
+                "Advanced segmentation",
+                "Advanced analytics",
                 "Client access links",
                 "Remote QR connection",
+                "API Key per workspace",
                 "White-label (hide Whahook brand)",
                 "Custom domain support",
                 "CSV export",
                 "90-day message history",
                 "Email support"
               ]}
-              cta="Start Free Trial"
+              cta="Get Started"
               ctaLink="/register"
             />
           </div>

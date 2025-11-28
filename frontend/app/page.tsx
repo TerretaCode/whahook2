@@ -236,11 +236,11 @@ export default function Home() {
               period="/month"
               description="Perfect for small businesses"
               features={[
-                "1 WhatsApp connection",
-                "1 Web widget",
-                "1 Workspace",
+                "1 WhatsApp / Web / Workspace",
+                "1 User",
                 "Unlimited AI (your own API key)",
-                "Basic CRM with contacts",
+                "Basic CRM (contacts & tags)",
+                "CSV export",
                 "30-day message history"
               ]}
               cta="Start Free Trial"
@@ -255,11 +255,11 @@ export default function Home() {
                 "3 WhatsApp / Web / Workspaces",
                 "3 Users per workspace",
                 "Unlimited AI (API per workspace)",
-                "Full CRM with campaigns",
-                "Client access links",
+                "Full CRM + WhatsApp/Email campaigns",
+                "Client access links + Remote QR",
                 "90-day message history"
               ]}
-              cta="Start Free Trial"
+              cta="Get Started"
               ctaLink="/register"
               highlighted={true}
             />
@@ -272,11 +272,11 @@ export default function Home() {
                 "10 WhatsApp / Web / Workspaces",
                 "10 Users per workspace",
                 "Everything in Professional",
-                "White-label branding",
+                "White-label (hide Whahook brand)",
                 "Custom domain support",
                 "90-day message history"
               ]}
-              cta="Start Free Trial"
+              cta="Get Started"
               ctaLink="/register"
             />
           </div>
