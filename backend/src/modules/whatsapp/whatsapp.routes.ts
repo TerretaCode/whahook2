@@ -186,17 +186,25 @@ router.post('/sessions', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    // Buscar la cuenta existente
+    if (!accountId) {
+      return res.status(400).json({ success: false, error: 'accountId is required' })
+    }
+
+    // Buscar la cuenta específica por ID
     const { data: account, error: findError } = await supabaseAdmin
       .from('whatsapp_accounts')
       .select('*')
+      .eq('id', accountId)
       .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(1)
       .single()
 
     if (findError || !account) {
-      return res.status(404).json({ success: false, error: 'No account found. Create one first.' })
+      return res.status(404).json({ success: false, error: 'Account not found' })
+    }
+
+    // Verificar si esta sesión específica ya está activa
+    if (account.status === 'ready') {
+      return res.status(400).json({ success: false, error: 'This session is already active' })
     }
 
     console.log('📱 Starting session for user:', userId, 'sessionId:', account.session_id)
