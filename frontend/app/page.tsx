@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { MessageSquare, Bot, Zap, Shield, BarChart3, Sparkles, CheckCircle, ArrowRight, Users, Globe, Smartphone } from "lucide-react"
+import { HomePricingSection } from "@/components/home-pricing-section"
 
 export default function Home() {
   return (
@@ -218,70 +219,7 @@ export default function Home() {
       </section>
 
       {/* Pricing Preview */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Simple, Transparent Pricing
-            </h2>
-            <p className="text-xl text-gray-600">
-              Choose the plan that fits your business needs
-            </p>
-          </div>
-
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-            <PricingCard
-              name="Starter"
-              price="€12"
-              period="/month"
-              description="Perfect for small businesses"
-              features={[
-                "1 WhatsApp / Web / Workspace",
-                "1 User",
-                "Unlimited AI (your own API key)",
-                "Basic CRM (contacts & tags)",
-                "CSV export",
-                "30-day message history"
-              ]}
-              cta="Start Free Trial"
-              ctaLink="/register"
-            />
-            <PricingCard
-              name="Professional"
-              price="€28"
-              period="/month"
-              description="For growing businesses & small agencies"
-              features={[
-                "3 WhatsApp / Web / Workspaces",
-                "3 Users per workspace",
-                "Unlimited AI (API per workspace)",
-                "Full CRM + WhatsApp/Email campaigns",
-                "Client access links + Remote QR",
-                "90-day message history"
-              ]}
-              cta="Get Started"
-              ctaLink="/register"
-              highlighted={true}
-            />
-            <PricingCard
-              name="Enterprise"
-              price="€89"
-              period="/month"
-              description="For agencies & multi-brand businesses"
-              features={[
-                "10 WhatsApp / Web / Workspaces",
-                "10 Users per workspace",
-                "Everything in Professional",
-                "White-label (hide Whahook brand)",
-                "Custom domain support",
-                "90-day message history"
-              ]}
-              cta="Get Started"
-              ctaLink="/register"
-            />
-          </div>
-        </div>
-      </section>
+      <HomePricingSection />
 
       {/* CTA Section */}
       <section className="py-20 md:py-28 bg-gradient-to-br from-green-600 to-green-700">
@@ -361,46 +299,3 @@ function UseCaseCard({ icon, title, description }: { icon: React.ReactNode; titl
   )
 }
 
-function PricingCard({ 
-  name, 
-  price, 
-  period, 
-  description, 
-  features, 
-  cta, 
-  ctaLink, 
-  highlighted 
-}: { 
-  name: string
-  price: string
-  period?: string
-  description: string
-  features: string[]
-  cta: string
-  ctaLink: string
-  highlighted?: boolean
-}) {
-  return (
-    <div className={`rounded-2xl p-8 ${highlighted ? 'bg-green-600 text-white ring-4 ring-green-600 ring-offset-4' : 'bg-white border-2 border-gray-200'}`}>
-      <h3 className={`text-2xl font-bold mb-2 ${highlighted ? 'text-white' : 'text-gray-900'}`}>{name}</h3>
-      <p className={`mb-6 ${highlighted ? 'text-green-100' : 'text-gray-600'}`}>{description}</p>
-      <div className="mb-6">
-        <span className="text-5xl font-bold">{price}</span>
-        {period && <span className={`text-xl ${highlighted ? 'text-green-100' : 'text-gray-600'}`}>{period}</span>}
-      </div>
-      <ul className="space-y-3 mb-8">
-        {features.map((feature, index) => (
-          <li key={index} className="flex items-start gap-3">
-            <CheckCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${highlighted ? 'text-green-200' : 'text-green-600'}`} />
-            <span className={highlighted ? 'text-green-50' : 'text-gray-700'}>{feature}</span>
-          </li>
-        ))}
-      </ul>
-      <Link href={ctaLink} className="block">
-        <Button className={`w-full py-6 text-lg ${highlighted ? 'bg-white text-green-600 hover:bg-gray-100' : 'bg-green-600 text-white hover:bg-green-700'}`}>
-          {cta}
-        </Button>
-      </Link>
-    </div>
-  )
-}

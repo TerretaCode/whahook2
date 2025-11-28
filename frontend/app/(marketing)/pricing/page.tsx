@@ -3,82 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { CheckCircle } from "lucide-react"
-
-const PLANS = {
-  starter: {
-    name: "Starter",
-    monthlyPrice: 12,
-    yearlyPrice: 120,
-    description: "Perfect for small businesses",
-    features: [
-      "1 WhatsApp connection",
-      "1 Web widget",
-      "1 Workspace",
-      "1 User",
-      "Unlimited AI (your own API key)",
-      "Basic CRM (contacts & tags)",
-      "Conversation history",
-      "CSV export",
-      "30-day message history",
-      "Email support"
-    ],
-    cta: "Start Free Trial",
-  },
-  professional: {
-    name: "Professional",
-    monthlyPrice: 28,
-    yearlyPrice: 280,
-    description: "For growing businesses & small agencies",
-    features: [
-      "3 WhatsApp connections",
-      "3 Web widgets",
-      "3 Workspaces",
-      "3 Users per workspace",
-      "Unlimited AI (API key per workspace)",
-      "Full CRM (tags, notes, custom fields)",
-      "WhatsApp campaigns (scheduled bulk)",
-      "Email campaigns",
-      "Advanced segmentation",
-      "Advanced analytics",
-      "Client access links",
-      "Remote QR connection",
-      "API Key per workspace",
-      "CSV export",
-      "90-day message history",
-      "Email support"
-    ],
-    cta: "Get Started",
-    highlighted: true,
-  },
-  enterprise: {
-    name: "Enterprise",
-    monthlyPrice: 89,
-    yearlyPrice: 890,
-    description: "For agencies & multi-brand businesses",
-    features: [
-      "10 WhatsApp connections",
-      "10 Web widgets",
-      "10 Workspaces",
-      "10 Users per workspace",
-      "Unlimited AI (API key per workspace)",
-      "Full CRM (tags, notes, custom fields)",
-      "WhatsApp campaigns (scheduled bulk)",
-      "Email campaigns",
-      "Advanced segmentation",
-      "Advanced analytics",
-      "Client access links",
-      "Remote QR connection",
-      "API Key per workspace",
-      "White-label (hide Whahook brand)",
-      "Custom domain support",
-      "CSV export",
-      "90-day message history",
-      "Email support"
-    ],
-    cta: "Get Started",
-  },
-}
+import { PricingCard, BillingToggle, PLANS } from "@/components/pricing-card"
 
 export default function PricingPage() {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly')
@@ -100,67 +25,12 @@ export default function PricingPage() {
       {/* Pricing Cards */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          {/* Billing Period Toggle */}
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <button
-              onClick={() => setBillingPeriod('monthly')}
-              className={`px-6 py-3 rounded-lg text-sm font-medium transition-colors ${
-                billingPeriod === 'monthly'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setBillingPeriod('yearly')}
-              className={`px-6 py-3 rounded-lg text-sm font-medium transition-colors ${
-                billingPeriod === 'yearly'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              Yearly
-              <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded font-semibold">
-                Save 17%
-              </span>
-            </button>
-          </div>
+          <BillingToggle billingPeriod={billingPeriod} onToggle={setBillingPeriod} />
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Starter Plan */}
-            <PricingCard
-              name={PLANS.starter.name}
-              price={billingPeriod === 'monthly' ? PLANS.starter.monthlyPrice : Math.round(PLANS.starter.yearlyPrice / 12)}
-              yearlyTotal={billingPeriod === 'yearly' ? PLANS.starter.yearlyPrice : undefined}
-              description={PLANS.starter.description}
-              features={PLANS.starter.features}
-              cta={PLANS.starter.cta}
-              ctaLink="/register"
-            />
-
-            {/* Professional Plan - Highlighted */}
-            <PricingCard
-              name={PLANS.professional.name}
-              price={billingPeriod === 'monthly' ? PLANS.professional.monthlyPrice : Math.round(PLANS.professional.yearlyPrice / 12)}
-              yearlyTotal={billingPeriod === 'yearly' ? PLANS.professional.yearlyPrice : undefined}
-              description={PLANS.professional.description}
-              features={PLANS.professional.features}
-              cta={PLANS.professional.cta}
-              ctaLink="/register"
-              highlighted={true}
-            />
-
-            {/* Enterprise Plan */}
-            <PricingCard
-              name={PLANS.enterprise.name}
-              price={billingPeriod === 'monthly' ? PLANS.enterprise.monthlyPrice : Math.round(PLANS.enterprise.yearlyPrice / 12)}
-              yearlyTotal={billingPeriod === 'yearly' ? PLANS.enterprise.yearlyPrice : undefined}
-              description={PLANS.enterprise.description}
-              features={PLANS.enterprise.features}
-              cta={PLANS.enterprise.cta}
-              ctaLink="/register"
-            />
+            <PricingCard plan={PLANS.starter} billingPeriod={billingPeriod} />
+            <PricingCard plan={PLANS.professional} billingPeriod={billingPeriod} />
+            <PricingCard plan={PLANS.enterprise} billingPeriod={billingPeriod} />
           </div>
         </div>
       </section>
@@ -219,55 +89,6 @@ export default function PricingPage() {
           </p>
         </div>
       </section>
-    </div>
-  )
-}
-
-function PricingCard({ 
-  name, 
-  price, 
-  yearlyTotal,
-  description, 
-  features, 
-  cta, 
-  ctaLink, 
-  highlighted 
-}: { 
-  name: string
-  price: number
-  yearlyTotal?: number
-  description: string
-  features: string[]
-  cta: string
-  ctaLink: string
-  highlighted?: boolean
-}) {
-  return (
-    <div className={`rounded-2xl p-8 ${highlighted ? 'bg-green-600 text-white ring-4 ring-green-600 ring-offset-4' : 'bg-white border-2 border-gray-200'}`}>
-      <h3 className={`text-2xl font-bold mb-2 ${highlighted ? 'text-white' : 'text-gray-900'}`}>{name}</h3>
-      <p className={`mb-6 ${highlighted ? 'text-green-100' : 'text-gray-600'}`}>{description}</p>
-      <div className="mb-6">
-        <span className="text-5xl font-bold">€{price}</span>
-        <span className={`text-xl ${highlighted ? 'text-green-100' : 'text-gray-600'}`}>/month</span>
-        {yearlyTotal && (
-          <p className={`text-sm mt-1 ${highlighted ? 'text-green-200' : 'text-gray-500'}`}>
-            Billed annually (€{yearlyTotal}/year)
-          </p>
-        )}
-      </div>
-      <ul className="space-y-3 mb-8">
-        {features.map((feature, index) => (
-          <li key={index} className="flex items-start gap-3">
-            <CheckCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${highlighted ? 'text-green-200' : 'text-green-600'}`} />
-            <span className={highlighted ? 'text-green-50' : 'text-gray-700'}>{feature}</span>
-          </li>
-        ))}
-      </ul>
-      <Link href={ctaLink} className="block">
-        <Button className={`w-full py-6 text-lg ${highlighted ? 'bg-white text-green-600 hover:bg-gray-100' : 'bg-green-600 text-white hover:bg-green-700'}`}>
-          {cta}
-        </Button>
-      </Link>
     </div>
   )
 }

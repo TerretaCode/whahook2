@@ -7,43 +7,13 @@ import { Button } from "@/components/ui/button"
 import { ApiClient } from "@/lib/api-client"
 import { toast } from "@/lib/toast"
 import { 
-  CreditCard, 
-  Check, 
   Loader2,
-  Sparkles,
-  Zap,
-  Building2,
   ExternalLink,
   Calendar,
   AlertCircle,
   Crown
 } from "lucide-react"
-
-interface Plan {
-  id: string
-  name: string
-  description: string
-  price_monthly: number
-  price_yearly: number
-  price_id_monthly?: string
-  price_id_yearly?: string
-  features: {
-    name: string
-    whatsapp_sessions: number
-    web_widgets: number
-    workspaces: number
-    users_per_workspace: number
-    messages_ai_month: number
-    crm: string
-    campaigns: boolean
-    client_access_links: boolean
-    white_label: boolean
-    support: string
-    history_days: number
-    api_access?: boolean
-  }
-  highlighted: boolean
-}
+import { BillingPricingCard, BillingToggle, PLANS } from "@/components/billing-pricing-section"
 
 interface Subscription {
   plan: string
@@ -52,7 +22,15 @@ interface Subscription {
   cancel_at_period_end: boolean
   stripe_customer_id: string | null
   stripe_subscription_id: string | null
-  features: Plan['features']
+}
+
+interface StripePriceIds {
+  starter_monthly?: string
+  starter_yearly?: string
+  professional_monthly?: string
+  professional_yearly?: string
+  enterprise_monthly?: string
+  enterprise_yearly?: string
 }
 
 // Component that uses searchParams
@@ -60,8 +38,8 @@ function BillingPageContent() {
   const { refreshUser } = useAuth()
   const searchParams = useSearchParams()
   
-  const [plans, setPlans] = useState<Plan[]>([])
   const [subscription, setSubscription] = useState<Subscription | null>(null)
+  const [priceIds, setPriceIds] = useState<StripePriceIds>({})
   const [isLoading, setIsLoading] = useState(true)
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly')
   const [processingPlan, setProcessingPlan] = useState<string | null>(null)
@@ -87,12 +65,12 @@ function BillingPageContent() {
       setIsLoading(true)
       
       const [plansRes, subRes] = await Promise.all([
-        ApiClient.request<{ plans: Plan[] }>('/api/billing/plans'),
+        ApiClient.request<{ plans: any[], priceIds: StripePriceIds }>('/api/billing/plans'),
         ApiClient.request<{ subscription: Subscription }>('/api/billing/subscription')
       ])
       
-      if (plansRes.success && plansRes.data) {
-        setPlans(plansRes.data.plans)
+      if (plansRes.success && plansRes.data?.priceIds) {
+        setPriceIds(plansRes.data.priceIds)
       }
       
       if (subRes.success && subRes.data) {
@@ -105,13 +83,12 @@ function BillingPageContent() {
     }
   }
 
-  const handleSubscribe = async (plan: Plan) => {
+  const handleSubscribe = async (planId: string) => {
     try {
-      setProcessingPlan(plan.id)
+      setProcessingPlan(planId)
       
-      const priceId = billingPeriod === 'monthly' 
-        ? plan.price_id_monthly 
-        : plan.price_id_yearly
+      const priceKey = `${planId}_${billingPeriod}` as keyof StripePriceIds
+      const priceId = priceIds[priceKey]
       
       if (!priceId) {
         toast.error('Plan not available at this time')
@@ -165,15 +142,6 @@ function BillingPageContent() {
     })
   }
 
-  const getPlanIcon = (planId: string) => {
-    switch (planId) {
-      case 'starter': return <Sparkles className="w-5 h-5" />
-      case 'professional': return <Zap className="w-5 h-5" />
-      case 'enterprise': return <Building2 className="w-5 h-5" />
-      default: return <Sparkles className="w-5 h-5" />
-    }
-  }
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -181,6 +149,8 @@ function BillingPageContent() {
       </div>
     )
   }
+
+  const plansList = [PLANS.starter, PLANS.professional, PLANS.enterprise]
 
   return (
     <div className="space-y-6 pb-20 md:pb-8">
@@ -212,7 +182,6 @@ function BillingPageContent() {
                       ? 'bg-blue-100 text-blue-700'
                       : 'bg-gray-100 text-gray-700'
                   }`}>
-                    {getPlanIcon(subscription.plan)}
                     {subscription.plan === 'trial' ? 'Trial (7 days)' : 
                      subscription.plan === 'starter' ? 'Starter' : 
                      subscription.plan === 'professional' ? 'Professional' : 
@@ -259,182 +228,26 @@ function BillingPageContent() {
                 </Button>
               )}
             </div>
-
-            {/* Current Plan Features */}
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Your plan includes:</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-gray-500">WhatsApp</p>
-                  <p className="font-semibold text-gray-900">{subscription.features.whatsapp_sessions} connection{subscription.features.whatsapp_sessions > 1 ? 's' : ''}</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-gray-500">Web Widgets</p>
-                  <p className="font-semibold text-gray-900">{subscription.features.web_widgets} widget{subscription.features.web_widgets > 1 ? 's' : ''}</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-gray-500">Workspaces</p>
-                  <p className="font-semibold text-gray-900">{subscription.features.workspaces} workspace{subscription.features.workspaces > 1 ? 's' : ''}</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-gray-500">CRM</p>
-                  <p className="font-semibold text-gray-900 capitalize">{subscription.features.crm === 'full' ? 'Full' : 'Basic'}</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       )}
 
       {/* Billing Period Toggle */}
-      <div className="flex items-center justify-center gap-4">
-        <button
-          onClick={() => setBillingPeriod('monthly')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            billingPeriod === 'monthly'
-              ? 'bg-green-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          Monthly
-        </button>
-        <button
-          onClick={() => setBillingPeriod('yearly')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            billingPeriod === 'yearly'
-              ? 'bg-green-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          Yearly
-          <span className="ml-1 text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
-            -17%
-          </span>
-        </button>
-      </div>
+      <BillingToggle billingPeriod={billingPeriod} onToggle={setBillingPeriod} />
 
-      {/* Plans Grid */}
-      <div className="grid md:grid-cols-3 gap-6">
-        {plans.map((plan) => {
-          const isCurrentPlan = subscription?.plan === plan.id
-          const price = billingPeriod === 'monthly' ? plan.price_monthly : plan.price_yearly
-          const pricePerMonth = billingPeriod === 'yearly' 
-            ? Math.round(plan.price_yearly / 12) 
-            : plan.price_monthly
-          
-          return (
-            <div 
-              key={plan.id}
-              className={`bg-white rounded-xl border-2 overflow-hidden transition-all ${
-                plan.highlighted 
-                  ? 'border-green-500 shadow-lg shadow-green-100' 
-                  : isCurrentPlan
-                  ? 'border-green-200'
-                  : 'border-gray-200'
-              }`}
-            >
-              {plan.highlighted && (
-                <div className="bg-green-500 text-white text-center text-sm font-medium py-1">
-                  Most popular
-                </div>
-              )}
-              
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-2">
-                  {getPlanIcon(plan.id)}
-                  <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
-                </div>
-                <p className="text-sm text-gray-500 mb-4">{plan.description}</p>
-                
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-gray-900">
-                    {price === 0 ? 'Free' : `€${pricePerMonth}`}
-                  </span>
-                  {price > 0 && (
-                    <span className="text-gray-500 text-sm">/month</span>
-                  )}
-                  {billingPeriod === 'yearly' && price > 0 && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      Billed annually (€{price}/year)
-                    </p>
-                  )}
-                </div>
-
-                {/* Features */}
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>{plan.features.whatsapp_sessions} WhatsApp connection{plan.features.whatsapp_sessions > 1 ? 's' : ''}</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>{plan.features.web_widgets} web widget{plan.features.web_widgets > 1 ? 's' : ''}</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>{plan.features.workspaces} workspace{plan.features.workspaces > 1 ? 's' : ''}</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>{plan.features.crm === 'full' ? 'Full' : 'Basic'} CRM</span>
-                  </li>
-                  {plan.features.campaigns && (
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span>WhatsApp & Email campaigns</span>
-                    </li>
-                  )}
-                  {plan.features.client_access_links && (
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span>Client access links</span>
-                    </li>
-                  )}
-                  {plan.features.white_label && (
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span>White-label (hide Whahook brand)</span>
-                    </li>
-                  )}
-                  {plan.features.api_access && (
-                    <li className="flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span>API access</span>
-                    </li>
-                  )}
-                </ul>
-
-                {/* CTA Button */}
-                {isCurrentPlan ? (
-                  <Button 
-                    variant="outline" 
-                    className="w-full" 
-                    disabled
-                  >
-                    Current plan
-                  </Button>
-                ) : (
-                  <Button 
-                    className={`w-full ${
-                      plan.highlighted 
-                        ? 'bg-green-600 hover:bg-green-700' 
-                        : ''
-                    }`}
-                    onClick={() => handleSubscribe(plan)}
-                    disabled={processingPlan !== null}
-                  >
-                    {processingPlan === plan.id ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <CreditCard className="w-4 h-4 mr-2" />
-                    )}
-                    {subscription?.plan !== 'trial' ? 'Change plan' : 'Subscribe'}
-                  </Button>
-                )}
-              </div>
-            </div>
-          )
-        })}
+      {/* Plans Grid - Same style as home/pricing pages */}
+      <div className="grid md:grid-cols-3 gap-8">
+        {plansList.map((plan) => (
+          <BillingPricingCard
+            key={plan.id}
+            plan={plan}
+            billingPeriod={billingPeriod}
+            isCurrentPlan={subscription?.plan === plan.id}
+            onSubscribe={() => handleSubscribe(plan.id)}
+            isProcessing={processingPlan === plan.id}
+            currentPlanId={subscription?.plan}
+          />
+        ))}
       </div>
 
       {/* Payment Methods Info */}
