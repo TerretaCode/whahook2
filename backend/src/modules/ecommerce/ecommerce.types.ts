@@ -141,6 +141,7 @@ export interface CreateConnectionInput {
   store_url: string
   credentials: EcommerceCredentials
   sync_config?: Partial<SyncConfig>
+  workspace_id?: string
 }
 
 export interface UpdateConnectionInput {

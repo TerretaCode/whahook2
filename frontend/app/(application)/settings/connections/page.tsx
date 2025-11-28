@@ -100,11 +100,11 @@ function ConnectionsPageContent() {
           </TabsContent>
 
           <TabsContent value="ecommerce" className="space-y-6">
-            <EcommerceConnectionsSection />
+            <EcommerceConnectionsSection workspaceId={selectedWorkspace.id} />
           </TabsContent>
 
           <TabsContent value="webhooks" className="space-y-6">
-            <WebhooksSection />
+            <WebhooksSection workspaceId={selectedWorkspace.id} />
           </TabsContent>
         </Tabs>
       ) : (

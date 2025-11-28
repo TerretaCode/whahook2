@@ -46,6 +46,20 @@ class WebhookService {
    * Crear webhook
    */
   async createWebhook(userId: string, input: CreateWebhookInput): Promise<Webhook> {
+    // Verify workspace belongs to user if provided
+    if (input.workspace_id) {
+      const { data: workspace, error: wsError } = await supabaseAdmin
+        .from('workspaces')
+        .select('id')
+        .eq('id', input.workspace_id)
+        .eq('user_id', userId)
+        .single()
+
+      if (wsError || !workspace) {
+        throw new Error('Invalid workspace')
+      }
+    }
+
     // Validar eventos
     const invalidEvents = input.events.filter(e => !WEBHOOK_EVENTS.includes(e))
     if (invalidEvents.length > 0) {
@@ -73,6 +87,7 @@ class WebhookService {
         headers: input.headers || {},
         retry_count: input.retry_count || 3,
         timeout_seconds: input.timeout_seconds || 30,
+        workspace_id: input.workspace_id || null,
       })
       .select()
       .single()

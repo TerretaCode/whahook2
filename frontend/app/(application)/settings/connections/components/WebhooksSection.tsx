@@ -36,7 +36,11 @@ const EVENT_CATEGORIES = {
   'Contacts & Groups': ['contact.created', 'contact.updated', 'group.joined', 'group.left'],
 }
 
-export function WebhooksSection() {
+interface WebhooksSectionProps {
+  workspaceId?: string
+}
+
+export function WebhooksSection({ workspaceId }: WebhooksSectionProps) {
   const [webhooks, setWebhooks] = useState<WebhookData[]>([])
   const [availableEvents, setAvailableEvents] = useState<WebhookEvent[]>([])
   const [loading, setLoading] = useState(true)
@@ -87,9 +91,13 @@ export function WebhooksSection() {
     }
 
     try {
+      const payload = workspaceId 
+        ? { ...formData, workspace_id: workspaceId }
+        : formData
+
       const response = await ApiClient.request('/api/webhooks', {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       })
 
       if (response.success) {

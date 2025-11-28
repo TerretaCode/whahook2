@@ -154,7 +154,11 @@ const getWebhookUrl = (connectionId: string): string => {
   return `${backendUrl}/api/ecommerce/webhook/${connectionId}`
 }
 
-export function EcommerceConnectionsSection() {
+interface EcommerceConnectionsSectionProps {
+  workspaceId?: string
+}
+
+export function EcommerceConnectionsSection({ workspaceId }: EcommerceConnectionsSectionProps) {
   const [connections, setConnections] = useState<EcommerceConnection[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -204,14 +208,19 @@ export function EcommerceConnectionsSection() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      const payload: Record<string, unknown> = {
+        name: formData.name,
+        platform: formData.platform,
+        store_url: formData.store_url,
+        credentials: getCredentials(),
+      }
+      if (workspaceId) {
+        payload.workspace_id = workspaceId
+      }
+
       const response = await ApiClient.request('/api/ecommerce/connections', {
         method: 'POST',
-        body: JSON.stringify({
-          name: formData.name,
-          platform: formData.platform,
-          store_url: formData.store_url,
-          credentials: getCredentials(),
-        }),
+        body: JSON.stringify(payload),
       })
 
       if (response.success) {

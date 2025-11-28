@@ -70,6 +70,20 @@ class EcommerceService {
    * Crear nueva conexión
    */
   async createConnection(userId: string, input: CreateConnectionInput): Promise<EcommerceConnection> {
+    // Verify workspace belongs to user if provided
+    if (input.workspace_id) {
+      const { data: workspace, error: wsError } = await supabaseAdmin
+        .from('workspaces')
+        .select('id')
+        .eq('id', input.workspace_id)
+        .eq('user_id', userId)
+        .single()
+
+      if (wsError || !workspace) {
+        throw new Error('Invalid workspace')
+      }
+    }
+
     // Probar conexión antes de guardar
     const testResult = await this.testPlatformConnection(input.platform, input.store_url, input.credentials)
     
@@ -88,6 +102,7 @@ class EcommerceService {
         status: 'active',
         sync_config: input.sync_config || undefined,
         store_metadata: testResult.data || {},
+        workspace_id: input.workspace_id || null,
       })
       .select()
       .single()

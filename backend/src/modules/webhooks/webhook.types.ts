@@ -74,6 +74,7 @@ export interface CreateWebhookInput {
   headers?: Record<string, string>
   retry_count?: number
   timeout_seconds?: number
+  workspace_id?: string
 }
 
 export interface UpdateWebhookInput {
