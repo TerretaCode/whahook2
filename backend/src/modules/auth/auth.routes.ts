@@ -68,10 +68,30 @@ router.post('/login', async (req, res) => {
       })
     }
     
+    const authUser = data.user
+    
+    // Build profile from user_metadata
+    const user = {
+      id: authUser.id,
+      email: authUser.email,
+      email_confirmed: !!authUser.email_confirmed_at,
+      profile: {
+        user_id: authUser.id,
+        email: authUser.email,
+        full_name: authUser.user_metadata?.full_name || null,
+        company_name: authUser.user_metadata?.company_name || null,
+        account_type: authUser.user_metadata?.account_type || 'saas',
+        subscription_tier: authUser.user_metadata?.subscription_tier || 'free',
+        has_gemini_api_key: !!authUser.user_metadata?.has_gemini_api_key,
+        created_at: authUser.created_at,
+        metadata: authUser.user_metadata || {}
+      }
+    }
+    
     res.json({
       success: true,
       data: {
-        user: data.user,
+        user,
         session: {
           access_token: data.session?.access_token || '',
           refresh_token: data.session?.refresh_token || ''
@@ -155,7 +175,27 @@ router.get('/me', async (req, res) => {
     
     if (error) throw error
     
-    res.json({ success: true, data: { user: data.user } })
+    const authUser = data.user
+    
+    // Build profile from user_metadata
+    const user = {
+      id: authUser.id,
+      email: authUser.email,
+      email_confirmed: !!authUser.email_confirmed_at,
+      profile: {
+        user_id: authUser.id,
+        email: authUser.email,
+        full_name: authUser.user_metadata?.full_name || null,
+        company_name: authUser.user_metadata?.company_name || null,
+        account_type: authUser.user_metadata?.account_type || 'saas',
+        subscription_tier: authUser.user_metadata?.subscription_tier || 'free',
+        has_gemini_api_key: !!authUser.user_metadata?.has_gemini_api_key,
+        created_at: authUser.created_at,
+        metadata: authUser.user_metadata || {}
+      }
+    }
+    
+    res.json({ success: true, data: { user } })
   } catch (error: any) {
     res.status(401).json({ success: false, error: error.message })
   }
