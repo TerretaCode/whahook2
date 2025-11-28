@@ -15,9 +15,10 @@ import {
 
 interface WhatsAppAccountsSectionProps {
   workspaceId?: string
+  hasExistingConnection?: boolean
 }
 
-export function WhatsAppAccountsSection({ workspaceId }: WhatsAppAccountsSectionProps) {
+export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = false }: WhatsAppAccountsSectionProps) {
   const { accounts, isLoading: accountsLoading, createAccount } = useWhatsAppAccounts()
   const { sessions, isLoading: sessionsLoading, createSession, destroySession, isSocketConnected } = useWhatsAppSessions()
   
@@ -71,20 +72,25 @@ export function WhatsAppAccountsSection({ workspaceId }: WhatsAppAccountsSection
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">WhatsApp Connections</h3>
+          <h3 className="text-lg font-semibold text-gray-900">WhatsApp Connection</h3>
           <p className="text-sm text-gray-600 mt-1">
-            Connect your WhatsApp accounts to start sending messages
+            {hasExistingConnection 
+              ? 'This workspace has a WhatsApp connection configured'
+              : 'Connect your WhatsApp account to start sending messages'
+            }
           </p>
         </div>
-        <Button
-          onClick={() => setShowNewAccountForm(!showNewAccountForm)}
-          disabled={isCreating}
-          size="sm"
-          className="bg-green-600 hover:bg-green-700"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Account
-        </Button>
+        {!hasExistingConnection && (
+          <Button
+            onClick={() => setShowNewAccountForm(!showNewAccountForm)}
+            disabled={isCreating}
+            size="sm"
+            className="bg-green-600 hover:bg-green-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Connect WhatsApp
+          </Button>
+        )}
       </div>
 
       {/* Socket Status */}

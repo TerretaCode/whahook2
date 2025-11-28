@@ -133,9 +133,10 @@ const getPluginSettingsUrl = (domain: string, platform: WebsitePlatform): string
 
 interface ChatWidgetsSectionProps {
   workspaceId?: string
+  hasExistingConnection?: boolean
 }
 
-export function ChatWidgetsSection({ workspaceId }: ChatWidgetsSectionProps) {
+export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false }: ChatWidgetsSectionProps) {
   const [widgets, setWidgets] = useState<ChatWidget[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -327,19 +328,24 @@ export function ChatWidgetsSection({ workspaceId }: ChatWidgetsSectionProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Chatbot Web</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Web Widget</h3>
           <p className="text-sm text-gray-600 mt-1">
-            Create AI chatbots for your website with automatic language translation
+            {hasExistingConnection 
+              ? 'This workspace has a Web Widget configured'
+              : 'Create an AI chatbot for your website'
+            }
           </p>
         </div>
-        <Button
-          onClick={() => { setShowForm(!showForm); if (showForm) resetForm() }}
-          size="sm"
-          className="bg-green-600 hover:bg-green-700"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          New Chatbot
-        </Button>
+        {!hasExistingConnection && (
+          <Button
+            onClick={() => { setShowForm(!showForm); if (showForm) resetForm() }}
+            size="sm"
+            className="bg-green-600 hover:bg-green-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Widget
+          </Button>
+        )}
       </div>
 
       {/* Creation/Edit Form */}
