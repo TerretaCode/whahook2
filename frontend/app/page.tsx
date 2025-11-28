@@ -232,56 +232,53 @@ export default function Home() {
           <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
             <PricingCard
               name="Starter"
-              price="€49"
+              price="€12"
               period="/month"
               description="Perfect for small businesses"
               features={[
-                "1 WhatsApp account",
-                "1 Web chatbot",
-                "AI chatbot automation",
-                "Basic appointment calendar",
-                "Contact management",
-                "Email support"
+                "1 WhatsApp connection",
+                "1 Web widget",
+                "1 Workspace",
+                "Unlimited AI (your own API)",
+                "Basic CRM",
+                "CSV export"
               ]}
-              cta="Get Started"
+              cta="Start Free Trial"
               ctaLink="/register"
             />
             <PricingCard
               name="Professional"
-              price="€99"
+              price="€28"
               period="/month"
-              description="For growing businesses"
+              description="For growing businesses & small agencies"
               features={[
-                "3 WhatsApp accounts",
-                "3 Web chatbots",
-                "Advanced AI automation",
-                "Smart appointment system",
-                "CRM & contact management",
-                "Analytics dashboard",
-                "Priority support",
-                "API access"
+                "3 WhatsApp connections",
+                "3 Web widgets",
+                "3 Workspaces",
+                "Full CRM with campaigns",
+                "WhatsApp & Email campaigns",
+                "Client access links",
+                "Remote QR connection"
               ]}
-              cta="Get Started"
+              cta="Start Free Trial"
               ctaLink="/register"
               highlighted={true}
             />
             <PricingCard
               name="Enterprise"
-              price="€149"
+              price="€89"
               period="/month"
-              description="For large organizations"
+              description="For agencies & multi-brand businesses"
               features={[
-                "10 WhatsApp accounts",
-                "Unlimited Web chatbots",
-                "Unlimited AI automation",
-                "Advanced calendar system",
-                "Full CRM capabilities",
-                "Custom integrations",
-                "Advanced analytics",
-                "Dedicated support",
-                "Custom workflows"
+                "10 WhatsApp connections",
+                "10 Web widgets",
+                "10 Workspaces",
+                "Unlimited users",
+                "White-label branding",
+                "Custom domain support",
+                "Unlimited message history"
               ]}
-              cta="Get Started"
+              cta="Start Free Trial"
               ctaLink="/register"
             />
           </div>

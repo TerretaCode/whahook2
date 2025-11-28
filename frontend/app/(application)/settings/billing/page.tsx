@@ -75,10 +75,10 @@ function BillingPageContent() {
     const canceled = searchParams.get('canceled')
     
     if (success === 'true') {
-      toast.success('¡Suscripción activada correctamente!')
+      toast.success('Subscription activated successfully!')
       refreshUser()
     } else if (canceled === 'true') {
-      toast.error('Suscripción cancelada')
+      toast.error('Subscription canceled')
     }
   }, [searchParams, refreshUser])
 
@@ -114,7 +114,7 @@ function BillingPageContent() {
         : plan.price_id_yearly
       
       if (!priceId) {
-        toast.error('Plan no disponible en este momento')
+        toast.error('Plan not available at this time')
         return
       }
       
@@ -126,10 +126,10 @@ function BillingPageContent() {
       if (response.success && response.data?.url) {
         window.location.href = response.data.url
       } else {
-        throw new Error(response.error || 'Error al crear sesión de pago')
+        throw new Error(response.error || 'Error creating checkout session')
       }
     } catch (error: any) {
-      toast.error(error.message || 'Error al procesar el pago')
+      toast.error(error.message || 'Error processing payment')
     } finally {
       setProcessingPlan(null)
     }
@@ -147,10 +147,10 @@ function BillingPageContent() {
       if (response.success && response.data?.url) {
         window.location.href = response.data.url
       } else {
-        throw new Error(response.error || 'Error al abrir portal de facturación')
+        throw new Error(response.error || 'Error opening billing portal')
       }
     } catch (error: any) {
-      toast.error(error.message || 'Error al gestionar suscripción')
+      toast.error(error.message || 'Error managing subscription')
     } finally {
       setIsManaging(false)
     }
@@ -158,7 +158,7 @@ function BillingPageContent() {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-'
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -186,8 +186,8 @@ function BillingPageContent() {
     <div className="space-y-6 pb-20 md:pb-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Facturación</h1>
-        <p className="text-sm text-gray-500 mt-1">Gestiona tu plan y método de pago</p>
+        <h1 className="text-2xl font-bold text-gray-900">Billing</h1>
+        <p className="text-sm text-gray-500 mt-1">Manage your plan and payment method</p>
       </div>
 
       {/* Current Subscription */}
@@ -196,7 +196,7 @@ function BillingPageContent() {
           <div className="p-6 border-b border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <Crown className="w-5 h-5 text-amber-500" />
-              Tu Suscripción Actual
+              Your Current Subscription
             </h2>
           </div>
           <div className="p-6">
@@ -213,7 +213,7 @@ function BillingPageContent() {
                       : 'bg-gray-100 text-gray-700'
                   }`}>
                     {getPlanIcon(subscription.plan)}
-                    {subscription.plan === 'trial' ? 'Trial (7 días)' : 
+                    {subscription.plan === 'trial' ? 'Trial (7 days)' : 
                      subscription.plan === 'starter' ? 'Starter' : 
                      subscription.plan === 'professional' ? 'Professional' : 
                      subscription.plan === 'enterprise' ? 'Enterprise' :
@@ -221,7 +221,7 @@ function BillingPageContent() {
                   </span>
                   {subscription.status === 'active' && (
                     <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded">
-                      Activo
+                      Active
                     </span>
                   )}
                 </div>
@@ -230,8 +230,8 @@ function BillingPageContent() {
                   <p className="text-sm text-gray-500 flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     {subscription.cancel_at_period_end 
-                      ? `Se cancela el ${formatDate(subscription.current_period_end)}`
-                      : `Próxima renovación: ${formatDate(subscription.current_period_end)}`
+                      ? `Cancels on ${formatDate(subscription.current_period_end)}`
+                      : `Next renewal: ${formatDate(subscription.current_period_end)}`
                     }
                   </p>
                 )}
@@ -239,7 +239,7 @@ function BillingPageContent() {
                 {subscription.cancel_at_period_end && (
                   <p className="text-sm text-amber-600 flex items-center gap-1 mt-1">
                     <AlertCircle className="w-4 h-4" />
-                    Tu suscripción no se renovará
+                    Your subscription will not renew
                   </p>
                 )}
               </div>
@@ -255,30 +255,30 @@ function BillingPageContent() {
                   ) : (
                     <ExternalLink className="w-4 h-4 mr-2" />
                   )}
-                  Gestionar suscripción
+                  Manage subscription
                 </Button>
               )}
             </div>
 
             {/* Current Plan Features */}
             <div className="mt-6 pt-6 border-t border-gray-100">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Tu plan incluye:</h3>
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Your plan includes:</h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                 <div className="bg-gray-50 rounded-lg p-3">
                   <p className="text-gray-500">WhatsApp</p>
-                  <p className="font-semibold text-gray-900">{subscription.features.whatsapp_sessions} conexiones</p>
+                  <p className="font-semibold text-gray-900">{subscription.features.whatsapp_sessions} connection{subscription.features.whatsapp_sessions > 1 ? 's' : ''}</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <p className="text-gray-500">Widgets Web</p>
-                  <p className="font-semibold text-gray-900">{subscription.features.web_widgets} widgets</p>
+                  <p className="text-gray-500">Web Widgets</p>
+                  <p className="font-semibold text-gray-900">{subscription.features.web_widgets} widget{subscription.features.web_widgets > 1 ? 's' : ''}</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
                   <p className="text-gray-500">Workspaces</p>
-                  <p className="font-semibold text-gray-900">{subscription.features.workspaces} empresas</p>
+                  <p className="font-semibold text-gray-900">{subscription.features.workspaces} workspace{subscription.features.workspaces > 1 ? 's' : ''}</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
                   <p className="text-gray-500">CRM</p>
-                  <p className="font-semibold text-gray-900 capitalize">{subscription.features.crm === 'full' ? 'Completo' : 'Básico'}</p>
+                  <p className="font-semibold text-gray-900 capitalize">{subscription.features.crm === 'full' ? 'Full' : 'Basic'}</p>
                 </div>
               </div>
             </div>
@@ -296,7 +296,7 @@ function BillingPageContent() {
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          Mensual
+          Monthly
         </button>
         <button
           onClick={() => setBillingPeriod('yearly')}
@@ -306,7 +306,7 @@ function BillingPageContent() {
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          Anual
+          Yearly
           <span className="ml-1 text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
             -17%
           </span>
@@ -335,7 +335,7 @@ function BillingPageContent() {
             >
               {plan.highlighted && (
                 <div className="bg-green-500 text-white text-center text-sm font-medium py-1">
-                  Más popular
+                  Most popular
                 </div>
               )}
               
@@ -348,14 +348,14 @@ function BillingPageContent() {
                 
                 <div className="mb-6">
                   <span className="text-4xl font-bold text-gray-900">
-                    {price === 0 ? 'Gratis' : `${pricePerMonth}€`}
+                    {price === 0 ? 'Free' : `€${pricePerMonth}`}
                   </span>
                   {price > 0 && (
-                    <span className="text-gray-500 text-sm">/mes</span>
+                    <span className="text-gray-500 text-sm">/month</span>
                   )}
                   {billingPeriod === 'yearly' && price > 0 && (
                     <p className="text-xs text-gray-400 mt-1">
-                      Facturado anualmente ({price}€/año)
+                      Billed annually (€{price}/year)
                     </p>
                   )}
                 </div>
@@ -364,42 +364,42 @@ function BillingPageContent() {
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-center gap-2 text-sm">
                     <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>{plan.features.whatsapp_sessions} conexión{plan.features.whatsapp_sessions > 1 ? 'es' : ''} WhatsApp</span>
+                    <span>{plan.features.whatsapp_sessions} WhatsApp connection{plan.features.whatsapp_sessions > 1 ? 's' : ''}</span>
                   </li>
                   <li className="flex items-center gap-2 text-sm">
                     <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>{plan.features.web_widgets} widget{plan.features.web_widgets > 1 ? 's' : ''} web</span>
+                    <span>{plan.features.web_widgets} web widget{plan.features.web_widgets > 1 ? 's' : ''}</span>
                   </li>
                   <li className="flex items-center gap-2 text-sm">
                     <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>{plan.features.workspaces} workspace{plan.features.workspaces > 1 ? 's' : ''} (empresa{plan.features.workspaces > 1 ? 's' : ''})</span>
+                    <span>{plan.features.workspaces} workspace{plan.features.workspaces > 1 ? 's' : ''}</span>
                   </li>
                   <li className="flex items-center gap-2 text-sm">
                     <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span>CRM {plan.features.crm === 'full' ? 'completo' : 'básico'}</span>
+                    <span>{plan.features.crm === 'full' ? 'Full' : 'Basic'} CRM</span>
                   </li>
                   {plan.features.campaigns && (
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span>Campañas automáticas</span>
+                      <span>WhatsApp & Email campaigns</span>
                     </li>
                   )}
                   {plan.features.client_access_links && (
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span>Enlaces de acceso para clientes</span>
+                      <span>Client access links</span>
                     </li>
                   )}
                   {plan.features.white_label && (
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span>White-label (sin marca Whahook)</span>
+                      <span>White-label (hide Whahook brand)</span>
                     </li>
                   )}
                   {plan.features.api_access && (
                     <li className="flex items-center gap-2 text-sm">
                       <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span>Acceso API</span>
+                      <span>API access</span>
                     </li>
                   )}
                 </ul>
@@ -411,7 +411,7 @@ function BillingPageContent() {
                     className="w-full" 
                     disabled
                   >
-                    Plan actual
+                    Current plan
                   </Button>
                 ) : (
                   <Button 
@@ -428,7 +428,7 @@ function BillingPageContent() {
                     ) : (
                       <CreditCard className="w-4 h-4 mr-2" />
                     )}
-                    {subscription?.plan !== 'free' ? 'Cambiar plan' : 'Suscribirse'}
+                    {subscription?.plan !== 'trial' ? 'Change plan' : 'Subscribe'}
                   </Button>
                 )}
               </div>
@@ -440,7 +440,7 @@ function BillingPageContent() {
       {/* Payment Methods Info */}
       <div className="bg-gray-50 rounded-xl p-6 text-center">
         <p className="text-sm text-gray-500 mb-2">
-          Pagos seguros procesados por Stripe
+          Secure payments processed by Stripe
         </p>
         <div className="flex items-center justify-center gap-4 opacity-50">
           <span className="text-xs font-medium text-gray-400">VISA</span>
