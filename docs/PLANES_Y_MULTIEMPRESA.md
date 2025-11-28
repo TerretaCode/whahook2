@@ -64,7 +64,6 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 - ✅ Métricas y analytics
 
 **Funcionalidades Multi-Empresa (igual que Enterprise, limitado a 3)**:
-- ✅ **White-label** (footer personalizable en widgets)
 - ✅ **Enlaces de acceso para clientes**
 - ✅ **Envío de QR remoto**
 - ✅ **API Key por workspace** con tracking de gastos opcional
@@ -84,16 +83,14 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 | Workspaces (empresas) | 10 |
 | Usuarios por workspace | Ilimitados |
 | IA | Ilimitada (API por workspace) |
-| CRM | Completo + API |
+| CRM | Completo |
 | Historial mensajes | Ilimitado |
 | Soporte | Dedicado + Onboarding |
 
 **Funcionalidades exclusivas Enterprise**:
 - ✅ Todo lo del Professional (pero con límites de 10 en vez de 3)
-- ✅ API de acceso externa
-- ✅ Webhooks personalizados
-- ✅ Roles y permisos avanzados
-- ✅ Reportes personalizados
+- ✅ **White-label completo** (footer personalizable, ocultar marca Whahook)
+- ✅ Usuarios ilimitados por workspace
 - ✅ Soporte dedicado con onboarding
 
 ---
@@ -217,7 +214,7 @@ Para conectar WhatsApp sin necesidad de tener el móvil del cliente presencialme
 
 ---
 
-## 3. White-Label (Professional y Enterprise)
+## 3. White-Label (Solo Enterprise)
 
 ### 3.1 Elementos personalizables
 
@@ -250,7 +247,8 @@ workspace.white_label = {
 
 ### 4.1 API Key por Workspace
 
-En los planes Professional y Enterprise, cada workspace puede tener su propia API Key de Gemini:
+En los planes Professional y Enterprise, cada workspace puede tener su propia API Key de Gemini.
+Esto permite que las agencias configuren la API de cada cliente por separado:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -736,16 +734,14 @@ Vista que muestra resumen de TODOS los workspaces:
 | **Workspaces** | 1 | 1 | 3 | 10 |
 | **Usuarios** | 1 | 1 | 3/workspace | Ilimitados |
 | **IA** | Ilimitada (API propia) | Ilimitada (API propia) | Ilimitada (API por workspace) | Ilimitada (API por workspace) |
-| **CRM** | Básico | Básico | Completo | Completo + API externa |
+| **CRM** | Básico | Básico | Completo | Completo |
 | **Campañas WhatsApp** | ❌ | ❌ | ✅ | ✅ |
 | **Campañas Email** | ❌ | ❌ | ✅ | ✅ |
 | **Enlaces acceso clientes** | ❌ | ❌ | ✅ (3 max) | ✅ (10 max) |
 | **Envío QR remoto** | ❌ | ❌ | ✅ | ✅ |
-| **White-label** | ❌ | ❌ | ✅ | ✅ |
 | **API Key por workspace** | ❌ | ❌ | ✅ | ✅ |
 | **Tracking gastos IA** | ❌ | ❌ | ✅ (opcional) | ✅ (opcional) |
-| **API externa** | ❌ | ❌ | ❌ | ✅ |
-| **Webhooks** | ❌ | ❌ | ❌ | ✅ |
+| **White-label** | ❌ | ❌ | ❌ | ✅ |
 | **Soporte** | Email | Email | Prioritario | Dedicado |
 
 ---
