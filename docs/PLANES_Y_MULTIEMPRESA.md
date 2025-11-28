@@ -36,9 +36,9 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 - ✅ Lista de contactos/clientes
 - ✅ Historial de conversaciones
 - ✅ Etiquetas básicas
+- ✅ Exportación CSV
 - ❌ Campañas WhatsApp/Email
 - ❌ Segmentación avanzada
-- ❌ Exportación de datos
 
 ### 1.3 Plan Professional - 28€/mes
 **Público objetivo**: Empresas medianas, negocios con múltiples canales, pequeñas agencias
@@ -60,8 +60,7 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 - ✅ **Campañas Email** (a contactos con email registrado)
 - ✅ Segmentación por etiquetas
 - ✅ Notas y campos personalizados
-- ✅ Exportación CSV
-- ✅ Métricas y analytics
+- ✅ Métricas y analytics avanzados
 
 **Funcionalidades Multi-Empresa (igual que Enterprise, limitado a 3)**:
 - ✅ **Enlaces de acceso para clientes**
