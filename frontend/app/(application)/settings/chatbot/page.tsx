@@ -43,6 +43,7 @@ function ChatbotSettingsContent() {
   }, [widgetParam])
 
   const handleWorkspaceChange = useCallback((workspace: Workspace | null) => {
+    console.log('🏢 [ChatbotPage] Workspace changed:', workspace?.id, workspace?.name)
     setSelectedWorkspace(workspace)
     // When workspace changes, we need to wait for config to load
     if (workspace) {
@@ -51,6 +52,7 @@ function ChatbotSettingsContent() {
   }, [])
 
   const handleConfigLoaded = useCallback(() => {
+    console.log('✅ [ChatbotPage] Config loaded callback received')
     setIsConfigLoading(false)
   }, [])
 
@@ -59,7 +61,10 @@ function ChatbotSettingsContent() {
   const hasWebWidgetConnection = selectedWorkspace?.web_widget_id
 
   // Show global loader while workspace is loading
+  console.log('🔍 [ChatbotPage] Render - isWorkspaceLoading:', isWorkspaceLoading, 'selectedWorkspace:', selectedWorkspace?.id)
+  
   if (isWorkspaceLoading) {
+    console.log('⏳ [ChatbotPage] Showing loader - workspace still loading')
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center">
         <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />

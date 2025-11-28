@@ -60,36 +60,46 @@ export function WorkspaceSelector({
   }, [searchParams, workspaces, onWorkspaceChange])
 
   const loadWorkspaces = async () => {
+    console.log('🏢 [WorkspaceSelector] Starting loadWorkspaces...')
     try {
       setIsLoading(true)
       onLoadingChange?.(true)
+      console.log('🏢 [WorkspaceSelector] onLoadingChange(true) called')
+      
       const response = await ApiClient.request<{ workspaces: Workspace[] }>('/api/workspaces')
-      console.log('WorkspaceSelector response:', response)
+      console.log('🏢 [WorkspaceSelector] API response:', response)
       
       if (response.success && response.data?.workspaces) {
         const list = response.data.workspaces
+        console.log('🏢 [WorkspaceSelector] Found', list.length, 'workspaces')
         setWorkspaces(list)
         
         // Try to restore selected workspace
         const urlWorkspaceId = searchParams.get('workspace')
         const savedId = urlWorkspaceId || localStorage.getItem(STORAGE_KEY)
+        console.log('🏢 [WorkspaceSelector] Trying to restore workspace - urlId:', urlWorkspaceId, 'savedId:', savedId)
         
         if (savedId && list.find(w => w.id === savedId)) {
           setSelectedId(savedId)
           const workspace = list.find(w => w.id === savedId)
           if (workspace) {
+            console.log('🏢 [WorkspaceSelector] Restored workspace:', workspace.id, workspace.name)
             onWorkspaceChange?.(workspace)
           }
         } else if (list.length > 0) {
           // Auto-select first workspace
+          console.log('🏢 [WorkspaceSelector] Auto-selecting first workspace:', list[0].id, list[0].name)
           setSelectedId(list[0].id)
           localStorage.setItem(STORAGE_KEY, list[0].id)
           onWorkspaceChange?.(list[0])
         }
+      } else {
+        console.log('🏢 [WorkspaceSelector] No workspaces in response')
       }
     } catch (error) {
-      console.error('Error loading workspaces:', error)
+      console.error('❌ [WorkspaceSelector] Error loading workspaces:', error)
     } finally {
+      console.log('🏢 [WorkspaceSelector] Finished loading, calling onLoadingChange(false)')
       setIsLoading(false)
       onLoadingChange?.(false)
     }

@@ -92,19 +92,31 @@ export function WhatsAppChatbotConfig({ workspaceId, onLoaded }: WhatsAppChatbot
   // Single useEffect that loads everything and marks ready when done
   // ============================================
   useEffect(() => {
-    if (!user || !workspaceId) return
+    console.log('🔄 [WhatsApp] useEffect triggered - user:', !!user, 'workspaceId:', workspaceId)
+    
+    if (!user || !workspaceId) {
+      console.log('⚠️ [WhatsApp] Missing user or workspaceId, skipping load')
+      return
+    }
     
     let isMounted = true
     
     const loadAllData = async () => {
+      console.log('🚀 [WhatsApp] Starting loadAllData...')
       try {
         // 1. Fetch sessions and ecommerce in parallel
+        console.log('📡 [WhatsApp] Fetching sessions and ecommerce...')
         const [sessionsResult, ecommerceResult] = await Promise.all([
           fetchSessions(),
           fetchEcommerceConnections()
         ])
         
-        if (!isMounted) return
+        console.log('✅ [WhatsApp] Fetched - sessions:', sessionsResult.length, 'ecommerce:', ecommerceResult.length)
+        
+        if (!isMounted) {
+          console.log('⚠️ [WhatsApp] Component unmounted, aborting')
+          return
+        }
         
         // 2. Set sessions and ecommerce data
         setSessions(sessionsResult)
@@ -112,10 +124,16 @@ export function WhatsAppChatbotConfig({ workspaceId, onLoaded }: WhatsAppChatbot
         
         // 3. Load configs for all sessions in parallel
         if (sessionsResult.length > 0) {
+          console.log('📡 [WhatsApp] Fetching configs for', sessionsResult.length, 'sessions...')
           const configPromises = sessionsResult.map(session => fetchConfig(session.id))
           const configResults = await Promise.all(configPromises)
           
-          if (!isMounted) return
+          console.log('✅ [WhatsApp] Fetched all configs')
+          
+          if (!isMounted) {
+            console.log('⚠️ [WhatsApp] Component unmounted, aborting')
+            return
+          }
           
           // Build configs, formData, and originalData objects
           const newConfigs: Record<string, any> = {}
@@ -134,17 +152,22 @@ export function WhatsAppChatbotConfig({ workspaceId, onLoaded }: WhatsAppChatbot
           setConfigs(newConfigs)
           setFormData(newFormData)
           setOriginalData(newOriginalData)
+        } else {
+          console.log('ℹ️ [WhatsApp] No sessions found, skipping config fetch')
         }
         
         // 4. Mark as ready
         if (isMounted) {
+          console.log('✅ [WhatsApp] All data loaded, marking page ready')
           setIsPageReady(true)
           onLoaded?.()
+          console.log('✅ [WhatsApp] onLoaded called')
         }
       } catch (error) {
-        console.error('Error loading data:', error)
+        console.error('❌ [WhatsApp] Error loading data:', error)
         // Still mark as ready so user sees error state, not infinite loader
         if (isMounted) {
+          console.log('⚠️ [WhatsApp] Marking page ready despite error')
           setIsPageReady(true)
           onLoaded?.()
         }
@@ -154,6 +177,7 @@ export function WhatsAppChatbotConfig({ workspaceId, onLoaded }: WhatsAppChatbot
     loadAllData()
     
     return () => {
+      console.log('🧹 [WhatsApp] Cleanup - setting isMounted = false')
       isMounted = false
     }
   }, [user, workspaceId, onLoaded])
