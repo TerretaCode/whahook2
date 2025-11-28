@@ -138,7 +138,7 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
         </TabsList>
       </div>
 
-      <TabsContent value="apikeys"><ApiKeysTab initialData={props.aiConfig} /></TabsContent>
+      <TabsContent value="apikeys"><ApiKeysTab initialData={props.aiConfig} hasInitialData={props.aiConfig !== undefined} /></TabsContent>
       <TabsContent value="config">
           {props.widgetId ? (
             <WebChatbotSettingsTab {...tabProps} />

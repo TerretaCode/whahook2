@@ -96,11 +96,13 @@ const defaultConfig: AIConfig = {
 
 interface ApiKeysTabProps {
   initialData?: AIConfig | null
+  hasInitialData?: boolean // true if parent passed data (even if null)
 }
 
-export function ApiKeysTab({ initialData }: ApiKeysTabProps) {
+export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [isInitialLoading, setIsInitialLoading] = useState(!initialData)
+  // Skip loading if parent already fetched data (hasInitialData=true)
+  const [isInitialLoading, setIsInitialLoading] = useState(!hasInitialData)
   const [showApiKey, setShowApiKey] = useState(false)
   const [config, setConfig] = useState<AIConfig | null>(initialData || null)
   const [formData, setFormData] = useState<AIConfig>(
@@ -114,11 +116,11 @@ export function ApiKeysTab({ initialData }: ApiKeysTabProps) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   useEffect(() => {
-    // Only load if no initialData
-    if (!initialData) {
+    // Only load if parent didn't already fetch data
+    if (!hasInitialData) {
       loadConfig()
     }
-  }, [initialData])
+  }, [hasInitialData])
 
   const loadConfig = async () => {
     setIsInitialLoading(true)
