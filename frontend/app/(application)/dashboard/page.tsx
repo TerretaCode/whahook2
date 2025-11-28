@@ -127,10 +127,10 @@ export default function DashboardPage() {
 
   const getPlanName = () => {
     switch (user.profile?.subscription_tier) {
-      case 'free': return 'Trial Gratuito'
-      case 'pro': return 'Plan Pro'
-      case 'business': return 'Plan Business'
-      case 'admin': return 'Administrador'
+      case 'trial': return 'Trial Gratuito'
+      case 'starter': return 'Plan Starter'
+      case 'professional': return 'Plan Professional'
+      case 'enterprise': return 'Plan Enterprise'
       default: return 'Trial'
     }
   }

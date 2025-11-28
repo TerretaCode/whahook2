@@ -37,8 +37,7 @@ function LoginContent() {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      const isAdmin = user.profile?.subscription_tier === 'admin'
-      router.push(isAdmin ? "/admin/users" : "/dashboard")
+      router.push("/dashboard")
     }
   }, [user, router])
 

@@ -91,6 +91,17 @@ async function getUserFromToken(req: Request) {
   return data.user
 }
 
+// Helper to get user profile from profiles table
+async function getUserProfile(userId: string) {
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single()
+  
+  return profile
+}
+
 /**
  * GET /api/billing/plans
  * Get available plans and pricing
@@ -146,15 +157,15 @@ router.get('/plans', async (req: Request, res: Response) => {
 router.get('/subscription', async (req: Request, res: Response) => {
   try {
     const user = await getUserFromToken(req)
+    const profile = await getUserProfile(user.id)
     
     const subscription = {
-      plan: user.user_metadata?.subscription_tier || 'trial',
-      status: user.user_metadata?.subscription_status || 'active',
-      current_period_end: user.user_metadata?.subscription_period_end || null,
-      cancel_at_period_end: user.user_metadata?.cancel_at_period_end || false,
-      stripe_customer_id: user.user_metadata?.stripe_customer_id || null,
-      stripe_subscription_id: user.user_metadata?.stripe_subscription_id || null,
-      features: PLAN_FEATURES[user.user_metadata?.subscription_tier as keyof typeof PLAN_FEATURES] || PLAN_FEATURES.trial,
+      plan: profile?.subscription_tier || 'trial',
+      status: profile?.subscription_status || 'active',
+      trial_ends_at: profile?.trial_ends_at || null,
+      stripe_customer_id: profile?.stripe_customer_id || null,
+      stripe_subscription_id: profile?.stripe_subscription_id || null,
+      features: PLAN_FEATURES[profile?.subscription_tier as keyof typeof PLAN_FEATURES] || PLAN_FEATURES.trial,
     }
 
     res.json({ success: true, data: { subscription } })
@@ -184,7 +195,8 @@ router.post('/create-checkout-session', async (req: Request, res: Response) => {
     }
 
     // Get or create Stripe customer
-    let customerId = user.user_metadata?.stripe_customer_id
+    const profile = await getUserProfile(user.id)
+    let customerId = profile?.stripe_customer_id
 
     if (!customerId) {
       const customer = await stripe.customers.create({
@@ -195,13 +207,14 @@ router.post('/create-checkout-session', async (req: Request, res: Response) => {
       })
       customerId = customer.id
 
-      // Save customer ID to user metadata
-      await supabaseAdmin.auth.admin.updateUserById(user.id, {
-        user_metadata: {
-          ...user.user_metadata,
+      // Save customer ID to profiles table
+      await supabaseAdmin
+        .from('profiles')
+        .update({ 
           stripe_customer_id: customerId,
-        },
-      })
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id)
     }
 
     // Create checkout session
@@ -249,7 +262,8 @@ router.post('/create-portal-session', async (req: Request, res: Response) => {
     }
 
     const user = await getUserFromToken(req)
-    const customerId = user.user_metadata?.stripe_customer_id
+    const profile = await getUserProfile(user.id)
+    const customerId = profile?.stripe_customer_id
 
     if (!customerId) {
       return res.status(400).json({ 
@@ -367,7 +381,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
   // Determine plan from price ID
   const priceId = subscription.items.data[0]?.price.id
-  let plan = 'free'
+  let plan = 'trial'
 
   if (priceId === PRICE_IDS.starter_monthly || priceId === PRICE_IDS.starter_yearly) {
     plan = 'starter'
@@ -377,17 +391,17 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     plan = 'enterprise'
   }
 
-  // Update user metadata
-  const periodEnd = (subscription as any).current_period_end
-  const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-    user_metadata: {
+  // Update profile in profiles table
+  const { error } = await supabaseAdmin
+    .from('profiles')
+    .update({
       subscription_tier: plan,
       subscription_status: subscription.status,
-      subscription_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
-      cancel_at_period_end: subscription.cancel_at_period_end,
       stripe_subscription_id: subscription.id,
-    },
-  })
+      stripe_price_id: priceId,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', userId)
 
   if (error) {
     console.error('Error updating user subscription:', error)
@@ -400,18 +414,23 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const userId = subscription.metadata?.user_id
   if (!userId) return
 
-  // Downgrade to free plan
-  await supabaseAdmin.auth.admin.updateUserById(userId, {
-    user_metadata: {
-      subscription_tier: 'free',
+  // Downgrade to trial plan
+  const { error } = await supabaseAdmin
+    .from('profiles')
+    .update({
+      subscription_tier: 'trial',
       subscription_status: 'canceled',
-      subscription_period_end: null,
-      cancel_at_period_end: false,
       stripe_subscription_id: null,
-    },
-  })
+      stripe_price_id: null,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', userId)
 
-  console.log(`⚠️ User ${userId} subscription canceled, downgraded to free`)
+  if (error) {
+    console.error('Error downgrading user subscription:', error)
+  } else {
+    console.log(`⚠️ User ${userId} subscription canceled, downgraded to trial`)
+  }
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {

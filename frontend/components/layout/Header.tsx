@@ -19,7 +19,7 @@ export function Header() {
   const [scrollY, setScrollY] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
-  const isAdmin = user?.profile?.subscription_tier === 'admin'
+  const isAdmin = user?.profile?.subscription_tier === 'enterprise' && user?.profile?.account_type === 'agency'
 
   useEffect(() => {
     const handleScroll = () => {
