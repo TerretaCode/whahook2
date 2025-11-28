@@ -16,6 +16,7 @@ import { clientsRoutes } from './modules/clients'
 import { aiRoutes } from './modules/ai'
 import dashboardRoutes from './modules/dashboard/dashboard.routes'
 import billingRoutes from './modules/billing/billing.routes'
+import workspacesRoutes from './modules/workspaces/workspaces.routes'
 import { keepaliveMessagesService, sessionMonitoringService, backupService, cacheCleanupService } from './services'
 import { healthRoutes } from './routes'
 
@@ -79,6 +80,7 @@ app.use('/api/clients', clientsRoutes)
 app.use('/api/ai', aiRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/billing', billingRoutes)
+app.use('/api/workspaces', workspacesRoutes)
 
 // 404
 app.use((req, res) => {

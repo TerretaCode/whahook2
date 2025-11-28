@@ -1,18 +1,33 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { WhatsAppAccountsSection } from "./components/WhatsAppAccountsSection"
 import { ChatWidgetsSection } from "./components/ChatWidgetsSection"
-import { EcommerceConnectionsSection } from "./components/EcommerceConnectionsSection"
-import { WebhooksSection } from "./components/WebhooksSection"
-import { Loader2, Smartphone, Bot, ShoppingCart, Webhook } from "lucide-react"
+import { WorkspaceSelector } from "@/components/workspace-selector"
+import { Loader2, Smartphone, Globe, Building2, AlertCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
-export default function ConnectionsPage() {
+interface Workspace {
+  id: string
+  name: string
+  description: string | null
+  whatsapp_session_id: string | null
+  web_widget_id: string | null
+}
+
+function ConnectionsPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, isLoading: authLoading } = useAuth()
+  const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null)
+  
+  // Get tab from URL or default to whatsapp
+  const tabParam = searchParams.get('tab')
+  const defaultTab = tabParam === 'web' ? 'web' : 'whatsapp'
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -29,41 +44,93 @@ export default function ConnectionsPage() {
   }
 
   return (
-    <Tabs defaultValue="whatsapp" className="w-full">
-      <TabsList className="grid w-full grid-cols-4 mb-6">
-        <TabsTrigger value="whatsapp" className="flex items-center gap-2">
-          <Smartphone className="w-4 h-4" />
-          <span className="hidden sm:inline">WhatsApp</span>
-        </TabsTrigger>
-        <TabsTrigger value="chat-widget" className="flex items-center gap-2">
-          <Bot className="w-4 h-4" />
-          <span className="hidden sm:inline">Chatbot Web</span>
-        </TabsTrigger>
-        <TabsTrigger value="ecommerce" className="flex items-center gap-2">
-          <ShoppingCart className="w-4 h-4" />
-          <span className="hidden sm:inline">E-commerce</span>
-        </TabsTrigger>
-        <TabsTrigger value="webhooks" className="flex items-center gap-2">
-          <Webhook className="w-4 h-4" />
-          <span className="hidden sm:inline">Webhooks</span>
-        </TabsTrigger>
-      </TabsList>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Connections</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Configure WhatsApp and Web Widget for your workspace
+        </p>
+      </div>
 
-      <TabsContent value="whatsapp" className="space-y-6">
-        <WhatsAppAccountsSection />
-      </TabsContent>
+      {/* Workspace Selector */}
+      <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <WorkspaceSelector 
+          onWorkspaceChange={setSelectedWorkspace}
+          showCreateButton={true}
+        />
+      </div>
 
-      <TabsContent value="chat-widget" className="space-y-6">
-        <ChatWidgetsSection />
-      </TabsContent>
+      {/* Content - Only show if workspace is selected */}
+      {selectedWorkspace ? (
+        <Tabs defaultValue={defaultTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="whatsapp" className="flex items-center gap-2">
+              <Smartphone className="w-4 h-4" />
+              <span>WhatsApp</span>
+              {selectedWorkspace.whatsapp_session_id && (
+                <span className="w-2 h-2 bg-green-500 rounded-full" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="web" className="flex items-center gap-2">
+              <Globe className="w-4 h-4" />
+              <span>Web Widget</span>
+              {selectedWorkspace.web_widget_id && (
+                <span className="w-2 h-2 bg-green-500 rounded-full" />
+              )}
+            </TabsTrigger>
+          </TabsList>
 
-      <TabsContent value="ecommerce" className="space-y-6">
-        <EcommerceConnectionsSection />
-      </TabsContent>
+          <TabsContent value="whatsapp" className="space-y-6">
+            {/* TODO: Pass workspaceId to filter/link connections */}
+            <WhatsAppAccountsSection />
+          </TabsContent>
 
-      <TabsContent value="webhooks" className="space-y-6">
-        <WebhooksSection />
-      </TabsContent>
-    </Tabs>
+          <TabsContent value="web" className="space-y-6">
+            {/* TODO: Pass workspaceId to filter/link connections */}
+            <ChatWidgetsSection />
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
+          <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Select a Workspace</h3>
+          <p className="text-gray-500 mb-6">
+            Choose a workspace above to configure its connections.
+          </p>
+          <Link href="/settings/workspaces">
+            <Button className="bg-green-600 hover:bg-green-700">
+              Manage Workspaces
+            </Button>
+          </Link>
+        </div>
+      )}
+
+      {/* Info Box */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-blue-800">
+            <p className="font-medium mb-1">One connection per workspace</p>
+            <p>
+              Each workspace can have one WhatsApp connection and one Web Widget.
+              This keeps your conversations and settings organized per client or project.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function ConnectionsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[400px] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+      </div>
+    }>
+      <ConnectionsPageContent />
+    </Suspense>
   )
 }
