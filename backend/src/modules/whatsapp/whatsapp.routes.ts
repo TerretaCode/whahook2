@@ -141,18 +141,14 @@ router.post('/accounts', async (req: Request, res: Response) => {
  * Obtener sesiones activas del usuario (filtrado por workspace si se proporciona)
  */
 router.get('/sessions', async (req: Request, res: Response) => {
-  console.log('📱 [WhatsApp API] GET /sessions called')
   try {
     const userId = await getUserIdFromToken(req)
-    console.log('📱 [WhatsApp API] userId:', userId)
     
     if (!userId) {
-      console.log('📱 [WhatsApp API] Unauthorized - no userId')
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
     const workspaceId = req.query.workspace_id as string | undefined
-    console.log('📱 [WhatsApp API] workspaceId filter:', workspaceId)
 
     let query = supabaseAdmin
       .from('whatsapp_accounts')
@@ -166,14 +162,13 @@ router.get('/sessions', async (req: Request, res: Response) => {
     const { data: sessions, error } = await query.order('created_at', { ascending: false })
 
     if (error) {
-      console.error('❌ [WhatsApp API] Error fetching sessions:', error)
+      console.error('Error fetching sessions:', error)
       return res.status(500).json({ success: false, error: 'Error fetching sessions' })
     }
 
-    console.log('✅ [WhatsApp API] Found', sessions?.length || 0, 'sessions')
     res.json({ success: true, data: { sessions: sessions || [] } })
   } catch (error: any) {
-    console.error('❌ [WhatsApp API] Error in GET /sessions:', error)
+    console.error('Error in GET /sessions:', error)
     res.status(500).json({ success: false, error: error.message })
   }
 })

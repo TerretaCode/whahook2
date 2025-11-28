@@ -144,9 +144,8 @@ function BillingPageContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
-        <p className="text-sm text-gray-500">Cargando facturación...</p>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 text-green-600 animate-spin" />
       </div>
     )
   }
@@ -270,9 +269,8 @@ function BillingPageContent() {
 export default function BillingPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
-        <p className="text-sm text-gray-500">Cargando facturación...</p>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 text-green-600 animate-spin" />
       </div>
     }>
       <BillingPageContent />

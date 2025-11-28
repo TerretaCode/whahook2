@@ -138,14 +138,15 @@ interface ChatWidgetsSectionProps {
   workspaceId?: string
   hasExistingConnection?: boolean
   onConnectionChange?: () => void
+  initialData?: ChatWidget[]
 }
 
-export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false, onConnectionChange }: ChatWidgetsSectionProps) {
+export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false, onConnectionChange, initialData }: ChatWidgetsSectionProps) {
   const { user } = useAuth()
   const isEnterprise = user?.profile?.subscription_tier === 'enterprise'
   
-  const [widgets, setWidgets] = useState<ChatWidget[]>([])
-  const [loading, setLoading] = useState(true)
+  const [widgets, setWidgets] = useState<ChatWidget[]>(initialData || [])
+  const [loading, setLoading] = useState(!initialData)
   const [showForm, setShowForm] = useState(false)
   const [editingWidget, setEditingWidget] = useState<string | null>(null)
   const [expandedWidget, setExpandedWidget] = useState<string | null>(null)
@@ -190,8 +191,11 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
   }
 
   useEffect(() => {
-    fetchWidgets()
-  }, [workspaceId])
+    // Skip fetch if we have initial data
+    if (!initialData) {
+      fetchWidgets()
+    }
+  }, [workspaceId, initialData])
 
   const fetchWidgets = async () => {
     try {

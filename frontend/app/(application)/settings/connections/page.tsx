@@ -9,9 +9,16 @@ import { ChatWidgetsSection } from "./components/ChatWidgetsSection"
 import { EcommerceConnectionsSection } from "./components/EcommerceConnectionsSection"
 import { WebhooksSection } from "./components/WebhooksSection"
 import { WorkspaceSelector } from "@/components/workspace-selector"
-import { Loader2, Smartphone, Globe, Building2, AlertCircle, ShoppingCart, Webhook } from "lucide-react"
+import { Smartphone, Globe, Building2, AlertCircle, ShoppingCart, Webhook } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ApiClient } from "@/lib/api-client"
+import { useWorkspaceConnections } from "@/hooks/useWorkspaceConnections"
+import { 
+  ConnectionsPageSkeleton, 
+  WhatsAppSkeleton, 
+  ChatWidgetSkeleton, 
+  EcommerceSkeleton, 
+  WebhooksSkeleton 
+} from "@/components/skeletons/ConnectionsSkeleton"
 import Link from "next/link"
 
 interface Workspace {
@@ -27,25 +34,35 @@ function ConnectionsPageContent() {
   const searchParams = useSearchParams()
   const { user, isLoading: authLoading } = useAuth()
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null)
-  const [isWorkspaceLoading, setIsWorkspaceLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<string>('whatsapp')
   
-  // Function to refresh workspace data after connection changes
-  const refreshWorkspace = useCallback(async () => {
-    if (!selectedWorkspace) return
-    
-    try {
-      const response = await ApiClient.request<Workspace>(`/api/workspaces/${selectedWorkspace.id}`)
-      if (response.success && response.data) {
-        setSelectedWorkspace(response.data)
-      }
-    } catch (error) {
-      console.error('Error refreshing workspace:', error)
+  // Use unified hook to load all connections at once
+  const { 
+    data: connectionsData, 
+    isLoading: connectionsLoading, 
+    refresh: refreshConnections,
+    workspace: workspaceData
+  } = useWorkspaceConnections(selectedWorkspace?.id || null)
+  
+  // Update workspace data when connections are loaded
+  useEffect(() => {
+    if (workspaceData && selectedWorkspace) {
+      setSelectedWorkspace(prev => prev ? {
+        ...prev,
+        whatsapp_session_id: workspaceData.whatsapp_session_id,
+        web_widget_id: workspaceData.web_widget_id
+      } : null)
     }
-  }, [selectedWorkspace])
+  }, [workspaceData])
   
   // Get tab from URL or default to whatsapp
   const tabParam = searchParams.get('tab')
-  const defaultTab = tabParam === 'web' ? 'web' : 'whatsapp'
+  
+  useEffect(() => {
+    if (tabParam === 'web' || tabParam === 'ecommerce' || tabParam === 'webhooks') {
+      setActiveTab(tabParam)
+    }
+  }, [tabParam])
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -53,15 +70,20 @@ function ConnectionsPageContent() {
     }
   }, [user, authLoading, router])
 
-  // Show global loader while auth or workspace is loading
-  if (authLoading || !user || isWorkspaceLoading) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
-        <p className="text-sm text-gray-500">Cargando conexiones...</p>
-      </div>
-    )
+  // Show skeleton while auth is loading
+  if (authLoading) {
+    return <ConnectionsPageSkeleton />
   }
+
+  if (!user) {
+    return <ConnectionsPageSkeleton />
+  }
+
+  // Determine if workspace has connections based on loaded data
+  const hasWhatsAppConnection = (connectionsData?.whatsapp?.sessions?.length ?? 0) > 0 || !!selectedWorkspace?.whatsapp_session_id
+  const hasWebWidgetConnection = (connectionsData?.widgets?.length ?? 0) > 0 || !!selectedWorkspace?.web_widget_id
+  const hasEcommerceConnections = (connectionsData?.ecommerce?.length ?? 0) > 0
+  const hasWebhooks = (connectionsData?.webhooks?.length ?? 0) > 0
 
   return (
     <div className="space-y-6">
@@ -77,61 +99,90 @@ function ConnectionsPageContent() {
       <div className="bg-white rounded-lg border border-gray-200 p-4">
         <WorkspaceSelector 
           onWorkspaceChange={setSelectedWorkspace}
-          onLoadingChange={setIsWorkspaceLoading}
           showCreateButton={true}
         />
       </div>
 
       {/* Content - Only show if workspace is selected */}
       {selectedWorkspace ? (
-        <Tabs defaultValue={defaultTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="whatsapp" className="flex items-center gap-2">
               <Smartphone className="w-4 h-4" />
               <span className="hidden sm:inline">WhatsApp</span>
-              {selectedWorkspace.whatsapp_session_id && (
+              {hasWhatsAppConnection && (
                 <span className="w-2 h-2 bg-green-500 rounded-full" />
               )}
             </TabsTrigger>
             <TabsTrigger value="web" className="flex items-center gap-2">
               <Globe className="w-4 h-4" />
               <span className="hidden sm:inline">Web Widget</span>
-              {selectedWorkspace.web_widget_id && (
+              {hasWebWidgetConnection && (
                 <span className="w-2 h-2 bg-green-500 rounded-full" />
               )}
             </TabsTrigger>
             <TabsTrigger value="ecommerce" className="flex items-center gap-2">
               <ShoppingCart className="w-4 h-4" />
               <span className="hidden sm:inline">E-commerce</span>
+              {hasEcommerceConnections && (
+                <span className="w-2 h-2 bg-green-500 rounded-full" />
+              )}
             </TabsTrigger>
             <TabsTrigger value="webhooks" className="flex items-center gap-2">
               <Webhook className="w-4 h-4" />
               <span className="hidden sm:inline">Webhooks</span>
+              {hasWebhooks && (
+                <span className="w-2 h-2 bg-green-500 rounded-full" />
+              )}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="whatsapp" className="space-y-6">
-            <WhatsAppAccountsSection 
-              workspaceId={selectedWorkspace.id} 
-              hasExistingConnection={!!selectedWorkspace.whatsapp_session_id}
-              onConnectionChange={refreshWorkspace}
-            />
+            {connectionsLoading ? (
+              <WhatsAppSkeleton />
+            ) : (
+              <WhatsAppAccountsSection 
+                workspaceId={selectedWorkspace.id} 
+                hasExistingConnection={hasWhatsAppConnection}
+                onConnectionChange={refreshConnections}
+                initialData={connectionsData?.whatsapp}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="web" className="space-y-6">
-            <ChatWidgetsSection 
-              workspaceId={selectedWorkspace.id}
-              hasExistingConnection={!!selectedWorkspace.web_widget_id}
-              onConnectionChange={refreshWorkspace}
-            />
+            {connectionsLoading ? (
+              <ChatWidgetSkeleton />
+            ) : (
+              <ChatWidgetsSection 
+                workspaceId={selectedWorkspace.id}
+                hasExistingConnection={hasWebWidgetConnection}
+                onConnectionChange={refreshConnections}
+                initialData={connectionsData?.widgets}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="ecommerce" className="space-y-6">
-            <EcommerceConnectionsSection workspaceId={selectedWorkspace.id} />
+            {connectionsLoading ? (
+              <EcommerceSkeleton />
+            ) : (
+              <EcommerceConnectionsSection 
+                workspaceId={selectedWorkspace.id}
+                initialData={connectionsData?.ecommerce}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="webhooks" className="space-y-6">
-            <WebhooksSection workspaceId={selectedWorkspace.id} />
+            {connectionsLoading ? (
+              <WebhooksSkeleton />
+            ) : (
+              <WebhooksSection 
+                workspaceId={selectedWorkspace.id}
+                initialData={connectionsData?.webhooks}
+              />
+            )}
           </TabsContent>
         </Tabs>
       ) : (
@@ -168,12 +219,7 @@ function ConnectionsPageContent() {
 
 export default function ConnectionsPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
-        <p className="text-sm text-gray-500">Cargando conexiones...</p>
-      </div>
-    }>
+    <Suspense fallback={<ConnectionsPageSkeleton />}>
       <ConnectionsPageContent />
     </Suspense>
   )

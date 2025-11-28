@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense, useCallback } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { WhatsAppChatbotConfig } from "./components/WhatsAppChatbotConfig"
 import { WebChatbotConfig } from "./components/WebChatbotConfig"
@@ -18,14 +18,11 @@ interface Workspace {
 }
 
 function ChatbotSettingsContent() {
-  console.log('🎯 [ChatbotSettingsContent] Component rendering')
   const searchParams = useSearchParams()
   const widgetParam = searchParams.get('widget')
   const tabParam = searchParams.get('tab')
   
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null)
-  const [isWorkspaceLoading, setIsWorkspaceLoading] = useState(true)
-  const [isConfigLoading, setIsConfigLoading] = useState(false)
   
   // Determine default tab
   const getDefaultTab = () => {
@@ -43,36 +40,9 @@ function ChatbotSettingsContent() {
     }
   }, [widgetParam])
 
-  const handleWorkspaceChange = useCallback((workspace: Workspace | null) => {
-    console.log('🏢 [ChatbotPage] Workspace changed:', workspace?.id, workspace?.name)
-    setSelectedWorkspace(workspace)
-    // When workspace changes, we need to wait for config to load
-    if (workspace) {
-      setIsConfigLoading(true)
-    }
-  }, [])
-
-  const handleConfigLoaded = useCallback(() => {
-    console.log('✅ [ChatbotPage] Config loaded callback received')
-    setIsConfigLoading(false)
-  }, [])
-
   // Check if workspace has the required connection for the selected tab
   const hasWhatsAppConnection = selectedWorkspace?.whatsapp_session_id
   const hasWebWidgetConnection = selectedWorkspace?.web_widget_id
-
-  // Show global loader while workspace is loading
-  console.log('🔍 [ChatbotPage] Render - isWorkspaceLoading:', isWorkspaceLoading, 'selectedWorkspace:', selectedWorkspace?.id)
-  
-  if (isWorkspaceLoading) {
-    console.log('⏳ [ChatbotPage] Showing loader - workspace still loading')
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
-        <p className="text-sm text-gray-500">Cargando configuración del chatbot...</p>
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-6">
@@ -87,8 +57,7 @@ function ChatbotSettingsContent() {
       {/* Workspace Selector */}
       <div className="bg-white rounded-lg border border-gray-200 p-4">
         <WorkspaceSelector 
-          onWorkspaceChange={handleWorkspaceChange}
-          onLoadingChange={setIsWorkspaceLoading}
+          onWorkspaceChange={setSelectedWorkspace}
           showCreateButton={true}
         />
       </div>
@@ -133,7 +102,7 @@ function ChatbotSettingsContent() {
           {/* Tab Content */}
           {activeTab === 'whatsapp' ? (
             hasWhatsAppConnection ? (
-              <WhatsAppChatbotConfig workspaceId={selectedWorkspace.id} onLoaded={handleConfigLoaded} />
+              <WhatsAppChatbotConfig workspaceId={selectedWorkspace.id} />
             ) : (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
                 <Smartphone className="w-12 h-12 text-amber-400 mx-auto mb-4" />
@@ -153,7 +122,7 @@ function ChatbotSettingsContent() {
             )
           ) : (
             hasWebWidgetConnection ? (
-              <WebChatbotConfig selectedWidgetId={selectedWorkspace.web_widget_id} workspaceId={selectedWorkspace.id} onLoaded={handleConfigLoaded} />
+              <WebChatbotConfig selectedWidgetId={selectedWorkspace.web_widget_id} workspaceId={selectedWorkspace.id} />
             ) : (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
                 <Globe className="w-12 h-12 text-amber-400 mx-auto mb-4" />
@@ -205,24 +174,14 @@ function ChatbotSettingsContent() {
   )
 }
 
-// Force redeploy v2
 export default function ChatbotSettingsPage() {
-  console.log('🚀 [ChatbotSettingsPage] Component mounted - v2')
   return (
     <Suspense fallback={
-      <SuspenseFallback />
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+      </div>
     }>
       <ChatbotSettingsContent />
     </Suspense>
-  )
-}
-
-function SuspenseFallback() {
-  console.log('⏳ [ChatbotSettingsPage] Showing Suspense fallback')
-  return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center">
-      <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
-      <p className="text-sm text-gray-500">Cargando configuración del chatbot...</p>
-    </div>
   )
 }

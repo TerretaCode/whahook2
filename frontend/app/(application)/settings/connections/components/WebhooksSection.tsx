@@ -1,12 +1,22 @@
 "use client"
 
-import { Webhook, Clock } from "lucide-react"
+import { Webhook as WebhookIcon, Clock } from "lucide-react"
+
+interface WebhookData {
+  id: string
+  name: string
+  url: string
+  events: string[]
+  is_active: boolean
+  created_at: string
+}
 
 interface WebhooksSectionProps {
   workspaceId?: string
+  initialData?: WebhookData[]
 }
 
-export function WebhooksSection({ workspaceId }: WebhooksSectionProps) {
+export function WebhooksSection({ workspaceId, initialData }: WebhooksSectionProps) {
   return (
     <div className="space-y-6">
       {/* Coming Soon Banner */}
@@ -20,7 +30,7 @@ export function WebhooksSection({ workspaceId }: WebhooksSectionProps) {
         
         <div className="flex flex-col items-center text-center">
           <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mb-6">
-            <Webhook className="w-8 h-8 text-gray-400" />
+            <WebhookIcon className="w-8 h-8 text-gray-400" />
           </div>
           
           <h3 className="text-xl font-semibold text-gray-900 mb-2">

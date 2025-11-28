@@ -13,15 +13,25 @@ import {
   AlertCircle
 } from 'lucide-react'
 
+interface WhatsAppInitialData {
+  accounts: any[]
+  sessions: any[]
+}
+
 interface WhatsAppAccountsSectionProps {
   workspaceId?: string
   hasExistingConnection?: boolean
   onConnectionChange?: () => void
+  initialData?: WhatsAppInitialData
 }
 
-export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = false, onConnectionChange }: WhatsAppAccountsSectionProps) {
+export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = false, onConnectionChange, initialData }: WhatsAppAccountsSectionProps) {
   const { accounts, isLoading: accountsLoading, createAccount } = useWhatsAppAccounts(workspaceId)
   const { sessions, isLoading: sessionsLoading, createSession, destroySession, isSocketConnected } = useWhatsAppSessions(workspaceId)
+  
+  // Use initial data if available, otherwise use hook data
+  const displaySessions = initialData?.sessions?.length ? initialData.sessions : sessions
+  const displayAccounts = initialData?.accounts?.length ? initialData.accounts : accounts
   
   const [showNewAccountForm, setShowNewAccountForm] = useState(false)
   const [newAccountName, setNewAccountName] = useState('')
@@ -52,7 +62,7 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
 
   const getAccountName = (session: typeof sessions[0]) => {
     // First try to find matching account by id
-    const account = accounts.find(a => a.id === session.account_id)
+    const account = displayAccounts.find(a => a.id === session.account_id)
     if (account?.label) return account.label
     
     // Fallback: check if session itself has label (same table)
@@ -62,7 +72,8 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
     return 'WhatsApp Account'
   }
 
-  if (accountsLoading || sessionsLoading) {
+  // Skip loading state if we have initial data
+  if (!initialData && (accountsLoading || sessionsLoading)) {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
@@ -160,7 +171,7 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
       )}
 
       {/* Sessions List */}
-      {sessions.length === 0 ? (
+      {displaySessions.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
           <Smartphone className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -180,7 +191,7 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {sessions.map((session) => (
+          {displaySessions.map((session) => (
             <WhatsAppSessionCard
               key={session.id}
               session={session}

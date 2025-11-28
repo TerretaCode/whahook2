@@ -23,7 +23,6 @@ interface Workspace {
 
 interface WorkspaceSelectorProps {
   onWorkspaceChange?: (workspace: Workspace | null) => void
-  onLoadingChange?: (isLoading: boolean) => void
   showCreateButton?: boolean
   className?: string
 }
@@ -31,8 +30,7 @@ interface WorkspaceSelectorProps {
 const STORAGE_KEY = 'selected-workspace-id'
 
 export function WorkspaceSelector({ 
-  onWorkspaceChange,
-  onLoadingChange,
+  onWorkspaceChange, 
   showCreateButton = true,
   className = ""
 }: WorkspaceSelectorProps) {
@@ -60,48 +58,36 @@ export function WorkspaceSelector({
   }, [searchParams, workspaces, onWorkspaceChange])
 
   const loadWorkspaces = async () => {
-    console.log('🏢 [WorkspaceSelector] Starting loadWorkspaces...')
     try {
       setIsLoading(true)
-      onLoadingChange?.(true)
-      console.log('🏢 [WorkspaceSelector] onLoadingChange(true) called')
-      
       const response = await ApiClient.request<{ workspaces: Workspace[] }>('/api/workspaces')
-      console.log('🏢 [WorkspaceSelector] API response:', response)
+      console.log('WorkspaceSelector response:', response)
       
       if (response.success && response.data?.workspaces) {
         const list = response.data.workspaces
-        console.log('🏢 [WorkspaceSelector] Found', list.length, 'workspaces')
         setWorkspaces(list)
         
         // Try to restore selected workspace
         const urlWorkspaceId = searchParams.get('workspace')
         const savedId = urlWorkspaceId || localStorage.getItem(STORAGE_KEY)
-        console.log('🏢 [WorkspaceSelector] Trying to restore workspace - urlId:', urlWorkspaceId, 'savedId:', savedId)
         
         if (savedId && list.find(w => w.id === savedId)) {
           setSelectedId(savedId)
           const workspace = list.find(w => w.id === savedId)
           if (workspace) {
-            console.log('🏢 [WorkspaceSelector] Restored workspace:', workspace.id, workspace.name)
             onWorkspaceChange?.(workspace)
           }
         } else if (list.length > 0) {
           // Auto-select first workspace
-          console.log('🏢 [WorkspaceSelector] Auto-selecting first workspace:', list[0].id, list[0].name)
           setSelectedId(list[0].id)
           localStorage.setItem(STORAGE_KEY, list[0].id)
           onWorkspaceChange?.(list[0])
         }
-      } else {
-        console.log('🏢 [WorkspaceSelector] No workspaces in response')
       }
     } catch (error) {
-      console.error('❌ [WorkspaceSelector] Error loading workspaces:', error)
+      console.error('Error loading workspaces:', error)
     } finally {
-      console.log('🏢 [WorkspaceSelector] Finished loading, calling onLoadingChange(false)')
       setIsLoading(false)
-      onLoadingChange?.(false)
     }
   }
 
@@ -118,9 +104,13 @@ export function WorkspaceSelector({
     router.replace(url.pathname + url.search)
   }
 
-  // Don't show anything while loading - parent handles the loader
   if (isLoading) {
-    return null
+    return (
+      <div className={`flex items-center gap-2 ${className}`}>
+        <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+        <span className="text-sm text-gray-500">Loading workspaces...</span>
+      </div>
+    )
   }
 
   if (workspaces.length === 0) {

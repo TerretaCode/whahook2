@@ -156,11 +156,12 @@ const getWebhookUrl = (connectionId: string): string => {
 
 interface EcommerceConnectionsSectionProps {
   workspaceId?: string
+  initialData?: EcommerceConnection[]
 }
 
-export function EcommerceConnectionsSection({ workspaceId }: EcommerceConnectionsSectionProps) {
-  const [connections, setConnections] = useState<EcommerceConnection[]>([])
-  const [loading, setLoading] = useState(true)
+export function EcommerceConnectionsSection({ workspaceId, initialData }: EcommerceConnectionsSectionProps) {
+  const [connections, setConnections] = useState<EcommerceConnection[]>(initialData || [])
+  const [loading, setLoading] = useState(!initialData)
   const [showForm, setShowForm] = useState(false)
   const [syncing, setSyncing] = useState<string | null>(null)
   const [expandedConnection, setExpandedConnection] = useState<string | null>(null)
@@ -176,8 +177,10 @@ export function EcommerceConnectionsSection({ workspaceId }: EcommerceConnection
   })
 
   useEffect(() => {
-    fetchConnections()
-  }, [workspaceId])
+    if (!initialData) {
+      fetchConnections()
+    }
+  }, [workspaceId, initialData])
 
   const fetchConnections = async () => {
     try {

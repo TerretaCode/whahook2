@@ -39,18 +39,14 @@ async function getUserPlan(userId: string): Promise<string> {
  * List all workspaces for user
  */
 router.get('/', async (req: Request, res: Response) => {
-  console.log('🏢 [Workspaces API] GET /api/workspaces called')
   try {
     const userId = await getUserIdFromToken(req)
-    console.log('🏢 [Workspaces API] userId:', userId)
     if (!userId) {
-      console.log('🏢 [Workspaces API] Unauthorized - no userId')
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
     // Get user's plan
     const plan = await getUserPlan(userId)
-    console.log('🏢 [Workspaces API] User plan:', plan)
     const maxWorkspaces = PLAN_LIMITS[plan] || 1
 
     // Get workspaces with connection info
@@ -69,11 +65,9 @@ router.get('/', async (req: Request, res: Response) => {
       .order('created_at', { ascending: true })
 
     if (error) {
-      console.error('❌ [Workspaces API] Error fetching workspaces:', error)
+      console.error('Error fetching workspaces:', error)
       return res.status(500).json({ success: false, error: 'Failed to fetch workspaces' })
     }
-
-    console.log('✅ [Workspaces API] Found', workspacesList?.length || 0, 'workspaces')
 
     res.json({
       success: true,
@@ -222,6 +216,91 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: workspace })
   } catch (error: any) {
     console.error('Error in PUT /workspaces/:id:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
+ * GET /api/workspaces/:id/connections
+ * Get all connections data for a workspace in a single request
+ * This optimizes loading by fetching everything at once
+ */
+router.get('/:id/connections', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const { id } = req.params
+
+    // Verify workspace belongs to user
+    const { data: workspace, error: wsError } = await supabaseAdmin
+      .from('workspaces')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single()
+
+    if (wsError || !workspace) {
+      return res.status(404).json({ success: false, error: 'Workspace not found' })
+    }
+
+    // Fetch all connections in parallel
+    const [
+      whatsappResult,
+      widgetsResult,
+      ecommerceResult,
+      webhooksResult
+    ] = await Promise.all([
+      // WhatsApp accounts/sessions for this workspace
+      supabaseAdmin
+        .from('whatsapp_accounts')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('workspace_id', id)
+        .order('created_at', { ascending: false }),
+      
+      // Chat widgets for this workspace
+      supabaseAdmin
+        .from('chat_widgets')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('workspace_id', id)
+        .order('created_at', { ascending: false }),
+      
+      // E-commerce connections for this workspace
+      supabaseAdmin
+        .from('ecommerce_connections')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('workspace_id', id)
+        .order('created_at', { ascending: false }),
+      
+      // Webhooks for this workspace
+      supabaseAdmin
+        .from('webhooks')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('workspace_id', id)
+        .order('created_at', { ascending: false })
+    ])
+
+    res.json({
+      success: true,
+      data: {
+        workspace,
+        whatsapp: {
+          accounts: whatsappResult.data || [],
+          sessions: whatsappResult.data || [] // Same table, accounts ARE sessions
+        },
+        widgets: widgetsResult.data || [],
+        ecommerce: ecommerceResult.data || [],
+        webhooks: webhooksResult.data || []
+      }
+    })
+  } catch (error: any) {
+    console.error('Error in GET /workspaces/:id/connections:', error)
     res.status(500).json({ success: false, error: error.message })
   }
 })
