@@ -108,10 +108,9 @@ export function WhatsAppSessionCard({
       {/* QR Code Display - shown when initializing/qr_pending with QR */}
       {(session.status === 'initializing' || session.status === 'qr_pending') && session.qr_code && (
         <div className="mb-4">
-          <div className="flex justify-center mb-2">
-            <QRCodeDisplay qrCode={session.qr_code} size={200} />
+          <div className="flex justify-center">
+            <QRCodeDisplay qrCode={session.qr_code} size={200} accountName={accountName} />
           </div>
-          <p className="text-sm text-center text-gray-600">Scan this QR code with WhatsApp</p>
         </div>
       )}
 
