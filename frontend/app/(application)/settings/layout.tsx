@@ -22,13 +22,6 @@ interface SettingsLayoutProps {
 
 const settingsNavigation = [
   {
-    id: 'profile',
-    name: 'Perfil',
-    href: '/settings/profile',
-    icon: User,
-    description: 'Tu cuenta y preferencias'
-  },
-  {
     id: 'connections',
     name: 'Conexiones',
     href: '/settings/connections',
@@ -48,6 +41,13 @@ const settingsNavigation = [
     href: '/settings/ia',
     icon: Sparkles,
     description: 'Claves de API'
+  },
+  {
+    id: 'profile',
+    name: 'Perfil',
+    href: '/settings/profile',
+    icon: User,
+    description: 'Tu cuenta y preferencias'
   }
 ]
 
