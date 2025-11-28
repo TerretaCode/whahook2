@@ -131,7 +131,11 @@ const getPluginSettingsUrl = (domain: string, platform: WebsitePlatform): string
   return url + platformIntegrations[platform].settingsPath
 }
 
-export function ChatWidgetsSection() {
+interface ChatWidgetsSectionProps {
+  workspaceId?: string
+}
+
+export function ChatWidgetsSection({ workspaceId }: ChatWidgetsSectionProps) {
   const [widgets, setWidgets] = useState<ChatWidget[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -193,9 +197,13 @@ export function ChatWidgetsSection() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      const payload = workspaceId 
+        ? { ...formData, workspace_id: workspaceId }
+        : formData
+      
       const response = await ApiClient.request('/api/chat-widgets', {
         method: 'POST',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       })
       
       if (response.success) {

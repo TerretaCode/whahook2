@@ -13,7 +13,11 @@ import {
   AlertCircle
 } from 'lucide-react'
 
-export function WhatsAppAccountsSection() {
+interface WhatsAppAccountsSectionProps {
+  workspaceId?: string
+}
+
+export function WhatsAppAccountsSection({ workspaceId }: WhatsAppAccountsSectionProps) {
   const { accounts, isLoading: accountsLoading, createAccount } = useWhatsAppAccounts()
   const { sessions, isLoading: sessionsLoading, createSession, destroySession, isSocketConnected } = useWhatsAppSessions()
   
@@ -28,7 +32,7 @@ export function WhatsAppAccountsSection() {
     setIsCreating(true)
     
     try {
-      const account = await createAccount(newAccountName.trim())
+      const account = await createAccount(newAccountName.trim(), workspaceId)
       
       if (account) {
         await createSession(account.id)

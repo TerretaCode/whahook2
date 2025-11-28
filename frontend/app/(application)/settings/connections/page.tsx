@@ -92,11 +92,11 @@ function ConnectionsPageContent() {
           </TabsList>
 
           <TabsContent value="whatsapp" className="space-y-6">
-            <WhatsAppAccountsSection />
+            <WhatsAppAccountsSection workspaceId={selectedWorkspace.id} />
           </TabsContent>
 
           <TabsContent value="web" className="space-y-6">
-            <ChatWidgetsSection />
+            <ChatWidgetsSection workspaceId={selectedWorkspace.id} />
           </TabsContent>
 
           <TabsContent value="ecommerce" className="space-y-6">

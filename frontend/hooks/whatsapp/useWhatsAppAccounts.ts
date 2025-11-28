@@ -34,10 +34,13 @@ export function useWhatsAppAccounts() {
     }
   }, [])
 
-  const createAccount = useCallback(async (accountName: string) => {
+  const createAccount = useCallback(async (accountName: string, workspaceId?: string) => {
     setIsLoading(true)
     try {
-      const payload = { label: accountName };
+      const payload: { label: string; workspace_id?: string } = { label: accountName };
+      if (workspaceId) {
+        payload.workspace_id = workspaceId;
+      }
       
       const response = await ApiClient.request<{ account: WhatsAppAccount }>(
         '/api/whatsapp/accounts',

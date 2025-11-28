@@ -57,6 +57,7 @@ export interface CreateWidgetInput {
   welcome_message?: string
   placeholder_text?: string
   position?: 'bottom-right' | 'bottom-left'
+  workspace_id?: string
 }
 
 export interface UpdateWidgetInput extends Partial<CreateWidgetInput> {

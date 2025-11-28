@@ -65,20 +65,45 @@ router.get('/accounts', async (req: Request, res: Response) => {
 router.post('/accounts', async (req: Request, res: Response) => {
   try {
     const userId = await getUserIdFromToken(req)
-    const { label } = req.body
+    const { label, workspace_id } = req.body
 
     if (!userId) {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
+
+    // Verify workspace belongs to user if provided
+    if (workspace_id) {
+      const { data: workspace, error: wsError } = await supabaseAdmin
+        .from('workspaces')
+        .select('id, whatsapp_session_id')
+        .eq('id', workspace_id)
+        .eq('user_id', userId)
+        .single()
+
+      if (wsError || !workspace) {
+        return res.status(400).json({ success: false, error: 'Invalid workspace' })
+      }
+
+      // Check if workspace already has a WhatsApp connection
+      if (workspace.whatsapp_session_id) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'This workspace already has a WhatsApp connection' 
+        })
+      }
+    }
+
+    const sessionId = `wa_${userId}_${Date.now()}`
 
     // Crear cuenta en Supabase
     const { data: account, error } = await supabaseAdmin
       .from('whatsapp_accounts')
       .insert({
         user_id: userId,
-        session_id: `wa_${userId}_${Date.now()}`,
+        session_id: sessionId,
         status: 'disconnected',
         label: label || 'WhatsApp Account',
+        workspace_id: workspace_id || null,
       })
       .select()
       .single()
@@ -88,7 +113,15 @@ router.post('/accounts', async (req: Request, res: Response) => {
       return res.status(500).json({ success: false, error: 'Error creating account' })
     }
 
-    console.log('✅ Account created:', account.id)
+    // Update workspace with the WhatsApp session reference
+    if (workspace_id) {
+      await supabaseAdmin
+        .from('workspaces')
+        .update({ whatsapp_session_id: sessionId })
+        .eq('id', workspace_id)
+    }
+
+    console.log('✅ Account created:', account.id, workspace_id ? `for workspace ${workspace_id}` : '')
     res.json({ success: true, data: { account } })
   } catch (error: any) {
     console.error('Error in POST /accounts:', error)

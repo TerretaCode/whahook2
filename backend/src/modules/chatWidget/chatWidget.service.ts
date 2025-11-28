@@ -42,6 +42,25 @@ class ChatWidgetService {
    * Crear nuevo widget
    */
   async createWidget(userId: string, input: CreateWidgetInput): Promise<ChatWidget> {
+    // Verify workspace belongs to user if provided
+    if (input.workspace_id) {
+      const { data: workspace, error: wsError } = await supabaseAdmin
+        .from('workspaces')
+        .select('id, web_widget_id')
+        .eq('id', input.workspace_id)
+        .eq('user_id', userId)
+        .single()
+
+      if (wsError || !workspace) {
+        throw new Error('Invalid workspace')
+      }
+
+      // Check if workspace already has a web widget
+      if (workspace.web_widget_id) {
+        throw new Error('This workspace already has a Web Widget')
+      }
+    }
+
     const { data, error } = await supabaseAdmin
       .from('chat_widgets')
       .insert({
@@ -54,11 +73,21 @@ class ChatWidgetService {
         welcome_message: input.welcome_message || '¡Hola! 👋 ¿En qué puedo ayudarte?',
         placeholder_text: input.placeholder_text || 'Escribe tu mensaje...',
         position: input.position || 'bottom-right',
+        workspace_id: input.workspace_id || null,
       })
       .select()
       .single()
 
     if (error) throw error
+
+    // Update workspace with the widget reference
+    if (input.workspace_id) {
+      await supabaseAdmin
+        .from('workspaces')
+        .update({ web_widget_id: data.id })
+        .eq('id', input.workspace_id)
+    }
+
     return data
   }
 
