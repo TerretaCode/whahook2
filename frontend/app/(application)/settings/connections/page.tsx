@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, Suspense, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -11,6 +11,7 @@ import { WebhooksSection } from "./components/WebhooksSection"
 import { WorkspaceSelector } from "@/components/workspace-selector"
 import { Loader2, Smartphone, Globe, Building2, AlertCircle, ShoppingCart, Webhook } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ApiClient } from "@/lib/api-client"
 import Link from "next/link"
 
 interface Workspace {
@@ -26,6 +27,20 @@ function ConnectionsPageContent() {
   const searchParams = useSearchParams()
   const { user, isLoading: authLoading } = useAuth()
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null)
+  
+  // Function to refresh workspace data after connection changes
+  const refreshWorkspace = useCallback(async () => {
+    if (!selectedWorkspace) return
+    
+    try {
+      const response = await ApiClient.request<Workspace>(`/api/workspaces/${selectedWorkspace.id}`)
+      if (response.success && response.data) {
+        setSelectedWorkspace(response.data)
+      }
+    } catch (error) {
+      console.error('Error refreshing workspace:', error)
+    }
+  }, [selectedWorkspace])
   
   // Get tab from URL or default to whatsapp
   const tabParam = searchParams.get('tab')
@@ -95,6 +110,7 @@ function ConnectionsPageContent() {
             <WhatsAppAccountsSection 
               workspaceId={selectedWorkspace.id} 
               hasExistingConnection={!!selectedWorkspace.whatsapp_session_id}
+              onConnectionChange={refreshWorkspace}
             />
           </TabsContent>
 
@@ -102,6 +118,7 @@ function ConnectionsPageContent() {
             <ChatWidgetsSection 
               workspaceId={selectedWorkspace.id}
               hasExistingConnection={!!selectedWorkspace.web_widget_id}
+              onConnectionChange={refreshWorkspace}
             />
           </TabsContent>
 

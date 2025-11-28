@@ -114,13 +114,35 @@ class ChatWidgetService {
    * Eliminar widget
    */
   async deleteWidget(widgetId: string, userId: string): Promise<boolean> {
+    // First, get the widget to check if it's linked to a workspace
+    const { data: widget } = await supabaseAdmin
+      .from('chat_widgets')
+      .select('id, workspace_id')
+      .eq('id', widgetId)
+      .eq('user_id', userId)
+      .single()
+
+    if (!widget) return false
+
+    // Delete the widget
     const { error } = await supabaseAdmin
       .from('chat_widgets')
       .delete()
       .eq('id', widgetId)
       .eq('user_id', userId)
 
-    return !error
+    if (error) return false
+
+    // Clear the workspace reference if linked
+    if (widget.workspace_id) {
+      await supabaseAdmin
+        .from('workspaces')
+        .update({ web_widget_id: null })
+        .eq('id', widget.workspace_id)
+        .eq('web_widget_id', widgetId)
+    }
+
+    return true
   }
 
   /**

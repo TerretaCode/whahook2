@@ -217,7 +217,7 @@ router.delete('/sessions/:sessionId', async (req: Request, res: Response) => {
     // Verificar que la sesión pertenece al usuario
     const { data: account } = await supabaseAdmin
       .from('whatsapp_accounts')
-      .select('*')
+      .select('*, workspace_id')
       .eq('session_id', sessionId)
       .eq('user_id', userId)
       .single()
@@ -227,6 +227,15 @@ router.delete('/sessions/:sessionId', async (req: Request, res: Response) => {
     }
 
     await whatsappService.destroySession(sessionId)
+
+    // Clear the workspace reference if linked
+    if (account.workspace_id) {
+      await supabaseAdmin
+        .from('workspaces')
+        .update({ whatsapp_session_id: null })
+        .eq('id', account.workspace_id)
+        .eq('whatsapp_session_id', sessionId)
+    }
 
     res.json({ success: true, message: 'Session destroyed' })
   } catch (error: any) {

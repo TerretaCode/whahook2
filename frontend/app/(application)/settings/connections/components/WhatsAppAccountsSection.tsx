@@ -16,9 +16,10 @@ import {
 interface WhatsAppAccountsSectionProps {
   workspaceId?: string
   hasExistingConnection?: boolean
+  onConnectionChange?: () => void
 }
 
-export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = false }: WhatsAppAccountsSectionProps) {
+export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = false, onConnectionChange }: WhatsAppAccountsSectionProps) {
   const { accounts, isLoading: accountsLoading, createAccount } = useWhatsAppAccounts()
   const { sessions, isLoading: sessionsLoading, createSession, destroySession, isSocketConnected } = useWhatsAppSessions()
   
@@ -39,6 +40,8 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
         await createSession(account.id)
         setNewAccountName('')
         setShowNewAccountForm(false)
+        // Notify parent to refresh workspace data
+        onConnectionChange?.()
       }
     } catch (error) {
       console.error('Error during account creation:', error)
@@ -182,7 +185,11 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
               key={session.id}
               session={session}
               accountName={getAccountName(session)}
-              onDestroy={destroySession}
+              onDestroy={async (sessionId) => {
+                await destroySession(sessionId)
+                // Notify parent to refresh workspace data
+                onConnectionChange?.()
+              }}
             />
           ))}
         </div>

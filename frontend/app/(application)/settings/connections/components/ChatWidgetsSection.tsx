@@ -134,9 +134,10 @@ const getPluginSettingsUrl = (domain: string, platform: WebsitePlatform): string
 interface ChatWidgetsSectionProps {
   workspaceId?: string
   hasExistingConnection?: boolean
+  onConnectionChange?: () => void
 }
 
-export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false }: ChatWidgetsSectionProps) {
+export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false, onConnectionChange }: ChatWidgetsSectionProps) {
   const [widgets, setWidgets] = useState<ChatWidget[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -215,6 +216,8 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false 
         // Auto-expand to show integration instructions
         setExpandedWidget(newWidget.id)
         setSelectedPlatform(formData.platform)
+        // Notify parent to refresh workspace data
+        onConnectionChange?.()
         // Fetch embed code for the new widget
         handleGetEmbedCode(newWidget.id)
         toast.success('Widget Created!', 'Now follow the instructions below to add it to your website.')
@@ -278,6 +281,8 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false 
         setWidgets(widgets.filter(w => w.id !== id))
         if (expandedWidget === id) setExpandedWidget(null)
         toast.success('Deleted', 'Widget deleted successfully')
+        // Notify parent to refresh workspace data
+        onConnectionChange?.()
       }
     } catch (error) {
       console.error('Error deleting widget:', error)
