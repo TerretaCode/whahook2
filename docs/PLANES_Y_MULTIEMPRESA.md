@@ -49,7 +49,7 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 | Widgets Web | 3 |
 | Workspaces (empresas) | 3 |
 | Usuarios por workspace | 3 |
-| IA | Ilimitada (API propia) |
+| IA | Ilimitada (API por workspace) |
 | CRM | Completo |
 | Historial mensajes | 1 año |
 | Soporte | Prioritario |
@@ -62,6 +62,12 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 - ✅ Notas y campos personalizados
 - ✅ Exportación CSV
 - ✅ Métricas y analytics
+
+**Funcionalidades Multi-Empresa (igual que Enterprise, limitado a 3)**:
+- ✅ **White-label** (footer personalizable en widgets)
+- ✅ **Enlaces de acceso para clientes**
+- ✅ **Envío de QR remoto**
+- ✅ **API Key por workspace** con tracking de gastos opcional
 
 **Casos de uso**:
 - Empresa con tienda física + online (2 WhatsApp diferentes)
@@ -83,15 +89,12 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 | Soporte | Dedicado + Onboarding |
 
 **Funcionalidades exclusivas Enterprise**:
-- ✅ Todo lo del Professional
-- ✅ API de acceso
+- ✅ Todo lo del Professional (pero con límites de 10 en vez de 3)
+- ✅ API de acceso externa
 - ✅ Webhooks personalizados
-- ✅ **White-label completo** (ver sección 3)
-- ✅ **Enlaces de acceso para clientes** (ver sección 2.3)
-- ✅ **Envío de QR remoto** (ver sección 2.4)
-- ✅ **API Key por workspace** con tracking de gastos opcional
 - ✅ Roles y permisos avanzados
 - ✅ Reportes personalizados
+- ✅ Soporte dedicado con onboarding
 
 ---
 
@@ -144,7 +147,7 @@ Un **Workspace** es un espacio aislado que representa una empresa/cliente. Cada 
 - Ver clientes (solo lectura)
 - NO puede configurar nada
 
-### 2.3 Enlaces de Acceso para Clientes (Enterprise)
+### 2.3 Enlaces de Acceso para Clientes (Professional y Enterprise)
 
 La funcionalidad clave para agencias: generar un enlace único que permite al cliente final acceder SOLO a su workspace.
 
@@ -176,7 +179,7 @@ O con dominio personalizado: `https://panel.agencia.com/cliente/abc123`
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 2.4 Envío de QR Remoto (Enterprise)
+### 2.4 Envío de QR Remoto (Professional y Enterprise)
 
 Para conectar WhatsApp sin necesidad de tener el móvil del cliente presencialmente:
 
@@ -214,7 +217,7 @@ Para conectar WhatsApp sin necesidad de tener el móvil del cliente presencialme
 
 ---
 
-## 3. White-Label Completo (Enterprise)
+## 3. White-Label (Professional y Enterprise)
 
 ### 3.1 Elementos personalizables
 
@@ -243,11 +246,11 @@ workspace.white_label = {
 
 ---
 
-## 4. Gestión de API Keys y Costes IA (Enterprise)
+## 4. Gestión de API Keys y Costes IA (Professional y Enterprise)
 
 ### 4.1 API Key por Workspace
 
-En el plan Enterprise, cada workspace puede tener su propia API Key de Gemini:
+En los planes Professional y Enterprise, cada workspace puede tener su propia API Key de Gemini:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -732,15 +735,17 @@ Vista que muestra resumen de TODOS los workspaces:
 | **Widgets Web** | 1 | 1 | 3 | 10 |
 | **Workspaces** | 1 | 1 | 3 | 10 |
 | **Usuarios** | 1 | 1 | 3/workspace | Ilimitados |
-| **IA** | Ilimitada (API propia) | Ilimitada (API propia) | Ilimitada (API propia) | Ilimitada (API por workspace) |
-| **CRM** | Básico | Básico | Completo | Completo + API |
+| **IA** | Ilimitada (API propia) | Ilimitada (API propia) | Ilimitada (API por workspace) | Ilimitada (API por workspace) |
+| **CRM** | Básico | Básico | Completo | Completo + API externa |
 | **Campañas WhatsApp** | ❌ | ❌ | ✅ | ✅ |
 | **Campañas Email** | ❌ | ❌ | ✅ | ✅ |
-| **Enlaces acceso clientes** | ❌ | ❌ | ❌ | ✅ |
-| **Envío QR remoto** | ❌ | ❌ | ❌ | ✅ |
-| **White-label** | ❌ | ❌ | ❌ | ✅ |
-| **API Key por workspace** | ❌ | ❌ | ❌ | ✅ |
-| **Tracking gastos IA** | ❌ | ❌ | ❌ | ✅ (opcional) |
+| **Enlaces acceso clientes** | ❌ | ❌ | ✅ (3 max) | ✅ (10 max) |
+| **Envío QR remoto** | ❌ | ❌ | ✅ | ✅ |
+| **White-label** | ❌ | ❌ | ✅ | ✅ |
+| **API Key por workspace** | ❌ | ❌ | ✅ | ✅ |
+| **Tracking gastos IA** | ❌ | ❌ | ✅ (opcional) | ✅ (opcional) |
+| **API externa** | ❌ | ❌ | ❌ | ✅ |
+| **Webhooks** | ❌ | ❌ | ❌ | ✅ |
 | **Soporte** | Email | Email | Prioritario | Dedicado |
 
 ---
