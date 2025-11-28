@@ -32,7 +32,11 @@ interface EcommerceConnection {
   store_name: string
 }
 
-export function WhatsAppChatbotConfig() {
+interface WhatsAppChatbotConfigProps {
+  workspaceId: string
+}
+
+export function WhatsAppChatbotConfig({ workspaceId }: WhatsAppChatbotConfigProps) {
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true) // Global loader
@@ -87,11 +91,11 @@ export function WhatsAppChatbotConfig() {
   const [originalData, setOriginalData] = useState<Record<string, any>>({})
 
   useEffect(() => {
-    if (user) {
+    if (user && workspaceId) {
       loadInitialData()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
+  }, [user, workspaceId])
   
   // Check if all loading is complete
   useEffect(() => {
@@ -116,7 +120,7 @@ export function WhatsAppChatbotConfig() {
   const loadSessions = async () => {
     setLoadingStates(prev => ({ ...prev, sessions: true }))
     try {
-      const response = await ApiClient.request<any>('/api/whatsapp/sessions')
+      const response = await ApiClient.request<any>(`/api/whatsapp/sessions?workspace_id=${workspaceId}`)
       console.log('WhatsApp sessions full response:', response)
       console.log('Response data:', response.data)
       
@@ -173,7 +177,7 @@ export function WhatsAppChatbotConfig() {
   const loadEcommerceConnections = async () => {
     setLoadingStates(prev => ({ ...prev, ecommerce: true }))
     try {
-      const response = await ApiClient.request<any>('/api/ecommerce/connections')
+      const response = await ApiClient.request<any>(`/api/ecommerce/connections?workspace_id=${workspaceId}`)
       console.log('Ecommerce connections full response:', response)
       console.log('Ecommerce response data:', response.data)
       

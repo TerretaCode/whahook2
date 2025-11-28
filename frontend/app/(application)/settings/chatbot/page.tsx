@@ -102,7 +102,7 @@ function ChatbotSettingsContent() {
           {/* Tab Content */}
           {activeTab === 'whatsapp' ? (
             hasWhatsAppConnection ? (
-              <WhatsAppChatbotConfig />
+              <WhatsAppChatbotConfig workspaceId={selectedWorkspace.id} />
             ) : (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
                 <Smartphone className="w-12 h-12 text-amber-400 mx-auto mb-4" />
@@ -122,7 +122,7 @@ function ChatbotSettingsContent() {
             )
           ) : (
             hasWebWidgetConnection ? (
-              <WebChatbotConfig selectedWidgetId={selectedWorkspace.web_widget_id} />
+              <WebChatbotConfig selectedWidgetId={selectedWorkspace.web_widget_id} workspaceId={selectedWorkspace.id} />
             ) : (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
                 <Globe className="w-12 h-12 text-amber-400 mx-auto mb-4" />

@@ -36,9 +36,10 @@ interface EcommerceConnection {
 
 interface WebChatbotConfigProps {
   selectedWidgetId?: string | null
+  workspaceId?: string
 }
 
-export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
+export function WebChatbotConfig({ selectedWidgetId, workspaceId }: WebChatbotConfigProps) {
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
@@ -99,7 +100,7 @@ export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
       loadInitialData()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
+  }, [user, workspaceId])
 
   useEffect(() => {
     if (selectedWidgetId) {
@@ -129,7 +130,10 @@ export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
   const loadWidgets = async () => {
     setLoadingStates(prev => ({ ...prev, widgets: true }))
     try {
-      const response = await ApiClient.request('/api/chat-widgets')
+      const url = workspaceId 
+        ? `/api/chat-widgets?workspace_id=${workspaceId}`
+        : '/api/chat-widgets'
+      const response = await ApiClient.request(url)
       console.log('Chat widgets response:', response)
       
       if (response.success && response.data) {
@@ -153,7 +157,10 @@ export function WebChatbotConfig({ selectedWidgetId }: WebChatbotConfigProps) {
   const loadEcommerceConnections = async () => {
     setLoadingStates(prev => ({ ...prev, ecommerce: true }))
     try {
-      const response = await ApiClient.request('/api/ecommerce/connections')
+      const url = workspaceId 
+        ? `/api/ecommerce/connections?workspace_id=${workspaceId}`
+        : '/api/ecommerce/connections'
+      const response = await ApiClient.request(url)
       console.log('Ecommerce connections response:', response)
       
       if (response.success && response.data) {
