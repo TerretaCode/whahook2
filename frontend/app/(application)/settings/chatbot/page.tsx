@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, Suspense, useRef } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { WhatsAppChatbotConfig } from "./components/WhatsAppChatbotConfig"
 import { WebChatbotConfig } from "./components/WebChatbotConfig"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -9,30 +9,22 @@ import { Smartphone, Globe, Building2, AlertCircle, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ChatbotSkeleton } from "@/components/skeletons/SettingsSkeletons"
-import { ApiClient } from "@/lib/api-client"
-import { getCached, setCache, getFromSession, persistToSession } from "@/lib/cache"
-
-interface Workspace {
-  id: string
-  name: string
-  description: string | null
-  whatsapp_session_id: string | null
-  web_widget_id: string | null
-}
-
-const STORAGE_KEY = 'selected-workspace-id'
-const CACHE_KEY = 'chatbot-workspaces'
+import { useChatbotPage } from "@/hooks/useChatbotPage"
 
 function ChatbotSettingsContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const widgetParam = searchParams.get('widget')
   const tabParam = searchParams.get('tab')
-  const initialLoadDone = useRef(false)
   
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([])
-  const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  // Use unified hook that loads EVERYTHING in parallel
+  const {
+    workspaces,
+    selectedWorkspace,
+    setSelectedWorkspace,
+    chatbotData,
+    isLoading,
+    isLoadingChatbot
+  } = useChatbotPage()
   
   // Determine default tab
   const getDefaultTab = () => {
@@ -43,14 +35,6 @@ function ChatbotSettingsContent() {
   
   const [activeTab, setActiveTab] = useState<'whatsapp' | 'web'>(getDefaultTab())
 
-  // Load workspaces on mount
-  useEffect(() => {
-    if (!initialLoadDone.current) {
-      initialLoadDone.current = true
-      loadWorkspaces()
-    }
-  }, [])
-
   // Update tab when URL param changes
   useEffect(() => {
     if (widgetParam) {
@@ -58,83 +42,15 @@ function ChatbotSettingsContent() {
     }
   }, [widgetParam])
 
-  const loadWorkspaces = async () => {
-    // Try cache first
-    const cached = getCached<Workspace[]>(CACHE_KEY) || getFromSession<Workspace[]>(CACHE_KEY)
-    if (cached && cached.length > 0) {
-      setWorkspaces(cached)
-      // Restore selected workspace
-      const urlWorkspaceId = searchParams.get('workspace')
-      const savedId = urlWorkspaceId || localStorage.getItem(STORAGE_KEY)
-      const workspace = cached.find(w => w.id === savedId) || cached[0]
-      setSelectedWorkspace(workspace)
-      setIsLoading(false)
-      // Revalidate in background
-      revalidateInBackground()
-      return
-    }
-
-    try {
-      setIsLoading(true)
-      const response = await ApiClient.request<{ workspaces: Workspace[] }>('/api/workspaces')
-      if (response.success && response.data?.workspaces) {
-        const list = response.data.workspaces
-        setWorkspaces(list)
-        setCache(CACHE_KEY, list)
-        persistToSession(CACHE_KEY, list)
-        
-        // Restore selected workspace
-        const urlWorkspaceId = searchParams.get('workspace')
-        const savedId = urlWorkspaceId || localStorage.getItem(STORAGE_KEY)
-        const workspace = list.find(w => w.id === savedId) || list[0]
-        if (workspace) {
-          setSelectedWorkspace(workspace)
-          localStorage.setItem(STORAGE_KEY, workspace.id)
-        }
-      }
-    } catch (error) {
-      console.error('Error loading workspaces:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const revalidateInBackground = async () => {
-    try {
-      const response = await ApiClient.request<{ workspaces: Workspace[] }>('/api/workspaces')
-      if (response.success && response.data?.workspaces) {
-        const list = response.data.workspaces
-        setWorkspaces(list)
-        setCache(CACHE_KEY, list)
-        persistToSession(CACHE_KEY, list)
-        
-        // Update selected workspace if it exists in new list
-        if (selectedWorkspace) {
-          const updated = list.find(w => w.id === selectedWorkspace.id)
-          if (updated) {
-            setSelectedWorkspace(updated)
-          }
-        }
-      }
-    } catch (error) {
-      console.warn('Background revalidation failed:', error)
-    }
-  }
-
   const handleWorkspaceChange = (workspaceId: string) => {
     const workspace = workspaces.find(w => w.id === workspaceId)
     if (workspace) {
       setSelectedWorkspace(workspace)
-      localStorage.setItem(STORAGE_KEY, workspace.id)
-      // Update URL
-      const url = new URL(window.location.href)
-      url.searchParams.set('workspace', workspace.id)
-      router.replace(url.pathname + url.search)
     }
   }
 
   // Check if workspace has the required connection for the selected tab
-  const hasWhatsAppConnection = selectedWorkspace?.whatsapp_session_id
+  const hasWhatsAppConnection = selectedWorkspace?.whatsapp_session_id || (chatbotData?.sessions?.length ?? 0) > 0
   const hasWebWidgetConnection = selectedWorkspace?.web_widget_id
 
   // Show skeleton while loading
@@ -253,7 +169,14 @@ function ChatbotSettingsContent() {
           {/* Tab Content */}
           {activeTab === 'whatsapp' ? (
             hasWhatsAppConnection ? (
-              <WhatsAppChatbotConfig workspaceId={selectedWorkspace.id} />
+              <WhatsAppChatbotConfig 
+                workspaceId={selectedWorkspace.id}
+                initialData={chatbotData ? {
+                  sessions: chatbotData.sessions,
+                  ecommerceConnections: chatbotData.ecommerceConnections,
+                  chatbotConfigs: chatbotData.chatbotConfigs
+                } : undefined}
+              />
             ) : (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
                 <Smartphone className="w-12 h-12 text-amber-400 mx-auto mb-4" />

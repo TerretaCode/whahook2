@@ -306,6 +306,82 @@ router.get('/:id/connections', async (req: Request, res: Response) => {
 })
 
 /**
+ * GET /api/workspaces/:id/chatbot
+ * Get all chatbot configuration data for a workspace in a single request
+ * This optimizes loading by fetching everything at once
+ */
+router.get('/:id/chatbot', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const { id } = req.params
+
+    // Verify workspace belongs to user
+    const { data: workspace, error: wsError } = await supabaseAdmin
+      .from('workspaces')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single()
+
+    if (wsError || !workspace) {
+      return res.status(404).json({ success: false, error: 'Workspace not found' })
+    }
+
+    // Fetch WhatsApp sessions for this workspace
+    const { data: sessions } = await supabaseAdmin
+      .from('whatsapp_accounts')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('workspace_id', id)
+      .order('created_at', { ascending: false })
+
+    // Fetch e-commerce connections for this workspace
+    const { data: ecommerceConnections } = await supabaseAdmin
+      .from('ecommerce_connections')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('workspace_id', id)
+      .order('created_at', { ascending: false })
+
+    // Fetch chatbot configs for all sessions
+    const sessionIds = (sessions || []).map(s => s.session_id)
+    let chatbotConfigs: any[] = []
+    
+    if (sessionIds.length > 0) {
+      const { data: configs } = await supabaseAdmin
+        .from('chatbot_configs')
+        .select('*')
+        .in('whatsapp_session_id', sessionIds)
+      
+      chatbotConfigs = configs || []
+    }
+
+    // Map configs by session_id for easy lookup
+    const configsBySession: Record<string, any> = {}
+    for (const config of chatbotConfigs) {
+      configsBySession[config.whatsapp_session_id] = config
+    }
+
+    res.json({
+      success: true,
+      data: {
+        workspace,
+        sessions: sessions || [],
+        ecommerceConnections: ecommerceConnections || [],
+        chatbotConfigs: configsBySession
+      }
+    })
+  } catch (error: any) {
+    console.error('Error in GET /workspaces/:id/chatbot:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
  * DELETE /api/workspaces/:id
  * Delete workspace
  */

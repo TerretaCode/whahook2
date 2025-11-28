@@ -32,11 +32,18 @@ interface EcommerceConnection {
   store_name: string
 }
 
-interface WhatsAppChatbotConfigProps {
-  workspaceId: string
+interface InitialData {
+  sessions: any[]
+  ecommerceConnections: any[]
+  chatbotConfigs: Record<string, any>
 }
 
-export function WhatsAppChatbotConfig({ workspaceId }: WhatsAppChatbotConfigProps) {
+interface WhatsAppChatbotConfigProps {
+  workspaceId: string
+  initialData?: InitialData
+}
+
+export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChatbotConfigProps) {
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true) // Global loader
@@ -92,13 +99,171 @@ export function WhatsAppChatbotConfig({ workspaceId }: WhatsAppChatbotConfigProp
 
   useEffect(() => {
     if (user && workspaceId) {
-      loadInitialData()
+      // If we have initialData, use it instead of fetching
+      if (initialData) {
+        processInitialData()
+      } else {
+        loadInitialData()
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, workspaceId])
+  }, [user, workspaceId, initialData])
   
-  // Check if all loading is complete
+  // Process pre-loaded data from parent
+  const processInitialData = () => {
+    if (!initialData) return
+    
+    // Process sessions
+    const mappedSessions = (initialData.sessions || []).map((s: any) => ({
+      id: s.session_id || s.id,
+      phone: s.phone_number || s.session_id,
+      name: s.label || s.name || s.phone_number
+    }))
+    setSessions(mappedSessions)
+    
+    // Process ecommerce connections
+    const mappedConnections = (initialData.ecommerceConnections || []).map((c: any) => ({
+      id: c.id,
+      platform: c.platform || 'Unknown',
+      store_name: c.name || c.store_name || c.shop_name || 'Unnamed Store'
+    }))
+    setEcommerceConnections(mappedConnections)
+    
+    // Process chatbot configs
+    const newFormData: Record<string, any> = {}
+    const newOriginalData: Record<string, any> = {}
+    const newConfigs: Record<string, any> = {}
+    
+    for (const session of mappedSessions) {
+      const config = initialData.chatbotConfigs[session.id]
+      if (config) {
+        newConfigs[session.id] = config
+        const configData = {
+          api_key: config.has_api_key ? '••••••••' : '',
+          provider: config.provider || 'google',
+          model: config.model || 'gemini-2.5-flash',
+          bot_name: config.bot_name || 'Asistente',
+          language: config.language || 'es',
+          tone: config.tone || 'professional',
+          auto_reply: config.auto_reply !== undefined ? config.auto_reply : true,
+          use_ecommerce_api: config.use_ecommerce_api || false,
+          ecommerce_connection_ids: config.ecommerce_connection_ids || [],
+          ecommerce_search_message: config.ecommerce_search_message || 'Estoy buscando la mejor solución para ti...',
+          system_prompt: config.system_prompt || 'Eres un asistente útil y profesional.',
+          custom_instructions: config.custom_instructions || '',
+          fallback_message: config.fallback_message || 'Disculpa, no estoy seguro de cómo ayudarte con eso.',
+          temperature: config.temperature ?? 0.7,
+          max_tokens: config.max_tokens ?? 1000,
+          top_p: config.top_p ?? 1.0,
+          frequency_penalty: config.frequency_penalty ?? 0.0,
+          presence_penalty: config.presence_penalty ?? 0.0,
+          response_format: config.response_format || 'text',
+          context_window: config.context_window ?? 10,
+          max_conversation_length: config.max_conversation_length ?? 20,
+          enable_memory: config.enable_memory ?? true,
+          enable_typing_indicator: config.enable_typing_indicator ?? true,
+          business_hours_enabled: config.business_hours_enabled || false,
+          business_hours_timezone: config.business_hours_timezone || 'UTC',
+          active_hours_start: config.active_hours_start || '09:00',
+          active_hours_end: config.active_hours_end || '18:00',
+          out_of_hours_message: config.out_of_hours_message || 'Gracias por contactarnos. Estamos fuera de horario.',
+          handoff_enabled: config.handoff_enabled || false,
+          handoff_keywords: config.handoff_keywords || ['humano', 'agente', 'representante', 'soporte'],
+          intent_classifier_max_tokens: config.intent_classifier_max_tokens || 1000,
+          debounce_delay_ms: config.debounce_delay_ms || 5000,
+          max_wait_ms: config.max_wait_ms || 15000,
+          max_batch_size: config.max_batch_size || 20,
+          max_consecutive_fallbacks: 1,
+          fallback_uncertainty_phrases: config.fallback_uncertainty_phrases || ['no estoy seguro', 'no puedo ayudarte', 'no tengo información', 'no entiendo', 'disculpa, no comprendo'],
+          typing_indicator_delay_ms: config.typing_indicator_delay_ms || 500,
+          handoff_message: config.handoff_message || 'Entiendo que necesitas ayuda adicional. Te estoy transfiriendo con un agente humano que podrá asistirte mejor. Por favor, espera un momento...',
+          handoff_frustration_detection: config.handoff_frustration_detection || false,
+          handoff_frustration_keywords: config.handoff_frustration_keywords || ['no sirve', 'inútil', 'mal servicio', 'horrible', 'pésimo'],
+          log_conversations: config.log_conversations !== undefined ? config.log_conversations : true,
+          log_level: config.log_level || 'detailed',
+          log_user_messages: config.log_user_messages !== undefined ? config.log_user_messages : true,
+          log_bot_responses: config.log_bot_responses !== undefined ? config.log_bot_responses : true,
+          data_retention_days: config.data_retention_days || 90,
+          auto_delete_enabled: config.auto_delete_enabled !== undefined ? config.auto_delete_enabled : true,
+          soft_delete_enabled: config.soft_delete_enabled !== undefined ? config.soft_delete_enabled : true
+        }
+        newFormData[session.id] = configData
+        newOriginalData[session.id] = { ...configData }
+      } else {
+        // No config exists - set defaults
+        const defaultData = getDefaultConfigData()
+        newFormData[session.id] = defaultData
+        newOriginalData[session.id] = { ...defaultData }
+      }
+    }
+    
+    setConfigs(newConfigs)
+    setFormData(newFormData)
+    setOriginalData(newOriginalData)
+    
+    // Auto-expand first session if none expanded
+    if (mappedSessions.length > 0 && !expandedSession) {
+      setExpandedSession(mappedSessions[0].id)
+    }
+    
+    // Mark loading as complete immediately
+    setIsInitialLoading(false)
+  }
+  
+  const getDefaultConfigData = () => ({
+    api_key: "",
+    provider: "google",
+    model: "gemini-2.5-flash",
+    bot_name: "Asistente",
+    language: "es",
+    tone: "professional",
+    auto_reply: true,
+    use_ecommerce_api: false,
+    ecommerce_connection_ids: [],
+    ecommerce_search_message: 'Estoy buscando la mejor solución para ti...',
+    system_prompt: 'Eres un asistente útil y profesional.',
+    custom_instructions: '',
+    fallback_message: 'Disculpa, no estoy seguro de cómo ayudarte con eso.',
+    temperature: 0.7,
+    max_tokens: 1000,
+    top_p: 1.0,
+    frequency_penalty: 0.0,
+    presence_penalty: 0.0,
+    response_format: 'text',
+    context_window: 10,
+    max_conversation_length: 20,
+    enable_memory: true,
+    enable_typing_indicator: true,
+    business_hours_enabled: false,
+    business_hours_timezone: 'UTC',
+    active_hours_start: '09:00',
+    active_hours_end: '18:00',
+    out_of_hours_message: 'Gracias por contactarnos. Estamos fuera de horario.',
+    handoff_enabled: false,
+    handoff_keywords: ['humano', 'agente', 'representante', 'soporte'],
+    intent_classifier_max_tokens: 1000,
+    debounce_delay_ms: 5000,
+    max_wait_ms: 15000,
+    max_batch_size: 20,
+    max_consecutive_fallbacks: 1,
+    fallback_uncertainty_phrases: ['no estoy seguro', 'no puedo ayudarte', 'no tengo información', 'no entiendo', 'disculpa, no comprendo'],
+    typing_indicator_delay_ms: 500,
+    handoff_message: 'Entiendo que necesitas ayuda adicional. Te estoy transfiriendo con un agente humano que podrá asistirte mejor. Por favor, espera un momento...',
+    handoff_frustration_detection: false,
+    handoff_frustration_keywords: ['no sirve', 'inútil', 'mal servicio', 'horrible', 'pésimo'],
+    log_conversations: true,
+    log_level: 'detailed',
+    log_user_messages: true,
+    log_bot_responses: true,
+    data_retention_days: 90,
+    auto_delete_enabled: true,
+    soft_delete_enabled: true
+  })
+  
+  // Check if all loading is complete (only for non-initialData case)
   useEffect(() => {
+    if (initialData) return // Skip if using initialData
+    
     const allLoaded = !loadingStates.sessions && !loadingStates.ecommerce && !loadingStates.configs
     if (allLoaded) {
       // Small delay to ensure UI is ready
@@ -107,7 +272,7 @@ export function WhatsAppChatbotConfig({ workspaceId }: WhatsAppChatbotConfigProp
       }, 100)
       return () => clearTimeout(timer)
     }
-  }, [loadingStates])
+  }, [loadingStates, initialData])
   
   const loadInitialData = async () => {
     setIsInitialLoading(true)
