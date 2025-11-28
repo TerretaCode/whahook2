@@ -198,15 +198,25 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!formData.name.trim()) {
+      toast.error('Error', 'Widget name is required')
+      return
+    }
+    
     try {
       const payload = workspaceId 
         ? { ...formData, workspace_id: workspaceId }
         : formData
       
+      console.log('Creating widget with payload:', payload)
+      
       const response = await ApiClient.request('/api/chat-widgets', {
         method: 'POST',
         body: JSON.stringify(payload),
       })
+      
+      console.log('Create widget response:', response)
       
       if (response.success) {
         const newWidget = response.data as ChatWidget
@@ -221,10 +231,13 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
         // Fetch embed code for the new widget
         handleGetEmbedCode(newWidget.id)
         toast.success('Widget Created!', 'Now follow the instructions below to add it to your website.')
+      } else {
+        console.error('Create widget failed:', response)
+        toast.error('Error', (response as any).error || 'Failed to create widget')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating widget:', error)
-      toast.error('Error', 'Failed to create widget')
+      toast.error('Error', error?.message || 'Failed to create widget')
     }
   }
 
@@ -373,7 +386,6 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="My Chat Widget"
-                    required
                   />
                 </div>
                 <div>
@@ -390,14 +402,13 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                   <p className="text-xs text-gray-500 mt-1">We'll show you how to install the widget</p>
                 </div>
                 <div>
-                  <Label>Website URL *</Label>
+                  <Label>Website URL</Label>
                   <Input
                     value={formData.domain}
                     onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
                     placeholder="https://mystore.com"
-                    required
                   />
-                  <p className="text-xs text-gray-500 mt-1">Your website address (we'll generate direct links for you)</p>
+                  <p className="text-xs text-gray-500 mt-1">Your website address (optional)</p>
                 </div>
               </div>
             </div>
