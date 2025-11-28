@@ -20,10 +20,11 @@ import {
   Calendar,
   Phone
 } from "lucide-react"
+import { ProfileSkeleton } from "@/components/skeletons/SettingsSkeletons"
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { user, logout, refreshUser } = useAuth()
+  const { user, logout, refreshUser, isLoading: authLoading } = useAuth()
   
   const [fullName, setFullName] = useState('')
   const [companyName, setCompanyName] = useState('')
@@ -128,12 +129,9 @@ export default function ProfilePage() {
     })
   }
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 text-green-600 animate-spin" />
-      </div>
-    )
+  // Show skeleton while loading
+  if (authLoading || !user) {
+    return <ProfileSkeleton />
   }
 
   return (

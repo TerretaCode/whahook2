@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, Suspense, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,8 @@ import {
   Crown
 } from "lucide-react"
 import { BillingPricingCard, BillingToggle, PLANS } from "@/components/billing-pricing-section"
+import { BillingSkeleton } from "@/components/skeletons/SettingsSkeletons"
+import { getCached, setCache, getFromSession, persistToSession } from "@/lib/cache"
 
 interface Subscription {
   plan: string
@@ -33,10 +35,18 @@ interface StripePriceIds {
   enterprise_yearly?: string
 }
 
+interface BillingData {
+  subscription: Subscription | null
+  priceIds: StripePriceIds
+}
+
+const CACHE_KEY = 'billing-data'
+
 // Component that uses searchParams
 function BillingPageContent() {
   const { refreshUser } = useAuth()
   const searchParams = useSearchParams()
+  const initialLoadDone = useRef(false)
   
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [priceIds, setPriceIds] = useState<StripePriceIds>({})
@@ -46,7 +56,10 @@ function BillingPageContent() {
   const [isManaging, setIsManaging] = useState(false)
 
   useEffect(() => {
-    fetchData()
+    if (!initialLoadDone.current) {
+      initialLoadDone.current = true
+      fetchData()
+    }
     
     // Check for success/cancel from Stripe
     const success = searchParams.get('success')
@@ -61,6 +74,17 @@ function BillingPageContent() {
   }, [searchParams, refreshUser])
 
   const fetchData = async () => {
+    // Try cache first
+    const cached = getCached<BillingData>(CACHE_KEY) || getFromSession<BillingData>(CACHE_KEY)
+    if (cached) {
+      setSubscription(cached.subscription)
+      setPriceIds(cached.priceIds)
+      setIsLoading(false)
+      // Revalidate in background
+      revalidateInBackground()
+      return
+    }
+
     try {
       setIsLoading(true)
       
@@ -69,17 +93,57 @@ function BillingPageContent() {
         ApiClient.request<{ subscription: Subscription }>('/api/billing/subscription')
       ])
       
+      const data: BillingData = {
+        subscription: null,
+        priceIds: {}
+      }
+      
       if (plansRes.success && plansRes.data?.priceIds) {
         setPriceIds(plansRes.data.priceIds)
+        data.priceIds = plansRes.data.priceIds
       }
       
       if (subRes.success && subRes.data) {
         setSubscription(subRes.data.subscription)
+        data.subscription = subRes.data.subscription
       }
+
+      // Cache the data
+      setCache(CACHE_KEY, data)
+      persistToSession(CACHE_KEY, data)
     } catch (error) {
       console.error('Error fetching billing data:', error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const revalidateInBackground = async () => {
+    try {
+      const [plansRes, subRes] = await Promise.all([
+        ApiClient.request<{ plans: any[], priceIds: StripePriceIds }>('/api/billing/plans'),
+        ApiClient.request<{ subscription: Subscription }>('/api/billing/subscription')
+      ])
+      
+      const data: BillingData = {
+        subscription: null,
+        priceIds: {}
+      }
+      
+      if (plansRes.success && plansRes.data?.priceIds) {
+        setPriceIds(plansRes.data.priceIds)
+        data.priceIds = plansRes.data.priceIds
+      }
+      
+      if (subRes.success && subRes.data) {
+        setSubscription(subRes.data.subscription)
+        data.subscription = subRes.data.subscription
+      }
+
+      setCache(CACHE_KEY, data)
+      persistToSession(CACHE_KEY, data)
+    } catch (error) {
+      console.warn('Background revalidation failed:', error)
     }
   }
 
@@ -143,11 +207,7 @@ function BillingPageContent() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 text-green-600 animate-spin" />
-      </div>
-    )
+    return <BillingSkeleton />
   }
 
   const plansList = [PLANS.starter, PLANS.professional, PLANS.enterprise]
@@ -268,11 +328,7 @@ function BillingPageContent() {
 // Wrapper with Suspense for useSearchParams
 export default function BillingPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 text-green-600 animate-spin" />
-      </div>
-    }>
+    <Suspense fallback={<BillingSkeleton />}>
       <BillingPageContent />
     </Suspense>
   )

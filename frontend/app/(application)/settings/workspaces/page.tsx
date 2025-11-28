@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,6 +32,8 @@ import {
   Users
 } from "lucide-react"
 import Link from "next/link"
+import { WorkspacesSkeleton } from "@/components/skeletons/SettingsSkeletons"
+import { getCached, setCache, getFromSession, persistToSession } from "@/lib/cache"
 
 interface Workspace {
   id: string
@@ -53,9 +55,12 @@ interface WorkspacesData {
   plan: string
 }
 
+const CACHE_KEY = 'workspaces-data'
+
 export default function WorkspacesPage() {
   const [data, setData] = useState<WorkspacesData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const initialLoadDone = useRef(false)
   const [isCreating, setIsCreating] = useState(false)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newWorkspaceName, setNewWorkspaceName] = useState("")
@@ -71,16 +76,31 @@ export default function WorkspacesPage() {
   const isEnterprise = data?.plan === 'enterprise'
 
   useEffect(() => {
-    loadWorkspaces()
+    if (!initialLoadDone.current) {
+      initialLoadDone.current = true
+      loadWorkspaces()
+    }
   }, [])
 
   const loadWorkspaces = async () => {
+    // Try cache first
+    const cached = getCached<WorkspacesData>(CACHE_KEY) || getFromSession<WorkspacesData>(CACHE_KEY)
+    if (cached) {
+      setData(cached)
+      setIsLoading(false)
+      // Revalidate in background
+      revalidateInBackground()
+      return
+    }
+
     try {
       setIsLoading(true)
       const response = await ApiClient.request<WorkspacesData>('/api/workspaces')
       console.log('Workspaces response:', response)
       if (response.success && response.data) {
         setData(response.data)
+        setCache(CACHE_KEY, response.data)
+        persistToSession(CACHE_KEY, response.data)
       } else {
         console.error('Failed to load workspaces:', response)
         // Set default data so UI shows create button
@@ -101,6 +121,19 @@ export default function WorkspacesPage() {
       })
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const revalidateInBackground = async () => {
+    try {
+      const response = await ApiClient.request<WorkspacesData>('/api/workspaces')
+      if (response.success && response.data) {
+        setData(response.data)
+        setCache(CACHE_KEY, response.data)
+        persistToSession(CACHE_KEY, response.data)
+      }
+    } catch (error) {
+      console.warn('Background revalidation failed:', error)
     }
   }
 
@@ -203,11 +236,7 @@ export default function WorkspacesPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
-      </div>
-    )
+    return <WorkspacesSkeleton />
   }
 
   return (
