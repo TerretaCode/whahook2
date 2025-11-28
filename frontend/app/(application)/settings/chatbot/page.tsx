@@ -18,6 +18,7 @@ interface Workspace {
 }
 
 function ChatbotSettingsContent() {
+  console.log('🎯 [ChatbotSettingsContent] Component rendering')
   const searchParams = useSearchParams()
   const widgetParam = searchParams.get('widget')
   const tabParam = searchParams.get('tab')
@@ -205,14 +206,22 @@ function ChatbotSettingsContent() {
 }
 
 export default function ChatbotSettingsPage() {
+  console.log('🚀 [ChatbotSettingsPage] Component mounted')
   return (
     <Suspense fallback={
-      <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
-        <p className="text-sm text-gray-500">Cargando configuración del chatbot...</p>
-      </div>
+      <SuspenseFallback />
     }>
       <ChatbotSettingsContent />
     </Suspense>
+  )
+}
+
+function SuspenseFallback() {
+  console.log('⏳ [ChatbotSettingsPage] Showing Suspense fallback')
+  return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center">
+      <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
+      <p className="text-sm text-gray-500">Cargando configuración del chatbot...</p>
+    </div>
   )
 }
