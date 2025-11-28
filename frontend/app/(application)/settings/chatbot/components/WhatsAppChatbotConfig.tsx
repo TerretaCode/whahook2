@@ -32,10 +32,18 @@ interface EcommerceConnection {
   store_name: string
 }
 
+interface AIConfig {
+  id: string
+  provider: string
+  model: string
+  has_api_key: boolean
+}
+
 interface InitialData {
   sessions: any[]
   ecommerceConnections: any[]
   chatbotConfigs: Record<string, any>
+  aiConfig: AIConfig | null
 }
 
 interface WhatsAppChatbotConfigProps {
@@ -46,10 +54,11 @@ interface WhatsAppChatbotConfigProps {
 export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChatbotConfigProps) {
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
-  const [isInitialLoading, setIsInitialLoading] = useState(true) // Global loader
+  const [isInitialLoading, setIsInitialLoading] = useState(!initialData) // Skip loading if we have initialData
   const [showApiKey, setShowApiKey] = useState(false)
   const [sessions, setSessions] = useState<WhatsAppSession[]>([])
   const [ecommerceConnections, setEcommerceConnections] = useState<EcommerceConnection[]>([])
+  const [aiConfig, setAiConfig] = useState<AIConfig | null>(initialData?.aiConfig || null)
   // Persist expanded session state
   const getInitialExpandedSession = () => {
     if (typeof window !== 'undefined') {
@@ -788,6 +797,7 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
                       providerModels={providerModels}
                       ecommerceConnections={ecommerceConnections}
                       sessionId={session.id}
+                      aiConfig={aiConfig}
                     />
                     
                     {/* Action Buttons */}

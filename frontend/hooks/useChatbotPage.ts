@@ -55,11 +55,21 @@ export interface ChatbotConfig {
   [key: string]: any
 }
 
+export interface AIConfig {
+  id: string
+  provider: string
+  model: string
+  has_api_key: boolean
+  created_at?: string
+  updated_at?: string
+}
+
 export interface ChatbotPageData {
   workspace: Workspace
   sessions: WhatsAppSession[]
   ecommerceConnections: EcommerceConnection[]
   chatbotConfigs: Record<string, ChatbotConfig>
+  aiConfig: AIConfig | null
 }
 
 interface UseChatbotPageReturn {

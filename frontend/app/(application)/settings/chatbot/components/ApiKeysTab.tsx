@@ -94,17 +94,31 @@ const defaultConfig: AIConfig = {
   model: "gemini-2.5-flash",
 }
 
-export function ApiKeysTab() {
+interface ApiKeysTabProps {
+  initialData?: AIConfig | null
+}
+
+export function ApiKeysTab({ initialData }: ApiKeysTabProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [isInitialLoading, setIsInitialLoading] = useState(!initialData)
   const [showApiKey, setShowApiKey] = useState(false)
-  const [config, setConfig] = useState<AIConfig | null>(null)
-  const [formData, setFormData] = useState<AIConfig>(defaultConfig)
+  const [config, setConfig] = useState<AIConfig | null>(initialData || null)
+  const [formData, setFormData] = useState<AIConfig>(
+    initialData ? {
+      provider: initialData.provider || 'google',
+      model: initialData.model || 'gemini-2.5-flash',
+      api_key: initialData.has_api_key ? '••••••••' : '',
+      has_api_key: initialData.has_api_key,
+    } : defaultConfig
+  )
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   useEffect(() => {
-    loadConfig()
-  }, [])
+    // Only load if no initialData
+    if (!initialData) {
+      loadConfig()
+    }
+  }, [initialData])
 
   const loadConfig = async () => {
     setIsInitialLoading(true)

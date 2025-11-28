@@ -331,24 +331,42 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Workspace not found' })
     }
 
-    // Fetch WhatsApp sessions for this workspace
-    const { data: sessions } = await supabaseAdmin
-      .from('whatsapp_accounts')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('workspace_id', id)
-      .order('created_at', { ascending: false })
+    // Fetch all data in parallel
+    const [
+      sessionsResult,
+      ecommerceResult,
+      aiConfigResult
+    ] = await Promise.all([
+      // WhatsApp sessions for this workspace
+      supabaseAdmin
+        .from('whatsapp_accounts')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('workspace_id', id)
+        .order('created_at', { ascending: false }),
+      
+      // E-commerce connections for this workspace
+      supabaseAdmin
+        .from('ecommerce_connections')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('workspace_id', id)
+        .order('created_at', { ascending: false }),
+      
+      // AI config for this user (global, not per workspace)
+      supabaseAdmin
+        .from('ai_configs')
+        .select('id, provider, model, has_api_key, created_at, updated_at')
+        .eq('user_id', userId)
+        .single()
+    ])
 
-    // Fetch e-commerce connections for this workspace
-    const { data: ecommerceConnections } = await supabaseAdmin
-      .from('ecommerce_connections')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('workspace_id', id)
-      .order('created_at', { ascending: false })
+    const sessions = sessionsResult.data || []
+    const ecommerceConnections = ecommerceResult.data || []
+    const aiConfig = aiConfigResult.data || null
 
     // Fetch chatbot configs for all sessions
-    const sessionIds = (sessions || []).map(s => s.session_id)
+    const sessionIds = sessions.map(s => s.session_id)
     let chatbotConfigs: any[] = []
     
     if (sessionIds.length > 0) {
@@ -370,9 +388,10 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
       success: true,
       data: {
         workspace,
-        sessions: sessions || [],
-        ecommerceConnections: ecommerceConnections || [],
-        chatbotConfigs: configsBySession
+        sessions,
+        ecommerceConnections,
+        chatbotConfigs: configsBySession,
+        aiConfig
       }
     })
   } catch (error: any) {

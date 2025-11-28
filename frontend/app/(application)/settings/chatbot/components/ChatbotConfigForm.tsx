@@ -20,6 +20,13 @@ import { AdvancedConfigTab } from "./AdvancedConfigTab"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FormData = Record<string, any>
 
+interface AIConfig {
+  id: string
+  provider: string
+  model: string
+  has_api_key: boolean
+}
+
 interface ChatbotConfigFormProps {
   formData: FormData
   onFormDataChange: (data: FormData) => void
@@ -31,6 +38,7 @@ interface ChatbotConfigFormProps {
   ecommerceConnections: { id: string; platform: string; store_name: string }[]
   sessionId?: string // WhatsApp session ID
   widgetId?: string // Widget ID
+  aiConfig?: AIConfig | null // Pre-loaded AI config
 }
 
 export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
@@ -130,7 +138,7 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
         </TabsList>
       </div>
 
-      <TabsContent value="apikeys"><ApiKeysTab /></TabsContent>
+      <TabsContent value="apikeys"><ApiKeysTab initialData={props.aiConfig} /></TabsContent>
       <TabsContent value="config">
           {props.widgetId ? (
             <WebChatbotSettingsTab {...tabProps} />

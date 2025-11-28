@@ -174,7 +174,8 @@ function ChatbotSettingsContent() {
                 initialData={chatbotData ? {
                   sessions: chatbotData.sessions,
                   ecommerceConnections: chatbotData.ecommerceConnections,
-                  chatbotConfigs: chatbotData.chatbotConfigs
+                  chatbotConfigs: chatbotData.chatbotConfigs,
+                  aiConfig: chatbotData.aiConfig
                 } : undefined}
               />
             ) : (
