@@ -9,8 +9,6 @@ CREATE TABLE IF NOT EXISTS workspaces (
   -- Connection references (1 per workspace)
   whatsapp_session_id VARCHAR(255), -- References whatsapp_sessions.session_id
   web_widget_id UUID, -- References chat_widgets.id
-  -- AI Config for this workspace (optional, falls back to user's global config)
-  ai_config_id UUID REFERENCES ai_configs(id) ON DELETE SET NULL,
   -- Metadata
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -52,14 +50,31 @@ CREATE TRIGGER trigger_update_workspace_updated_at
   EXECUTE FUNCTION update_workspace_updated_at();
 
 -- Add workspace_id to existing tables that should be workspace-scoped
--- chatbot_configs
-ALTER TABLE chatbot_configs ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id) ON DELETE CASCADE;
-CREATE INDEX IF NOT EXISTS idx_chatbot_configs_workspace_id ON chatbot_configs(workspace_id);
+-- These are wrapped in DO blocks to handle cases where tables might not exist
 
--- conversations (messages are linked to conversations, so they inherit workspace scope)
-ALTER TABLE conversations ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id) ON DELETE SET NULL;
-CREATE INDEX IF NOT EXISTS idx_conversations_workspace_id ON conversations(workspace_id);
+-- chatbot_configs
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'chatbot_configs') THEN
+    ALTER TABLE chatbot_configs ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id) ON DELETE CASCADE;
+    CREATE INDEX IF NOT EXISTS idx_chatbot_configs_workspace_id ON chatbot_configs(workspace_id);
+  END IF;
+END $$;
+
+-- conversations
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'conversations') THEN
+    ALTER TABLE conversations ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id) ON DELETE SET NULL;
+    CREATE INDEX IF NOT EXISTS idx_conversations_workspace_id ON conversations(workspace_id);
+  END IF;
+END $$;
 
 -- clients
-ALTER TABLE clients ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id) ON DELETE SET NULL;
-CREATE INDEX IF NOT EXISTS idx_clients_workspace_id ON clients(workspace_id);
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'clients') THEN
+    ALTER TABLE clients ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id) ON DELETE SET NULL;
+    CREATE INDEX IF NOT EXISTS idx_clients_workspace_id ON clients(workspace_id);
+  END IF;
+END $$;
