@@ -32,21 +32,28 @@ export function QRCodeDisplay({ qrCode, size = 256, accountName = 'WhatsApp' }: 
     if (!canvas) return
 
     try {
-      const blob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((blob) => {
-          if (blob) resolve(blob)
-        }, 'image/png')
-      })
+      // Check if clipboard API with image support is available
+      if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
+        const blob = await new Promise<Blob>((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob)
+            else reject(new Error('Failed to create blob'))
+          }, 'image/png')
+        })
 
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': blob })
-      ])
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ])
 
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } else {
+        // Browser doesn't support image clipboard - download instead
+        handleDownload()
+      }
     } catch (error) {
-      console.error('Failed to copy QR:', error)
-      // Fallback: download instead
+      console.error('Failed to copy QR image:', error)
+      // Fallback to download
       handleDownload()
     }
   }
