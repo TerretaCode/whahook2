@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -11,5 +12,10 @@ export default function SettingsPage() {
     router.replace('/settings/connections')
   }, [router])
 
-  return null
+  return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center">
+      <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
+      <p className="text-sm text-gray-500">Redirigiendo...</p>
+    </div>
+  )
 }

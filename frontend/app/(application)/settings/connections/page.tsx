@@ -54,8 +54,9 @@ function ConnectionsPageContent() {
 
   if (authLoading || !user) {
     return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
+        <p className="text-sm text-gray-500">Cargando conexiones...</p>
       </div>
     )
   }
@@ -165,8 +166,9 @@ function ConnectionsPageContent() {
 export default function ConnectionsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-[400px] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
+        <p className="text-sm text-gray-500">Cargando conexiones...</p>
       </div>
     }>
       <ConnectionsPageContent />
