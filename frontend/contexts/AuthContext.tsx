@@ -5,26 +5,34 @@ import { useRouter } from 'next/navigation'
 import { AuthStorage } from '@/lib/auth-storage'
 import { ApiClient } from '@/lib/api-client'
 
+interface UserProfile {
+  user_id: string
+  email: string
+  full_name: string | null
+  company_name?: string | null
+  phone?: string | null
+  avatar_url?: string | null
+  billing_contact_email?: string | null
+  custom_pricing_amount?: string | null
+  account_type: string
+  subscription_tier: string
+  subscription_status?: string
+  trial_ends_at?: string | null
+  has_gemini_api_key?: boolean
+  created_at: string
+  updated_at?: string
+  last_login_at?: string | null
+  metadata?: {
+    requires_password_change?: boolean
+    [key: string]: any
+  }
+}
+
 interface User {
   id: string
   email: string
-  profile: {
-    user_id: string
-    email: string
-    full_name: string | null
-    company_name?: string | null
-    avatar_url?: string | null
-    billing_contact_email?: string | null
-    custom_pricing_amount?: string | null
-    account_type: 'saas' | 'direct'
-    subscription_tier: string
-    has_gemini_api_key: boolean
-    created_at: string
-    metadata?: {
-      requires_password_change?: boolean
-      [key: string]: any
-    }
-  }
+  email_confirmed?: boolean
+  profile: UserProfile
 }
 
 interface AuthContextType {

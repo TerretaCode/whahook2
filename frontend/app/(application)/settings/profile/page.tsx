@@ -17,7 +17,8 @@ import {
   Loader2,
   Key,
   Sparkles,
-  Calendar
+  Calendar,
+  Phone
 } from "lucide-react"
 
 export default function ProfilePage() {
@@ -26,12 +27,14 @@ export default function ProfilePage() {
   
   const [fullName, setFullName] = useState('')
   const [companyName, setCompanyName] = useState('')
+  const [phone, setPhone] = useState('')
   
   // Update form fields when user data changes
   useEffect(() => {
     if (user?.profile) {
       setFullName(user.profile.full_name || '')
       setCompanyName(user.profile.company_name || '')
+      setPhone(user.profile.phone || '')
     }
   }, [user])
   const [isSaving, setIsSaving] = useState(false)
@@ -48,7 +51,7 @@ export default function ProfilePage() {
       setIsSaving(true)
       const response = await ApiClient.request('/api/auth/profile', {
         method: 'PUT',
-        body: JSON.stringify({ full_name: fullName, company_name: companyName })
+        body: JSON.stringify({ full_name: fullName, company_name: companyName, phone })
       })
       
       if (response.success) {
@@ -108,10 +111,10 @@ export default function ProfilePage() {
 
   const getPlanName = () => {
     switch (user?.profile?.subscription_tier) {
-      case 'free': return 'Trial Gratuito'
-      case 'pro': return 'Plan Pro'
-      case 'business': return 'Plan Business'
-      case 'admin': return 'Administrador'
+      case 'trial': return 'Trial Gratuito'
+      case 'starter': return 'Plan Starter'
+      case 'professional': return 'Plan Professional'
+      case 'enterprise': return 'Plan Enterprise'
       default: return 'Trial'
     }
   }
@@ -187,6 +190,20 @@ export default function ProfilePage() {
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               placeholder="Nombre de tu empresa"
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <Label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
+              <Phone className="w-4 h-4 text-gray-400" />
+              Teléfono (opcional)
+            </Label>
+            <Input 
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+34 600 000 000"
+              type="tel"
             />
           </div>
 

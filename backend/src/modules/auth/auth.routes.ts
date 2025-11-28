@@ -40,6 +40,83 @@ router.post('/register', async (req, res) => {
   }
 })
 
+// Helper function to get or create profile
+async function getOrCreateProfile(authUser: any) {
+  // Try to get profile from profiles table
+  const { data: profile, error: profileError } = await supabaseAdmin
+    .from('profiles')
+    .select('*')
+    .eq('id', authUser.id)
+    .single()
+  
+  if (profile) {
+    // Profile exists in table
+    return {
+      user_id: authUser.id,
+      email: profile.email,
+      full_name: profile.full_name,
+      company_name: profile.company_name,
+      phone: profile.phone,
+      avatar_url: profile.avatar_url,
+      account_type: profile.account_type || 'saas',
+      subscription_tier: profile.subscription_tier || 'trial',
+      subscription_status: profile.subscription_status || 'active',
+      trial_ends_at: profile.trial_ends_at,
+      has_gemini_api_key: !!authUser.user_metadata?.has_gemini_api_key,
+      created_at: profile.created_at,
+      updated_at: profile.updated_at
+    }
+  }
+  
+  // Profile doesn't exist, create it from user_metadata (migration path)
+  const newProfile = {
+    id: authUser.id,
+    email: authUser.email,
+    full_name: authUser.user_metadata?.full_name || '',
+    company_name: authUser.user_metadata?.company_name || '',
+    account_type: authUser.user_metadata?.account_type || 'saas',
+    subscription_tier: authUser.user_metadata?.subscription_tier || 'trial'
+  }
+  
+  const { data: createdProfile, error: createError } = await supabaseAdmin
+    .from('profiles')
+    .insert(newProfile)
+    .select()
+    .single()
+  
+  if (createError) {
+    console.log('⚠️ Could not create profile, using user_metadata fallback:', createError.message)
+    // Fallback to user_metadata if profiles table doesn't exist yet
+    return {
+      user_id: authUser.id,
+      email: authUser.email,
+      full_name: authUser.user_metadata?.full_name || null,
+      company_name: authUser.user_metadata?.company_name || null,
+      account_type: authUser.user_metadata?.account_type || 'saas',
+      subscription_tier: authUser.user_metadata?.subscription_tier || 'trial',
+      has_gemini_api_key: !!authUser.user_metadata?.has_gemini_api_key,
+      created_at: authUser.created_at,
+      metadata: authUser.user_metadata || {}
+    }
+  }
+  
+  return {
+    user_id: authUser.id,
+    email: createdProfile.email,
+    full_name: createdProfile.full_name,
+    company_name: createdProfile.company_name,
+    phone: createdProfile.phone,
+    avatar_url: createdProfile.avatar_url,
+    account_type: createdProfile.account_type || 'saas',
+    subscription_tier: createdProfile.subscription_tier || 'trial',
+    subscription_status: createdProfile.subscription_status || 'active',
+    trial_ends_at: createdProfile.trial_ends_at,
+    has_gemini_api_key: !!authUser.user_metadata?.has_gemini_api_key,
+    created_at: createdProfile.created_at,
+    updated_at: createdProfile.updated_at
+  }
+}
+
 // Login
 router.post('/login', async (req, res) => {
   try {
@@ -70,23 +147,21 @@ router.post('/login', async (req, res) => {
     
     const authUser = data.user
     
-    // Build profile from user_metadata
+    // Get profile from profiles table (or create if doesn't exist)
+    const profile = await getOrCreateProfile(authUser)
+    
     const user = {
       id: authUser.id,
       email: authUser.email,
       email_confirmed: !!authUser.email_confirmed_at,
-      profile: {
-        user_id: authUser.id,
-        email: authUser.email,
-        full_name: authUser.user_metadata?.full_name || null,
-        company_name: authUser.user_metadata?.company_name || null,
-        account_type: authUser.user_metadata?.account_type || 'saas',
-        subscription_tier: authUser.user_metadata?.subscription_tier || 'free',
-        has_gemini_api_key: !!authUser.user_metadata?.has_gemini_api_key,
-        created_at: authUser.created_at,
-        metadata: authUser.user_metadata || {}
-      }
+      profile
     }
+    
+    // Update last_login_at
+    await supabaseAdmin
+      .from('profiles')
+      .update({ last_login_at: new Date().toISOString() })
+      .eq('id', authUser.id)
     
     res.json({
       success: true,
@@ -177,22 +252,14 @@ router.get('/me', async (req, res) => {
     
     const authUser = data.user
     
-    // Build profile from user_metadata
+    // Get profile from profiles table
+    const profile = await getOrCreateProfile(authUser)
+    
     const user = {
       id: authUser.id,
       email: authUser.email,
       email_confirmed: !!authUser.email_confirmed_at,
-      profile: {
-        user_id: authUser.id,
-        email: authUser.email,
-        full_name: authUser.user_metadata?.full_name || null,
-        company_name: authUser.user_metadata?.company_name || null,
-        account_type: authUser.user_metadata?.account_type || 'saas',
-        subscription_tier: authUser.user_metadata?.subscription_tier || 'free',
-        has_gemini_api_key: !!authUser.user_metadata?.has_gemini_api_key,
-        created_at: authUser.created_at,
-        metadata: authUser.user_metadata || {}
-      }
+      profile
     }
     
     res.json({ success: true, data: { user } })
@@ -231,7 +298,7 @@ router.post('/change-password', async (req, res) => {
 // Update Profile
 router.put('/profile', async (req, res) => {
   try {
-    const { full_name, company_name } = req.body
+    const { full_name, company_name, phone } = req.body
     const token = req.headers.authorization?.replace('Bearer ', '')
     
     if (!token) throw new Error('No token provided')
@@ -242,23 +309,55 @@ router.put('/profile', async (req, res) => {
       throw new Error('Invalid token')
     }
 
-    // Update user metadata in Supabase Auth
-    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-      userData.user.id,
-      { 
-        user_metadata: { 
-          ...userData.user.user_metadata,
-          full_name,
-          company_name
-        } 
-      }
-    )
+    // Update profile in profiles table
+    const updateData: any = { updated_at: new Date().toISOString() }
+    if (full_name !== undefined) updateData.full_name = full_name
+    if (company_name !== undefined) updateData.company_name = company_name
+    if (phone !== undefined) updateData.phone = phone
     
-    if (updateError) throw updateError
+    const { error: updateError } = await supabaseAdmin
+      .from('profiles')
+      .update(updateData)
+      .eq('id', userData.user.id)
+    
+    if (updateError) {
+      // If profiles table doesn't exist yet, fallback to user_metadata
+      console.log('⚠️ Profiles table update failed, using user_metadata fallback:', updateError.message)
+      const { error: metaError } = await supabaseAdmin.auth.admin.updateUserById(
+        userData.user.id,
+        { 
+          user_metadata: { 
+            ...userData.user.user_metadata,
+            full_name,
+            company_name
+          } 
+        }
+      )
+      if (metaError) throw metaError
+    }
     
     res.json({ success: true, message: 'Profile updated successfully' })
   } catch (error: any) {
     res.status(400).json({ success: false, error: error.message })
+  }
+})
+
+// Get Profile (direct endpoint)
+router.get('/profile', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '')
+    
+    if (!token) throw new Error('No token provided')
+    
+    const { data, error } = await supabase.auth.getUser(token)
+    
+    if (error) throw error
+    
+    const profile = await getOrCreateProfile(data.user)
+    
+    res.json({ success: true, data: profile })
+  } catch (error: any) {
+    res.status(401).json({ success: false, error: error.message })
   }
 })
 
