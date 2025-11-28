@@ -5,6 +5,8 @@ import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 import { toast } from "@/lib/toast"
 import {
   Loader2,
@@ -17,7 +19,17 @@ import {
   Check,
   X,
   AlertCircle,
-  Crown
+  Crown,
+  Link as LinkIcon,
+  QrCode,
+  Settings,
+  Copy,
+  ExternalLink,
+  Key,
+  Palette,
+  ChevronDown,
+  ChevronUp,
+  Users
 } from "lucide-react"
 import Link from "next/link"
 
@@ -50,7 +62,13 @@ export default function WorkspacesPage() {
   const [newWorkspaceDescription, setNewWorkspaceDescription] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState("")
+  const [editDescription, setEditDescription] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  // Plan features
+  const isProfessionalOrHigher = data?.plan === 'professional' || data?.plan === 'enterprise'
+  const isEnterprise = data?.plan === 'enterprise'
 
   useEffect(() => {
     loadWorkspaces()
@@ -112,7 +130,10 @@ export default function WorkspacesPage() {
     try {
       const response = await ApiClient.request(`/api/workspaces/${id}`, {
         method: 'PUT',
-        body: JSON.stringify({ name: editName.trim() })
+        body: JSON.stringify({ 
+          name: editName.trim(),
+          description: editDescription.trim() || null
+        })
       })
 
       if (response.success) {
@@ -128,6 +149,10 @@ export default function WorkspacesPage() {
   }
 
   const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this workspace? All associated data will be lost.')) {
+      return
+    }
+
     try {
       setDeletingId(id)
       const response = await ApiClient.request(`/api/workspaces/${id}`, {
@@ -147,6 +172,21 @@ export default function WorkspacesPage() {
     }
   }
 
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text)
+    toast.success(`${label} copied to clipboard!`)
+  }
+
+  const generateClientAccessLink = (workspaceId: string) => {
+    // TODO: Implement actual token generation on backend
+    return `${window.location.origin}/w/${workspaceId.slice(0, 8)}`
+  }
+
+  const generateQRConnectionLink = (workspaceId: string) => {
+    // TODO: Implement actual token generation on backend
+    return `${window.location.origin}/connect/${workspaceId.slice(0, 8)}`
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -162,7 +202,7 @@ export default function WorkspacesPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Workspaces</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Manage your workspaces and their connections
+            Manage your workspaces, connections, and client access
           </p>
         </div>
         
@@ -171,7 +211,7 @@ export default function WorkspacesPage() {
           <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-full">
             <Building2 className="w-4 h-4 text-gray-500" />
             <span className="text-sm font-medium text-gray-700">
-              {data.limits.used} / {data.limits.max}
+              {data.limits.used} / {data.limits.max} workspaces
             </span>
           </div>
         )}
@@ -196,35 +236,43 @@ export default function WorkspacesPage() {
         </div>
       )}
 
-      {/* Create Workspace Form */}
+      {/* Create Workspace Button/Form */}
       {showCreateForm ? (
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New Workspace</h3>
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Plus className="w-5 h-5 text-green-600" />
+            Create New Workspace
+          </h3>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">Workspace Name *</Label>
               <Input
                 id="name"
                 value={newWorkspaceName}
                 onChange={(e) => setNewWorkspaceName(e.target.value)}
-                placeholder="e.g., My Business, Client Name..."
+                placeholder="e.g., My Business, Client Name, Restaurant ABC..."
                 className="mt-1"
+                autoFocus
               />
+              <p className="text-xs text-gray-500 mt-1">
+                This name will be visible to you and your team
+              </p>
             </div>
             <div>
               <Label htmlFor="description">Description (optional)</Label>
-              <Input
+              <Textarea
                 id="description"
                 value={newWorkspaceDescription}
                 onChange={(e) => setNewWorkspaceDescription(e.target.value)}
-                placeholder="Brief description of this workspace"
+                placeholder="Brief description of this workspace, client details, notes..."
                 className="mt-1"
+                rows={2}
               />
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-2">
               <Button
                 onClick={handleCreate}
-                disabled={isCreating}
+                disabled={isCreating || !newWorkspaceName.trim()}
                 className="bg-green-600 hover:bg-green-700"
               >
                 {isCreating ? (
@@ -257,8 +305,9 @@ export default function WorkspacesPage() {
           <Button
             onClick={() => setShowCreateForm(true)}
             className="bg-green-600 hover:bg-green-700"
+            size="lg"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-5 h-5 mr-2" />
             Create Workspace
           </Button>
         )
@@ -267,18 +316,19 @@ export default function WorkspacesPage() {
       {/* Workspaces List */}
       <div className="space-y-4">
         {data?.workspaces.length === 0 ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-            <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No workspaces yet</h3>
-            <p className="text-gray-500 mb-6">
-              Create your first workspace to start configuring connections and chatbots.
+          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+            <Building2 className="w-16 h-16 text-gray-200 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No workspaces yet</h3>
+            <p className="text-gray-500 mb-6 max-w-md mx-auto">
+              Create your first workspace to start connecting WhatsApp, configuring chatbots, and managing your clients.
             </p>
             {data?.limits.canCreate && (
               <Button
                 onClick={() => setShowCreateForm(true)}
                 className="bg-green-600 hover:bg-green-700"
+                size="lg"
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-5 h-5 mr-2" />
                 Create Your First Workspace
               </Button>
             )}
@@ -287,128 +337,376 @@ export default function WorkspacesPage() {
           data?.workspaces.map((workspace) => (
             <div
               key={workspace.id}
-              className="bg-white rounded-lg border border-gray-200 p-6"
+              className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  {editingId === workspace.id ? (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="max-w-xs"
-                        autoFocus
-                      />
-                      <Button
-                        size="sm"
-                        onClick={() => handleUpdate(workspace.id)}
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        <Check className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setEditingId(null)}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <Building2 className="w-5 h-5 text-green-600" />
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {workspace.name}
-                        </h3>
+              {/* Workspace Header */}
+              <div className="p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    {editingId === workspace.id ? (
+                      <div className="space-y-3">
+                        <Input
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="max-w-md"
+                          placeholder="Workspace name"
+                          autoFocus
+                        />
+                        <Textarea
+                          value={editDescription}
+                          onChange={(e) => setEditDescription(e.target.value)}
+                          className="max-w-md"
+                          placeholder="Description (optional)"
+                          rows={2}
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => handleUpdate(workspace.id)}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            <Check className="w-4 h-4 mr-1" />
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingId(null)}
+                          >
+                            <X className="w-4 h-4 mr-1" />
+                            Cancel
+                          </Button>
+                        </div>
                       </div>
-                      {workspace.description && (
-                        <p className="text-sm text-gray-500 mt-1 ml-7">
-                          {workspace.description}
-                        </p>
-                      )}
-                    </>
-                  )}
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-green-600" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {workspace.name}
+                            </h3>
+                            {workspace.description && (
+                              <p className="text-sm text-gray-500">
+                                {workspace.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
 
-                  {/* Connection Status */}
-                  <div className="flex items-center gap-4 mt-4 ml-7">
-                    <div className={`flex items-center gap-2 text-sm ${
-                      workspace.whatsapp_session_id ? 'text-green-600' : 'text-gray-400'
-                    }`}>
-                      <Smartphone className="w-4 h-4" />
-                      <span>
-                        {workspace.whatsapp_session_id ? 'WhatsApp connected' : 'No WhatsApp'}
-                      </span>
-                    </div>
-                    <div className={`flex items-center gap-2 text-sm ${
-                      workspace.web_widget_id ? 'text-green-600' : 'text-gray-400'
-                    }`}>
-                      <Globe className="w-4 h-4" />
-                      <span>
-                        {workspace.web_widget_id ? 'Web Widget active' : 'No Web Widget'}
-                      </span>
-                    </div>
+                        {/* Connection Status Badges */}
+                        <div className="flex items-center gap-3 mt-4">
+                          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm ${
+                            workspace.whatsapp_session_id 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-gray-100 text-gray-500'
+                          }`}>
+                            <Smartphone className="w-4 h-4" />
+                            <span>
+                              {workspace.whatsapp_session_id ? 'WhatsApp Connected' : 'No WhatsApp'}
+                            </span>
+                          </div>
+                          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm ${
+                            workspace.web_widget_id 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-gray-100 text-gray-500'
+                          }`}>
+                            <Globe className="w-4 h-4" />
+                            <span>
+                              {workspace.web_widget_id ? 'Web Widget Active' : 'No Web Widget'}
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
-                </div>
 
-                {/* Actions */}
-                {editingId !== workspace.id && (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        setEditingId(workspace.id)
-                        setEditName(workspace.name)
-                      }}
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </Button>
-                    {data && data.workspaces.length > 1 && (
+                  {/* Actions */}
+                  {editingId !== workspace.id && (
+                    <div className="flex items-center gap-1">
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => handleDelete(workspace.id)}
-                        disabled={deletingId === workspace.id}
+                        onClick={() => {
+                          setEditingId(workspace.id)
+                          setEditName(workspace.name)
+                          setEditDescription(workspace.description || "")
+                        }}
+                        title="Edit workspace"
                       >
-                        {deletingId === workspace.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setExpandedId(expandedId === workspace.id ? null : workspace.id)}
+                        title="More options"
+                      >
+                        {expandedId === workspace.id ? (
+                          <ChevronUp className="w-4 h-4" />
                         ) : (
-                          <Trash2 className="w-4 h-4" />
+                          <ChevronDown className="w-4 h-4" />
                         )}
                       </Button>
-                    )}
-                  </div>
-                )}
+                      {data && data.workspaces.length > 1 && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDelete(workspace.id)}
+                          disabled={deletingId === workspace.id}
+                          title="Delete workspace"
+                        >
+                          {deletingId === workspace.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Quick Actions */}
+                <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+                  {!workspace.whatsapp_session_id ? (
+                    <Link href={`/settings/connections?workspace=${workspace.id}`}>
+                      <Button size="sm" variant="outline" className="text-green-600 border-green-200 hover:bg-green-50">
+                        <Smartphone className="w-4 h-4 mr-2" />
+                        Connect WhatsApp
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href={`/settings/chatbot?workspace=${workspace.id}`}>
+                      <Button size="sm" variant="outline">
+                        <Settings className="w-4 h-4 mr-2" />
+                        Configure Chatbot
+                      </Button>
+                    </Link>
+                  )}
+                  
+                  {!workspace.web_widget_id ? (
+                    <Link href={`/settings/connections?workspace=${workspace.id}&tab=web`}>
+                      <Button size="sm" variant="outline" className="text-green-600 border-green-200 hover:bg-green-50">
+                        <Globe className="w-4 h-4 mr-2" />
+                        Create Web Widget
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href={`/settings/chatbot?workspace=${workspace.id}&tab=web`}>
+                      <Button size="sm" variant="outline">
+                        <Globe className="w-4 h-4 mr-2" />
+                        Web Widget Settings
+                      </Button>
+                    </Link>
+                  )}
+                </div>
               </div>
 
-              {/* Quick Actions */}
-              <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-100">
-                {!workspace.whatsapp_session_id && (
-                  <Link href={`/settings/connections?workspace=${workspace.id}`}>
-                    <Button size="sm" variant="outline" className="text-green-600 border-green-200 hover:bg-green-50">
-                      <Smartphone className="w-4 h-4 mr-2" />
-                      Connect WhatsApp
-                    </Button>
-                  </Link>
-                )}
-                {!workspace.web_widget_id && (
-                  <Link href={`/settings/connections?workspace=${workspace.id}&tab=web`}>
-                    <Button size="sm" variant="outline" className="text-green-600 border-green-200 hover:bg-green-50">
-                      <Globe className="w-4 h-4 mr-2" />
-                      Create Web Widget
-                    </Button>
-                  </Link>
-                )}
-                {(workspace.whatsapp_session_id || workspace.web_widget_id) && (
-                  <Link href={`/settings/chatbot?workspace=${workspace.id}`}>
-                    <Button size="sm" variant="outline">
-                      Configure Chatbot
-                    </Button>
-                  </Link>
-                )}
-              </div>
+              {/* Expanded Options (Professional+ features) */}
+              {expandedId === workspace.id && (
+                <div className="border-t border-gray-200 bg-gray-50 p-6 space-y-6">
+                  {/* Client Access Link (Professional+) */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <LinkIcon className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-medium text-gray-900">Client Access Link</h4>
+                      {!isProfessionalOrHigher && (
+                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
+                          Professional+
+                        </span>
+                      )}
+                    </div>
+                    {isProfessionalOrHigher ? (
+                      <div className="bg-white rounded-lg border border-gray-200 p-4">
+                        <p className="text-sm text-gray-600 mb-3">
+                          Share this link with your client so they can access their workspace dashboard.
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={generateClientAccessLink(workspace.id)}
+                            readOnly
+                            className="flex-1 bg-gray-50"
+                          />
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => copyToClipboard(generateClientAccessLink(workspace.id), 'Client access link')}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(generateClientAccessLink(workspace.id), '_blank')}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        Upgrade to Professional to generate client access links.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Remote QR Connection (Professional+) */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <QrCode className="w-5 h-5 text-purple-600" />
+                      <h4 className="font-medium text-gray-900">Remote WhatsApp Connection</h4>
+                      {!isProfessionalOrHigher && (
+                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
+                          Professional+
+                        </span>
+                      )}
+                    </div>
+                    {isProfessionalOrHigher ? (
+                      <div className="bg-white rounded-lg border border-gray-200 p-4">
+                        <p className="text-sm text-gray-600 mb-3">
+                          Send this link to your client so they can scan the QR code from their phone without being present.
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={generateQRConnectionLink(workspace.id)}
+                            readOnly
+                            className="flex-1 bg-gray-50"
+                          />
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => copyToClipboard(generateQRConnectionLink(workspace.id), 'QR connection link')}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        Upgrade to Professional to enable remote WhatsApp connection.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* API Key per Workspace (Professional+) */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Key className="w-5 h-5 text-orange-600" />
+                      <h4 className="font-medium text-gray-900">Workspace API Key</h4>
+                      {!isProfessionalOrHigher && (
+                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
+                          Professional+
+                        </span>
+                      )}
+                    </div>
+                    {isProfessionalOrHigher ? (
+                      <div className="bg-white rounded-lg border border-gray-200 p-4">
+                        <p className="text-sm text-gray-600 mb-3">
+                          Configure a separate AI API key for this workspace to track costs independently.
+                        </p>
+                        <Link href={`/settings/chatbot?workspace=${workspace.id}&tab=apikeys`}>
+                          <Button size="sm" variant="outline">
+                            <Key className="w-4 h-4 mr-2" />
+                            Configure API Key
+                          </Button>
+                        </Link>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        Upgrade to Professional to configure API keys per workspace.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* White-Label (Enterprise only) */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Palette className="w-5 h-5 text-pink-600" />
+                      <h4 className="font-medium text-gray-900">White-Label Branding</h4>
+                      {!isEnterprise && (
+                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
+                          Enterprise
+                        </span>
+                      )}
+                    </div>
+                    {isEnterprise ? (
+                      <div className="bg-white rounded-lg border border-gray-200 p-4">
+                        <p className="text-sm text-gray-600 mb-3">
+                          Customize branding for this workspace. Hide Whahook branding and use your own logo and colors.
+                        </p>
+                        <Button size="sm" variant="outline" disabled>
+                          <Palette className="w-4 h-4 mr-2" />
+                          Configure Branding (Coming Soon)
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        Upgrade to Enterprise to customize branding and hide Whahook branding.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Custom Domain (Enterprise only) */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Globe className="w-5 h-5 text-indigo-600" />
+                      <h4 className="font-medium text-gray-900">Custom Domain</h4>
+                      {!isEnterprise && (
+                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
+                          Enterprise
+                        </span>
+                      )}
+                    </div>
+                    {isEnterprise ? (
+                      <div className="bg-white rounded-lg border border-gray-200 p-4">
+                        <p className="text-sm text-gray-600 mb-3">
+                          Use your own domain for client access (e.g., panel.youragency.com).
+                        </p>
+                        <Button size="sm" variant="outline" disabled>
+                          <Globe className="w-4 h-4 mr-2" />
+                          Configure Domain (Coming Soon)
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        Upgrade to Enterprise to use custom domains.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Team Members (Professional+) */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Users className="w-5 h-5 text-teal-600" />
+                      <h4 className="font-medium text-gray-900">Team Members</h4>
+                      {!isProfessionalOrHigher && (
+                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
+                          Professional+
+                        </span>
+                      )}
+                    </div>
+                    {isProfessionalOrHigher ? (
+                      <div className="bg-white rounded-lg border border-gray-200 p-4">
+                        <p className="text-sm text-gray-600 mb-3">
+                          Invite team members to this workspace with custom roles and permissions.
+                        </p>
+                        <Button size="sm" variant="outline" disabled>
+                          <Users className="w-4 h-4 mr-2" />
+                          Manage Team (Coming Soon)
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        Upgrade to Professional to add team members.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           ))
         )}
@@ -421,9 +719,13 @@ export default function WorkspacesPage() {
           <div className="text-sm text-blue-800">
             <p className="font-medium mb-1">About Workspaces</p>
             <p>
-              Each workspace can have one WhatsApp connection and one Web Widget. 
-              Use workspaces to separate different businesses, clients, or projects.
-              All chatbot settings and conversations are isolated per workspace.
+              Each workspace represents a separate business or client. It includes its own WhatsApp connection, 
+              Web Widget, chatbot configuration, and client database. Use workspaces to keep everything organized 
+              and isolated per project.
+            </p>
+            <p className="mt-2">
+              <strong>Tip:</strong> Click the expand button on any workspace to access advanced features like 
+              client access links, remote QR connection, and more.
             </p>
           </div>
         </div>
