@@ -78,3 +78,48 @@ BEGIN
     CREATE INDEX IF NOT EXISTS idx_clients_workspace_id ON clients(workspace_id);
   END IF;
 END $$;
+
+-- whatsapp_accounts (conexiones WhatsApp)
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'whatsapp_accounts') THEN
+    ALTER TABLE whatsapp_accounts ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id) ON DELETE SET NULL;
+    CREATE INDEX IF NOT EXISTS idx_whatsapp_accounts_workspace_id ON whatsapp_accounts(workspace_id);
+  END IF;
+END $$;
+
+-- chat_widgets (widgets web)
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'chat_widgets') THEN
+    ALTER TABLE chat_widgets ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id) ON DELETE SET NULL;
+    CREATE INDEX IF NOT EXISTS idx_chat_widgets_workspace_id ON chat_widgets(workspace_id);
+  END IF;
+END $$;
+
+-- ecommerce_connections
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ecommerce_connections') THEN
+    ALTER TABLE ecommerce_connections ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id) ON DELETE SET NULL;
+    CREATE INDEX IF NOT EXISTS idx_ecommerce_connections_workspace_id ON ecommerce_connections(workspace_id);
+  END IF;
+END $$;
+
+-- webhooks
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'webhooks') THEN
+    ALTER TABLE webhooks ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id) ON DELETE SET NULL;
+    CREATE INDEX IF NOT EXISTS idx_webhooks_workspace_id ON webhooks(workspace_id);
+  END IF;
+END $$;
+
+-- ai_config (configuración IA por workspace)
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ai_config') THEN
+    ALTER TABLE ai_config ADD COLUMN IF NOT EXISTS workspace_id UUID REFERENCES workspaces(id) ON DELETE SET NULL;
+    CREATE INDEX IF NOT EXISTS idx_ai_config_workspace_id ON ai_config(workspace_id);
+  END IF;
+END $$;
