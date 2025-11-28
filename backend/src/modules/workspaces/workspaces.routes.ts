@@ -39,14 +39,18 @@ async function getUserPlan(userId: string): Promise<string> {
  * List all workspaces for user
  */
 router.get('/', async (req: Request, res: Response) => {
+  console.log('🏢 [Workspaces API] GET /api/workspaces called')
   try {
     const userId = await getUserIdFromToken(req)
+    console.log('🏢 [Workspaces API] userId:', userId)
     if (!userId) {
+      console.log('🏢 [Workspaces API] Unauthorized - no userId')
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
     // Get user's plan
     const plan = await getUserPlan(userId)
+    console.log('🏢 [Workspaces API] User plan:', plan)
     const maxWorkspaces = PLAN_LIMITS[plan] || 1
 
     // Get workspaces with connection info
@@ -65,9 +69,11 @@ router.get('/', async (req: Request, res: Response) => {
       .order('created_at', { ascending: true })
 
     if (error) {
-      console.error('Error fetching workspaces:', error)
+      console.error('❌ [Workspaces API] Error fetching workspaces:', error)
       return res.status(500).json({ success: false, error: 'Failed to fetch workspaces' })
     }
+
+    console.log('✅ [Workspaces API] Found', workspacesList?.length || 0, 'workspaces')
 
     res.json({
       success: true,
