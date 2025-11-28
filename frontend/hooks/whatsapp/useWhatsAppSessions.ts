@@ -18,7 +18,7 @@ export interface WhatsAppSession {
   updated_at: string
 }
 
-export function useWhatsAppSessions() {
+export function useWhatsAppSessions(workspaceId?: string) {
   const [sessions, setSessions] = useState<WhatsAppSession[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +31,10 @@ export function useWhatsAppSessions() {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await ApiClient.request<{ sessions: WhatsAppSession[] }>('/api/whatsapp/sessions')
+      const url = workspaceId 
+        ? `/api/whatsapp/sessions?workspace_id=${workspaceId}`
+        : '/api/whatsapp/sessions'
+      const response = await ApiClient.request<{ sessions: WhatsAppSession[] }>(url)
       setSessions(response.data?.sessions || [])
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to fetch sessions'
@@ -39,7 +42,7 @@ export function useWhatsAppSessions() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [workspaceId])
 
   const createSession = useCallback(async (accountId: string) => {
     if (pendingCreations.current.has(accountId)) return
@@ -174,7 +177,7 @@ export function useWhatsAppSessions() {
 
   useEffect(() => {
     fetchSessions()
-  }, [fetchSessions])
+  }, [fetchSessions, workspaceId])
 
   return {
     sessions,

@@ -33,14 +33,19 @@ class EcommerceService {
   }
 
   /**
-   * Listar conexiones del usuario
+   * Listar conexiones del usuario (opcionalmente filtrado por workspace)
    */
-  async listConnections(userId: string): Promise<Omit<EcommerceConnection, 'credentials'>[]> {
-    const { data, error } = await supabaseAdmin
+  async listConnections(userId: string, workspaceId?: string): Promise<Omit<EcommerceConnection, 'credentials'>[]> {
+    let query = supabaseAdmin
       .from('ecommerce_connections')
       .select('*')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+    
+    if (workspaceId) {
+      query = query.eq('workspace_id', workspaceId)
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false })
 
     if (error) throw error
 

@@ -12,7 +12,7 @@ export interface WhatsAppAccount {
   updated_at: string
 }
 
-export function useWhatsAppAccounts() {
+export function useWhatsAppAccounts(workspaceId?: string) {
   const [accounts, setAccounts] = useState<WhatsAppAccount[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -21,9 +21,10 @@ export function useWhatsAppAccounts() {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await ApiClient.request<{ accounts: WhatsAppAccount[] }>(
-        '/api/whatsapp/accounts'
-      )
+      const url = workspaceId 
+        ? `/api/whatsapp/accounts?workspace_id=${workspaceId}`
+        : '/api/whatsapp/accounts'
+      const response = await ApiClient.request<{ accounts: WhatsAppAccount[] }>(url)
       setAccounts(response.data?.accounts || [])
     } catch (err: any) {
       const errorMsg = err.message || 'Failed to fetch WhatsApp accounts'
@@ -32,7 +33,7 @@ export function useWhatsAppAccounts() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [workspaceId])
 
   const createAccount = useCallback(async (accountName: string, workspaceId?: string) => {
     setIsLoading(true)
@@ -84,7 +85,7 @@ export function useWhatsAppAccounts() {
 
   useEffect(() => {
     fetchAccounts()
-  }, [fetchAccounts])
+  }, [fetchAccounts, workspaceId])
 
   return {
     accounts,

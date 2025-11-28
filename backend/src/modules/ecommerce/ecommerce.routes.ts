@@ -28,7 +28,7 @@ async function getUserIdFromToken(req: Request): Promise<string | null> {
 
 /**
  * GET /api/ecommerce/connections
- * Listar conexiones del usuario
+ * Listar conexiones del usuario (filtrado por workspace si se proporciona)
  */
 router.get('/connections', async (req: Request, res: Response) => {
   try {
@@ -37,7 +37,8 @@ router.get('/connections', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    const connections = await ecommerceService.listConnections(userId)
+    const workspaceId = req.query.workspace_id as string | undefined
+    const connections = await ecommerceService.listConnections(userId, workspaceId)
     res.json({ success: true, data: connections })
   } catch (error) {
     console.error('List connections error:', error)

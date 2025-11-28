@@ -177,11 +177,14 @@ export function EcommerceConnectionsSection({ workspaceId }: EcommerceConnection
 
   useEffect(() => {
     fetchConnections()
-  }, [])
+  }, [workspaceId])
 
   const fetchConnections = async () => {
     try {
-      const response = await ApiClient.request('/api/ecommerce/connections')
+      const url = workspaceId 
+        ? `/api/ecommerce/connections?workspace_id=${workspaceId}`
+        : '/api/ecommerce/connections'
+      const response = await ApiClient.request(url)
       if (response.success) {
         setConnections(response.data as EcommerceConnection[])
       }

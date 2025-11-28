@@ -10,14 +10,19 @@ import {
 
 class ChatWidgetService {
   /**
-   * Listar widgets del usuario
+   * Listar widgets del usuario (opcionalmente filtrado por workspace)
    */
-  async listWidgets(userId: string): Promise<ChatWidget[]> {
-    const { data, error } = await supabaseAdmin
+  async listWidgets(userId: string, workspaceId?: string): Promise<ChatWidget[]> {
+    let query = supabaseAdmin
       .from('chat_widgets')
       .select('*')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+    
+    if (workspaceId) {
+      query = query.eq('workspace_id', workspaceId)
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: false })
 
     if (error) throw error
     return data || []

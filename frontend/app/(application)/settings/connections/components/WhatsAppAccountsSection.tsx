@@ -20,8 +20,8 @@ interface WhatsAppAccountsSectionProps {
 }
 
 export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = false, onConnectionChange }: WhatsAppAccountsSectionProps) {
-  const { accounts, isLoading: accountsLoading, createAccount } = useWhatsAppAccounts()
-  const { sessions, isLoading: sessionsLoading, createSession, destroySession, isSocketConnected } = useWhatsAppSessions()
+  const { accounts, isLoading: accountsLoading, createAccount } = useWhatsAppAccounts(workspaceId)
+  const { sessions, isLoading: sessionsLoading, createSession, destroySession, isSocketConnected } = useWhatsAppSessions(workspaceId)
   
   const [showNewAccountForm, setShowNewAccountForm] = useState(false)
   const [newAccountName, setNewAccountName] = useState('')

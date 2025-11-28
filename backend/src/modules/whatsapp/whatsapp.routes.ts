@@ -30,7 +30,7 @@ async function getUserIdFromToken(req: Request): Promise<string | null> {
 
 /**
  * GET /api/whatsapp/accounts
- * Obtener todas las cuentas del usuario
+ * Obtener todas las cuentas del usuario (filtrado por workspace si se proporciona)
  */
 router.get('/accounts', async (req: Request, res: Response) => {
   try {
@@ -40,11 +40,18 @@ router.get('/accounts', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    const { data: accounts, error } = await supabaseAdmin
+    const workspaceId = req.query.workspace_id as string | undefined
+
+    let query = supabaseAdmin
       .from('whatsapp_accounts')
       .select('*')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+    
+    if (workspaceId) {
+      query = query.eq('workspace_id', workspaceId)
+    }
+
+    const { data: accounts, error } = await query.order('created_at', { ascending: false })
 
     if (error) {
       console.error('Error fetching accounts:', error)
@@ -131,7 +138,7 @@ router.post('/accounts', async (req: Request, res: Response) => {
 
 /**
  * GET /api/whatsapp/sessions
- * Obtener sesiones activas del usuario
+ * Obtener sesiones activas del usuario (filtrado por workspace si se proporciona)
  */
 router.get('/sessions', async (req: Request, res: Response) => {
   try {
@@ -141,11 +148,18 @@ router.get('/sessions', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    const { data: sessions, error } = await supabaseAdmin
+    const workspaceId = req.query.workspace_id as string | undefined
+
+    let query = supabaseAdmin
       .from('whatsapp_accounts')
       .select('*')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+    
+    if (workspaceId) {
+      query = query.eq('workspace_id', workspaceId)
+    }
+
+    const { data: sessions, error } = await query.order('created_at', { ascending: false })
 
     if (error) {
       console.error('Error fetching sessions:', error)

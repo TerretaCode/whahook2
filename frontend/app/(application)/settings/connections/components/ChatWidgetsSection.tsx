@@ -191,11 +191,14 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
 
   useEffect(() => {
     fetchWidgets()
-  }, [])
+  }, [workspaceId])
 
   const fetchWidgets = async () => {
     try {
-      const response = await ApiClient.request('/api/chat-widgets')
+      const url = workspaceId 
+        ? `/api/chat-widgets?workspace_id=${workspaceId}`
+        : '/api/chat-widgets'
+      const response = await ApiClient.request(url)
       if (response.success) {
         setWidgets(response.data as ChatWidget[])
       }

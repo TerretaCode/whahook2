@@ -29,7 +29,7 @@ async function getUserIdFromToken(req: Request): Promise<string | null> {
 
 /**
  * GET /api/chat-widgets
- * Listar widgets del usuario
+ * Listar widgets del usuario (filtrado por workspace si se proporciona)
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -38,7 +38,8 @@ router.get('/', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    const widgets = await chatWidgetService.listWidgets(userId)
+    const workspaceId = req.query.workspace_id as string | undefined
+    const widgets = await chatWidgetService.listWidgets(userId, workspaceId)
     res.json({ success: true, data: widgets })
   } catch (error) {
     console.error('List widgets error:', error)
