@@ -257,7 +257,7 @@ Para conectar WhatsApp sin necesidad de tener el móvil del cliente presencialme
 | **Panel de cliente** | Logo, colores, nombre de la agencia |
 | **Emails transaccionales** | Remitente y branding de la agencia |
 | **Página de conexión QR** | Branding completo de la agencia |
-| **Dominio** (futuro) | Posibilidad de usar subdominio propio |
+| **Dominio personalizado** | La agencia usa su propio dominio para el panel de clientes |
 
 ### 3.2 Configuración en el workspace
 
@@ -270,8 +270,207 @@ workspace.white_label = {
   widget_footer_text: "Powered by Marketing Pro",
   widget_footer_url: "https://marketingpro.com",
   hide_whahook_branding: true,
-  show_ai_costs_to_client: false, // Opcional
+  show_ai_costs_to_client: false,
+  custom_domain: "panel.marketingpro.com", // Dominio personalizado
+  custom_domain_verified: true,
 }
+```
+
+### 3.3 Dominio Personalizado (Enterprise)
+
+La agencia puede usar su propio dominio para que sus clientes accedan al panel.
+
+**Ejemplo**: En vez de `app.whahook.com/w/abc123`, el cliente accede a `panel.miagencia.com`
+
+#### Flujo de configuración
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  CONFIGURAR DOMINIO PERSONALIZADO                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  1. Introduce tu dominio:                                   │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ panel.miagencia.com                                     ││
+│  └─────────────────────────────────────────────────────────┘│
+│                                                              │
+│  2. Configura estos registros DNS en tu proveedor:          │
+│                                                              │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ Tipo: CNAME                                             ││
+│  │ Nombre: panel                                           ││
+│  │ Valor: clientes.whahook.com                             ││
+│  └─────────────────────────────────────────────────────────┘│
+│                                                              │
+│  3. Estado: ⏳ Verificando DNS...                            │
+│                                                              │
+│  [Verificar ahora]                                          │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Flujo técnico (automático)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  FLUJO DE DOMINIO PERSONALIZADO                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  1. Agencia introduce dominio en Settings                   │
+│     panel.miagencia.com                                     │
+│                    ↓                                         │
+│  2. Whahook muestra instrucciones DNS                       │
+│     "Añade CNAME panel → clientes.whahook.com"              │
+│                    ↓                                         │
+│  3. Agencia configura DNS en su proveedor                   │
+│     (GoDaddy, Cloudflare, etc.)                             │
+│                    ↓                                         │
+│  4. Agencia pulsa "Verificar"                               │
+│                    ↓                                         │
+│  5. Whahook verifica DNS via API                            │
+│     dns.resolve('panel.miagencia.com')                      │
+│                    ↓                                         │
+│  6. Si OK → Whahook añade dominio a Vercel via API          │
+│     POST /v10/projects/{project}/domains                    │
+│                    ↓                                         │
+│  7. Vercel genera certificado SSL automáticamente           │
+│     (Let's Encrypt, ~30 segundos)                           │
+│                    ↓                                         │
+│  8. Dominio activo ✅                                        │
+│     https://panel.miagencia.com                             │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Implementación Backend
+
+```typescript
+// POST /api/workspaces/:id/custom-domain
+async function setCustomDomain(req, res) {
+  const { workspaceId } = req.params;
+  const { domain } = req.body;
+  
+  // 1. Validar formato del dominio
+  if (!isValidDomain(domain)) {
+    return res.status(400).json({ error: 'Dominio inválido' });
+  }
+  
+  // 2. Verificar que no esté en uso
+  const existing = await db.workspaces.findOne({ custom_domain: domain });
+  if (existing) {
+    return res.status(400).json({ error: 'Dominio ya en uso' });
+  }
+  
+  // 3. Guardar dominio pendiente de verificación
+  await db.workspaces.update(workspaceId, {
+    custom_domain: domain,
+    custom_domain_verified: false,
+  });
+  
+  return res.json({
+    domain,
+    cname_target: 'clientes.whahook.com',
+    status: 'pending_verification',
+  });
+}
+
+// POST /api/workspaces/:id/verify-domain
+async function verifyDomain(req, res) {
+  const { workspaceId } = req.params;
+  const workspace = await db.workspaces.findById(workspaceId);
+  
+  // 1. Verificar DNS
+  const dnsOk = await verifyDNS(workspace.custom_domain, 'clientes.whahook.com');
+  if (!dnsOk) {
+    return res.status(400).json({ 
+      error: 'DNS no configurado correctamente',
+      expected_cname: 'clientes.whahook.com',
+    });
+  }
+  
+  // 2. Añadir dominio a Vercel
+  const vercelResponse = await fetch(
+    `https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/domains`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${VERCEL_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: workspace.custom_domain }),
+    }
+  );
+  
+  if (!vercelResponse.ok) {
+    return res.status(500).json({ error: 'Error añadiendo dominio a Vercel' });
+  }
+  
+  // 3. Marcar como verificado
+  await db.workspaces.update(workspaceId, {
+    custom_domain_verified: true,
+  });
+  
+  return res.json({
+    domain: workspace.custom_domain,
+    status: 'active',
+    ssl: 'provisioning', // Vercel genera SSL automáticamente
+  });
+}
+```
+
+#### Middleware Frontend (Next.js)
+
+```typescript
+// middleware.ts
+import { NextResponse } from 'next/server';
+
+export async function middleware(request: NextRequest) {
+  const hostname = request.headers.get('host');
+  
+  // Si es el dominio principal, continuar normal
+  if (hostname === 'app.whahook.com') {
+    return NextResponse.next();
+  }
+  
+  // Si es un dominio personalizado, buscar workspace
+  const workspace = await getWorkspaceByDomain(hostname);
+  
+  if (workspace) {
+    // Reescribir a la ruta del panel de cliente
+    const url = request.nextUrl.clone();
+    url.pathname = `/w/${workspace.access_token}${url.pathname}`;
+    return NextResponse.rewrite(url);
+  }
+  
+  // Dominio no reconocido
+  return NextResponse.redirect('https://whahook.com');
+}
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+};
+```
+
+#### Modelo de datos
+
+```sql
+-- Añadir campos a workspaces
+ALTER TABLE workspaces ADD COLUMN custom_domain TEXT UNIQUE;
+ALTER TABLE workspaces ADD COLUMN custom_domain_verified BOOLEAN DEFAULT FALSE;
+ALTER TABLE workspaces ADD COLUMN custom_domain_ssl_status TEXT DEFAULT 'none';
+
+-- Índice para búsqueda rápida por dominio
+CREATE INDEX idx_workspaces_custom_domain ON workspaces(custom_domain) 
+  WHERE custom_domain IS NOT NULL;
+```
+
+#### Variables de entorno necesarias
+
+```env
+# Vercel API para gestión de dominios
+VERCEL_TOKEN=your_vercel_token
+VERCEL_PROJECT_ID=your_project_id
+VERCEL_TEAM_ID=your_team_id  # Si usas Vercel Teams
 ```
 
 ---
