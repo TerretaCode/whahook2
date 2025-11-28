@@ -50,7 +50,7 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 | Usuarios por workspace | 3 |
 | IA | Ilimitada (API por workspace) |
 | CRM | Completo |
-| Historial mensajes | 1 año |
+| Historial mensajes | 90 días |
 
 **Funcionalidades CRM Completo**:
 - ✅ Todo lo del CRM Básico
@@ -78,16 +78,15 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 | Conexiones WhatsApp | 10 |
 | Widgets Web | 10 |
 | Workspaces (empresas) | 10 |
-| Usuarios por workspace | Ilimitados |
+| Usuarios por workspace | 10 |
 | IA | Ilimitada (API por workspace) |
 | CRM | Completo |
-| Historial mensajes | Ilimitado |
+| Historial mensajes | 90 días |
 
 **Funcionalidades exclusivas Enterprise**:
 - ✅ Todo lo del Professional (pero con límites de 10 en vez de 3)
 - ✅ **White-label completo** (footer personalizable, ocultar marca Whahook)
 - ✅ **Dominio personalizado** (opcional): `https://panel.tuagencia.com`
-- ✅ Usuarios ilimitados por workspace
 
 ---
 
@@ -964,9 +963,11 @@ Vista que muestra resumen de TODOS los workspaces:
 | **WhatsApp** | 1 | 1 | 3 | 10 |
 | **Widgets Web** | 1 | 1 | 3 | 10 |
 | **Workspaces** | 1 | 1 | 3 | 10 |
-| **Usuarios** | 1 | 1 | 3/workspace | Ilimitados |
+| **Usuarios** | 1 | 1 | 3/workspace | 10/workspace |
+| **Historial mensajes** | 30 días | 30 días | 90 días | 90 días |
 | **IA** | Ilimitada (API propia) | Ilimitada (API propia) | Ilimitada (API por workspace) | Ilimitada (API por workspace) |
 | **CRM** | Básico | Básico | Completo | Completo |
+| **Exportación CSV** | ✅ | ✅ | ✅ | ✅ |
 | **Campañas WhatsApp** | ❌ | ❌ | ✅ | ✅ |
 | **Campañas Email** | ❌ | ❌ | ✅ | ✅ |
 | **Enlaces acceso clientes** | ❌ | ❌ | ✅ (3 max) | ✅ (10 max) |
@@ -978,6 +979,7 @@ Vista que muestra resumen de TODOS los workspaces:
 | **Dominio personalizado** | ❌ | ❌ | ❌ | ✅ (opcional) |
 
 > **Soporte**: Email para todos los planes (soporte@whahook.com)
+> **Historial máximo**: 90 días (para optimizar costes de almacenamiento)
 
 ---
 

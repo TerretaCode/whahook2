@@ -239,9 +239,9 @@ export default function Home() {
                 "1 WhatsApp connection",
                 "1 Web widget",
                 "1 Workspace",
-                "Unlimited AI (your own API)",
-                "Basic CRM",
-                "CSV export"
+                "Unlimited AI (your own API key)",
+                "Basic CRM with contacts",
+                "30-day message history"
               ]}
               cta="Start Free Trial"
               ctaLink="/register"
@@ -252,13 +252,12 @@ export default function Home() {
               period="/month"
               description="For growing businesses & small agencies"
               features={[
-                "3 WhatsApp connections",
-                "3 Web widgets",
-                "3 Workspaces",
+                "3 WhatsApp / Web / Workspaces",
+                "3 Users per workspace",
+                "Unlimited AI (API per workspace)",
                 "Full CRM with campaigns",
-                "WhatsApp & Email campaigns",
                 "Client access links",
-                "Remote QR connection"
+                "90-day message history"
               ]}
               cta="Start Free Trial"
               ctaLink="/register"
@@ -270,13 +269,12 @@ export default function Home() {
               period="/month"
               description="For agencies & multi-brand businesses"
               features={[
-                "10 WhatsApp connections",
-                "10 Web widgets",
-                "10 Workspaces",
-                "Unlimited users",
+                "10 WhatsApp / Web / Workspaces",
+                "10 Users per workspace",
+                "Everything in Professional",
                 "White-label branding",
                 "Custom domain support",
-                "Unlimited message history"
+                "90-day message history"
               ]}
               cta="Start Free Trial"
               ctaLink="/register"

@@ -31,10 +31,12 @@ export default function PricingPage() {
                 "1 WhatsApp connection",
                 "1 Web widget",
                 "1 Workspace",
-                "Unlimited AI (your own API)",
-                "Basic CRM",
+                "1 User",
+                "Unlimited AI (your own API key)",
+                "Basic CRM with contacts",
                 "CSV export",
-                "30-day message history"
+                "30-day message history",
+                "Email support"
               ]}
               cta="Start Free Trial"
               ctaLink="/register"
@@ -50,12 +52,15 @@ export default function PricingPage() {
                 "3 WhatsApp connections",
                 "3 Web widgets",
                 "3 Workspaces",
-                "Unlimited AI (API per workspace)",
-                "Full CRM with campaigns",
+                "3 Users per workspace",
+                "Unlimited AI (API key per workspace)",
+                "Full CRM with tags & notes",
                 "WhatsApp & Email campaigns",
                 "Client access links",
                 "Remote QR connection",
-                "1-year message history"
+                "CSV export",
+                "90-day message history",
+                "Email support"
               ]}
               cta="Start Free Trial"
               ctaLink="/register"
@@ -72,12 +77,17 @@ export default function PricingPage() {
                 "10 WhatsApp connections",
                 "10 Web widgets",
                 "10 Workspaces",
-                "Unlimited users per workspace",
-                "Full CRM with campaigns",
+                "10 Users per workspace",
+                "Unlimited AI (API key per workspace)",
+                "Full CRM with tags & notes",
+                "WhatsApp & Email campaigns",
+                "Client access links",
+                "Remote QR connection",
                 "White-label (hide Whahook brand)",
                 "Custom domain support",
-                "Client access links",
-                "Unlimited message history"
+                "CSV export",
+                "90-day message history",
+                "Email support"
               ]}
               cta="Start Free Trial"
               ctaLink="/register"
