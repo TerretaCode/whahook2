@@ -13,7 +13,8 @@ import {
   Menu,
   X,
   ChevronRight,
-  User
+  User,
+  CreditCard
 } from "lucide-react"
 
 interface SettingsLayoutProps {
@@ -41,6 +42,13 @@ const settingsNavigation = [
     href: '/settings/ia',
     icon: Sparkles,
     description: 'Claves de API'
+  },
+  {
+    id: 'billing',
+    name: 'Facturación',
+    href: '/settings/billing',
+    icon: CreditCard,
+    description: 'Plan y pagos'
   },
   {
     id: 'profile',

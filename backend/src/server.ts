@@ -15,6 +15,7 @@ import { chatbotRoutes } from './modules/chatbot'
 import { clientsRoutes } from './modules/clients'
 import { aiRoutes } from './modules/ai'
 import dashboardRoutes from './modules/dashboard/dashboard.routes'
+import billingRoutes from './modules/billing/billing.routes'
 import { keepaliveMessagesService, sessionMonitoringService, backupService, cacheCleanupService } from './services'
 import { healthRoutes } from './routes'
 
@@ -42,6 +43,10 @@ const io = new SocketServer(httpServer, {
 app.use(helmet())
 app.use(compression()) // Gzip compression
 app.use(cors({ origin: allowedOrigins, credentials: true }))
+
+// Stripe webhook needs raw body - must be before express.json()
+app.use('/api/billing/webhook', express.raw({ type: 'application/json' }))
+
 app.use(express.json({ limit: '1mb' }))
 
 // Rate limiting por tipo de endpoint
@@ -73,6 +78,7 @@ app.use('/api/chatbot', chatbotRoutes)
 app.use('/api/clients', clientsRoutes)
 app.use('/api/ai', aiRoutes)
 app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/billing', billingRoutes)
 
 // 404
 app.use((req, res) => {
