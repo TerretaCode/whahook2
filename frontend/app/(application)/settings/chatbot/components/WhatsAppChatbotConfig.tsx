@@ -34,9 +34,10 @@ interface EcommerceConnection {
 
 interface WhatsAppChatbotConfigProps {
   workspaceId: string
+  onLoaded?: () => void
 }
 
-export function WhatsAppChatbotConfig({ workspaceId }: WhatsAppChatbotConfigProps) {
+export function WhatsAppChatbotConfig({ workspaceId, onLoaded }: WhatsAppChatbotConfigProps) {
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true) // Global loader
@@ -100,14 +101,15 @@ export function WhatsAppChatbotConfig({ workspaceId }: WhatsAppChatbotConfigProp
   // Check if all loading is complete
   useEffect(() => {
     const allLoaded = !loadingStates.sessions && !loadingStates.ecommerce && !loadingStates.configs
-    if (allLoaded) {
+    if (allLoaded && isInitialLoading) {
       // Small delay to ensure UI is ready
       const timer = setTimeout(() => {
         setIsInitialLoading(false)
+        onLoaded?.()
       }, 100)
       return () => clearTimeout(timer)
     }
-  }, [loadingStates])
+  }, [loadingStates, isInitialLoading, onLoaded])
   
   const loadInitialData = async () => {
     setIsInitialLoading(true)
@@ -500,40 +502,7 @@ export function WhatsAppChatbotConfig({ workspaceId }: WhatsAppChatbotConfigProp
     }
   }
 
-  if (!user) return null
-
-  // Show global loader while initial data is loading
-  if (isInitialLoading) {
-    return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Smartphone className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">WhatsApp Chatbot</h3>
-              <p className="text-sm text-gray-600 mt-0.5">
-                Configure AI for your WhatsApp business accounts
-              </p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex flex-col items-center justify-center py-16 space-y-4">
-          <Loader2 className="w-12 h-12 text-green-600 animate-spin" />
-          <div className="text-center">
-            <p className="text-sm font-medium text-gray-900">Cargando configuración...</p>
-            <p className="text-xs text-gray-500 mt-1">
-              {loadingStates.sessions && "Cargando sesiones de WhatsApp..."}
-              {loadingStates.ecommerce && "Cargando conexiones de ecommerce..."}
-              {loadingStates.configs && "Cargando configuraciones..."}
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  if (!user || isInitialLoading) return null
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

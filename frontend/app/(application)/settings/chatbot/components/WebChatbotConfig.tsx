@@ -37,9 +37,10 @@ interface EcommerceConnection {
 interface WebChatbotConfigProps {
   selectedWidgetId?: string | null
   workspaceId?: string
+  onLoaded?: () => void
 }
 
-export function WebChatbotConfig({ selectedWidgetId, workspaceId }: WebChatbotConfigProps) {
+export function WebChatbotConfig({ selectedWidgetId, workspaceId, onLoaded }: WebChatbotConfigProps) {
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
@@ -111,13 +112,14 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId }: WebChatbotCo
   // Check if all loading is complete
   useEffect(() => {
     const allLoaded = !loadingStates.widgets && !loadingStates.ecommerce && !loadingStates.configs
-    if (allLoaded) {
+    if (allLoaded && isInitialLoading) {
       const timer = setTimeout(() => {
         setIsInitialLoading(false)
+        onLoaded?.()
       }, 100)
       return () => clearTimeout(timer)
     }
-  }, [loadingStates])
+  }, [loadingStates, isInitialLoading, onLoaded])
   
   const loadInitialData = async () => {
     setIsInitialLoading(true)
@@ -365,14 +367,8 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId }: WebChatbotCo
     }
   }
 
-  // Show global loader while initial data is loading
-  if (isInitialLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
-      </div>
-    )
-  }
+  // Don't render while loading - parent handles the loader
+  if (isInitialLoading) return null
 
   return (
     <div className="space-y-4">

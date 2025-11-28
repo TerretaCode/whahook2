@@ -27,6 +27,7 @@ function ConnectionsPageContent() {
   const searchParams = useSearchParams()
   const { user, isLoading: authLoading } = useAuth()
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null)
+  const [isWorkspaceLoading, setIsWorkspaceLoading] = useState(true)
   
   // Function to refresh workspace data after connection changes
   const refreshWorkspace = useCallback(async () => {
@@ -52,7 +53,8 @@ function ConnectionsPageContent() {
     }
   }, [user, authLoading, router])
 
-  if (authLoading || !user) {
+  // Show global loader while auth or workspace is loading
+  if (authLoading || !user || isWorkspaceLoading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center">
         <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
@@ -75,6 +77,7 @@ function ConnectionsPageContent() {
       <div className="bg-white rounded-lg border border-gray-200 p-4">
         <WorkspaceSelector 
           onWorkspaceChange={setSelectedWorkspace}
+          onLoadingChange={setIsWorkspaceLoading}
           showCreateButton={true}
         />
       </div>

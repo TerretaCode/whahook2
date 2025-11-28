@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, Suspense, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import { WhatsAppChatbotConfig } from "./components/WhatsAppChatbotConfig"
 import { WebChatbotConfig } from "./components/WebChatbotConfig"
@@ -23,6 +23,8 @@ function ChatbotSettingsContent() {
   const tabParam = searchParams.get('tab')
   
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null)
+  const [isWorkspaceLoading, setIsWorkspaceLoading] = useState(true)
+  const [isConfigLoading, setIsConfigLoading] = useState(false)
   
   // Determine default tab
   const getDefaultTab = () => {
@@ -40,9 +42,31 @@ function ChatbotSettingsContent() {
     }
   }, [widgetParam])
 
+  const handleWorkspaceChange = useCallback((workspace: Workspace | null) => {
+    setSelectedWorkspace(workspace)
+    // When workspace changes, we need to wait for config to load
+    if (workspace) {
+      setIsConfigLoading(true)
+    }
+  }, [])
+
+  const handleConfigLoaded = useCallback(() => {
+    setIsConfigLoading(false)
+  }, [])
+
   // Check if workspace has the required connection for the selected tab
   const hasWhatsAppConnection = selectedWorkspace?.whatsapp_session_id
   const hasWebWidgetConnection = selectedWorkspace?.web_widget_id
+
+  // Show global loader while workspace is loading
+  if (isWorkspaceLoading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
+        <p className="text-sm text-gray-500">Cargando configuración del chatbot...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -57,7 +81,8 @@ function ChatbotSettingsContent() {
       {/* Workspace Selector */}
       <div className="bg-white rounded-lg border border-gray-200 p-4">
         <WorkspaceSelector 
-          onWorkspaceChange={setSelectedWorkspace}
+          onWorkspaceChange={handleWorkspaceChange}
+          onLoadingChange={setIsWorkspaceLoading}
           showCreateButton={true}
         />
       </div>
@@ -102,7 +127,7 @@ function ChatbotSettingsContent() {
           {/* Tab Content */}
           {activeTab === 'whatsapp' ? (
             hasWhatsAppConnection ? (
-              <WhatsAppChatbotConfig workspaceId={selectedWorkspace.id} />
+              <WhatsAppChatbotConfig workspaceId={selectedWorkspace.id} onLoaded={handleConfigLoaded} />
             ) : (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
                 <Smartphone className="w-12 h-12 text-amber-400 mx-auto mb-4" />
@@ -122,7 +147,7 @@ function ChatbotSettingsContent() {
             )
           ) : (
             hasWebWidgetConnection ? (
-              <WebChatbotConfig selectedWidgetId={selectedWorkspace.web_widget_id} workspaceId={selectedWorkspace.id} />
+              <WebChatbotConfig selectedWidgetId={selectedWorkspace.web_widget_id} workspaceId={selectedWorkspace.id} onLoaded={handleConfigLoaded} />
             ) : (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
                 <Globe className="w-12 h-12 text-amber-400 mx-auto mb-4" />

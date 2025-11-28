@@ -23,6 +23,7 @@ interface Workspace {
 
 interface WorkspaceSelectorProps {
   onWorkspaceChange?: (workspace: Workspace | null) => void
+  onLoadingChange?: (isLoading: boolean) => void
   showCreateButton?: boolean
   className?: string
 }
@@ -30,7 +31,8 @@ interface WorkspaceSelectorProps {
 const STORAGE_KEY = 'selected-workspace-id'
 
 export function WorkspaceSelector({ 
-  onWorkspaceChange, 
+  onWorkspaceChange,
+  onLoadingChange,
   showCreateButton = true,
   className = ""
 }: WorkspaceSelectorProps) {
@@ -60,6 +62,7 @@ export function WorkspaceSelector({
   const loadWorkspaces = async () => {
     try {
       setIsLoading(true)
+      onLoadingChange?.(true)
       const response = await ApiClient.request<{ workspaces: Workspace[] }>('/api/workspaces')
       console.log('WorkspaceSelector response:', response)
       
@@ -88,6 +91,7 @@ export function WorkspaceSelector({
       console.error('Error loading workspaces:', error)
     } finally {
       setIsLoading(false)
+      onLoadingChange?.(false)
     }
   }
 
@@ -104,13 +108,9 @@ export function WorkspaceSelector({
     router.replace(url.pathname + url.search)
   }
 
+  // Don't show anything while loading - parent handles the loader
   if (isLoading) {
-    return (
-      <div className={`flex items-center gap-2 ${className}`}>
-        <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-        <span className="text-sm text-gray-500">Loading workspaces...</span>
-      </div>
-    )
+    return null
   }
 
   if (workspaces.length === 0) {
