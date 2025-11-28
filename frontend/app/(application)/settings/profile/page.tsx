@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
@@ -24,8 +24,16 @@ export default function ProfilePage() {
   const router = useRouter()
   const { user, logout, refreshUser } = useAuth()
   
-  const [fullName, setFullName] = useState(user?.profile?.full_name || '')
-  const [companyName, setCompanyName] = useState(user?.profile?.company_name || '')
+  const [fullName, setFullName] = useState('')
+  const [companyName, setCompanyName] = useState('')
+  
+  // Update form fields when user data changes
+  useEffect(() => {
+    if (user?.profile) {
+      setFullName(user.profile.full_name || '')
+      setCompanyName(user.profile.company_name || '')
+    }
+  }, [user])
   const [isSaving, setIsSaving] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   

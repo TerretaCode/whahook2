@@ -169,7 +169,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await ApiClient.getCurrentUser()
       
       if (response.success && response.data) {
-        setUser(response.data.user)
+        const updatedUser = response.data.user
+        setUser(updatedUser)
+        
+        // Also update in storage so it persists on reload
+        const rememberMe = AuthStorage.hasRememberMe()
+        const accessToken = AuthStorage.getAccessToken()
+        const refreshToken = AuthStorage.getRefreshToken()
+        
+        if (accessToken && refreshToken) {
+          AuthStorage.saveSession(accessToken, refreshToken, updatedUser, rememberMe)
+        }
       }
     } catch (error) {
       console.error('Refresh user error:', error)
