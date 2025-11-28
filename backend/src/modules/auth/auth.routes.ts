@@ -188,4 +188,38 @@ router.post('/change-password', async (req, res) => {
   }
 })
 
+// Update Profile
+router.put('/profile', async (req, res) => {
+  try {
+    const { full_name, company_name } = req.body
+    const token = req.headers.authorization?.replace('Bearer ', '')
+    
+    if (!token) throw new Error('No token provided')
+    
+    const { data: userData, error: userError } = await supabase.auth.getUser(token)
+    
+    if (userError || !userData.user) {
+      throw new Error('Invalid token')
+    }
+
+    // Update user metadata in Supabase Auth
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+      userData.user.id,
+      { 
+        user_metadata: { 
+          ...userData.user.user_metadata,
+          full_name,
+          company_name
+        } 
+      }
+    )
+    
+    if (updateError) throw updateError
+    
+    res.json({ success: true, message: 'Profile updated successfully' })
+  } catch (error: any) {
+    res.status(400).json({ success: false, error: error.message })
+  }
+})
+
 export default router
