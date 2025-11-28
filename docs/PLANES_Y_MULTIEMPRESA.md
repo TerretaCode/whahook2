@@ -30,7 +30,6 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 | IA | Ilimitada (API propia) |
 | CRM | Básico (solo contactos) |
 | Historial mensajes | 30 días |
-| Soporte | Email |
 
 **Funcionalidades CRM Básico**:
 - ✅ Lista de contactos/clientes
@@ -52,7 +51,6 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 | IA | Ilimitada (API por workspace) |
 | CRM | Completo |
 | Historial mensajes | 1 año |
-| Soporte | Prioritario |
 
 **Funcionalidades CRM Completo**:
 - ✅ Todo lo del CRM Básico
@@ -84,13 +82,12 @@ Este documento define la estrategia de planes de suscripción y el sistema multi
 | IA | Ilimitada (API por workspace) |
 | CRM | Completo |
 | Historial mensajes | Ilimitado |
-| Soporte | Dedicado + Onboarding |
 
 **Funcionalidades exclusivas Enterprise**:
 - ✅ Todo lo del Professional (pero con límites de 10 en vez de 3)
 - ✅ **White-label completo** (footer personalizable, ocultar marca Whahook)
+- ✅ **Dominio personalizado** (opcional): `https://panel.tuagencia.com`
 - ✅ Usuarios ilimitados por workspace
-- ✅ Soporte dedicado con onboarding
 
 ---
 
@@ -123,42 +120,79 @@ Un **Workspace** es un espacio aislado que representa una empresa/cliente. Cada 
 
 ### 2.2 Roles de Usuario
 
-#### Owner (Propietario de la cuenta)
-- Acceso total a todos los workspaces
-- Crear/eliminar workspaces
-- Invitar usuarios
-- Configurar API Keys por workspace
-- Ver gastos de IA (opcional)
+#### Owner (Propietario/Agencia)
+La agencia o propietario de la cuenta principal.
+- ✅ Acceso total a todos los workspaces
+- ✅ Crear/eliminar workspaces
+- ✅ Configurar chatbot, conexiones, IA
+- ✅ Configurar API Keys por workspace
+- ✅ Ver gastos de IA de todos los workspaces
+- ✅ Crear roles personalizados
+- ✅ Generar enlaces de acceso para clientes
+- ✅ Acceso a Settings completo
 
-#### Admin (Administrador de workspace)
-- Acceso total a UN workspace específico
-- Configurar chatbot, conexiones
-- Ver analytics
-- Gestionar clientes y campañas
-- Enviar QR de conexión WhatsApp
+#### Cliente (Acceso por enlace)
+El cliente de la agencia que accede mediante enlace.
+- ✅ Dashboard de su workspace
+- ✅ Mensajes (todas las conversaciones: WhatsApp + Web)
+- ✅ Clientes (su CRM completo)
+- ✅ Campañas (puede crear y gestionar sus campañas)
+- ✅ Gastos de IA (si la agencia lo activa)
+- ✅ Crear roles personalizados para su equipo
+- ❌ Settings (NO ve configuración)
+- ❌ Otros workspaces
+- ❌ Marca Whahook (solo en Enterprise con white-label)
 
-#### Agent (Agente/Operador)
-- Solo acceso a conversaciones
-- Responder mensajes
-- Ver clientes (solo lectura)
-- NO puede configurar nada
+#### Roles Personalizados (creados por Owner o Cliente)
+Tanto la agencia como el cliente pueden crear roles para su equipo.
+
+**Permisos configurables** (elegir cuáles activar):
+| Permiso | Descripción |
+|---------|-------------|
+| Dashboard | Ver estadísticas y resumen |
+| Mensajes | Ver y responder conversaciones |
+| Clientes | Ver y gestionar CRM |
+
+**Ejemplos de roles**:
+
+```
+Rol: "Soporte"
+✅ Dashboard (ver estadísticas)
+✅ Mensajes (responder clientes)
+❌ Clientes (no accede al CRM)
+
+Rol: "Marketing"
+❌ Dashboard
+❌ Mensajes
+✅ Clientes (gestionar campañas)
+
+Rol: "Supervisor"
+✅ Dashboard
+✅ Mensajes (solo lectura)
+✅ Clientes (solo lectura)
+```
 
 ### 2.3 Enlaces de Acceso para Clientes (Professional y Enterprise)
 
 La funcionalidad clave para agencias: generar un enlace único que permite al cliente final acceder SOLO a su workspace.
 
 > **OBJETIVO**: El panel del cliente debe parecer de la propia agencia, no de Whahook.
-> El cliente NO debe saber que la agencia usa Whahook para evitar que se vayan directamente a nosotros.
+> En Enterprise con white-label, el cliente NO ve la marca Whahook.
+> En Professional, el cliente verá "Powered by Whahook" en el footer.
 
-**URL de ejemplo**: `https://app.whahook.com/w/abc123-token`
-O con dominio personalizado: `https://panel.agencia.com/cliente/abc123`
+**URL de ejemplo**: 
+- Whahook: `https://app.whahook.com/w/abc123-token`
+- Dominio personalizado (Enterprise): `https://panel.agencia.com/cliente/abc123`
 
 **Lo que ve el cliente al acceder**:
-- Dashboard simplificado (solo su workspace)
-- Bandeja de mensajes (conversaciones que necesitan atención)
-- Lista de clientes (su CRM)
-- Gastos de IA (si la agencia lo activa)
-- NO ve: Configuración, otros workspaces, marca Whahook
+- ✅ Dashboard (estadísticas de su workspace)
+- ✅ Mensajes (TODAS las conversaciones: WhatsApp + Web, no solo las pendientes)
+- ✅ Clientes (su CRM completo)
+- ✅ Campañas (puede crear y gestionar)
+- ✅ Gastos de IA (si la agencia lo activa)
+- ❌ Settings (NO ve configuración)
+- ❌ Otros workspaces
+- ❌ Marca Whahook (solo oculta en Enterprise)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -166,12 +200,12 @@ O con dominio personalizado: `https://panel.agencia.com/cliente/abc123`
 ├─────────────────────────────────────────────────────────────┤
 │  ✅ Dashboard global             ✅ Dashboard workspace      │
 │  ✅ Todos los workspaces         ❌ Solo SU workspace        │
-│  ✅ Configuración completa       ❌ Sin configuración        │
-│  ✅ Crear workspaces             ❌ No puede crear           │
-│  ✅ Analytics global             ✅ Analytics propio         │
-│  ✅ Gestión chatbot              ❌ Solo ver chatbot         │
-│  ✅ Ver gastos IA todos          ⚙️ Ver gastos IA (opcional) │
-│  ✅ Marca Whahook visible        ❌ Marca agencia/ninguna    │
+│  ✅ Settings completo            ❌ Sin settings             │
+│  ✅ Mensajes todos               ✅ Mensajes (WhatsApp+Web)  │
+│  ✅ Clientes todos               ✅ Clientes (su CRM)        │
+│  ✅ Campañas                      ✅ Campañas                 │
+│  ✅ Ver gastos IA todos          ⚙️ Gastos IA (si activado)  │
+│  ✅ Crear roles                  ✅ Crear roles (su equipo)  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -737,11 +771,14 @@ Vista que muestra resumen de TODOS los workspaces:
 | **Campañas WhatsApp** | ❌ | ❌ | ✅ | ✅ |
 | **Campañas Email** | ❌ | ❌ | ✅ | ✅ |
 | **Enlaces acceso clientes** | ❌ | ❌ | ✅ (3 max) | ✅ (10 max) |
+| **Roles personalizados** | ❌ | ❌ | ✅ | ✅ |
 | **Envío QR remoto** | ❌ | ❌ | ✅ | ✅ |
 | **API Key por workspace** | ❌ | ❌ | ✅ | ✅ |
 | **Tracking gastos IA** | ❌ | ❌ | ✅ (opcional) | ✅ (opcional) |
 | **White-label** | ❌ | ❌ | ❌ | ✅ |
-| **Soporte** | Email | Email | Prioritario | Dedicado |
+| **Dominio personalizado** | ❌ | ❌ | ❌ | ✅ (opcional) |
+
+> **Soporte**: Email para todos los planes (soporte@whahook.com)
 
 ---
 
