@@ -5,9 +5,10 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Plus, MessageSquare, Trash2, Code, Copy, Check, Loader2, ExternalLink, ChevronDown, ChevronUp, Settings, Download, Puzzle, Bot } from 'lucide-react'
+import { Plus, MessageSquare, Trash2, Code, Copy, Check, Loader2, ExternalLink, ChevronDown, ChevronUp, Settings, Download, Puzzle, Bot, Lock, Crown } from 'lucide-react'
 import { ApiClient } from '@/lib/api-client'
 import { toast } from '@/lib/toast'
+import { useAuth } from '@/contexts/AuthContext'
 
 type WebsitePlatform = 'wordpress' | 'shopify' | 'prestashop' | 'magento' | 'custom'
 
@@ -25,6 +26,8 @@ interface ChatWidget {
   launcher_animation: string
   z_index: number
   sound_enabled: boolean
+  powered_by_enabled: boolean
+  powered_by_text: string
   total_conversations: number
   total_messages: number
   created_at: string
@@ -138,6 +141,9 @@ interface ChatWidgetsSectionProps {
 }
 
 export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false, onConnectionChange }: ChatWidgetsSectionProps) {
+  const { user } = useAuth()
+  const isEnterprise = user?.profile?.subscription_tier === 'enterprise'
+  
   const [widgets, setWidgets] = useState<ChatWidget[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -159,6 +165,8 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
     launcher_animation: 'pulse',
     z_index: 9999,
     sound_enabled: true,
+    powered_by_enabled: true,
+    powered_by_text: 'WhaHook',
   })
 
   const resetForm = () => {
@@ -175,6 +183,8 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
       launcher_animation: 'pulse',
       z_index: 9999,
       sound_enabled: true,
+      powered_by_enabled: true,
+      powered_by_text: 'WhaHook',
     })
     setEditingWidget(null)
   }
@@ -277,6 +287,8 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
       launcher_animation: widget.launcher_animation || 'pulse',
       z_index: widget.z_index || 9999,
       sound_enabled: widget.sound_enabled !== false,
+      powered_by_enabled: widget.powered_by_enabled !== false,
+      powered_by_text: widget.powered_by_text || 'WhaHook',
     })
     setEditingWidget(widget.id)
     setShowForm(true)
@@ -522,6 +534,96 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                     <span className="text-sm text-gray-700">Enable notification sound for new messages</span>
                   </label>
                 </div>
+              </div>
+            </div>
+
+            {/* Step 4: Branding (Enterprise) */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-md font-medium">
+                <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center">4</span>
+                Branding
+                {!isEnterprise && (
+                  <span className="flex items-center gap-1 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+                    <Crown className="w-3 h-3" />
+                    Enterprise
+                  </span>
+                )}
+              </div>
+              
+              <div className={`pl-8 space-y-4 ${!isEnterprise ? 'opacity-60' : ''}`}>
+                {/* Powered By Toggle */}
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Show "Powered by" badge</p>
+                      <p className="text-xs text-gray-500">Display branding at the bottom of the widget</p>
+                    </div>
+                  </div>
+                  <div className="relative">
+                    {!isEnterprise && (
+                      <div className="absolute inset-0 flex items-center justify-center z-10">
+                        <Lock className="w-4 h-4 text-gray-400" />
+                      </div>
+                    )}
+                    <label className={`relative inline-flex items-center ${!isEnterprise ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+                      <input
+                        type="checkbox"
+                        checked={formData.powered_by_enabled}
+                        onChange={(e) => isEnterprise && setFormData({ ...formData, powered_by_enabled: e.target.checked })}
+                        disabled={!isEnterprise}
+                        className="sr-only peer"
+                      />
+                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600 ${!isEnterprise ? 'opacity-50' : ''}`}></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Powered By Text */}
+                {formData.powered_by_enabled && (
+                  <div>
+                    <Label>Powered by text</Label>
+                    <div className="relative">
+                      {!isEnterprise && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10">
+                          <Lock className="w-4 h-4 text-gray-400" />
+                        </div>
+                      )}
+                      <Input
+                        value={formData.powered_by_text}
+                        onChange={(e) => isEnterprise && setFormData({ ...formData, powered_by_text: e.target.value })}
+                        placeholder="Your Company Name"
+                        disabled={!isEnterprise}
+                        className={!isEnterprise ? 'pr-10 bg-gray-50' : ''}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {isEnterprise 
+                        ? 'Customize the branding text or leave empty to hide it completely'
+                        : 'Upgrade to Enterprise to customize or remove branding'
+                      }
+                    </p>
+                  </div>
+                )}
+
+                {/* Upgrade CTA for non-enterprise */}
+                {!isEnterprise && (
+                  <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200">
+                    <div className="flex items-start gap-3">
+                      <Crown className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-amber-900">Upgrade to Enterprise</p>
+                        <p className="text-xs text-amber-700 mt-1">
+                          Remove or customize the "Powered by" branding to white-label the widget for your clients.
+                        </p>
+                        <Link href="/settings/billing">
+                          <Button size="sm" variant="outline" className="mt-2 border-amber-300 text-amber-800 hover:bg-amber-100">
+                            View Plans
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

@@ -74,6 +74,8 @@ class ChatWidgetService {
         placeholder_text: input.placeholder_text || 'Escribe tu mensaje...',
         position: input.position || 'bottom-right',
         workspace_id: input.workspace_id || null,
+        powered_by_enabled: input.powered_by_enabled !== false,
+        powered_by_text: input.powered_by_text || 'WhaHook',
       })
       .select()
       .single()

@@ -182,3 +182,16 @@ END $$;
 -- All columns are nullable (SET NULL on delete) to allow
 -- gradual migration of existing data to workspaces.
 -- ============================================
+
+-- ============================================
+-- 11. Add powered_by_enabled column to chat_widgets
+-- ============================================
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'chat_widgets' AND column_name = 'powered_by_enabled'
+  ) THEN
+    ALTER TABLE chat_widgets ADD COLUMN powered_by_enabled BOOLEAN DEFAULT true;
+  END IF;
+END $$;

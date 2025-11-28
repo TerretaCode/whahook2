@@ -15,6 +15,7 @@ export interface ChatWidget {
   placeholder_text: string
   position: 'bottom-right' | 'bottom-left'
   bubble_icon_url: string | null
+  powered_by_enabled: boolean
   powered_by_text: string
   powered_by_url: string
   total_conversations: number
@@ -58,6 +59,8 @@ export interface CreateWidgetInput {
   placeholder_text?: string
   position?: 'bottom-right' | 'bottom-left'
   workspace_id?: string
+  powered_by_enabled?: boolean
+  powered_by_text?: string
 }
 
 export interface UpdateWidgetInput extends Partial<CreateWidgetInput> {
