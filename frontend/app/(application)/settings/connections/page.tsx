@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense, useCallback } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -8,10 +8,10 @@ import { WhatsAppAccountsSection } from "./components/WhatsAppAccountsSection"
 import { ChatWidgetsSection } from "./components/ChatWidgetsSection"
 import { EcommerceConnectionsSection } from "./components/EcommerceConnectionsSection"
 import { WebhooksSection } from "./components/WebhooksSection"
-import { WorkspaceSelector } from "@/components/workspace-selector"
-import { Smartphone, Globe, Building2, AlertCircle, ShoppingCart, Webhook } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Smartphone, Globe, Building2, AlertCircle, ShoppingCart, Webhook, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useWorkspaceConnections } from "@/hooks/useWorkspaceConnections"
+import { useConnectionsPage, Workspace } from "@/hooks/useWorkspaceConnections"
 import { 
   ConnectionsPageSkeleton, 
   WhatsAppSkeleton, 
@@ -21,41 +21,24 @@ import {
 } from "@/components/skeletons/ConnectionsSkeleton"
 import Link from "next/link"
 
-interface Workspace {
-  id: string
-  name: string
-  description: string | null
-  whatsapp_session_id: string | null
-  web_widget_id: string | null
-}
-
 function ConnectionsPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, isLoading: authLoading } = useAuth()
-  const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null)
   const [activeTab, setActiveTab] = useState<string>('whatsapp')
   
-  // Use unified hook to load all connections at once
+  // Use unified hook that loads EVERYTHING in parallel
   const { 
-    data: connectionsData, 
-    isLoading: connectionsLoading, 
-    refresh: refreshConnections,
-    workspace: workspaceData
-  } = useWorkspaceConnections(selectedWorkspace?.id || null)
+    workspaces,
+    selectedWorkspace,
+    setSelectedWorkspace,
+    connectionsData, 
+    isLoading,
+    isLoadingConnections, 
+    refresh: refreshConnections
+  } = useConnectionsPage()
   
-  // Update workspace data when connections are loaded
-  useEffect(() => {
-    if (workspaceData && selectedWorkspace) {
-      setSelectedWorkspace(prev => prev ? {
-        ...prev,
-        whatsapp_session_id: workspaceData.whatsapp_session_id,
-        web_widget_id: workspaceData.web_widget_id
-      } : null)
-    }
-  }, [workspaceData])
-  
-  // Get tab from URL or default to whatsapp
+  // Get tab from URL
   const tabParam = searchParams.get('tab')
   
   useEffect(() => {
@@ -70,8 +53,8 @@ function ConnectionsPageContent() {
     }
   }, [user, authLoading, router])
 
-  // Show skeleton while auth is loading
-  if (authLoading) {
+  // Show skeleton while loading (auth OR initial data)
+  if (authLoading || isLoading) {
     return <ConnectionsPageSkeleton />
   }
 
@@ -79,11 +62,51 @@ function ConnectionsPageContent() {
     return <ConnectionsPageSkeleton />
   }
 
+  // Handle workspace change
+  const handleWorkspaceChange = (workspaceId: string) => {
+    const workspace = workspaces.find(w => w.id === workspaceId)
+    if (workspace) {
+      setSelectedWorkspace(workspace)
+    }
+  }
+
   // Determine if workspace has connections based on loaded data
   const hasWhatsAppConnection = (connectionsData?.whatsapp?.sessions?.length ?? 0) > 0 || !!selectedWorkspace?.whatsapp_session_id
   const hasWebWidgetConnection = (connectionsData?.widgets?.length ?? 0) > 0 || !!selectedWorkspace?.web_widget_id
   const hasEcommerceConnections = (connectionsData?.ecommerce?.length ?? 0) > 0
   const hasWebhooks = (connectionsData?.webhooks?.length ?? 0) > 0
+
+  // No workspaces state
+  if (workspaces.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Connections</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Configure WhatsApp and Web Widget for your workspace
+          </p>
+        </div>
+        
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-amber-800">No workspaces found</p>
+              <p className="text-sm text-amber-700 mt-1">
+                Create a workspace first to configure connections and chatbots.
+              </p>
+              <Link href="/settings/workspaces">
+                <Button size="sm" className="mt-3 bg-amber-600 hover:bg-amber-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Workspace
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -95,15 +118,37 @@ function ConnectionsPageContent() {
         </p>
       </div>
 
-      {/* Workspace Selector */}
+      {/* Workspace Selector - Inline, no separate loading */}
       <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <WorkspaceSelector 
-          onWorkspaceChange={setSelectedWorkspace}
-          showCreateButton={true}
-        />
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Building2 className="w-4 h-4" />
+            <span>Workspace:</span>
+          </div>
+          <Select value={selectedWorkspace?.id || undefined} onValueChange={handleWorkspaceChange}>
+            <SelectTrigger className="w-[250px]">
+              <SelectValue placeholder="Select workspace" />
+            </SelectTrigger>
+            <SelectContent>
+              {workspaces.map((workspace) => (
+                <SelectItem key={workspace.id} value={workspace.id}>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-green-600" />
+                    <span>{workspace.name}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Link href="/settings/workspaces">
+            <Button size="sm" variant="outline">
+              <Plus className="w-4 h-4" />
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      {/* Content - Only show if workspace is selected */}
+      {/* Content */}
       {selectedWorkspace ? (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-6">
@@ -138,7 +183,7 @@ function ConnectionsPageContent() {
           </TabsList>
 
           <TabsContent value="whatsapp" className="space-y-6">
-            {connectionsLoading ? (
+            {isLoadingConnections ? (
               <WhatsAppSkeleton />
             ) : (
               <WhatsAppAccountsSection 
@@ -151,7 +196,7 @@ function ConnectionsPageContent() {
           </TabsContent>
 
           <TabsContent value="web" className="space-y-6">
-            {connectionsLoading ? (
+            {isLoadingConnections ? (
               <ChatWidgetSkeleton />
             ) : (
               <ChatWidgetsSection 
@@ -164,7 +209,7 @@ function ConnectionsPageContent() {
           </TabsContent>
 
           <TabsContent value="ecommerce" className="space-y-6">
-            {connectionsLoading ? (
+            {isLoadingConnections ? (
               <EcommerceSkeleton />
             ) : (
               <EcommerceConnectionsSection 
@@ -175,7 +220,7 @@ function ConnectionsPageContent() {
           </TabsContent>
 
           <TabsContent value="webhooks" className="space-y-6">
-            {connectionsLoading ? (
+            {isLoadingConnections ? (
               <WebhooksSkeleton />
             ) : (
               <WebhooksSection 
