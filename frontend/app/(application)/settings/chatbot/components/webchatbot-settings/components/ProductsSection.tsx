@@ -101,7 +101,7 @@ export function ProductsSection({
                   {/* API Card */}
                   <Card className="p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <Link2 className="w-5 h-5 text-blue-500" />
+                      <Link2 className="w-5 h-5 text-green-600" />
                       <span className="font-medium">API</span>
                     </div>
                     {ecommerceConnections.length > 0 ? (
@@ -138,7 +138,7 @@ export function ProductsSection({
                   {/* Manual Card */}
                   <Card className="p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <Edit3 className="w-5 h-5 text-purple-500" />
+                      <Edit3 className="w-5 h-5 text-green-600" />
                       <span className="font-medium">Manual</span>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">0 productos</p>

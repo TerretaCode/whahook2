@@ -57,8 +57,8 @@ export function AvailabilitySection({
           <CardContent className="pt-6 cursor-pointer hover:bg-muted/50 transition-colors">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
-                  <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Disponibilidad del Bot</h3>
@@ -93,7 +93,7 @@ export function AvailabilitySection({
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <div className="font-medium text-green-600 dark:text-green-400">🟢 Siempre activo (24/7)</div>
+                    <div className="font-medium text-green-700 dark:text-green-300">🟢 Siempre activo (24/7)</div>
                     <p className="text-sm text-muted-foreground mt-1">
                       El bot responde a cualquier hora, todos los días. <strong>Recomendado</strong> para maximizar la atención al cliente.
                     </p>
@@ -117,7 +117,7 @@ export function AvailabilitySection({
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <div className="font-medium text-blue-600 dark:text-blue-400">🌙 Solo fuera de horario laboral</div>
+                    <div className="font-medium text-gray-700 dark:text-gray-300">🌙 Solo fuera de horario laboral</div>
                     <p className="text-sm text-muted-foreground mt-1">
                       El bot responde cuando tu equipo no está disponible. Durante el horario laboral, los mensajes los gestiona tu equipo humano.
                     </p>
@@ -141,7 +141,7 @@ export function AvailabilitySection({
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <div className="font-medium text-orange-600 dark:text-orange-400">☀️ Solo en horario laboral</div>
+                    <div className="font-medium text-gray-700 dark:text-gray-300">☀️ Solo en horario laboral</div>
                     <p className="text-sm text-muted-foreground mt-1">
                       El bot solo responde durante tu horario de atención. Fuera de horario, se envía un mensaje automático.
                     </p>
@@ -268,8 +268,8 @@ export function AvailabilitySection({
             )}
 
             {/* Info box */}
-            <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+            <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
+              <p className="text-sm text-green-800 dark:text-green-200">
                 <strong>💡 Consejo:</strong> Tener el bot activo 24/7 mejora la experiencia del cliente y no pierdes oportunidades de venta fuera de horario. 
                 Solo limita el horario si realmente necesitas que tu equipo gestione los mensajes en tiempo real.
               </p>

@@ -39,8 +39,8 @@ export function EscalationSection({
           <CardContent className="pt-6 cursor-pointer hover:bg-muted/50 transition-colors">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <AlertTriangle className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Escalación a Humano</h3>
@@ -54,8 +54,8 @@ export function EscalationSection({
         <CollapsibleContent>
           <CardContent className="pt-0 space-y-6">
             {/* Info box */}
-            <div className="p-4 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+            <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
+              <p className="text-sm text-green-800 dark:text-green-200">
                 <strong>¿Para qué sirve esto?</strong> A veces el bot no puede resolver algo y necesita pasar la conversación a una persona real. Aquí configuras cuándo debe hacerlo y qué datos pedir al cliente antes.
               </p>
             </div>
@@ -171,7 +171,7 @@ export function EscalationSection({
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground mt-3 flex items-center gap-2">
-                <span className="text-blue-500">💡</span>
+                <span className="text-green-600">💡</span>
                 Esta info se guarda en la ficha del cliente (CRM)
               </p>
             </div>

@@ -45,8 +45,8 @@ export function BusinessSection({
           <CardContent className="pt-6 cursor-pointer hover:bg-muted/50 transition-colors">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                  <Building2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <Building2 className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Tu Negocio</h3>
@@ -60,8 +60,8 @@ export function BusinessSection({
         <CollapsibleContent>
           <CardContent className="pt-0 space-y-6">
             {/* Business Info */}
-            <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-200 dark:border-purple-800 mb-4">
-              <p className="text-sm text-purple-800 dark:text-purple-200">
+            <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800 mb-4">
+              <p className="text-sm text-green-800 dark:text-green-200">
                 <strong>¿Para qué sirve esto?</strong> El bot usará esta información para responder preguntas como "¿Qué vendéis?", "¿Cómo os contacto?" o "¿Dónde estáis ubicados?".
               </p>
             </div>

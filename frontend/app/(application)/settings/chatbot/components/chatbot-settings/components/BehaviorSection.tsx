@@ -39,8 +39,8 @@ export function BehaviorSection({
           <CardContent className="pt-6 cursor-pointer hover:bg-muted/50 transition-colors">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-                  <Target className="w-5 h-5 text-red-600 dark:text-red-400" />
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Comportamiento del Bot</h3>
@@ -54,8 +54,8 @@ export function BehaviorSection({
         <CollapsibleContent>
           <CardContent className="pt-0 space-y-6">
             {/* Info box */}
-            <div className="p-4 bg-red-50 dark:bg-red-950 rounded-lg border border-red-200 dark:border-red-800">
-              <p className="text-sm text-red-800 dark:text-red-200">
+            <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
+              <p className="text-sm text-green-800 dark:text-green-200">
                 <strong>¿Para qué sirve esto?</strong> Aquí defines la "misión" de tu bot. ¿Su trabajo es vender? ¿Resolver dudas? ¿Captar emails? También puedes decirle qué cosas NO debe hacer nunca.
               </p>
             </div>

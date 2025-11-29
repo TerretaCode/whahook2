@@ -39,8 +39,8 @@ export function ConversationSection({
           <CardContent className="pt-6 cursor-pointer hover:bg-muted/50 transition-colors">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-cyan-100 dark:bg-cyan-900 rounded-lg">
-                  <MessageSquare className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <MessageSquare className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Conversación</h3>
@@ -54,8 +54,8 @@ export function ConversationSection({
         <CollapsibleContent>
           <CardContent className="pt-0 space-y-6">
             {/* Info box */}
-            <div className="p-4 bg-cyan-50 dark:bg-cyan-950 rounded-lg border border-cyan-200 dark:border-cyan-800">
-              <p className="text-sm text-cyan-800 dark:text-cyan-200">
+            <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
+              <p className="text-sm text-green-800 dark:text-green-200">
                 <strong>¿Para qué sirve esto?</strong> Configura cómo empieza la conversación y añade respuestas predefinidas a preguntas que te hacen siempre.
               </p>
             </div>

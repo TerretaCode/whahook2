@@ -20,8 +20,8 @@ export function BotSection({ formData, updateField }: BotSectionProps) {
     <Card>
       <CardContent className="pt-6">
         <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-            <Bot className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+            <Bot className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <h3 className="font-semibold text-lg">Tu Bot</h3>
         </div>
@@ -107,8 +107,8 @@ export function BotSection({ formData, updateField }: BotSectionProps) {
           </div>
         </div>
 
-        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-          <p className="text-sm text-blue-800 dark:text-blue-200">
+        <div className="mt-6 p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
+          <p className="text-sm text-green-800 dark:text-green-200">
             <strong>💡 Idioma automático:</strong> El bot detecta en qué idioma escribe el cliente y responde en ese mismo idioma. No necesitas configurar nada.
           </p>
         </div>
