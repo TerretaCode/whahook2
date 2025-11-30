@@ -18,7 +18,14 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
     pathname.startsWith('/register') ||
     pathname.startsWith('/verify-email') ||
     pathname.startsWith('/change-password') ||
-    pathname.startsWith('/admin');
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/invite') ||
+    pathname.startsWith('/connect');
+  
+  // Rutas donde NO debe aparecer el Header (páginas públicas de invitación/conexión)
+  const hideHeader = 
+    pathname.startsWith('/invite') ||
+    pathname.startsWith('/connect');
 
   // Footer en páginas públicas (landing, marketing, legal)
   const showFooter = 
@@ -53,8 +60,8 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
     >
       <AuthProvider>
         <div className={`flex flex-col ${isFullHeightPage ? 'h-screen' : 'min-h-screen'}`}>
-          {/* Header: siempre visible, se ocultará desde la página de conversations cuando sea necesario */}
-          <Header />
+          {/* Header: oculto en páginas de invitación/conexión */}
+          {!hideHeader && <Header />}
           
           <main className={`flex-1 ${isFullHeightPage ? 'overflow-hidden' : ''} ${
             isFullHeightPage 
