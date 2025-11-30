@@ -47,6 +47,7 @@ export default function AcceptInvitationPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [needsVerification, setNeedsVerification] = useState(false)
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -144,12 +145,17 @@ export default function AcceptInvitationPage() {
         throw new Error(result.error || 'Failed to accept invitation')
       }
 
-      setSuccess(true)
-      
-      // Redirect to login after 2 seconds
-      setTimeout(() => {
-        router.push('/login?message=Account created! Please login to continue.')
-      }, 2000)
+      // Check if email confirmation is required
+      if (authData.user && !authData.session) {
+        // User created but no session = needs email verification
+        setNeedsVerification(true)
+      } else {
+        setSuccess(true)
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          router.push('/login?message=Account created! Please login to continue.')
+        }, 2000)
+      }
 
     } catch (err: any) {
       console.error('Error creating account:', err)
@@ -179,6 +185,35 @@ export default function AcceptInvitationPage() {
           <p className="text-gray-600 mb-6">{error}</p>
           <Button onClick={() => router.push('/login')} variant="outline">
             Go to Login
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (needsVerification) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Verifica tu correo</h1>
+          <p className="text-gray-600 mb-4">
+            Hemos enviado un enlace de verificación a <strong>{data?.email}</strong>
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <p className="text-sm text-blue-800">
+              📧 Revisa tu bandeja de entrada (y spam) y haz clic en el enlace para activar tu cuenta.
+            </p>
+          </div>
+          <p className="text-sm text-gray-500 mb-4">
+            Una vez verificado, podrás iniciar sesión y acceder a <strong>{data?.workspace_name}</strong>.
+          </p>
+          <Button onClick={() => router.push('/login')} variant="outline">
+            Ir al Login
           </Button>
         </div>
       </div>
