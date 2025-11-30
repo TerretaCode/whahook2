@@ -247,7 +247,7 @@ router.post('/:workspaceId/members', async (req: Request, res: Response) => {
       .single()
 
     // Send invitation email
-    const accessLink = `${process.env.FRONTEND_URL}/w/${member.access_token}`
+    const accessLink = `${process.env.FRONTEND_URL}/invite/${member.access_token}`
     sendWorkspaceInvitationEmail(email, {
       workspace_name: workspace?.name || 'Workspace',
       inviter_name: inviterProfile?.full_name || inviterProfile?.email || undefined,

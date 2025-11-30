@@ -1,0 +1,317 @@
+"use client"
+
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { 
+  Loader2, 
+  CheckCircle2, 
+  XCircle,
+  Eye,
+  EyeOff,
+  Building2,
+  Lock
+} from 'lucide-react'
+import { createClient } from '@/lib/supabase'
+
+interface InvitationData {
+  member_id: string
+  workspace_id: string
+  workspace_name: string
+  workspace_logo?: string
+  email: string
+  role: string
+  inviter_name?: string
+  status: 'pending' | 'active' | 'expired'
+}
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: 'Administrador',
+  client: 'Cliente',
+  agent: 'Agente',
+  viewer: 'Visor (CRM)'
+}
+
+export default function AcceptInvitationPage() {
+  const params = useParams()
+  const router = useRouter()
+  const token = params.token as string
+  const supabase = createClient()
+  
+  const [data, setData] = useState<InvitationData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
+  const [success, setSuccess] = useState(false)
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
+  useEffect(() => {
+    async function fetchInvitation() {
+      try {
+        const response = await fetch(`${apiUrl}/api/invitations/${token}`)
+        const result = await response.json()
+
+        if (!response.ok || !result.success) {
+          setError(result.error || 'Invalid or expired invitation')
+          return
+        }
+
+        if (result.data.status === 'active') {
+          // Already accepted, redirect to login
+          router.push('/login?message=Invitation already accepted. Please login.')
+          return
+        }
+
+        if (result.data.status === 'expired') {
+          setError('This invitation has expired')
+          return
+        }
+
+        setData(result.data)
+      } catch {
+        setError('Failed to load invitation')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchInvitation()
+  }, [token, apiUrl, router])
+
+  const handleCreateAccount = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
+    
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
+    setIsCreating(true)
+    setError(null)
+
+    try {
+      // 1. Create user in Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data!.email,
+        password,
+        options: {
+          data: {
+            invited_to_workspace: data!.workspace_id
+          }
+        }
+      })
+
+      if (authError) {
+        // Check if user already exists
+        if (authError.message.includes('already registered')) {
+          setError('This email already has an account. Please login instead.')
+          return
+        }
+        throw authError
+      }
+
+      if (!authData.user) {
+        throw new Error('Failed to create account')
+      }
+
+      // 2. Accept the invitation (link user_id to workspace_member)
+      const response = await fetch(`${apiUrl}/api/invitations/${token}/accept`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: authData.user.id
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to accept invitation')
+      }
+
+      setSuccess(true)
+      
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        router.push('/login?message=Account created! Please login to continue.')
+      }, 2000)
+
+    } catch (err: any) {
+      console.error('Error creating account:', err)
+      setError(err.message || 'Failed to create account')
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-green-600 animate-spin mx-auto" />
+          <p className="mt-4 text-gray-600">Loading invitation...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error && !data) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+          <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Invalid Invitation</h1>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <Button onClick={() => router.push('/login')} variant="outline">
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+          <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Account Created!</h1>
+          <p className="text-gray-600 mb-4">
+            Your account has been created and you now have access to <strong>{data?.workspace_name}</strong>.
+          </p>
+          <p className="text-sm text-gray-500">Redirecting to login...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Building2 className="w-8 h-8 text-green-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">You're Invited!</h1>
+          <p className="text-gray-600">
+            {data?.inviter_name ? (
+              <><strong>{data.inviter_name}</strong> has invited you to join</>
+            ) : (
+              <>You've been invited to join</>
+            )}
+          </p>
+          <p className="text-lg font-semibold text-green-600 mt-1">
+            {data?.workspace_name}
+          </p>
+          <span className="inline-block mt-2 px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+            Role: {ROLE_LABELS[data?.role || ''] || data?.role}
+          </span>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleCreateAccount} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <Input
+              type="email"
+              value={data?.email || ''}
+              disabled
+              className="bg-gray-100 cursor-not-allowed"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              This is the email you were invited with
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Create Password
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="At least 6 characters"
+                className="pl-10 pr-10"
+                required
+                minLength={6}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Confirm Password
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Repeat your password"
+                className="pl-10"
+                required
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            disabled={isCreating || !password || !confirmPassword}
+            className="w-full bg-green-600 hover:bg-green-700"
+          >
+            {isCreating ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Creating Account...
+              </>
+            ) : (
+              'Create Account & Join'
+            )}
+          </Button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-500">
+            Already have an account?{' '}
+            <a href="/login" className="text-green-600 hover:underline font-medium">
+              Login here
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}

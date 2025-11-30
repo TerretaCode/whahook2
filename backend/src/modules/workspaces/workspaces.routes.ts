@@ -56,8 +56,8 @@ router.get('/', async (req: Request, res: Response) => {
     const plan = await getUserPlan(userId)
     const maxWorkspaces = PLAN_LIMITS[plan] || 1
 
-    // Get workspaces with connection info
-    const { data: workspacesList, error } = await supabaseAdmin
+    // Get owned workspaces
+    const { data: ownedWorkspaces, error: ownedError } = await supabaseAdmin
       .from('workspaces')
       .select(`
         id,
@@ -75,19 +75,58 @@ router.get('/', async (req: Request, res: Response) => {
       .eq('user_id', userId)
       .order('created_at', { ascending: true })
 
-    if (error) {
-      console.error('Error fetching workspaces:', error)
+    if (ownedError) {
+      console.error('Error fetching owned workspaces:', ownedError)
       return res.status(500).json({ success: false, error: 'Failed to fetch workspaces' })
     }
+
+    // Get workspaces where user is a member
+    const { data: memberWorkspaces } = await supabaseAdmin
+      .from('workspace_members')
+      .select(`
+        role,
+        permissions,
+        workspaces (
+          id,
+          name,
+          description,
+          slug,
+          logo_url,
+          whatsapp_session_id,
+          web_widget_id,
+          white_label,
+          created_at,
+          updated_at
+        )
+      `)
+      .eq('user_id', userId)
+      .eq('status', 'active')
+
+    // Format member workspaces
+    const formattedMemberWorkspaces = (memberWorkspaces || [])
+      .filter(m => m.workspaces)
+      .map(m => ({
+        ...(m.workspaces as any),
+        member_role: m.role,
+        member_permissions: m.permissions,
+        is_member: true
+      }))
+
+    // Combine and dedupe (owned workspaces first)
+    const ownedIds = new Set((ownedWorkspaces || []).map(w => w.id))
+    const allWorkspaces = [
+      ...(ownedWorkspaces || []).map(w => ({ ...w, is_owner: true })),
+      ...formattedMemberWorkspaces.filter(w => !ownedIds.has(w.id))
+    ]
 
     res.json({
       success: true,
       data: {
-        workspaces: workspacesList || [],
+        workspaces: allWorkspaces,
         limits: {
           max: maxWorkspaces,
-          used: workspacesList?.length || 0,
-          canCreate: (workspacesList?.length || 0) < maxWorkspaces
+          used: ownedWorkspaces?.length || 0,
+          canCreate: (ownedWorkspaces?.length || 0) < maxWorkspaces
         },
         plan
       }

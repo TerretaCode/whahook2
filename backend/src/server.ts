@@ -17,6 +17,7 @@ import { aiRoutes } from './modules/ai'
 import dashboardRoutes from './modules/dashboard/dashboard.routes'
 import billingRoutes from './modules/billing/billing.routes'
 import workspacesRoutes from './modules/workspaces/workspaces.routes'
+import invitationsRoutes from './modules/workspaces/invitations.routes'
 import { keepaliveMessagesService, sessionMonitoringService, backupService, cacheCleanupService } from './services'
 import { healthRoutes } from './routes'
 
@@ -84,6 +85,9 @@ app.use('/api/ai', aiRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/billing', billingRoutes)
 app.use('/api/workspaces', workspacesRoutes)
+
+// Public invitation routes (no auth required)
+app.use('/api/invitations', cors({ origin: '*', methods: ['GET', 'POST', 'OPTIONS'] }), invitationsRoutes)
 
 // 404
 app.use((req, res) => {

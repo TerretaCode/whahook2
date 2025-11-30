@@ -19,6 +19,10 @@ interface Workspace {
   description: string | null
   whatsapp_session_id: string | null
   web_widget_id: string | null
+  is_owner?: boolean
+  is_member?: boolean
+  member_role?: string
+  member_permissions?: Record<string, boolean>
 }
 
 interface WorkspaceSelectorProps {
@@ -149,8 +153,13 @@ export function WorkspaceSelector({
           {workspaces.map((workspace) => (
             <SelectItem key={workspace.id} value={workspace.id}>
               <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-green-600" />
+                <Building2 className={`w-4 h-4 ${workspace.is_owner ? 'text-green-600' : 'text-blue-600'}`} />
                 <span>{workspace.name}</span>
+                {workspace.is_member && !workspace.is_owner && (
+                  <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+                    {workspace.member_role}
+                  </span>
+                )}
               </div>
             </SelectItem>
           ))}
