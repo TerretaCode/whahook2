@@ -36,8 +36,7 @@ const ROLE_LABELS: Record<string, string> = {
 export default function AcceptInvitationPage() {
   const params = useParams()
   const router = useRouter()
-  const token = params.token as string
-  const supabase = createClient()
+  const token = params?.token as string | undefined
   
   const [data, setData] = useState<InvitationData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -52,6 +51,8 @@ export default function AcceptInvitationPage() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
   useEffect(() => {
+    if (!token) return
+
     async function fetchInvitation() {
       try {
         const response = await fetch(`${apiUrl}/api/invitations/${token}`)
@@ -102,6 +103,7 @@ export default function AcceptInvitationPage() {
 
     try {
       // 1. Create user in Supabase Auth
+      const supabase = createClient()
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data!.email,
         password,
