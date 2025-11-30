@@ -116,12 +116,15 @@ class WhatsAppService {
   private setupClientEvents(client: Client, sessionId: string, userId: string): void {
     // QR Code
     client.on('qr', (qr) => {
+      console.log(`📱 QR generated for session: ${sessionId} (user: ${userId})`)
       this.updateSessionStatus(sessionId, 'qr_pending')
       this.io?.to(`user:${userId}`).emit('whatsapp:qr', { qr, sessionId })
+      console.log(`📤 QR emitted to user:${userId}`)
     })
 
     // Autenticado
     client.on('authenticated', () => {
+      console.log(`🔐 Session authenticated (no QR needed): ${sessionId}`)
       this.updateSessionStatus(sessionId, 'authenticating')
     })
 
