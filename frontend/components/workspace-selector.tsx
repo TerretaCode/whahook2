@@ -165,7 +165,7 @@ export function WorkspaceSelector({
           ))}
         </SelectContent>
       </Select>
-      {showCreateButton && (
+      {showCreateButton && workspaces.some(w => w.is_owner) && (
         <Link href="/settings/workspaces">
           <Button size="sm" variant="outline">
             <Plus className="w-4 h-4" />

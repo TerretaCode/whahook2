@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
+import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -39,6 +40,7 @@ export interface Client {
 export default function ClientsPage() {
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
+  const { workspace } = useWorkspaceContext()
   const [clients, setClients] = useState<Client[]>([])
   const [filteredClients, setFilteredClients] = useState<Client[]>([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -57,11 +59,11 @@ export default function ClientsPage() {
   }, [user, authLoading, router])
 
   useEffect(() => {
-    if (user) {
+    if (user && workspace) {
       fetchClients()
       fetchSettings()
     }
-  }, [user])
+  }, [user, workspace])
 
   const fetchSettings = async () => {
     try {
@@ -97,7 +99,10 @@ export default function ClientsPage() {
   const fetchClients = async () => {
     try {
       setIsLoading(true)
-      const response = await ApiClient.request<Client[]>('/api/clients')
+      const url = workspace?.id 
+        ? `/api/clients?workspace_id=${workspace.id}`
+        : '/api/clients'
+      const response = await ApiClient.request<Client[]>(url)
       if (response.success && response.data) {
         setClients(response.data)
       }

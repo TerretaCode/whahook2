@@ -34,9 +34,64 @@ async function getUserIdFromToken(req: Request): Promise<string | null> {
   return user.id
 }
 
+// Helper to check if user has access to a workspace
+async function getUserWorkspaceAccess(userId: string, workspaceId: string): Promise<{ hasAccess: boolean; isOwner: boolean; permissions?: Record<string, boolean> }> {
+  // Check if user owns the workspace
+  const { data: ownedWorkspace } = await supabaseAdmin
+    .from('workspaces')
+    .select('id')
+    .eq('id', workspaceId)
+    .eq('user_id', userId)
+    .single()
+
+  if (ownedWorkspace) {
+    return { hasAccess: true, isOwner: true }
+  }
+
+  // Check if user is a member
+  const { data: membership } = await supabaseAdmin
+    .from('workspace_members')
+    .select('permissions')
+    .eq('workspace_id', workspaceId)
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .single()
+
+  if (membership) {
+    return { hasAccess: true, isOwner: false, permissions: membership.permissions as Record<string, boolean> }
+  }
+
+  return { hasAccess: false, isOwner: false }
+}
+
+// Helper to get user's default workspace (first owned or first member)
+async function getUserDefaultWorkspace(userId: string): Promise<string | null> {
+  // First try owned workspaces
+  const { data: owned } = await supabaseAdmin
+    .from('workspaces')
+    .select('id')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .single()
+
+  if (owned) return owned.id
+
+  // Then try member workspaces
+  const { data: member } = await supabaseAdmin
+    .from('workspace_members')
+    .select('workspace_id')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .limit(1)
+    .single()
+
+  return member?.workspace_id || null
+}
+
 /**
  * GET /api/clients
- * List all clients for the user
+ * List all clients for the user's workspace
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -45,15 +100,41 @@ router.get('/', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    const { status, interest_type, search, limit = '50', offset = '0' } = req.query
+    const { status, interest_type, search, limit = '50', offset = '0', workspace_id } = req.query
+
+    // Determine which workspace to use
+    let targetWorkspaceId = workspace_id as string | undefined
+    
+    if (!targetWorkspaceId) {
+      // Get user's default workspace
+      targetWorkspaceId = await getUserDefaultWorkspace(userId) || undefined
+    }
+
+    // If workspace specified, verify access
+    if (targetWorkspaceId) {
+      const access = await getUserWorkspaceAccess(userId, targetWorkspaceId)
+      if (!access.hasAccess) {
+        return res.status(403).json({ success: false, error: 'Access denied to this workspace' })
+      }
+      // Check if user has clients permission
+      if (!access.isOwner && access.permissions && !access.permissions.clients) {
+        return res.status(403).json({ success: false, error: 'You do not have permission to view clients' })
+      }
+    }
 
     let query = supabaseAdmin
       .from('clients')
       .select('*')
-      .eq('user_id', userId)
       .order('last_contact_at', { ascending: false, nullsFirst: false })
       .limit(parseInt(limit as string))
       .range(parseInt(offset as string), parseInt(offset as string) + parseInt(limit as string) - 1)
+
+    // Filter by workspace_id if available, otherwise by user_id (legacy)
+    if (targetWorkspaceId) {
+      query = query.eq('workspace_id', targetWorkspaceId)
+    } else {
+      query = query.eq('user_id', userId)
+    }
 
     if (status) {
       query = query.eq('status', status)

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
+import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { Button } from "@/components/ui/button"
 import { ApiClient } from "@/lib/api-client"
 import { toast } from "@/lib/toast"
@@ -46,6 +47,7 @@ interface DashboardStats {
 export default function DashboardPage() {
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
+  const { workspace } = useWorkspaceContext()
   const [stats, setStats] = useState<DashboardStats>({
     totalConversations: 0,
     whatsappConversations: 0,
@@ -73,20 +75,23 @@ export default function DashboardPage() {
   }, [user, authLoading, router])
 
   useEffect(() => {
-    if (user) {
+    if (user && workspace) {
       fetchStats()
       // Auto-refresh every 30 seconds
       const interval = setInterval(fetchStats, 30000)
       return () => clearInterval(interval)
     }
-  }, [user])
+  }, [user, workspace])
 
   const fetchStats = async (showRefresh = false) => {
     try {
       if (showRefresh) setIsRefreshing(true)
       else setIsLoading(true)
       
-      const response = await ApiClient.request('/api/dashboard/stats')
+      const url = workspace?.id 
+        ? `/api/dashboard/stats?workspace_id=${workspace.id}`
+        : '/api/dashboard/stats'
+      const response = await ApiClient.request(url)
       if (response.success && response.data) {
         setStats(response.data as DashboardStats)
       }
