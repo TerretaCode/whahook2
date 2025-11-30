@@ -215,7 +215,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                   <option value="admin">Admin - Full access</option>
                   <option value="client">Client - Dashboard, Messages, Clients, Campaigns</option>
                   <option value="agent">Agent - Dashboard, Messages only</option>
-                  <option value="viewer">Viewer - Dashboard, Clients only (read-only)</option>
+                  <option value="viewer">Viewer - Dashboard, Clients & Campaigns (no messages)</option>
                 </select>
               </div>
             </div>
