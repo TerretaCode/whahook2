@@ -1,7 +1,14 @@
 import { Router, Request, Response } from 'express'
 import { supabaseAdmin } from '../../config/supabase'
+import crypto from 'crypto'
+import workspaceMembersRoutes from './workspace-members.routes'
+import connectionLinksRoutes from './connection-links.routes'
 
 const router = Router()
+
+// Mount sub-routes
+router.use('/', workspaceMembersRoutes)
+router.use('/', connectionLinksRoutes)
 
 // Plan limits for workspaces
 const PLAN_LIMITS: Record<string, number> = {

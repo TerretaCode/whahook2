@@ -73,6 +73,9 @@ app.use('/api/chat-widgets', chatWidgetRoutes)
 
 // Public widget routes - CORS abierto para permitir embed en cualquier web
 app.use('/api/public/chat-widgets', cors({ origin: '*', methods: ['GET', 'POST', 'OPTIONS'] }), chatWidgetPublicRoutes)
+
+// Public connection routes for remote QR (no auth required)
+app.use('/api/connect', cors({ origin: '*', methods: ['GET', 'POST', 'OPTIONS'] }), workspacesRoutes)
 app.use('/api/ecommerce', ecommerceRoutes)
 app.use('/api/webhooks', webhookRoutes)
 app.use('/api/chatbot', chatbotRoutes)
