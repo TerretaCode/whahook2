@@ -4,9 +4,24 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, MessageSquare, Users, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext'
 
 export function MobileBottomNav({ className }: { className?: string }) {
   const pathname = usePathname()
+  const { hasPermission, isOwner } = useWorkspaceContext()
+  
+  // Check permissions for navigation items
+  const canViewMessages = isOwner || hasPermission('messages')
+  const canViewClients = isOwner || hasPermission('clients')
+  const canViewSettings = isOwner || hasPermission('settings')
+
+  // Build nav items based on permissions
+  const navItems = [
+    { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', active: pathname === '/dashboard', show: true },
+    { href: '/conversations', icon: MessageSquare, label: 'Mensajes', active: pathname === '/conversations', show: canViewMessages },
+    { href: '/clients', icon: Users, label: 'Clientes', active: pathname === '/clients', show: canViewClients },
+    { href: '/settings', icon: Settings, label: 'Ajustes', active: pathname?.startsWith('/settings'), show: canViewSettings },
+  ].filter(item => item.show)
 
   return (
     <nav className={cn(
@@ -16,30 +31,15 @@ export function MobileBottomNav({ className }: { className?: string }) {
       className
     )}>
       <div className="flex items-center justify-around h-16 px-2">
-        <BottomNavItem
-          href="/dashboard"
-          icon={LayoutDashboard}
-          label="Dashboard"
-          active={pathname === '/dashboard'}
-        />
-        <BottomNavItem
-          href="/conversations"
-          icon={MessageSquare}
-          label="Mensajes"
-          active={pathname === '/conversations'}
-        />
-        <BottomNavItem
-          href="/clients"
-          icon={Users}
-          label="Clientes"
-          active={pathname === '/clients'}
-        />
-        <BottomNavItem
-          href="/settings"
-          icon={Settings}
-          label="Ajustes"
-          active={pathname?.startsWith('/settings')}
-        />
+        {navItems.map((item) => (
+          <BottomNavItem
+            key={item.href}
+            href={item.href}
+            icon={item.icon}
+            label={item.label}
+            active={item.active}
+          />
+        ))}
       </div>
     </nav>
   )

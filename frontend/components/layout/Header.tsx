@@ -7,6 +7,7 @@ import { Shield, Bell, Menu, X } from 'lucide-react'
 import { useScrollDirection } from '@/hooks/ui/useScrollDirection'
 import { useAuth } from '@/contexts/AuthContext'
 import { useNotifications } from '@/hooks/ui/useNotifications'
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
@@ -16,10 +17,16 @@ export function Header() {
   const scrollDirection = useScrollDirection({ threshold: 15 })
   const { user } = useAuth()
   const { hasUnread } = useNotifications()
+  const { hasPermission, isOwner } = useWorkspaceContext()
   const [scrollY, setScrollY] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const isAdmin = user?.profile?.subscription_tier === 'enterprise' && user?.profile?.account_type === 'agency'
+  
+  // Check permissions for navigation items
+  const canViewMessages = isOwner || hasPermission('messages')
+  const canViewClients = isOwner || hasPermission('clients')
+  const canViewSettings = isOwner || hasPermission('settings')
 
   useEffect(() => {
     const handleScroll = () => {
@@ -74,15 +81,21 @@ export function Header() {
                 <NavLink href="/dashboard">
                   Dashboard
                 </NavLink>
-                <NavLink href="/conversations">
-                  Messages
-                </NavLink>
-                <NavLink href="/clients">
-                  Clients
-                </NavLink>
-                <NavLink href="/settings">
-                  Settings
-                </NavLink>
+                {canViewMessages && (
+                  <NavLink href="/conversations">
+                    Messages
+                  </NavLink>
+                )}
+                {canViewClients && (
+                  <NavLink href="/clients">
+                    Clients
+                  </NavLink>
+                )}
+                {canViewSettings && (
+                  <NavLink href="/settings">
+                    Settings
+                  </NavLink>
+                )}
                 {isAdmin && (
                   <Link href="/admin/users" className="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium transition-colors">
                     <Shield className="w-4 h-4" />
