@@ -19,6 +19,13 @@ interface WhatsAppDisconnectedData {
   login_url: string
 }
 
+interface WorkspaceInvitationData {
+  workspace_name: string
+  inviter_name?: string
+  role: string
+  access_link: string
+}
+
 function getWhatsAppConnectedTemplate(data: WhatsAppConnectedData) {
   const subject = `✅ WhatsApp Conectado Exitosamente - ${data.session_label}`
   
@@ -151,6 +158,83 @@ Ir al panel: ${data.login_url}
   return { subject, html, text }
 }
 
+function getWorkspaceInvitationTemplate(data: WorkspaceInvitationData) {
+  const roleLabels: Record<string, string> = {
+    admin: 'Administrador',
+    client: 'Cliente',
+    agent: 'Agente',
+    viewer: 'Visor (CRM)'
+  }
+  
+  const roleLabel = roleLabels[data.role] || data.role
+  const subject = `🎉 Has sido invitado a ${data.workspace_name} en WhaHook`
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 24px;">🎉 ¡Estás Invitado!</h1>
+      </div>
+      
+      <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
+        <p style="font-size: 16px; margin-bottom: 20px;">¡Hola!</p>
+        
+        <p style="font-size: 16px; margin-bottom: 20px;">
+          ${data.inviter_name ? `<strong>${data.inviter_name}</strong> te ha invitado` : 'Has sido invitado'} a unirte al workspace <strong>"${data.workspace_name}"</strong> en WhaHook.
+        </p>
+        
+        <div style="background: white; padding: 20px; border-left: 4px solid #10B981; margin: 20px 0; border-radius: 5px;">
+          <p style="margin: 0; font-size: 14px;"><strong>📋 Workspace:</strong> ${data.workspace_name}</p>
+          <p style="margin: 10px 0 0 0; font-size: 14px;"><strong>👤 Tu rol:</strong> ${roleLabel}</p>
+        </div>
+        
+        <p style="font-size: 16px; margin-bottom: 20px;">
+          Haz clic en el botón de abajo para acceder al workspace:
+        </p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${data.access_link}" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            Acceder al Workspace
+          </a>
+        </div>
+        
+        <div style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0; border-radius: 5px;">
+          <p style="margin: 0; font-size: 14px; color: #92400E;">
+            ⚠️ <strong>Importante:</strong> Este enlace es personal y no debe compartirse con nadie.
+          </p>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+        
+        <p style="font-size: 12px; color: #666; text-align: center;">
+          Este es un email automático de WhaHook. Si no esperabas esta invitación, puedes ignorar este mensaje.
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+  
+  const text = `
+¡Estás Invitado!
+
+${data.inviter_name ? `${data.inviter_name} te ha invitado` : 'Has sido invitado'} a unirte al workspace "${data.workspace_name}" en WhaHook.
+
+📋 Workspace: ${data.workspace_name}
+👤 Tu rol: ${roleLabel}
+
+Accede al workspace: ${data.access_link}
+
+⚠️ Importante: Este enlace es personal y no debe compartirse con nadie.
+  `.trim()
+  
+  return { subject, html, text }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -174,6 +258,11 @@ export async function POST(request: NextRequest) {
       text = template.text
     } else if (type === 'whatsapp_disconnected') {
       const template = getWhatsAppDisconnectedTemplate(data as WhatsAppDisconnectedData)
+      subject = template.subject
+      html = template.html
+      text = template.text
+    } else if (type === 'workspace_invitation') {
+      const template = getWorkspaceInvitationTemplate(data as WorkspaceInvitationData)
       subject = template.subject
       html = template.html
       text = template.text

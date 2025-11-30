@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { supabaseAdmin } from '../../config/supabase'
 import crypto from 'crypto'
+import { sendWorkspaceInvitationEmail } from '../../utils/email'
 
 const router = Router()
 
@@ -231,7 +232,28 @@ router.post('/:workspaceId/members', async (req: Request, res: Response) => {
       return res.status(500).json({ success: false, error: 'Failed to invite member' })
     }
 
-    // TODO: Send invitation email
+    // Get workspace name for email
+    const { data: workspace } = await supabaseAdmin
+      .from('workspaces')
+      .select('name')
+      .eq('id', workspaceId)
+      .single()
+
+    // Get inviter name
+    const { data: inviterProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('full_name, email')
+      .eq('id', userId)
+      .single()
+
+    // Send invitation email
+    const accessLink = `${process.env.FRONTEND_URL}/w/${member.access_token}`
+    sendWorkspaceInvitationEmail(email, {
+      workspace_name: workspace?.name || 'Workspace',
+      inviter_name: inviterProfile?.full_name || inviterProfile?.email || undefined,
+      role,
+      access_link: accessLink
+    }).catch(err => console.error('Failed to send invitation email:', err))
 
     res.json({ 
       success: true, 

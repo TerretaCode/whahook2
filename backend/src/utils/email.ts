@@ -75,3 +75,20 @@ export async function sendWhatsAppDisconnectedEmail(
 ): Promise<{ success: boolean; messageId?: string }> {
   return sendEmailViaFrontend('whatsapp_disconnected', to, data)
 }
+
+interface WorkspaceInvitationEmailData {
+  workspace_name: string
+  inviter_name?: string
+  role: string
+  access_link: string
+}
+
+/**
+ * Send workspace invitation email
+ */
+export async function sendWorkspaceInvitationEmail(
+  to: string,
+  data: WorkspaceInvitationEmailData
+): Promise<{ success: boolean; messageId?: string }> {
+  return sendEmailViaFrontend('workspace_invitation', to, data)
+}
