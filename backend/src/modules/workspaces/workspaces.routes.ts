@@ -63,8 +63,12 @@ router.get('/', async (req: Request, res: Response) => {
         id,
         name,
         description,
+        slug,
+        logo_url,
         whatsapp_session_id,
         web_widget_id,
+        white_label,
+        access_token,
         created_at,
         updated_at
       `)
@@ -194,7 +198,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const { id } = req.params
-    const { name, description, whatsapp_session_id, web_widget_id } = req.body
+    const { name, description, whatsapp_session_id, web_widget_id, white_label, logo_url } = req.body
 
     // Build update object
     const updateData: Record<string, unknown> = {}
@@ -202,6 +206,8 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (description !== undefined) updateData.description = description?.trim() || null
     if (whatsapp_session_id !== undefined) updateData.whatsapp_session_id = whatsapp_session_id
     if (web_widget_id !== undefined) updateData.web_widget_id = web_widget_id
+    if (white_label !== undefined) updateData.white_label = white_label
+    if (logo_url !== undefined) updateData.logo_url = logo_url
 
     const { data: workspace, error } = await supabaseAdmin
       .from('workspaces')
