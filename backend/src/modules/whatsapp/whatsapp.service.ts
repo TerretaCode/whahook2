@@ -117,6 +117,13 @@ class WhatsAppService {
     // QR Code
     client.on('qr', (qr) => {
       console.log(`📱 QR generated for session: ${sessionId} (user: ${userId})`)
+      
+      // Store QR in session for later retrieval
+      const session = this.sessions.get(sessionId)
+      if (session) {
+        session.pendingQR = qr
+      }
+      
       this.updateSessionStatus(sessionId, 'qr_pending')
       this.io?.to(`user:${userId}`).emit('whatsapp:qr', { qr, sessionId })
       console.log(`📤 QR emitted to user:${userId}`)
@@ -125,6 +132,11 @@ class WhatsAppService {
     // Autenticado
     client.on('authenticated', () => {
       console.log(`🔐 Session authenticated (no QR needed): ${sessionId}`)
+      // Clear pending QR since we're authenticated
+      const session = this.sessions.get(sessionId)
+      if (session) {
+        session.pendingQR = undefined
+      }
       this.updateSessionStatus(sessionId, 'authenticating')
     })
 
@@ -418,6 +430,19 @@ class WhatsAppService {
       if (session.userId === userId) return session
     }
     return undefined
+  }
+
+  /**
+   * Get all sessions with pending QR for a user
+   */
+  getSessionsWithPendingQR(userId: string): Array<{ sessionId: string; qr: string }> {
+    const result: Array<{ sessionId: string; qr: string }> = []
+    for (const session of this.sessions.values()) {
+      if (session.userId === userId && session.pendingQR && session.status === 'qr_pending') {
+        result.push({ sessionId: session.sessionId, qr: session.pendingQR })
+      }
+    }
+    return result
   }
 
   /**

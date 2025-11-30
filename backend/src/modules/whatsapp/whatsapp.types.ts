@@ -20,6 +20,7 @@ export interface WhatsAppSession {
   userId: string
   sessionId: string
   phoneNumber?: string
+  pendingQR?: string
   lastActivity: number
   createdAt: number
   reconnectAttempts: number

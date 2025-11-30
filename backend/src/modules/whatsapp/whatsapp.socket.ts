@@ -25,6 +25,15 @@ export function setupWhatsAppSocket(io: SocketServer): void {
     socket.join(`user:${userId}`)
     console.log(`✅ User ${userId} joined room`)
 
+    // Check for pending QRs and resend them
+    const pendingQRs = whatsappService.getSessionsWithPendingQR(userId)
+    if (pendingQRs.length > 0) {
+      console.log(`📤 Resending ${pendingQRs.length} pending QR(s) to user ${userId}`)
+      for (const { sessionId, qr } of pendingQRs) {
+        socket.emit('whatsapp:qr', { qr, sessionId })
+      }
+    }
+
     // === EVENTOS ===
 
     /**
