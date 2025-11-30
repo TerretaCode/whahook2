@@ -137,6 +137,69 @@ router.post('/accounts', async (req: Request, res: Response) => {
 })
 
 /**
+ * DELETE /api/whatsapp/accounts/:accountId
+ * Eliminar cuenta de WhatsApp
+ */
+router.delete('/accounts/:accountId', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { accountId } = req.params
+
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    // Get the account first to get session_id and workspace_id
+    const { data: account, error: findError } = await supabaseAdmin
+      .from('whatsapp_accounts')
+      .select('*, workspace_id')
+      .eq('id', accountId)
+      .eq('user_id', userId)
+      .single()
+
+    if (findError || !account) {
+      return res.status(404).json({ success: false, error: 'Account not found' })
+    }
+
+    // Destroy the WhatsApp session if it exists
+    if (account.session_id) {
+      try {
+        await whatsappService.destroySession(account.session_id)
+      } catch (err) {
+        console.error('Error destroying session:', err)
+        // Continue with deletion even if session destroy fails
+      }
+    }
+
+    // Clear the workspace reference if linked
+    if (account.workspace_id) {
+      await supabaseAdmin
+        .from('workspaces')
+        .update({ whatsapp_session_id: null })
+        .eq('id', account.workspace_id)
+    }
+
+    // Delete the account from database
+    const { error: deleteError } = await supabaseAdmin
+      .from('whatsapp_accounts')
+      .delete()
+      .eq('id', accountId)
+      .eq('user_id', userId)
+
+    if (deleteError) {
+      console.error('Error deleting account:', deleteError)
+      return res.status(500).json({ success: false, error: 'Error deleting account' })
+    }
+
+    console.log('✅ Account deleted:', accountId)
+    res.json({ success: true, message: 'Account deleted' })
+  } catch (error: any) {
+    console.error('Error in DELETE /accounts:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
  * GET /api/whatsapp/sessions
  * Obtener sesiones activas del usuario (filtrado por workspace si se proporciona)
  */
