@@ -171,7 +171,7 @@ router.post('/:workspaceId/members', async (req: Request, res: Response) => {
     }
 
     // Validate role
-    const validRoles = ['admin', 'client', 'agent', 'custom']
+    const validRoles = ['admin', 'client', 'agent', 'viewer', 'custom']
     if (!validRoles.includes(role)) {
       return res.status(400).json({ success: false, error: 'Invalid role' })
     }
@@ -205,6 +205,7 @@ router.post('/:workspaceId/members', async (req: Request, res: Response) => {
       admin: { dashboard: true, messages: true, clients: true, campaigns: true, settings: true, ai_costs: true },
       client: { dashboard: true, messages: true, clients: true, campaigns: true, settings: false, ai_costs: false },
       agent: { dashboard: true, messages: true, clients: false, campaigns: false, settings: false, ai_costs: false },
+      viewer: { dashboard: true, messages: false, clients: true, campaigns: false, settings: false, ai_costs: false },
       custom: permissions || { dashboard: true, messages: true, clients: false, campaigns: false, settings: false, ai_costs: false }
     }
 

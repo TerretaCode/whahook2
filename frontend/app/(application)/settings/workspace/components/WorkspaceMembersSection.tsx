@@ -20,7 +20,7 @@ import { toast } from '@/lib/toast'
 interface WorkspaceMember {
   id: string
   user_id: string | null
-  role: 'owner' | 'admin' | 'client' | 'agent' | 'custom'
+  role: 'owner' | 'admin' | 'client' | 'agent' | 'viewer' | 'custom'
   permissions: {
     dashboard: boolean
     messages: boolean
@@ -47,6 +47,7 @@ const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin',
   client: 'Client',
   agent: 'Agent',
+  viewer: 'Viewer',
   custom: 'Custom'
 }
 
@@ -55,6 +56,7 @@ const ROLE_COLORS: Record<string, string> = {
   admin: 'bg-blue-100 text-blue-800',
   client: 'bg-green-100 text-green-800',
   agent: 'bg-gray-100 text-gray-800',
+  viewer: 'bg-cyan-100 text-cyan-800',
   custom: 'bg-orange-100 text-orange-800'
 }
 
@@ -63,7 +65,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
   const [isLoading, setIsLoading] = useState(true)
   const [showInviteForm, setShowInviteForm] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteRole, setInviteRole] = useState<'admin' | 'client' | 'agent'>('client')
+  const [inviteRole, setInviteRole] = useState<'admin' | 'client' | 'agent' | 'viewer'>('client')
   const [isInviting, setIsInviting] = useState(false)
   const [copiedToken, setCopiedToken] = useState<string | null>(null)
 
@@ -213,6 +215,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                   <option value="admin">Admin - Full access</option>
                   <option value="client">Client - Dashboard, Messages, Clients, Campaigns</option>
                   <option value="agent">Agent - Dashboard, Messages only</option>
+                  <option value="viewer">Viewer - Dashboard, Clients only (read-only)</option>
                 </select>
               </div>
             </div>
