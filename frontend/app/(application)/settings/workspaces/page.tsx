@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
 import { toast } from "@/lib/toast"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Loader2,
   Plus,
@@ -20,19 +20,19 @@ import {
   X,
   AlertCircle,
   Crown,
-  Link as LinkIcon,
   QrCode,
-  Settings,
-  Copy,
-  ExternalLink,
   Key,
   Palette,
   ChevronDown,
   ChevronUp,
-  Users
+  Users,
+  Bot
 } from "lucide-react"
 import Link from "next/link"
 import { WorkspacesSkeleton } from "@/components/skeletons/SettingsSkeletons"
+import { WorkspaceMembersSection } from "../workspace/components/WorkspaceMembersSection"
+import { ConnectionLinksSection } from "../workspace/components/ConnectionLinksSection"
+import { WhiteLabelSection } from "../workspace/components/WhiteLabelSection"
 import { getCached, setCache, getFromSession, persistToSession } from "@/lib/cache"
 
 interface Workspace {
@@ -41,6 +41,8 @@ interface Workspace {
   description: string | null
   whatsapp_session_id: string | null
   web_widget_id: string | null
+  white_label?: Record<string, unknown>
+  access_token?: string
   created_at: string
   updated_at: string
 }
@@ -526,7 +528,7 @@ export default function WorkspacesPage() {
                   ) : (
                     <Link href={`/settings/chatbot?workspace=${workspace.id}`}>
                       <Button size="sm" variant="outline">
-                        <Settings className="w-4 h-4 mr-2" />
+                        <Bot className="w-4 h-4 mr-2" />
                         Configure Chatbot
                       </Button>
                     </Link>
@@ -550,205 +552,104 @@ export default function WorkspacesPage() {
                 </div>
               </div>
 
-              {/* Expanded Options (Professional+ features) */}
+              {/* Expanded Settings with Tabs */}
               {expandedId === workspace.id && (
-                <div className="border-t border-gray-200 bg-gray-50 p-6 space-y-6">
-                  {/* Client Access Link (Professional+) */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <LinkIcon className="w-5 h-5 text-blue-600" />
-                      <h4 className="font-medium text-gray-900">Client Access Link</h4>
-                      {!isProfessionalOrHigher && (
-                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
-                          Professional+
-                        </span>
-                      )}
-                    </div>
-                    {isProfessionalOrHigher ? (
-                      <div className="bg-white rounded-lg border border-gray-200 p-4">
-                        <p className="text-sm text-gray-600 mb-3">
-                          Share this link with your client so they can access their workspace dashboard.
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            value={generateClientAccessLink(workspace.id)}
-                            readOnly
-                            className="flex-1 bg-gray-50"
-                          />
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => copyToClipboard(generateClientAccessLink(workspace.id), 'Client access link')}
-                          >
-                            <Copy className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => window.open(generateClientAccessLink(workspace.id), '_blank')}
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500">
-                        Upgrade to Professional to generate client access links.
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Remote QR Connection (Professional+) */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <QrCode className="w-5 h-5 text-purple-600" />
-                      <h4 className="font-medium text-gray-900">Remote WhatsApp Connection</h4>
-                      {!isProfessionalOrHigher && (
-                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
-                          Professional+
-                        </span>
-                      )}
-                    </div>
-                    {isProfessionalOrHigher ? (
-                      <div className="bg-white rounded-lg border border-gray-200 p-4">
-                        <p className="text-sm text-gray-600 mb-3">
-                          Send this link to your client so they can scan the QR code from their phone without being present.
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            value={generateQRConnectionLink(workspace.id)}
-                            readOnly
-                            className="flex-1 bg-gray-50"
-                          />
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => copyToClipboard(generateQRConnectionLink(workspace.id), 'QR connection link')}
-                          >
-                            <Copy className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500">
-                        Upgrade to Professional to enable remote WhatsApp connection.
-                      </p>
-                    )}
-                  </div>
-
-                  {/* API Key per Workspace (Professional+) */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Key className="w-5 h-5 text-orange-600" />
-                      <h4 className="font-medium text-gray-900">Workspace API Key</h4>
-                      {!isProfessionalOrHigher && (
-                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
-                          Professional+
-                        </span>
-                      )}
-                    </div>
-                    {isProfessionalOrHigher ? (
-                      <div className="bg-white rounded-lg border border-gray-200 p-4">
-                        <p className="text-sm text-gray-600 mb-3">
-                          Configure a separate AI API key for this workspace to track costs independently.
-                        </p>
-                        <Link href={`/settings/chatbot?workspace=${workspace.id}&tab=apikeys`}>
-                          <Button size="sm" variant="outline">
-                            <Key className="w-4 h-4 mr-2" />
-                            Configure API Key
-                          </Button>
-                        </Link>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500">
-                        Upgrade to Professional to configure API keys per workspace.
-                      </p>
-                    )}
-                  </div>
-
-                  {/* White-Label (Enterprise only) */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Palette className="w-5 h-5 text-pink-600" />
-                      <h4 className="font-medium text-gray-900">White-Label Branding</h4>
-                      {!isEnterprise && (
-                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
-                          Enterprise
-                        </span>
-                      )}
-                    </div>
-                    {isEnterprise ? (
-                      <div className="bg-white rounded-lg border border-gray-200 p-4">
-                        <p className="text-sm text-gray-600 mb-3">
-                          Customize branding for this workspace. Hide Whahook branding and use your own logo and colors.
-                        </p>
-                        <Button size="sm" variant="outline" disabled>
-                          <Palette className="w-4 h-4 mr-2" />
-                          Configure Branding (Coming Soon)
-                        </Button>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500">
-                        Upgrade to Enterprise to customize branding and hide Whahook branding.
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Custom Domain (Enterprise only) */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Globe className="w-5 h-5 text-indigo-600" />
-                      <h4 className="font-medium text-gray-900">Custom Domain</h4>
-                      {!isEnterprise && (
-                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
-                          Enterprise
-                        </span>
-                      )}
-                    </div>
-                    {isEnterprise ? (
-                      <div className="bg-white rounded-lg border border-gray-200 p-4">
-                        <p className="text-sm text-gray-600 mb-3">
-                          Use your own domain for client access (e.g., panel.youragency.com).
-                        </p>
-                        <Button size="sm" variant="outline" disabled>
-                          <Globe className="w-4 h-4 mr-2" />
-                          Configure Domain (Coming Soon)
-                        </Button>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500">
-                        Upgrade to Enterprise to use custom domains.
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Team Members (Professional+) */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Users className="w-5 h-5 text-teal-600" />
-                      <h4 className="font-medium text-gray-900">Team Members</h4>
-                      {!isProfessionalOrHigher && (
-                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
-                          Professional+
-                        </span>
-                      )}
-                    </div>
-                    {isProfessionalOrHigher ? (
-                      <div className="bg-white rounded-lg border border-gray-200 p-4">
-                        <p className="text-sm text-gray-600 mb-3">
-                          Invite team members to this workspace with custom roles and permissions.
-                        </p>
-                        <Button size="sm" variant="outline" disabled>
+                <div className="border-t border-gray-200 bg-gray-50">
+                  <Tabs defaultValue="team" className="w-full">
+                    <div className="border-b border-gray-200 px-6 pt-4">
+                      <TabsList className="bg-transparent gap-4">
+                        <TabsTrigger 
+                          value="team" 
+                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4"
+                        >
                           <Users className="w-4 h-4 mr-2" />
-                          Manage Team (Coming Soon)
-                        </Button>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500">
-                        Upgrade to Professional to add team members.
-                      </p>
-                    )}
-                  </div>
+                          Team
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="remote-qr"
+                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4"
+                        >
+                          <QrCode className="w-4 h-4 mr-2" />
+                          Remote QR
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="branding"
+                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4"
+                        >
+                          <Palette className="w-4 h-4 mr-2" />
+                          Branding
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="api"
+                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4"
+                        >
+                          <Key className="w-4 h-4 mr-2" />
+                          API Key
+                        </TabsTrigger>
+                      </TabsList>
+                    </div>
+
+                    <div className="p-6">
+                      <TabsContent value="team" className="mt-0">
+                        <WorkspaceMembersSection workspaceId={workspace.id} />
+                      </TabsContent>
+
+                      <TabsContent value="remote-qr" className="mt-0">
+                        <ConnectionLinksSection 
+                          workspaceId={workspace.id}
+                          hasExistingConnection={!!workspace.whatsapp_session_id}
+                        />
+                      </TabsContent>
+
+                      <TabsContent value="branding" className="mt-0">
+                        <WhiteLabelSection 
+                          workspaceId={workspace.id}
+                          initialSettings={workspace.white_label as any}
+                          userPlan={data?.plan || 'trial'}
+                        />
+                      </TabsContent>
+
+                      <TabsContent value="api" className="mt-0">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-orange-100 rounded-lg">
+                              <Key className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900">Workspace API Key</h3>
+                              <p className="text-sm text-gray-600">
+                                Configure a separate AI API key for this workspace
+                              </p>
+                            </div>
+                          </div>
+                          {isProfessionalOrHigher ? (
+                            <div className="bg-white rounded-lg border border-gray-200 p-4">
+                              <p className="text-sm text-gray-600 mb-3">
+                                Configure a separate Gemini API key for this workspace to track costs independently.
+                              </p>
+                              <Link href={`/settings/chatbot?workspace=${workspace.id}&tab=apikeys`}>
+                                <Button variant="outline">
+                                  <Key className="w-4 h-4 mr-2" />
+                                  Configure API Key
+                                </Button>
+                              </Link>
+                            </div>
+                          ) : (
+                            <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                              <p className="text-sm text-amber-800">
+                                🔒 Workspace API keys are available on Professional and Enterprise plans.
+                              </p>
+                              <Link href="/settings/billing">
+                                <Button className="mt-3 bg-amber-600 hover:bg-amber-700">
+                                  Upgrade Plan
+                                </Button>
+                              </Link>
+                            </div>
+                          )}
+                        </div>
+                      </TabsContent>
+                    </div>
+                  </Tabs>
                 </div>
               )}
             </div>
