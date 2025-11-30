@@ -29,9 +29,9 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
   const { accounts, isLoading: accountsLoading, createAccount } = useWhatsAppAccounts(workspaceId)
   const { sessions, isLoading: sessionsLoading, createSession, destroySession, isSocketConnected } = useWhatsAppSessions(workspaceId)
   
-  // Use initial data if available, otherwise use hook data
-  const displaySessions = initialData?.sessions?.length ? initialData.sessions : sessions
-  const displayAccounts = initialData?.accounts?.length ? initialData.accounts : accounts
+  // Merge initial data with live sessions - live sessions take priority for QR updates
+  const displaySessions = sessions.length > 0 ? sessions : (initialData?.sessions || [])
+  const displayAccounts = accounts.length > 0 ? accounts : (initialData?.accounts || [])
   
   const [showNewAccountForm, setShowNewAccountForm] = useState(false)
   const [newAccountName, setNewAccountName] = useState('')
