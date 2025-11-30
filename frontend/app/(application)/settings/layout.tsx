@@ -15,8 +15,7 @@ import {
   User,
   CreditCard,
   Building2,
-  Settings,
-  Users
+  Settings
 } from "lucide-react"
 
 interface SettingsLayoutProps {

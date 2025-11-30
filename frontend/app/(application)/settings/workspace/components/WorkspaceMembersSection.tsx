@@ -7,14 +7,12 @@ import {
   Users, 
   Plus, 
   Loader2, 
-  Copy, 
-  Check,
-  Trash2,
   RefreshCw,
-  Mail,
-  Shield,
   UserCircle,
-  Link2
+  Link2,
+  Trash2,
+  Check,
+  Mail
 } from 'lucide-react'
 import { ApiClient } from '@/lib/api-client'
 import { toast } from '@/lib/toast'

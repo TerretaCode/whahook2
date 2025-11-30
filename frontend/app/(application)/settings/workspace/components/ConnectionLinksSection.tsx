@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { 
-  Link2, 
   Plus, 
   Loader2, 
   Copy, 

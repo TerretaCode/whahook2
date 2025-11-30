@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   Building2, 
   Loader2, 
@@ -26,13 +25,13 @@ interface Workspace {
   description: string | null
   whatsapp_session_id: string | null
   web_widget_id: string | null
-  white_label?: any
+  white_label?: Record<string, unknown>
   created_at: string
 }
 
 type TabType = 'general' | 'members' | 'remote-qr' | 'white-label'
 
-export default function WorkspaceSettingsPage() {
+function WorkspaceSettingsContent() {
   const searchParams = useSearchParams()
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null)
@@ -72,7 +71,7 @@ export default function WorkspaceSettingsPage() {
     fetchWorkspaces()
   }, [searchParams])
 
-  const handleWorkspaceChange = (workspaceId: string) => {
+  const _handleWorkspaceChange = (workspaceId: string) => {
     const workspace = workspaces.find(w => w.id === workspaceId)
     if (workspace) {
       setCurrentWorkspace(workspace)
@@ -275,11 +274,23 @@ export default function WorkspaceSettingsPage() {
         {activeTab === 'white-label' && (
           <WhiteLabelSection 
             workspaceId={currentWorkspace.id}
-            initialSettings={currentWorkspace.white_label}
+            initialSettings={currentWorkspace.white_label as any}
             userPlan={userPlan}
           />
         )}
       </div>
     </div>
+  )
+}
+
+export default function WorkspaceSettingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+      </div>
+    }>
+      <WorkspaceSettingsContent />
+    </Suspense>
   )
 }

@@ -12,7 +12,6 @@ import {
   Megaphone,
   DollarSign
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 interface WorkspaceAccess {
   member_id: string
@@ -70,7 +69,7 @@ export default function WorkspaceAccessPage() {
         localStorage.setItem('workspace_role', result.data.role)
         localStorage.setItem('workspace_permissions', JSON.stringify(result.data.permissions))
         
-      } catch (err) {
+      } catch {
         setError('Failed to verify access')
       } finally {
         setIsLoading(false)

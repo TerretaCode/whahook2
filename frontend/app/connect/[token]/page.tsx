@@ -10,8 +10,7 @@ import {
   XCircle, 
   Loader2, 
   RefreshCw,
-  Clock,
-  AlertTriangle
+  Clock
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -60,7 +59,7 @@ export default function ConnectPage() {
 
       setData(result.data)
       setError(null)
-    } catch (err) {
+    } catch {
       setError('Failed to load connection data')
     } finally {
       setIsLoading(false)
@@ -83,7 +82,7 @@ export default function ConnectPage() {
 
       // Start polling for QR
       fetchData()
-    } catch (err) {
+    } catch {
       setError('Failed to start connection')
     } finally {
       setIsStarting(false)
