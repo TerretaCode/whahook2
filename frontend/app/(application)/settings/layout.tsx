@@ -14,7 +14,9 @@ import {
   ChevronRight,
   User,
   CreditCard,
-  Building2
+  Building2,
+  Settings,
+  Users
 } from "lucide-react"
 
 interface SettingsLayoutProps {
@@ -28,6 +30,13 @@ const settingsNavigation = [
     href: '/settings/workspaces',
     icon: Building2,
     description: 'Manage workspaces'
+  },
+  {
+    id: 'workspace',
+    name: 'Workspace Settings',
+    href: '/settings/workspace',
+    icon: Settings,
+    description: 'Team, QR & Branding'
   },
   {
     id: 'connections',

@@ -99,27 +99,19 @@ export function useWhatsAppSessions(workspaceId?: string) {
     if (!isConnected) return
 
     const handleQR = (data: { sessionId: string; qr: string }) => {
-      console.log('📱 [useWhatsAppSessions] QR received:', data.sessionId)
-      
       const now = Date.now()
       const lastUpdate = lastQRUpdate.current.get(data.sessionId) || 0
-      if (now - lastUpdate < 3000) {
-        console.log('📱 [useWhatsAppSessions] QR throttled (too soon)')
-        return
-      }
+      if (now - lastUpdate < 3000) return
       
       lastQRUpdate.current.set(data.sessionId, now)
       
       setSessions(prev => {
-        console.log('📱 [useWhatsAppSessions] Current sessions:', prev.length, prev.map(s => s.session_id))
         const existingIndex = prev.findIndex(s => s.session_id === data.sessionId)
         if (existingIndex >= 0) {
-          console.log('📱 [useWhatsAppSessions] Updating existing session at index:', existingIndex)
           const updated = [...prev]
           updated[existingIndex] = { ...updated[existingIndex], qr_code: data.qr, status: 'qr_pending' as WhatsAppSessionStatus }
           return updated
         }
-        console.log('📱 [useWhatsAppSessions] Adding new session with QR')
         return [...prev, {
           id: data.sessionId,
           user_id: '',
