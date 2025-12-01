@@ -87,25 +87,26 @@ function LoginContent() {
     
     // Update page title and favicon for custom domain
     if (isCd && branding) {
-      const agencyName = branding.agency_name || branding.logo_text || 'Panel'
+      const agencyName = branding.tab_title || branding.agency_name || branding.logo_text || 'Panel'
       document.title = `${agencyName} - Iniciar sesión`
       
-      // Update favicon if logo_url exists
-      if (branding.logo_url) {
+      // Update favicon - prefer favicon_url, fallback to logo_url
+      const faviconUrl = branding.favicon_url || branding.logo_url
+      if (faviconUrl) {
         const existingFavicon = document.querySelector("link[rel='icon']") as HTMLLinkElement
         const existingAppleIcon = document.querySelector("link[rel='apple-touch-icon']") as HTMLLinkElement
         
         if (existingFavicon) {
-          existingFavicon.href = branding.logo_url
+          existingFavicon.href = faviconUrl
         } else {
           const favicon = document.createElement('link')
           favicon.rel = 'icon'
-          favicon.href = branding.logo_url
+          favicon.href = faviconUrl
           document.head.appendChild(favicon)
         }
         
         if (existingAppleIcon) {
-          existingAppleIcon.href = branding.logo_url
+          existingAppleIcon.href = faviconUrl
         }
       }
     }

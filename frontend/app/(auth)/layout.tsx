@@ -78,16 +78,19 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   
   // Build custom metadata
-  const agencyName = branding.agency_name || branding.logo_text || hostname
+  const agencyName = branding.tab_title || branding.agency_name || branding.logo_text || hostname
   const title = `${agencyName} - Panel de Cliente`
   const description = `Accede a tu panel de ${agencyName}`
+  
+  // Use favicon_url if available, otherwise fall back to logo_url
+  const faviconUrl = branding.favicon_url || branding.logo_url
   
   return {
     title,
     description,
-    icons: branding.logo_url ? {
-      icon: branding.logo_url,
-      apple: branding.logo_url,
+    icons: faviconUrl ? {
+      icon: faviconUrl,
+      apple: faviconUrl,
     } : {
       icon: '/icon.svg',
       apple: '/icon.svg',

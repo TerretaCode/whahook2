@@ -4,8 +4,8 @@ import multer from 'multer'
 
 const router = Router()
 
-// Configure multer for memory storage
-const upload = multer({
+// Configure multer for logo upload (2MB limit)
+const uploadLogo = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 2 * 1024 * 1024, // 2MB limit
@@ -19,6 +19,25 @@ const upload = multer({
     }
   }
 })
+
+// Configure multer for favicon upload (100KB limit)
+const uploadFavicon = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 100 * 1024, // 100KB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/x-icon', 'image/png', 'image/svg+xml', 'image/vnd.microsoft.icon']
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true)
+    } else {
+      cb(new Error('Invalid file type. Only ICO, PNG, and SVG are allowed for favicon.'))
+    }
+  }
+})
+
+// Alias for backward compatibility
+const upload = uploadLogo
 
 // Helper to get user ID from token
 async function getUserIdFromToken(req: Request): Promise<string | null> {
@@ -67,6 +86,8 @@ router.get('/', async (req: Request, res: Response) => {
       data: profile.agency_branding || {
         logo_url: null,
         logo_text: '',
+        favicon_url: null,
+        tab_title: '',
         primary_color: '#22c55e',
         agency_name: '',
         powered_by_text: '',
@@ -110,6 +131,8 @@ router.put('/', async (req: Request, res: Response) => {
     const validBranding = {
       logo_url: branding.logo_url || null,
       logo_text: branding.logo_text || '',
+      favicon_url: branding.favicon_url || null,
+      tab_title: branding.tab_title || '',
       primary_color: branding.primary_color || '#22c55e',
       agency_name: branding.agency_name || '',
       powered_by_text: branding.powered_by_text || '',
@@ -191,6 +214,71 @@ router.post('/logo', upload.single('logo'), async (req: Request, res: Response) 
     })
   } catch (error: any) {
     console.error('Error in POST /branding/logo:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+/**
+ * POST /api/branding/favicon
+ * Upload agency favicon
+ */
+router.post('/favicon', uploadFavicon.single('favicon'), async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    // Check if user has enterprise plan
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('subscription_tier')
+      .eq('id', userId)
+      .single()
+
+    if (profileError || profile.subscription_tier !== 'enterprise') {
+      return res.status(403).json({ 
+        success: false, 
+        error: 'Favicon upload is only available for Enterprise plan' 
+      })
+    }
+
+    if (!(req as any).file) {
+      return res.status(400).json({ success: false, error: 'No file uploaded' })
+    }
+
+    const file = (req as any).file
+
+    // Generate unique filename
+    const fileExt = file.originalname.split('.').pop()
+    const fileName = `${userId}/favicon-${Date.now()}.${fileExt}`
+
+    // Upload to Supabase Storage
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      .from('agency-logos')
+      .upload(fileName, file.buffer, {
+        contentType: file.mimetype,
+        upsert: true
+      })
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError)
+      return res.status(500).json({ success: false, error: 'Failed to upload favicon' })
+    }
+
+    // Get public URL
+    const { data: urlData } = supabaseAdmin.storage
+      .from('agency-logos')
+      .getPublicUrl(fileName)
+
+    res.json({
+      success: true,
+      data: {
+        url: urlData.publicUrl
+      }
+    })
+  } catch (error: any) {
+    console.error('Error in POST /branding/favicon:', error)
     res.status(500).json({ success: false, error: error.message })
   }
 })

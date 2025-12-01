@@ -26,6 +26,8 @@ import Link from "next/link"
 interface AgencyBranding {
   logo_url: string | null
   logo_text: string           // Texto opcional al lado del logo
+  favicon_url: string | null  // Favicon para la pestaña del navegador
+  tab_title: string           // Título de la pestaña del navegador
   primary_color: string       // Color de marca (botones, iconos, acentos)
   agency_name: string
   powered_by_text: string
@@ -35,6 +37,8 @@ interface AgencyBranding {
 const DEFAULT_BRANDING: AgencyBranding = {
   logo_url: null,
   logo_text: '',
+  favicon_url: null,
+  tab_title: '',
   primary_color: '#22c55e',
   agency_name: '',
   powered_by_text: '',
@@ -49,6 +53,7 @@ export default function AgencyBrandingPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [isUploadingFavicon, setIsUploadingFavicon] = useState(false)
   
   // Custom domain state
   const [customDomain, setCustomDomain] = useState('')
@@ -218,6 +223,44 @@ export default function AgencyBrandingPage() {
     }
   }
 
+  const handleFaviconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!isEnterprise) {
+      toast.error('Plan Enterprise requerido', 'Actualiza tu plan para subir favicon')
+      return
+    }
+
+    // Validate file size (max 100KB for favicon)
+    if (file.size > 100 * 1024) {
+      toast.error('Archivo muy grande', 'El favicon debe ser menor a 100KB')
+      return
+    }
+
+    try {
+      setIsUploadingFavicon(true)
+      const formData = new FormData()
+      formData.append('favicon', file)
+
+      const response = await ApiClient.upload<{ url: string }>('/api/branding/favicon', formData)
+
+      if (response.success && response.data?.url) {
+        setBranding(prev => ({
+          ...prev,
+          favicon_url: response.data!.url
+        }))
+        toast.success('Favicon subido', 'El favicon se ha subido correctamente')
+        // Auto-save after upload
+        await handleSave()
+      }
+    } catch (error: any) {
+      toast.error('Error', error.message || 'No se pudo subir el favicon')
+    } finally {
+      setIsUploadingFavicon(false)
+    }
+  }
+
   if (authLoading || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -338,6 +381,66 @@ export default function AgencyBrandingPage() {
             />
             <p className="text-xs text-gray-500 mt-1">
               Se mostrará al lado del logo. Déjalo vacío si tu logo ya incluye el nombre.
+            </p>
+          </div>
+
+          {/* Favicon Section */}
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            <Label className="mb-2 block">
+              Favicon <span className="text-gray-400 font-normal">(icono de pestaña)</span>
+            </Label>
+            <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center max-w-xs">
+              {isUploadingFavicon ? (
+                <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400" />
+              ) : branding.favicon_url ? (
+                <div className="space-y-2">
+                  <img 
+                    src={branding.favicon_url} 
+                    alt="Favicon" 
+                    className="w-8 h-8 mx-auto"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setBranding(prev => ({ ...prev, favicon_url: null }))}
+                  >
+                    Eliminar
+                  </Button>
+                </div>
+              ) : (
+                <label className="cursor-pointer">
+                  <Upload className="w-6 h-6 mx-auto text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-600">Subir favicon</p>
+                  <p className="text-xs text-gray-400">ICO, PNG o SVG (max 100KB)</p>
+                  <input
+                    type="file"
+                    accept=".ico,.png,.svg,image/x-icon,image/png,image/svg+xml"
+                    className="hidden"
+                    onChange={handleFaviconUpload}
+                    disabled={isUploadingFavicon}
+                  />
+                </label>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              El favicon aparece en la pestaña del navegador. Recomendado: 32x32 o 16x16 píxeles.
+            </p>
+          </div>
+
+          {/* Tab Title */}
+          <div className="mt-4">
+            <Label htmlFor="tab_title" className="mb-2 block">
+              Título de pestaña
+            </Label>
+            <Input
+              id="tab_title"
+              value={branding.tab_title}
+              onChange={(e) => setBranding(prev => ({ ...prev, tab_title: e.target.value }))}
+              placeholder="Mi Agencia"
+              className="max-w-md"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Texto que aparece en la pestaña del navegador cuando acceden a tu dominio personalizado.
             </p>
           </div>
         </div>
