@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { BrandingProvider } from "@/components/providers/BrandingProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import { Toaster } from "@/components/ui/sonner";
@@ -61,6 +62,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
     >
       <AuthProvider>
         <WorkspaceProvider>
+          <BrandingProvider>
         <div className={`flex flex-col ${isFullHeightPage ? 'h-screen' : 'min-h-screen'}`}>
           {/* Header: oculto en páginas de invitación/conexión */}
           {!hideHeader && <Header />}
@@ -80,6 +82,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
         </div>
         
         <Toaster />
+          </BrandingProvider>
         </WorkspaceProvider>
       </AuthProvider>
     </ThemeProvider>
