@@ -122,12 +122,12 @@ export function WhatsAppSessionCard({
         </div>
       )}
 
-      {/* Connected State - data-status prevents branding override */}
+      {/* Connected State - status-indicator class prevents branding override */}
       {session.status === 'ready' && (
-        <div className="mb-4 p-4 bg-green-50 rounded-lg" data-status="connected">
+        <div className="status-indicator mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
           <div className="flex items-center gap-2 text-green-800">
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
-            <p className="text-sm font-medium">WhatsApp is connected and ready</p>
+            <CheckCircle2 className="w-5 h-5 text-green-600 status-indicator" />
+            <p className="text-sm font-medium text-green-800">WhatsApp is connected and ready</p>
           </div>
           {session.phone_number && (
             <p className="text-xs text-green-700 mt-1">
@@ -137,12 +137,12 @@ export function WhatsAppSessionCard({
         </div>
       )}
 
-      {/* Error State - data-status prevents branding override */}
+      {/* Error State - status-indicator class prevents branding override */}
       {session.status === 'error' && (
-        <div className="mb-4 p-4 bg-red-50 rounded-lg" data-status="error">
+        <div className="status-indicator mb-4 p-4 bg-red-50 rounded-lg border border-red-200">
           <div className="flex items-center gap-2 text-red-800">
-            <AlertCircle className="w-5 h-5 text-red-600" />
-            <p className="text-sm font-medium">
+            <AlertCircle className="w-5 h-5 text-red-600 status-indicator" />
+            <p className="text-sm font-medium text-red-800">
               {session.error_message || 'Authentication failed. Please try again.'}
             </p>
           </div>

@@ -63,57 +63,49 @@ input[type="checkbox"]:focus {
  * 
  * Rules:
  * - Only ONE brand color (primary) for buttons, icons, accents
- * - Status indicators (connected/error) ALWAYS use green/red - NOT branded
+ * - Status indicators use .status-indicator class to keep original colors
  * - Text on brand backgrounds auto-adjusts to white/black for contrast
- * - Use [data-status] attribute to exclude status elements from branding
  */
 
 /* Background colors - buttons, badges, highlights */
-/* Exclude status indicators with :not([data-status]) */
-.whitelabel .bg-green-600:not([data-status]),
-.whitelabel .bg-green-500:not([data-status]),
-.whitelabel :not([data-status]) > .bg-green-600,
-.whitelabel :not([data-status]) > .bg-green-500 {
+.whitelabel .bg-green-600:not(.status-indicator),
+.whitelabel .bg-green-500:not(.status-indicator) {
   background-color: var(--brand-primary) !important;
+  color: var(--brand-text) !important;
 }
 
-.whitelabel .bg-green-700:not([data-status]),
-.whitelabel :not([data-status]) > .bg-green-700 {
+.whitelabel .bg-green-700:not(.status-indicator) {
   background-color: var(--brand-primary) !important;
   filter: brightness(0.9);
+  color: var(--brand-text) !important;
 }
 
-.whitelabel .bg-green-50:not([data-status]),
-.whitelabel :not([data-status]) > .bg-green-50 {
+.whitelabel .bg-green-50:not(.status-indicator) {
   background-color: rgba(var(--brand-primary-rgb), 0.08) !important;
 }
 
-.whitelabel .bg-green-100:not([data-status]),
-.whitelabel :not([data-status]) > .bg-green-100 {
+.whitelabel .bg-green-100:not(.status-indicator) {
   background-color: rgba(var(--brand-primary-rgb), 0.12) !important;
 }
 
-/* Border colors - exclude status indicators */
-.whitelabel .border-green-600:not([data-status]),
-.whitelabel .border-green-500:not([data-status]),
-.whitelabel .border-green-200:not([data-status]),
-.whitelabel :not([data-status]) > .border-green-600,
-.whitelabel :not([data-status]) > .border-green-500,
-.whitelabel :not([data-status]) > .border-green-200 {
+/* Border colors */
+.whitelabel .border-green-600:not(.status-indicator),
+.whitelabel .border-green-500:not(.status-indicator),
+.whitelabel .border-green-200:not(.status-indicator) {
   border-color: var(--brand-primary) !important;
 }
 
 /* Hover states for backgrounds */
-.whitelabel .hover\:bg-green-700:hover:not([data-status]) {
+.whitelabel .hover\:bg-green-700:hover:not(.status-indicator) {
   background-color: var(--brand-primary) !important;
   filter: brightness(0.9);
 }
 
-.whitelabel .hover\:bg-green-600:hover:not([data-status]) {
+.whitelabel .hover\:bg-green-600:hover:not(.status-indicator) {
   background-color: var(--brand-primary) !important;
 }
 
-.whitelabel .hover\:bg-green-50:hover:not([data-status]) {
+.whitelabel .hover\:bg-green-50:hover:not(.status-indicator) {
   background-color: rgba(var(--brand-primary-rgb), 0.08) !important;
 }
 
@@ -128,11 +120,11 @@ input[type="checkbox"]:focus {
 }
 
 /* Gradients */
-.whitelabel .from-green-600:not([data-status]) {
+.whitelabel .from-green-600:not(.status-indicator) {
   --tw-gradient-from: var(--brand-primary) !important;
 }
 
-.whitelabel .to-green-700:not([data-status]) {
+.whitelabel .to-green-700:not(.status-indicator) {
   --tw-gradient-to: var(--brand-primary) !important;
 }
 
@@ -140,30 +132,50 @@ input[type="checkbox"]:focus {
  * TEXT on brand color backgrounds
  * Auto-adjusts to white or black based on background luminance
  */
-.whitelabel .bg-green-600 .text-white,
-.whitelabel .bg-green-500 .text-white,
-.whitelabel .bg-green-700 .text-white {
+.whitelabel .bg-green-600:not(.status-indicator) *,
+.whitelabel .bg-green-500:not(.status-indicator) *,
+.whitelabel .bg-green-700:not(.status-indicator) * {
   color: var(--brand-text) !important;
 }
 
 /* 
- * TEXT COLORS - decorative/accent text
+ * TEXT COLORS - decorative/accent text (icons, links)
  * Exclude status indicators
  */
-.whitelabel .text-green-600:not([data-status]),
-.whitelabel .text-green-500:not([data-status]),
-.whitelabel :not([data-status]) > .text-green-600,
-.whitelabel :not([data-status]) > .text-green-500 {
+.whitelabel .text-green-600:not(.status-indicator),
+.whitelabel .text-green-500:not(.status-indicator) {
   color: var(--brand-primary) !important;
 }
 
-.whitelabel .text-green-700:not([data-status]),
-.whitelabel :not([data-status]) > .text-green-700 {
+.whitelabel .text-green-700:not(.status-indicator) {
   color: var(--brand-primary) !important;
-  filter: brightness(0.85);
 }
 
-.whitelabel .hover\:text-green-700:hover:not([data-status]),
-.whitelabel .hover\:text-green-600:hover:not([data-status]) {
+.whitelabel .hover\:text-green-700:hover:not(.status-indicator),
+.whitelabel .hover\:text-green-600:hover:not(.status-indicator) {
   color: var(--brand-primary) !important;
+}
+
+/* 
+ * Status indicators - preserve original semantic colors
+ * Elements with .status-indicator class keep green=success, red=error
+ */
+.whitelabel .status-indicator.bg-green-50 {
+  background-color: rgb(240 253 244) !important;
+}
+
+.whitelabel .status-indicator .text-green-600 {
+  color: rgb(22 163 74) !important;
+}
+
+.whitelabel .status-indicator .text-green-700 {
+  color: rgb(21 128 61) !important;
+}
+
+.whitelabel .status-indicator .text-green-800 {
+  color: rgb(22 101 52) !important;
+}
+
+.whitelabel .status-indicator.border-green-200 {
+  border-color: rgb(187 247 208) !important;
 }
