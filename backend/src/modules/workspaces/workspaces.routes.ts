@@ -560,7 +560,7 @@ router.get('/:id/branding', async (req: Request, res: Response) => {
     // Get the workspace to find the owner
     const { data: workspace, error: wsError } = await supabaseAdmin
       .from('workspaces')
-      .select('owner_id')
+      .select('user_id')
       .eq('id', id)
       .single()
     
@@ -575,10 +575,10 @@ router.get('/:id/branding', async (req: Request, res: Response) => {
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('agency_branding, subscription_tier')
-      .eq('id', workspace.owner_id)
+      .eq('id', workspace.user_id)
       .single()
     
-    console.log('[BRANDING] Profile lookup result:', { profile, profileError, ownerId: workspace.owner_id })
+    console.log('[BRANDING] Profile lookup result:', { profile, profileError, ownerId: workspace.user_id })
     
     if (profileError || !profile) {
       console.log('[BRANDING] Profile not found, returning default branding')
