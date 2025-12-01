@@ -18,8 +18,11 @@ export function Header() {
   const scrollDirection = useScrollDirection({ threshold: 15 })
   const { user } = useAuth()
   const { hasUnread } = useNotifications()
-  const { hasPermission, isOwner } = useWorkspaceContext()
-  const { branding, isWhitelabel } = useBranding()
+  const { hasPermission, isOwner, workspace } = useWorkspaceContext()
+  const { branding, isWhitelabel, hasCustomBranding } = useBranding()
+  
+  // Debug branding
+  console.log('Header branding debug:', { isOwner, isWhitelabel, hasCustomBranding, branding, workspaceId: workspace?.id })
   const [scrollY, setScrollY] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -65,7 +68,7 @@ export function Header() {
             
             {/* Logo - Show agency branding if whitelabel */}
             <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              {isWhitelabel && (branding.logo_url || branding.logo_text) ? (
+              {isWhitelabel && (branding.logo_url || branding.logo_text || branding.agency_name) ? (
                 <>
                   {branding.logo_url && (
                     <img 
@@ -74,12 +77,12 @@ export function Header() {
                       className="h-8 object-contain"
                     />
                   )}
-                  {branding.logo_text && (
+                  {(branding.logo_text || branding.agency_name) && (
                     <span 
                       className="text-xl font-bold leading-tight"
                       style={{ color: branding.primary_color }}
                     >
-                      {branding.logo_text}
+                      {branding.logo_text || branding.agency_name}
                     </span>
                   )}
                 </>
