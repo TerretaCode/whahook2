@@ -54,18 +54,11 @@ function LoginContent() {
     password?: string
   }>({})
   
-  // Custom domain state - initialize from cookies immediately to prevent flash
+  // Custom domain state - start as null to avoid hydration mismatch
+  // brandingLoaded will be false until we check on client side
   const [brandingLoaded, setBrandingLoaded] = useState(false)
-  const [isCustomDomain, setIsCustomDomain] = useState(() => {
-    if (typeof window === 'undefined') return false
-    const { isCustomDomain } = getCustomDomainBranding()
-    return isCustomDomain
-  })
-  const [customBranding, setCustomBranding] = useState<any>(() => {
-    if (typeof window === 'undefined') return null
-    const { branding } = getCustomDomainBranding()
-    return branding
-  })
+  const [isCustomDomain, setIsCustomDomain] = useState(false)
+  const [customBranding, setCustomBranding] = useState<any>(null)
   
   // Check for custom domain on mount and apply branding
   useEffect(() => {
@@ -218,21 +211,14 @@ function LoginContent() {
     </div>
   ) : null
 
-  // Show loading while branding is being determined on custom domains
-  // This prevents the flash of Whahook branding
-  if (!brandingLoaded && typeof window !== 'undefined') {
-    // Check if we might be on a custom domain (not localhost or known domains)
-    const hostname = window.location.hostname
-    const isLikelyCustomDomain = !['localhost', '127.0.0.1', 'whahook.com', 'app.whahook.com'].includes(hostname) 
-      && !hostname.endsWith('.vercel.app')
-    
-    if (isLikelyCustomDomain) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-        </div>
-      )
-    }
+  // Show loading while branding is being determined
+  // This prevents the flash of Whahook branding on custom domains
+  if (!brandingLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+      </div>
+    )
   }
 
   // Get brand color for styling (fallback to green for Whahook)
