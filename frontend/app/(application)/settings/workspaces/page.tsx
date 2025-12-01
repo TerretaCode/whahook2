@@ -20,7 +20,6 @@ import {
   X,
   AlertCircle,
   Crown,
-  QrCode,
   Key,
   Palette,
   ChevronDown,
@@ -31,7 +30,6 @@ import {
 import Link from "next/link"
 import { WorkspacesSkeleton } from "@/components/skeletons/SettingsSkeletons"
 import { WorkspaceMembersSection } from "../workspace/components/WorkspaceMembersSection"
-import { ConnectionLinksSection } from "../workspace/components/ConnectionLinksSection"
 import { WhiteLabelSection } from "../workspace/components/WhiteLabelSection"
 import { getCached, setCache, getFromSession, persistToSession } from "@/lib/cache"
 
@@ -566,13 +564,6 @@ export default function WorkspacesPage() {
                           Invitaciones
                         </TabsTrigger>
                         <TabsTrigger 
-                          value="remote-qr"
-                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4"
-                        >
-                          <QrCode className="w-4 h-4 mr-2" />
-                          Remote QR
-                        </TabsTrigger>
-                        <TabsTrigger 
                           value="branding"
                           className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4"
                         >
@@ -592,13 +583,6 @@ export default function WorkspacesPage() {
                     <div className="p-6">
                       <TabsContent value="invitations" className="mt-0">
                         <WorkspaceMembersSection workspaceId={workspace.id} />
-                      </TabsContent>
-
-                      <TabsContent value="remote-qr" className="mt-0">
-                        <ConnectionLinksSection 
-                          workspaceId={workspace.id}
-                          hasExistingConnection={!!workspace.whatsapp_session_id}
-                        />
                       </TabsContent>
 
                       <TabsContent value="branding" className="mt-0">
