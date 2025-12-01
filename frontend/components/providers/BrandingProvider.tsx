@@ -5,7 +5,12 @@ import { useBranding } from '@/hooks/useBranding'
 
 /**
  * BrandingProvider injects branding colors as CSS variables
- * This allows the entire app to use the agency's colors when whitelabel is active
+ * 
+ * Best practices for whitelabel:
+ * - Only ONE brand color (primary_color) is used
+ * - This color applies to: buttons, icons, accents, borders
+ * - Text colors remain neutral (black/gray) for guaranteed readability
+ * - The owner's secondary_color is ignored to prevent legibility issues
  */
 export function BrandingProvider({ children }: { children: React.ReactNode }) {
   const { branding, isWhitelabel, isLoading } = useBranding()
@@ -16,29 +21,21 @@ export function BrandingProvider({ children }: { children: React.ReactNode }) {
     const root = document.documentElement
 
     if (isWhitelabel && branding.primary_color) {
-      // Set CSS variables for branding colors
+      // Set CSS variable for brand color (only primary, no secondary)
       root.style.setProperty('--brand-primary', branding.primary_color)
-      root.style.setProperty('--brand-secondary', branding.secondary_color || branding.primary_color)
       
-      // Also set RGB values for opacity support
+      // Set RGB values for opacity support (backgrounds with transparency)
       const primaryRgb = hexToRgb(branding.primary_color)
-      const secondaryRgb = hexToRgb(branding.secondary_color || branding.primary_color)
-      
       if (primaryRgb) {
         root.style.setProperty('--brand-primary-rgb', `${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}`)
       }
-      if (secondaryRgb) {
-        root.style.setProperty('--brand-secondary-rgb', `${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b}`)
-      }
 
-      // Add a class to indicate whitelabel mode
+      // Add class to activate whitelabel CSS overrides
       root.classList.add('whitelabel')
     } else {
-      // Reset to default green
+      // Reset to default WhaHook green
       root.style.setProperty('--brand-primary', '#22c55e')
-      root.style.setProperty('--brand-secondary', '#16a34a')
       root.style.setProperty('--brand-primary-rgb', '34, 197, 94')
-      root.style.setProperty('--brand-secondary-rgb', '22, 163, 74')
       root.classList.remove('whitelabel')
     }
   }, [branding, isWhitelabel, isLoading])
