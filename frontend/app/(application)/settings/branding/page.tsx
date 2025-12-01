@@ -21,8 +21,7 @@ import Link from "next/link"
 interface AgencyBranding {
   logo_url: string | null
   logo_text: string           // Texto opcional al lado del logo
-  primary_color: string
-  secondary_color: string
+  primary_color: string       // Color de marca (botones, iconos, acentos)
   agency_name: string
   powered_by_text: string
   show_powered_by: boolean
@@ -32,7 +31,6 @@ const DEFAULT_BRANDING: AgencyBranding = {
   logo_url: null,
   logo_text: '',
   primary_color: '#22c55e',
-  secondary_color: '#16a34a',
   agency_name: '',
   powered_by_text: '',
   show_powered_by: true
@@ -252,44 +250,28 @@ export default function AgencyBrandingPage() {
 
         {/* Colors Section */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Colores</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <Label htmlFor="primary_color" className="mb-2 block">Color primario</Label>
-              <div className="flex gap-3">
-                <input
-                  type="color"
-                  id="primary_color"
-                  value={branding.primary_color}
-                  onChange={(e) => setBranding(prev => ({ ...prev, primary_color: e.target.value }))}
-                  className="w-12 h-10 rounded cursor-pointer"
-                />
-                <Input
-                  value={branding.primary_color}
-                  onChange={(e) => setBranding(prev => ({ ...prev, primary_color: e.target.value }))}
-                  placeholder="#22c55e"
-                  className="flex-1"
-                />
-              </div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Color de marca</h2>
+          <div>
+            <Label htmlFor="primary_color" className="mb-2 block">Color principal</Label>
+            <div className="flex gap-3 max-w-md">
+              <input
+                type="color"
+                id="primary_color"
+                value={branding.primary_color}
+                onChange={(e) => setBranding(prev => ({ ...prev, primary_color: e.target.value }))}
+                className="w-12 h-10 rounded cursor-pointer border border-gray-300"
+              />
+              <Input
+                value={branding.primary_color}
+                onChange={(e) => setBranding(prev => ({ ...prev, primary_color: e.target.value }))}
+                placeholder="#22c55e"
+                className="flex-1"
+              />
             </div>
-            <div>
-              <Label htmlFor="secondary_color" className="mb-2 block">Color secundario</Label>
-              <div className="flex gap-3">
-                <input
-                  type="color"
-                  id="secondary_color"
-                  value={branding.secondary_color}
-                  onChange={(e) => setBranding(prev => ({ ...prev, secondary_color: e.target.value }))}
-                  className="w-12 h-10 rounded cursor-pointer"
-                />
-                <Input
-                  value={branding.secondary_color}
-                  onChange={(e) => setBranding(prev => ({ ...prev, secondary_color: e.target.value }))}
-                  placeholder="#16a34a"
-                  className="flex-1"
-                />
-              </div>
-            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Este color se aplicará a botones, iconos y elementos de acento en la aplicación.
+              Los textos mantienen colores neutros para garantizar la legibilidad.
+            </p>
           </div>
         </div>
 
