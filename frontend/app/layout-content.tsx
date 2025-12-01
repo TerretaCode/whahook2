@@ -51,33 +51,76 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
     setIsCustomDomain(isCd)
     setCustomBranding(branding)
     
-    // Apply branding colors if custom domain
-    if (isCd && branding?.primary_color) {
-      document.documentElement.style.setProperty('--brand-primary', branding.primary_color)
-      const hex = branding.primary_color.replace('#', '')
-      const r = parseInt(hex.substring(0, 2), 16)
-      const g = parseInt(hex.substring(2, 4), 16)
-      const b = parseInt(hex.substring(4, 6), 16)
-      document.documentElement.style.setProperty('--brand-primary-rgb', `${r}, ${g}, ${b}`)
+    // Apply branding if custom domain
+    if (isCd && branding) {
+      // Apply colors
+      if (branding.primary_color) {
+        document.documentElement.style.setProperty('--brand-primary', branding.primary_color)
+        const hex = branding.primary_color.replace('#', '')
+        const r = parseInt(hex.substring(0, 2), 16)
+        const g = parseInt(hex.substring(2, 4), 16)
+        const b = parseInt(hex.substring(4, 6), 16)
+        document.documentElement.style.setProperty('--brand-primary-rgb', `${r}, ${g}, ${b}`)
+      }
       
-      // Update favicon
+      // Update favicon - create if doesn't exist
       const faviconUrl = branding.favicon_url || branding.logo_url
+      if (faviconUrl) {
+        let existingFavicon = document.querySelector("link[rel='icon']") as HTMLLinkElement
+        if (existingFavicon) {
+          existingFavicon.href = faviconUrl
+        } else {
+          const newFavicon = document.createElement('link')
+          newFavicon.rel = 'icon'
+          newFavicon.href = faviconUrl
+          document.head.appendChild(newFavicon)
+        }
+        
+        // Also update apple-touch-icon if exists
+        const appleIcon = document.querySelector("link[rel='apple-touch-icon']") as HTMLLinkElement
+        if (appleIcon) {
+          appleIcon.href = faviconUrl
+        }
+      }
+      
+      // Update title - store original and always set custom
+      const tabTitle = branding.tab_title || branding.agency_name || branding.logo_text
+      if (tabTitle) {
+        // Get current page name from title or pathname
+        const currentPage = document.title.split(' - ').pop() || 'Panel'
+        document.title = `${tabTitle} - ${currentPage}`
+      }
+    }
+    
+    setBrandingReady(true)
+  }, []);
+  
+  // Update title when pathname changes on custom domain
+  useEffect(() => {
+    if (isCustomDomain && customBranding) {
+      const tabTitle = customBranding.tab_title || customBranding.agency_name || customBranding.logo_text
+      if (tabTitle) {
+        // Map pathname to page name
+        let pageName = 'Panel'
+        if (pathname.startsWith('/dashboard')) pageName = 'Dashboard'
+        else if (pathname.startsWith('/conversations')) pageName = 'Mensajes'
+        else if (pathname.startsWith('/clients')) pageName = 'Clientes'
+        else if (pathname.startsWith('/settings')) pageName = 'Configuración'
+        else if (pathname.startsWith('/config')) pageName = 'Configuración'
+        
+        document.title = `${tabTitle} - ${pageName}`
+      }
+      
+      // Re-apply favicon on navigation (some browsers reset it)
+      const faviconUrl = customBranding.favicon_url || customBranding.logo_url
       if (faviconUrl) {
         const existingFavicon = document.querySelector("link[rel='icon']") as HTMLLinkElement
         if (existingFavicon) {
           existingFavicon.href = faviconUrl
         }
       }
-      
-      // Update title
-      const tabTitle = branding.tab_title || branding.agency_name || branding.logo_text
-      if (tabTitle && !document.title.includes(tabTitle)) {
-        document.title = `${tabTitle} - Panel`
-      }
     }
-    
-    setBrandingReady(true)
-  }, []);
+  }, [pathname, isCustomDomain, customBranding]);
   
   // Rutas donde NO debe aparecer el MobileBottomNav
   const hideBottomNav = 
