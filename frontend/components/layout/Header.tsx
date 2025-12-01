@@ -70,6 +70,7 @@ export function Header() {
             <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               {isWhitelabel && (branding.logo_url || branding.logo_text || branding.agency_name) ? (
                 <>
+                  {/* Show logo image if available */}
                   {branding.logo_url && (
                     <img 
                       src={branding.logo_url} 
@@ -77,12 +78,22 @@ export function Header() {
                       className="h-8 object-contain"
                     />
                   )}
-                  {(branding.logo_text || branding.agency_name) && (
+                  {/* Show logo_text next to logo (optional, for symbol-only logos) */}
+                  {branding.logo_text && (
                     <span 
                       className="text-xl font-bold leading-tight"
                       style={{ color: branding.primary_color }}
                     >
-                      {branding.logo_text || branding.agency_name}
+                      {branding.logo_text}
+                    </span>
+                  )}
+                  {/* Fallback: show agency_name only if no logo and no logo_text */}
+                  {!branding.logo_url && !branding.logo_text && branding.agency_name && (
+                    <span 
+                      className="text-xl font-bold leading-tight"
+                      style={{ color: branding.primary_color }}
+                    >
+                      {branding.agency_name}
                     </span>
                   )}
                 </>
