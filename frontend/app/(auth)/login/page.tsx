@@ -173,6 +173,7 @@ function LoginContent() {
       title={isCustomDomain ? "Iniciar sesión" : "Welcome back"}
       description={isCustomDomain ? "Accede a tu cuenta para continuar" : "Sign in to your account to continue"}
       customHeader={brandedHeader}
+      brandColor={isCustomDomain ? customBranding?.primary_color : undefined}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Email Input */}

@@ -29,16 +29,51 @@ const httpServer = createServer(app)
 // Trust proxy para Railway (necesario para rate limiting y headers)
 app.set('trust proxy', 1)
 
-// Socket.IO con múltiples orígenes permitidos
-const allowedOrigins = [
+// Static allowed origins
+const staticAllowedOrigins = [
   env.frontendUrl,
   'http://localhost:3000',
   'https://localhost:3000',
-].filter(Boolean)
+].filter(Boolean) as string[]
+
+// Dynamic CORS - allows custom domains from database
+const dynamicCorsOrigin = async (origin: string | undefined, callback: (err: Error | null, allow?: boolean | string) => void) => {
+  // Allow requests with no origin (mobile apps, Postman, etc.)
+  if (!origin) {
+    return callback(null, true)
+  }
+  
+  // Allow static origins
+  if (staticAllowedOrigins.includes(origin)) {
+    return callback(null, true)
+  }
+  
+  // Check if it's a custom domain from our database
+  try {
+    const { supabaseAdmin } = await import('./config/supabase')
+    const hostname = new URL(origin).hostname
+    
+    const { data } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('custom_domain', hostname)
+      .eq('custom_domain_verified', true)
+      .single()
+    
+    if (data) {
+      return callback(null, true)
+    }
+  } catch (e) {
+    // Domain not found or error - deny
+  }
+  
+  // Deny unknown origins
+  callback(new Error('Not allowed by CORS'))
+}
 
 const io = new SocketServer(httpServer, {
   cors: {
-    origin: allowedOrigins,
+    origin: staticAllowedOrigins,
     credentials: true,
   },
 })
@@ -46,7 +81,14 @@ const io = new SocketServer(httpServer, {
 // Middleware
 app.use(helmet())
 app.use(compression()) // Gzip compression
-app.use(cors({ origin: allowedOrigins, credentials: true }))
+
+// CORS with dynamic origin checking for custom domains
+app.use(cors({
+  origin: dynamicCorsOrigin,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}))
 
 // Stripe webhook needs raw body - must be before express.json()
 app.use('/api/billing/webhook', express.raw({ type: 'application/json' }))

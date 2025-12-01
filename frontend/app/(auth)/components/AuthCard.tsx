@@ -8,11 +8,32 @@ export interface AuthCardProps {
   description: string
   customHeader?: React.ReactNode  // For custom domain branding
   hideLogo?: boolean              // Hide default Whahook logo
+  brandColor?: string             // Custom brand color for background
 }
 
-export function AuthCard({ children, title, description, customHeader, hideLogo }: AuthCardProps) {
+export function AuthCard({ children, title, description, customHeader, hideLogo, brandColor }: AuthCardProps) {
+  // Generate lighter version of brand color for gradient
+  const getBrandGradient = () => {
+    if (!brandColor) return undefined
+    // Convert hex to RGB and create a very light version
+    const hex = brandColor.replace('#', '')
+    const r = parseInt(hex.substring(0, 2), 16)
+    const g = parseInt(hex.substring(2, 4), 16)
+    const b = parseInt(hex.substring(4, 6), 16)
+    // Create very light tint (95% white)
+    const lightR = Math.round(r + (255 - r) * 0.92)
+    const lightG = Math.round(g + (255 - g) * 0.92)
+    const lightB = Math.round(b + (255 - b) * 0.92)
+    return `linear-gradient(to bottom right, rgb(${lightR}, ${lightG}, ${lightB}), white, rgb(249, 250, 251))`
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-green-50 via-white to-gray-50">
+    <div 
+      className="min-h-screen flex items-center justify-center px-4 py-12"
+      style={{ 
+        background: getBrandGradient() || 'linear-gradient(to bottom right, rgb(240, 253, 244), white, rgb(249, 250, 251))'
+      }}
+    >
       <Card className="w-full max-w-md p-8 shadow-xl">
         {/* Custom Header (for branded domains) */}
         {customHeader}
