@@ -1030,7 +1030,7 @@ class WhatsAppService {
   }
 
   async restoreActiveSessions(): Promise<void> {
-    console.log('🔄 Restoring active sessions...')
+    console.log('[WA-RESTORE] 🔄 Starting session restoration...')
 
     const { data: accounts, error } = await supabaseAdmin
       .from('whatsapp_accounts')
@@ -1038,16 +1038,18 @@ class WhatsAppService {
       .eq('status', 'ready')
 
     if (error) {
-      console.error('Error fetching accounts:', error)
+      console.error('[WA-RESTORE] ❌ Error fetching accounts:', error)
       return
     }
+
+    console.log('[WA-RESTORE] Found accounts in DB:', accounts?.map(a => ({ sessionId: a.session_id, phone: a.phone_number, status: a.status })))
 
     if (!accounts?.length) {
-      console.log('No active sessions to restore')
+      console.log('[WA-RESTORE] No active sessions to restore')
       return
     }
 
-    console.log(`Restoring ${accounts.length} session(s)`)
+    console.log(`[WA-RESTORE] Restoring ${accounts.length} session(s)`)
 
     for (const account of accounts as WhatsAppAccount[]) {
       try {
@@ -1060,11 +1062,13 @@ class WhatsAppService {
 
   private async restoreSession(account: WhatsAppAccount): Promise<void> {
     const { session_id: sessionId, user_id: userId } = account
-    console.log(`Restoring: ${sessionId}`)
+    console.log(`[WA-RESTORE] 📱 Restoring session: ${sessionId} (user: ${userId}, phone: ${account.phone_number})`)
 
     // Limpiar locks de Chrome antes de restaurar
+    console.log(`[WA-RESTORE] Cleaning Chrome locks for ${sessionId}...`)
     await this.cleanChromeLocks(sessionId)
 
+    console.log(`[WA-RESTORE] Creating WhatsApp client for ${sessionId}...`)
     const client = new Client({
       authStrategy: new LocalAuth({
         clientId: sessionId,
@@ -1087,7 +1091,15 @@ class WhatsAppService {
 
     this.sessions.set(sessionId, session)
     this.setupClientEvents(client, sessionId, userId)
-    await client.initialize()
+    
+    console.log(`[WA-RESTORE] Initializing client for ${sessionId}...`)
+    try {
+      await client.initialize()
+      console.log(`[WA-RESTORE] ✅ Client initialized for ${sessionId}`)
+    } catch (error) {
+      console.error(`[WA-RESTORE] ❌ Failed to initialize client for ${sessionId}:`, error)
+      throw error
+    }
   }
 
   /**
