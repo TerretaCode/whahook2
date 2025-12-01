@@ -79,13 +79,10 @@ const settingsNavigation = [
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { isOwner, workspace } = useWorkspaceContext()
+  const { isOwner, workspace, isLoading } = useWorkspaceContext()
   
   // Get user's role in the current workspace
   const memberRole = workspace?.member_role
-  
-  // Debug log
-  console.log('Settings Layout - isOwner:', isOwner, 'memberRole:', memberRole, 'workspace:', workspace?.name)
 
   // Filter navigation based on user permissions
   const filteredNavigation = useMemo(() => {
@@ -101,6 +98,18 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
       return false
     })
   }, [isOwner, memberRole])
+
+  // Show loading state while workspace/role is being determined
+  if (isLoading || !workspace) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">Cargando configuración...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
