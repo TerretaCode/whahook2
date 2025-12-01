@@ -47,7 +47,12 @@ interface DashboardStats {
 export default function DashboardPage() {
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
-  const { workspace, isOwner } = useWorkspaceContext()
+  const { workspace, isOwner, hasPermission } = useWorkspaceContext()
+  
+  // Check permissions for different sections
+  const canViewMessages = isOwner || hasPermission('messages')
+  const canViewClients = isOwner || hasPermission('clients')
+  const canViewSettings = isOwner || hasPermission('settings')
   const [stats, setStats] = useState<DashboardStats>({
     totalConversations: 0,
     whatsappConversations: 0,
@@ -172,8 +177,8 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Alert Banner - Needs Attention (only if > 0) */}
-        {stats.needsAttention > 0 && (
+        {/* Alert Banner - Needs Attention (only if > 0 and has permission) */}
+        {stats.needsAttention > 0 && canViewMessages && (
           <Link href="/conversations?filter=attention">
             <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 hover:bg-red-100 transition-colors cursor-pointer">
               <div className="flex items-center gap-3">
@@ -199,7 +204,8 @@ export default function DashboardPage() {
         {/* Main Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           
-          {/* Needs Attention Card */}
+          {/* Needs Attention Card - Only if can view messages */}
+          {canViewMessages && (
           <Link href="/conversations?filter=attention" className="block">
             <div className={`bg-white rounded-xl border-2 p-5 hover:shadow-md transition-all h-full ${
               stats.needsAttention > 0 ? 'border-red-200 hover:border-red-300' : 'border-gray-100'
@@ -220,8 +226,10 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-500 mt-1">Requieren atención</p>
             </div>
           </Link>
+          )}
 
-          {/* Today's Conversations */}
+          {/* Today's Conversations - Only if can view messages */}
+          {canViewMessages && (
           <Link href="/conversations" className="block">
             <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-md hover:border-green-200 transition-all h-full">
               <div className="flex items-center justify-between mb-3">
@@ -238,8 +246,10 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-500 mt-1">Conversaciones</p>
             </div>
           </Link>
+          )}
 
-          {/* Total Conversations */}
+          {/* Total Conversations - Only if can view messages */}
+          {canViewMessages && (
           <Link href="/conversations" className="block">
             <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-md hover:border-blue-200 transition-all h-full">
               <div className="flex items-center justify-between mb-3">
@@ -261,8 +271,10 @@ export default function DashboardPage() {
               </div>
             </div>
           </Link>
+          )}
 
-          {/* Clients */}
+          {/* Clients - Only if can view clients */}
+          {canViewClients && (
           <Link href="/clients" className="block">
             <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-md hover:border-purple-200 transition-all h-full">
               <div className="flex items-center justify-between mb-3">
@@ -276,9 +288,11 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-500 mt-1">Clientes</p>
             </div>
           </Link>
+          )}
         </div>
 
-        {/* Secondary Stats Row */}
+        {/* Secondary Stats Row - Only show to users with settings permission */}
+        {canViewSettings && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           
           {/* WhatsApp Sessions */}
@@ -343,26 +357,33 @@ export default function DashboardPage() {
             </Link>
           )}
         </div>
+        )}
 
-        {/* Quick Actions */}
+        {/* Quick Actions - Show based on permissions */}
         <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6">
           <h2 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Zap className="w-4 h-4 text-amber-500" />
             Acciones rápidas
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {canViewMessages && (
             <Link href="/conversations">
               <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
                 <MessageSquare className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
                 <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Mensajes</p>
               </div>
             </Link>
+            )}
+            {canViewClients && (
             <Link href="/clients">
               <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
                 <Users className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
                 <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Clientes</p>
               </div>
             </Link>
+            )}
+            {canViewSettings && (
+            <>
             <Link href="/settings/chatbot">
               <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
                 <Bot className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
@@ -375,10 +396,13 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Conexiones</p>
               </div>
             </Link>
+            </>
+            )}
           </div>
         </div>
 
-        {/* AI Control Panel - At the bottom */}
+        {/* AI Control Panel - Only show to users with settings permission */}
+        {canViewSettings && (
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
@@ -488,7 +512,7 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
-
+        )}
       </div>
     </div>
   )

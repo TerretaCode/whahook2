@@ -130,6 +130,25 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
   // Show loading screen while branding is being determined on custom domains
   // This prevents flash of Whahook branding
   if (!brandingReady) {
+    // Try to get branding color from cookies for the loading spinner
+    let spinnerColor = '#9ca3af' // gray-400 default
+    if (typeof window !== 'undefined') {
+      try {
+        const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+          const [key, value] = cookie.trim().split('=')
+          acc[key] = value
+          return acc
+        }, {} as Record<string, string>)
+        const brandingStr = cookies['x-custom-domain-branding']
+        if (brandingStr) {
+          const branding = JSON.parse(decodeURIComponent(brandingStr))
+          if (branding?.primary_color) {
+            spinnerColor = branding.primary_color
+          }
+        }
+      } catch (e) {}
+    }
+    
     return (
       <ThemeProvider
         attribute="class"
@@ -138,7 +157,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
         disableTransitionOnChange
       >
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: spinnerColor }} />
         </div>
       </ThemeProvider>
     )
@@ -155,8 +174,8 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
         <WorkspaceProvider>
           <BrandingProvider>
         <div className={`flex flex-col ${isFullHeightPage ? 'h-screen' : 'min-h-screen'}`}>
-          {/* Header: oculto en páginas de invitación/conexión y custom domains */}
-          {!hideHeader && !isCustomDomain && <Header />}
+          {/* Header: oculto en páginas de invitación/conexión */}
+          {!hideHeader && <Header />}
           
           <main className={`flex-1 ${isFullHeightPage ? 'overflow-hidden' : ''} ${
             isFullHeightPage 
