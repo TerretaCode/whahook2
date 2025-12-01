@@ -26,7 +26,10 @@ import { ProfileSkeleton } from "@/components/skeletons/SettingsSkeletons"
 export default function ProfilePage() {
   const router = useRouter()
   const { user, logout, refreshUser, isLoading: authLoading } = useAuth()
-  const { isOwner } = useWorkspaceContext()
+  const { isOwner, workspace } = useWorkspaceContext()
+  
+  // Check if user is truly an owner (not a member with a role)
+  const isTrueOwner = !workspace?.member_role && isOwner
   
   const [fullName, setFullName] = useState('')
   const [companyName, setCompanyName] = useState('')
@@ -223,8 +226,8 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Plan Card - Only show to workspace owners */}
-      {isOwner && (
+      {/* Plan Card - Only show to true workspace owners (not members) */}
+      {isTrueOwner && (
         <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
