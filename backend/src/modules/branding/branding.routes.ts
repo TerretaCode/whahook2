@@ -66,6 +66,7 @@ router.get('/', async (req: Request, res: Response) => {
       success: true,
       data: profile.agency_branding || {
         logo_url: null,
+        logo_text: '',
         primary_color: '#22c55e',
         secondary_color: '#16a34a',
         agency_name: '',
@@ -109,6 +110,7 @@ router.put('/', async (req: Request, res: Response) => {
     // Validate branding data
     const validBranding = {
       logo_url: branding.logo_url || null,
+      logo_text: branding.logo_text || '',
       primary_color: branding.primary_color || '#22c55e',
       secondary_color: branding.secondary_color || '#16a34a',
       agency_name: branding.agency_name || '',

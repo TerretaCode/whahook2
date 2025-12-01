@@ -65,19 +65,24 @@ export function Header() {
             
             {/* Logo - Show agency branding if whitelabel */}
             <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              {isWhitelabel && branding.logo_url ? (
-                <img 
-                  src={branding.logo_url} 
-                  alt={branding.agency_name || 'Logo'} 
-                  className="h-8 object-contain max-w-[150px]"
-                />
-              ) : isWhitelabel && branding.agency_name ? (
-                <span 
-                  className="text-xl font-bold leading-tight"
-                  style={{ color: branding.primary_color }}
-                >
-                  {branding.agency_name}
-                </span>
+              {isWhitelabel && (branding.logo_url || branding.logo_text) ? (
+                <>
+                  {branding.logo_url && (
+                    <img 
+                      src={branding.logo_url} 
+                      alt={branding.agency_name || 'Logo'} 
+                      className="h-8 object-contain"
+                    />
+                  )}
+                  {branding.logo_text && (
+                    <span 
+                      className="text-xl font-bold leading-tight"
+                      style={{ color: branding.primary_color }}
+                    >
+                      {branding.logo_text}
+                    </span>
+                  )}
+                </>
               ) : (
                 <>
                   <LogoIcon className="w-8 h-8 text-green-600" />

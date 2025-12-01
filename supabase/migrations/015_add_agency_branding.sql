@@ -11,9 +11,10 @@ ADD COLUMN IF NOT EXISTS agency_branding JSONB DEFAULT NULL;
 -- Estructura esperada del JSONB:
 -- {
 --   "logo_url": "https://...",
+--   "logo_text": "Mi Agencia",           -- Texto opcional al lado del logo
 --   "primary_color": "#22c55e",
 --   "secondary_color": "#16a34a", 
---   "agency_name": "Mi Agencia",
+--   "agency_name": "Mi Agencia",           -- Nombre interno de la agencia
 --   "powered_by_text": "Powered by Mi Agencia",
 --   "show_powered_by": true
 -- }

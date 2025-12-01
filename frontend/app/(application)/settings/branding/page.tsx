@@ -20,6 +20,7 @@ import Link from "next/link"
 
 interface AgencyBranding {
   logo_url: string | null
+  logo_text: string           // Texto opcional al lado del logo
   primary_color: string
   secondary_color: string
   agency_name: string
@@ -29,6 +30,7 @@ interface AgencyBranding {
 
 const DEFAULT_BRANDING: AgencyBranding = {
   logo_url: null,
+  logo_text: '',
   primary_color: '#22c55e',
   secondary_color: '#16a34a',
   agency_name: '',
@@ -228,6 +230,23 @@ export default function AgencyBrandingPage() {
                 </label>
               )}
             </div>
+          </div>
+
+          {/* Logo Text */}
+          <div className="mt-4">
+            <Label htmlFor="logo_text" className="mb-2 block">
+              Texto del logo <span className="text-gray-400 font-normal">(opcional)</span>
+            </Label>
+            <Input
+              id="logo_text"
+              value={branding.logo_text}
+              onChange={(e) => setBranding(prev => ({ ...prev, logo_text: e.target.value }))}
+              placeholder="Mi Agencia"
+              className="max-w-md"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Se mostrará al lado del logo. Déjalo vacío si tu logo ya incluye el nombre.
+            </p>
           </div>
         </div>
 

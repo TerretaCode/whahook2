@@ -6,6 +6,7 @@ import { ApiClient } from '@/lib/api-client'
 
 export interface AgencyBranding {
   logo_url: string | null
+  logo_text: string           // Texto opcional al lado del logo
   primary_color: string
   secondary_color: string
   agency_name: string
@@ -15,6 +16,7 @@ export interface AgencyBranding {
 
 const DEFAULT_BRANDING: AgencyBranding = {
   logo_url: null,
+  logo_text: 'WhaHook',
   primary_color: '#22c55e',
   secondary_color: '#16a34a',
   agency_name: 'WhaHook',

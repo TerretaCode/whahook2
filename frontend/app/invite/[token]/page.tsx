@@ -17,6 +17,7 @@ import { createClient } from '@/lib/supabase'
 
 interface AgencyBranding {
   logo_url: string | null
+  logo_text: string
   primary_color: string
   agency_name: string
 }
@@ -263,12 +264,24 @@ export default function AcceptInvitationPage() {
         {/* Header with Branding */}
         <div className="text-center mb-8">
           {/* Agency Logo or Icon */}
-          {data?.branding?.logo_url ? (
-            <img 
-              src={data.branding.logo_url} 
-              alt={data.branding.agency_name || 'Logo'} 
-              className="h-12 object-contain mx-auto mb-4"
-            />
+          {data?.branding?.logo_url || data?.branding?.logo_text ? (
+            <div className="flex items-center justify-center gap-2 mb-4">
+              {data?.branding?.logo_url && (
+                <img 
+                  src={data.branding.logo_url} 
+                  alt={data.branding.agency_name || 'Logo'} 
+                  className="h-10 object-contain"
+                />
+              )}
+              {data?.branding?.logo_text && (
+                <span 
+                  className="text-2xl font-bold"
+                  style={{ color: primaryColor }}
+                >
+                  {data.branding.logo_text}
+                </span>
+              )}
+            </div>
           ) : (
             <div 
               className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
