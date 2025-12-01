@@ -23,6 +23,7 @@ interface AgencyBranding {
   logo_text: string           // Texto opcional al lado del logo
   primary_color: string       // Color de marca (botones, iconos, acentos)
   agency_name: string
+  agency_slug: string         // URL slug para el portal de la agencia (ej: miagencia)
   powered_by_text: string
   show_powered_by: boolean
 }
@@ -32,6 +33,7 @@ const DEFAULT_BRANDING: AgencyBranding = {
   logo_text: '',
   primary_color: '#22c55e',
   agency_name: '',
+  agency_slug: '',
   powered_by_text: '',
   show_powered_by: true
 }
@@ -290,6 +292,48 @@ export default function AgencyBrandingPage() {
               <p className="text-xs text-gray-500 mt-1">
                 Se mostrará en lugar de "Whahook" en los widgets
               </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Agency Portal URL Section */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Portal de Acceso</h2>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="agency_slug" className="mb-2 block">URL del portal</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500 whitespace-nowrap">
+                  {typeof window !== 'undefined' ? window.location.origin : 'https://app.whahook.com'}/a/
+                </span>
+                <Input
+                  id="agency_slug"
+                  value={branding.agency_slug}
+                  onChange={(e) => setBranding(prev => ({ 
+                    ...prev, 
+                    agency_slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') 
+                  }))}
+                  placeholder="miagencia"
+                  className="flex-1"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Este será el enlace que usarán tus clientes para acceder al panel con tu branding.
+                Solo letras minúsculas, números y guiones.
+              </p>
+              {branding.agency_slug && (
+                <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                  <p className="text-sm text-green-800">
+                    <span className="font-medium">Tu portal:</span>{' '}
+                    <code className="bg-green-100 px-2 py-0.5 rounded">
+                      {typeof window !== 'undefined' ? window.location.origin : 'https://app.whahook.com'}/a/{branding.agency_slug}
+                    </code>
+                  </p>
+                  <p className="text-xs text-green-600 mt-1">
+                    Los usuarios invitados accederán aquí para login (sin opción de registro)
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
