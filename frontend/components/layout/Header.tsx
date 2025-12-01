@@ -8,6 +8,7 @@ import { useScrollDirection } from '@/hooks/ui/useScrollDirection'
 import { useAuth } from '@/contexts/AuthContext'
 import { useNotifications } from '@/hooks/ui/useNotifications'
 import { useWorkspaceContext } from '@/contexts/WorkspaceContext'
+import { useBranding } from '@/hooks/useBranding'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
@@ -18,6 +19,7 @@ export function Header() {
   const { user } = useAuth()
   const { hasUnread } = useNotifications()
   const { hasPermission, isOwner } = useWorkspaceContext()
+  const { branding, isWhitelabel } = useBranding()
   const [scrollY, setScrollY] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -61,18 +63,35 @@ export function Header() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             
-            {/* Logo */}
+            {/* Logo - Show agency branding if whitelabel */}
             <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <LogoIcon className="w-8 h-8 text-green-600" />
-              <div className="flex flex-col gap-0.5">
-                <span className="text-xl font-bold text-gray-900 leading-tight">
-                  WhaHook
+              {isWhitelabel && branding.logo_url ? (
+                <img 
+                  src={branding.logo_url} 
+                  alt={branding.agency_name || 'Logo'} 
+                  className="h-8 object-contain max-w-[150px]"
+                />
+              ) : isWhitelabel && branding.agency_name ? (
+                <span 
+                  className="text-xl font-bold leading-tight"
+                  style={{ color: branding.primary_color }}
+                >
+                  {branding.agency_name}
                 </span>
-                <span className="text-[10px] leading-tight ml-0.5">
-                  <span className="text-gray-900">by </span>
-                  <span className="text-green-600">TerretaCode</span>
-                </span>
-              </div>
+              ) : (
+                <>
+                  <LogoIcon className="w-8 h-8 text-green-600" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xl font-bold text-gray-900 leading-tight">
+                      WhaHook
+                    </span>
+                    <span className="text-[10px] leading-tight ml-0.5">
+                      <span className="text-gray-900">by </span>
+                      <span className="text-green-600">TerretaCode</span>
+                    </span>
+                  </div>
+                </>
+              )}
             </Link>
 
             {/* Desktop Navigation - Only show if logged in */}

@@ -546,4 +546,80 @@ router.delete('/:id', async (req: Request, res: Response) => {
   }
 })
 
+/**
+ * GET /api/workspaces/:id/branding
+ * Get the branding configuration for a workspace (from the owner's profile)
+ * This is used to show white-label branding to invited users
+ */
+router.get('/:id/branding', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+    
+    // Get the workspace to find the owner
+    const { data: workspace, error: wsError } = await supabaseAdmin
+      .from('workspaces')
+      .select('owner_id')
+      .eq('id', id)
+      .single()
+    
+    if (wsError || !workspace) {
+      return res.status(404).json({ success: false, error: 'Workspace not found' })
+    }
+    
+    // Get the owner's branding from their profile
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('agency_branding, subscription_tier')
+      .eq('id', workspace.owner_id)
+      .single()
+    
+    if (profileError || !profile) {
+      // Return default branding if no profile found
+      return res.json({
+        success: true,
+        data: {
+          logo_url: null,
+          primary_color: '#22c55e',
+          secondary_color: '#16a34a',
+          agency_name: '',
+          powered_by_text: '',
+          show_powered_by: true
+        }
+      })
+    }
+    
+    // Only return branding if owner has enterprise plan
+    if (profile.subscription_tier !== 'enterprise') {
+      return res.json({
+        success: true,
+        data: {
+          logo_url: null,
+          primary_color: '#22c55e',
+          secondary_color: '#16a34a',
+          agency_name: '',
+          powered_by_text: '',
+          show_powered_by: true
+        }
+      })
+    }
+    
+    // Return the owner's agency branding
+    const branding = profile.agency_branding || {}
+    res.json({
+      success: true,
+      data: {
+        logo_url: branding.logo_url || null,
+        primary_color: branding.primary_color || '#22c55e',
+        secondary_color: branding.secondary_color || '#16a34a',
+        agency_name: branding.agency_name || '',
+        powered_by_text: branding.powered_by_text || '',
+        show_powered_by: branding.show_powered_by !== false
+      }
+    })
+  } catch (error: any) {
+    console.error('Error in GET /workspaces/:id/branding:', error)
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
 export default router

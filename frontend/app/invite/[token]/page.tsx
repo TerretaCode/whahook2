@@ -15,6 +15,12 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
+interface AgencyBranding {
+  logo_url: string | null
+  primary_color: string
+  agency_name: string
+}
+
 interface InvitationData {
   member_id: string
   workspace_id: string
@@ -24,6 +30,7 @@ interface InvitationData {
   role: string
   inviter_name?: string
   status: 'pending' | 'active' | 'expired'
+  branding?: AgencyBranding
 }
 
 const ROLE_LABELS: Record<string, string> = {
@@ -73,6 +80,17 @@ export default function AcceptInvitationPage() {
         if (result.data.status === 'expired') {
           setError('This invitation has expired')
           return
+        }
+
+        // Fetch branding for this workspace
+        try {
+          const brandingResponse = await fetch(`${apiUrl}/api/workspaces/${result.data.workspace_id}/branding`)
+          const brandingResult = await brandingResponse.json()
+          if (brandingResult.success && brandingResult.data) {
+            result.data.branding = brandingResult.data
+          }
+        } catch {
+          // Ignore branding errors, use default
         }
 
         setData(result.data)
@@ -235,27 +253,44 @@ export default function AcceptInvitationPage() {
     )
   }
 
+  // Get branding colors
+  const primaryColor = data?.branding?.primary_color || '#22c55e'
+  const hasCustomBranding = !!(data?.branding?.logo_url || data?.branding?.agency_name)
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
-        {/* Header */}
+        {/* Header with Branding */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-8 h-8 text-green-600" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">You're Invited!</h1>
+          {/* Agency Logo or Icon */}
+          {data?.branding?.logo_url ? (
+            <img 
+              src={data.branding.logo_url} 
+              alt={data.branding.agency_name || 'Logo'} 
+              className="h-12 object-contain mx-auto mb-4"
+            />
+          ) : (
+            <div 
+              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{ backgroundColor: `${primaryColor}20` }}
+            >
+              <Building2 className="w-8 h-8" style={{ color: primaryColor }} />
+            </div>
+          )}
+          
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">¡Estás invitado!</h1>
           <p className="text-gray-600">
             {data?.inviter_name ? (
-              <><strong>{data.inviter_name}</strong> has invited you to join</>
+              <><strong>{data.inviter_name}</strong> te ha invitado a unirte a</>
             ) : (
-              <>You've been invited to join</>
+              <>Has sido invitado a unirte a</>
             )}
           </p>
-          <p className="text-lg font-semibold text-green-600 mt-1">
+          <p className="text-lg font-semibold mt-1" style={{ color: primaryColor }}>
             {data?.workspace_name}
           </p>
           <span className="inline-block mt-2 px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
-            Role: {ROLE_LABELS[data?.role || ''] || data?.role}
+            Rol: {ROLE_LABELS[data?.role || ''] || data?.role}
           </span>
         </div>
 
@@ -327,24 +362,25 @@ export default function AcceptInvitationPage() {
           <Button
             type="submit"
             disabled={isCreating || !password || !confirmPassword}
-            className="w-full bg-green-600 hover:bg-green-700"
+            className="w-full text-white"
+            style={{ backgroundColor: primaryColor }}
           >
             {isCreating ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creating Account...
+                Creando cuenta...
               </>
             ) : (
-              'Create Account & Join'
+              'Crear cuenta y unirme'
             )}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
-            Already have an account?{' '}
-            <a href="/login" className="text-green-600 hover:underline font-medium">
-              Login here
+            ¿Ya tienes una cuenta?{' '}
+            <a href="/login" className="hover:underline font-medium" style={{ color: primaryColor }}>
+              Inicia sesión aquí
             </a>
           </p>
         </div>
