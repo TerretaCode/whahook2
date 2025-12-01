@@ -23,6 +23,7 @@ interface SettingsLayoutProps {
 }
 
 // Navigation items with permission requirements
+// allowedRoles: which member roles can see this (undefined = owner only, empty array = everyone)
 const settingsNavigation = [
   {
     id: 'workspaces',
@@ -30,7 +31,7 @@ const settingsNavigation = [
     href: '/settings/workspaces',
     icon: Building2,
     description: 'Manage workspaces & settings',
-    requiresOwner: true // Only workspace owners
+    allowedRoles: [] as string[] // Only owners
   },
   {
     id: 'connections',
@@ -38,7 +39,7 @@ const settingsNavigation = [
     href: '/settings/connections',
     icon: Smartphone,
     description: 'WhatsApp & Web Widgets',
-    requiresOwner: false // Available to invited members too
+    allowedRoles: ['admin', 'client'] // Owners, admins, and clients (not agent/viewer)
   },
   {
     id: 'chatbot',
@@ -46,7 +47,7 @@ const settingsNavigation = [
     href: '/settings/chatbot',
     icon: Bot,
     description: 'AI & API Keys',
-    requiresOwner: true // Only workspace owners
+    allowedRoles: [] as string[] // Only owners
   },
   {
     id: 'billing',
@@ -54,7 +55,7 @@ const settingsNavigation = [
     href: '/settings/billing',
     icon: CreditCard,
     description: 'Plan & payments',
-    requiresOwner: true // Only workspace owners
+    allowedRoles: [] as string[] // Only owners
   },
   {
     id: 'profile',
@@ -62,23 +63,30 @@ const settingsNavigation = [
     href: '/settings/profile',
     icon: User,
     description: 'Your account',
-    requiresOwner: false // Available to everyone
+    allowedRoles: ['admin', 'client', 'agent', 'viewer'] // Everyone
   }
 ]
 
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { isOwner } = useWorkspaceContext()
+  const { isOwner, workspace } = useWorkspaceContext()
+  
+  // Get user's role in the current workspace
+  const memberRole = workspace?.member_role
 
   // Filter navigation based on user permissions
   const filteredNavigation = useMemo(() => {
     return settingsNavigation.filter(item => {
-      // If requires owner, only show to owners
-      if (item.requiresOwner && !isOwner) return false
-      return true
+      // Owners can see everything
+      if (isOwner) return true
+      
+      // For members, check if their role is in allowedRoles
+      if (memberRole && item.allowedRoles.includes(memberRole)) return true
+      
+      return false
     })
-  }, [isOwner])
+  }, [isOwner, memberRole])
 
   return (
     <div className="min-h-screen bg-gray-50">
