@@ -33,48 +33,6 @@ async function getUserIdFromToken(req: Request): Promise<string | null> {
 }
 
 /**
- * GET /api/branding/agency/:slug
- * Get agency branding by slug (PUBLIC - no auth required)
- * Used for agency portal pages (/a/:slug/login, etc.)
- */
-router.get('/agency/:slug', async (req: Request, res: Response) => {
-  try {
-    const { slug } = req.params
-
-    if (!slug || slug.length < 3) {
-      return res.status(400).json({ success: false, error: 'Invalid slug' })
-    }
-
-    const { data: profile, error } = await supabaseAdmin
-      .from('profiles')
-      .select('agency_branding, agency_slug, subscription_tier')
-      .eq('agency_slug', slug.toLowerCase())
-      .eq('subscription_tier', 'enterprise')
-      .single()
-
-    if (error || !profile) {
-      return res.status(404).json({ success: false, error: 'Agency not found' })
-    }
-
-    // Return only public branding info (no sensitive data)
-    const branding = profile.agency_branding || {}
-    res.json({
-      success: true,
-      data: {
-        logo_url: branding.logo_url || null,
-        logo_text: branding.logo_text || '',
-        primary_color: branding.primary_color || '#22c55e',
-        agency_name: branding.agency_name || '',
-        agency_slug: profile.agency_slug
-      }
-    })
-  } catch (error: any) {
-    console.error('Error in GET /branding/agency/:slug:', error)
-    res.status(500).json({ success: false, error: error.message })
-  }
-})
-
-/**
  * GET /api/branding
  * Get the current user's agency branding
  */
@@ -87,7 +45,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')
-      .select('agency_branding, agency_slug, subscription_tier')
+      .select('agency_branding, subscription_tier')
       .eq('id', userId)
       .single()
 
@@ -106,16 +64,13 @@ router.get('/', async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      data: {
-        ...(profile.agency_branding || {
-          logo_url: null,
-          logo_text: '',
-          primary_color: '#22c55e',
-          agency_name: '',
-          powered_by_text: '',
-          show_powered_by: true
-        }),
-        agency_slug: profile.agency_slug || ''
+      data: profile.agency_branding || {
+        logo_url: null,
+        logo_text: '',
+        primary_color: '#22c55e',
+        agency_name: '',
+        powered_by_text: '',
+        show_powered_by: true
       }
     })
   } catch (error: any) {
@@ -151,48 +106,6 @@ router.put('/', async (req: Request, res: Response) => {
 
     const branding = req.body
 
-    // Validate agency_slug if provided
-    let agency_slug = branding.agency_slug || null
-    if (agency_slug) {
-      // Normalize slug: lowercase, only alphanumeric and hyphens
-      agency_slug = agency_slug.toLowerCase().replace(/[^a-z0-9-]/g, '')
-      
-      // Validate slug format
-      if (agency_slug.length < 3) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'El slug debe tener al menos 3 caracteres' 
-        })
-      }
-      if (agency_slug.length > 50) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'El slug no puede tener más de 50 caracteres' 
-        })
-      }
-      if (agency_slug.startsWith('-') || agency_slug.endsWith('-')) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'El slug no puede empezar ni terminar con guión' 
-        })
-      }
-
-      // Check if slug is already taken by another user
-      const { data: existingSlug } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .eq('agency_slug', agency_slug)
-        .neq('id', userId)
-        .single()
-
-      if (existingSlug) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Este slug ya está en uso. Por favor elige otro.' 
-        })
-      }
-    }
-
     // Validate branding data
     const validBranding = {
       logo_url: branding.logo_url || null,
@@ -205,17 +118,14 @@ router.put('/', async (req: Request, res: Response) => {
 
     const { error } = await supabaseAdmin
       .from('profiles')
-      .update({ 
-        agency_branding: validBranding,
-        agency_slug: agency_slug
-      })
+      .update({ agency_branding: validBranding })
       .eq('id', userId)
 
     if (error) {
       return res.status(500).json({ success: false, error: error.message })
     }
 
-    res.json({ success: true, data: { ...validBranding, agency_slug } })
+    res.json({ success: true, data: validBranding })
   } catch (error: any) {
     console.error('Error in PUT /branding:', error)
     res.status(500).json({ success: false, error: error.message })
