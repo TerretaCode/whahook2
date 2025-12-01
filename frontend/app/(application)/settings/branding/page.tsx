@@ -14,7 +14,12 @@ import {
   Upload,
   Save,
   Crown,
-  AlertCircle
+  AlertCircle,
+  Globe,
+  CheckCircle2,
+  Copy,
+  Trash2,
+  RefreshCw
 } from "lucide-react"
 import Link from "next/link"
 
@@ -44,6 +49,14 @@ export default function AgencyBrandingPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  
+  // Custom domain state
+  const [customDomain, setCustomDomain] = useState('')
+  const [domainVerified, setDomainVerified] = useState(false)
+  const [domainInput, setDomainInput] = useState('')
+  const [isVerifyingDomain, setIsVerifyingDomain] = useState(false)
+  const [isSavingDomain, setIsSavingDomain] = useState(false)
+  const [isDeletingDomain, setIsDeletingDomain] = useState(false)
 
   const isEnterprise = user?.profile?.subscription_tier === 'enterprise'
 
@@ -56,6 +69,7 @@ export default function AgencyBrandingPage() {
   useEffect(() => {
     if (user) {
       loadBranding()
+      loadDomain()
     }
   }, [user])
 
@@ -71,6 +85,86 @@ export default function AgencyBrandingPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const loadDomain = async () => {
+    try {
+      const response = await ApiClient.get<{ domain: string | null; verified: boolean }>('/api/domains')
+      if (response.success && response.data) {
+        setCustomDomain(response.data.domain || '')
+        setDomainVerified(response.data.verified || false)
+        setDomainInput(response.data.domain || '')
+      }
+    } catch (error) {
+      console.error('Error loading domain:', error)
+    }
+  }
+
+  const handleSaveDomain = async () => {
+    if (!isEnterprise) {
+      toast.error('Plan Enterprise requerido', 'Actualiza tu plan para usar dominio personalizado')
+      return
+    }
+
+    if (!domainInput.trim()) {
+      toast.error('Error', 'Introduce un dominio válido')
+      return
+    }
+
+    try {
+      setIsSavingDomain(true)
+      const response = await ApiClient.post('/api/domains', { domain: domainInput.trim() })
+      if (response.success) {
+        setCustomDomain(domainInput.trim())
+        setDomainVerified(false)
+        toast.success('Dominio guardado', 'Ahora configura el DNS y verifica el dominio')
+      }
+    } catch (error: any) {
+      toast.error('Error', error.message || 'No se pudo guardar el dominio')
+    } finally {
+      setIsSavingDomain(false)
+    }
+  }
+
+  const handleVerifyDomain = async () => {
+    try {
+      setIsVerifyingDomain(true)
+      const response = await ApiClient.post('/api/domains/verify', {})
+      if (response.success) {
+        setDomainVerified(true)
+        toast.success('¡Dominio verificado!', 'Tu dominio personalizado está activo')
+      }
+    } catch (error: any) {
+      toast.error('Verificación fallida', error.message || 'Asegúrate de haber configurado el DNS correctamente')
+    } finally {
+      setIsVerifyingDomain(false)
+    }
+  }
+
+  const handleDeleteDomain = async () => {
+    if (!confirm('¿Estás seguro de que quieres eliminar el dominio personalizado?')) {
+      return
+    }
+
+    try {
+      setIsDeletingDomain(true)
+      const response = await ApiClient.delete('/api/domains')
+      if (response.success) {
+        setCustomDomain('')
+        setDomainVerified(false)
+        setDomainInput('')
+        toast.success('Dominio eliminado', 'El dominio personalizado ha sido eliminado')
+      }
+    } catch (error: any) {
+      toast.error('Error', error.message || 'No se pudo eliminar el dominio')
+    } finally {
+      setIsDeletingDomain(false)
+    }
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    toast.success('Copiado', 'Texto copiado al portapapeles')
   }
 
   const handleSave = async () => {
@@ -331,6 +425,129 @@ export default function AgencyBrandingPage() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Custom Domain Section */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Globe className="w-5 h-5 text-green-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Dominio Personalizado</h2>
+          </div>
+          
+          <p className="text-sm text-gray-600 mb-4">
+            Usa tu propio dominio para que tus clientes accedan al panel sin ver "whahook" en la URL.
+            Por ejemplo: <code className="bg-gray-100 px-1 rounded">panel.tuagencia.com</code>
+          </p>
+
+          {customDomain ? (
+            <div className="space-y-4">
+              {/* Current domain status */}
+              <div className={`p-4 rounded-lg border ${domainVerified ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {domainVerified ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    ) : (
+                      <AlertCircle className="w-5 h-5 text-amber-600" />
+                    )}
+                    <div>
+                      <p className="font-medium text-gray-900">{customDomain}</p>
+                      <p className={`text-sm ${domainVerified ? 'text-green-600' : 'text-amber-600'}`}>
+                        {domainVerified ? 'Dominio activo y verificado' : 'Pendiente de verificación DNS'}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDeleteDomain}
+                    disabled={isDeletingDomain}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    {isDeletingDomain ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  </Button>
+                </div>
+              </div>
+
+              {/* DNS Instructions (if not verified) */}
+              {!domainVerified && (
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <h3 className="font-medium text-gray-900">Configura tu DNS</h3>
+                  <p className="text-sm text-gray-600">
+                    Añade este registro CNAME en tu proveedor de DNS (GoDaddy, Cloudflare, etc.):
+                  </p>
+                  <div className="bg-white rounded border p-3 font-mono text-sm">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-gray-500">Tipo:</span> <span className="font-semibold">CNAME</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between mt-2">
+                      <div>
+                        <span className="text-gray-500">Nombre:</span> <span className="font-semibold">{customDomain.split('.')[0]}</span>
+                      </div>
+                      <button onClick={() => copyToClipboard(customDomain.split('.')[0])} className="text-gray-400 hover:text-gray-600">
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between mt-2">
+                      <div>
+                        <span className="text-gray-500">Valor:</span> <span className="font-semibold">cname.vercel-dns.com</span>
+                      </div>
+                      <button onClick={() => copyToClipboard('cname.vercel-dns.com')} className="text-gray-400 hover:text-gray-600">
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    La propagación DNS puede tardar hasta 48 horas, aunque normalmente es más rápido.
+                  </p>
+                  <Button
+                    onClick={handleVerifyDomain}
+                    disabled={isVerifyingDomain}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  >
+                    {isVerifyingDomain ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Verificando...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Verificar DNS
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="custom_domain" className="mb-2 block">Tu dominio</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="custom_domain"
+                    value={domainInput}
+                    onChange={(e) => setDomainInput(e.target.value.toLowerCase())}
+                    placeholder="panel.tuagencia.com"
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={handleSaveDomain}
+                    disabled={isSavingDomain || !domainInput.trim()}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    {isSavingDomain ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Configurar'}
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Introduce el subdominio completo que quieres usar (ej: panel.tuagencia.com)
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         </div>
