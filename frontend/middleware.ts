@@ -15,9 +15,10 @@ const MAIN_DOMAINS = [
 const ALLOWED_CUSTOM_DOMAIN_PATHS = [
   '/login',
   '/dashboard',
-  '/messages',
+  '/conversations', // Chat/messages page
   '/clients',
   '/settings',
+  '/config',
   '/chatbot',
   '/ecommerce',
   '/webhooks',
