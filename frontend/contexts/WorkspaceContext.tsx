@@ -104,7 +104,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     ? DEFAULT_PERMISSIONS 
     : workspace?.member_permissions || DEFAULT_PERMISSIONS
 
-  const isOwner = workspace?.is_owner ?? true
+  const isOwner = workspace?.is_owner === true
 
   const hasPermission = (permission: keyof WorkspacePermissions): boolean => {
     if (isOwner) return true

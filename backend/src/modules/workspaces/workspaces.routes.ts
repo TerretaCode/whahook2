@@ -109,7 +109,8 @@ router.get('/', async (req: Request, res: Response) => {
         ...(m.workspaces as any),
         member_role: m.role,
         member_permissions: m.permissions,
-        is_member: true
+        is_member: true,
+        is_owner: false  // Explicitly set to false for members
       }))
 
     // Combine and dedupe (owned workspaces first)
