@@ -20,7 +20,7 @@ import { toast } from '@/lib/toast'
 interface WorkspaceMember {
   id: string
   user_id: string | null
-  role: 'owner' | 'admin' | 'client' | 'messages' | 'marketing' | 'custom'
+  role: 'owner' | 'admin' | 'client' | 'agent' | 'messages' | 'marketing' | 'custom'
   permissions: {
     dashboard: boolean
     messages: boolean
@@ -46,6 +46,7 @@ const ROLE_LABELS: Record<string, string> = {
   owner: 'Owner',
   admin: 'Admin',
   client: 'Client',
+  agent: 'Agente',
   messages: 'Mensajes',
   marketing: 'Marketing',
   custom: 'Custom'
@@ -55,6 +56,7 @@ const ROLE_COLORS: Record<string, string> = {
   owner: 'bg-purple-100 text-purple-800',
   admin: 'bg-blue-100 text-blue-800',
   client: 'bg-green-100 text-green-800',
+  agent: 'bg-teal-100 text-teal-800',
   messages: 'bg-gray-100 text-gray-800',
   marketing: 'bg-cyan-100 text-cyan-800',
   custom: 'bg-orange-100 text-orange-800'
@@ -65,7 +67,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
   const [isLoading, setIsLoading] = useState(true)
   const [showInviteForm, setShowInviteForm] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteRole, setInviteRole] = useState<'admin' | 'client' | 'messages' | 'marketing'>('client')
+  const [inviteRole, setInviteRole] = useState<'admin' | 'client' | 'agent' | 'messages' | 'marketing'>('client')
   const [isInviting, setIsInviting] = useState(false)
   const [copiedToken, setCopiedToken] = useState<string | null>(null)
 
@@ -213,9 +215,10 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                   className="w-full h-10 px-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
                 >
                   <option value="admin">Admin - Full access</option>
-                  <option value="client">Client - Dashboard, Messages, Clients, Campaigns</option>
+                  <option value="client">Client - Dashboard, Messages, Clients, Campaigns + Connections</option>
+                  <option value="agent">Agente - Dashboard, Messages, Clients</option>
                   <option value="messages">Mensajes - Dashboard, Messages only</option>
-                  <option value="marketing">Marketing - Dashboard, Clients & Campaigns (no messages)</option>
+                  <option value="marketing">Marketing - Dashboard, Clients & Campaigns</option>
                 </select>
               </div>
             </div>

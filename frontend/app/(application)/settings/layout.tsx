@@ -72,7 +72,7 @@ const settingsNavigation = [
     href: '/settings/profile',
     icon: User,
     description: 'Your account',
-    allowedRoles: ['admin', 'client', 'messages', 'marketing'] // Everyone
+    allowedRoles: ['admin', 'client', 'agent', 'messages', 'marketing'] // Everyone
   }
 ]
 
