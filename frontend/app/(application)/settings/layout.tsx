@@ -16,7 +16,8 @@ import {
   User,
   CreditCard,
   Building2,
-  Users
+  Users,
+  Palette
 } from "lucide-react"
 
 interface SettingsLayoutProps {
@@ -26,6 +27,14 @@ interface SettingsLayoutProps {
 // Navigation items with permission requirements
 // allowedRoles: which member roles can see this (undefined = owner only, empty array = everyone)
 const settingsNavigation = [
+  {
+    id: 'branding',
+    name: 'Branding',
+    href: '/settings/branding',
+    icon: Palette,
+    description: 'Logo, colores y marca',
+    allowedRoles: [] as string[] // Only owners (Enterprise)
+  },
   {
     id: 'workspaces',
     name: 'Workspaces',

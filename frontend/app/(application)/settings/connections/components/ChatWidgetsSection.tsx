@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Plus, MessageSquare, Trash2, Code, Copy, Check, Loader2, ExternalLink, ChevronDown, ChevronUp, Settings, Download, Puzzle, Bot, Lock, Crown } from 'lucide-react'
+import { Plus, MessageSquare, Trash2, Code, Copy, Check, Loader2, ExternalLink, ChevronDown, ChevronUp, Settings, Download, Puzzle, Bot, Lock, Crown, Palette } from 'lucide-react'
 import { ApiClient } from '@/lib/api-client'
 import { toast } from '@/lib/toast'
 import { useAuth } from '@/contexts/AuthContext'
@@ -544,93 +544,32 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
               </div>
             </div>
 
-            {/* Step 4: Branding (Enterprise) */}
+            {/* Step 4: Branding Info */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-md font-medium">
                 <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center">4</span>
                 Branding
-                {!isEnterprise && (
-                  <span className="flex items-center gap-1 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
-                    <Crown className="w-3 h-3" />
-                    Enterprise
-                  </span>
-                )}
               </div>
               
-              <div className={`pl-8 space-y-4 ${!isEnterprise ? 'opacity-60' : ''}`}>
-                {/* Powered By Toggle */}
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-3">
+              <div className="pl-8">
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-start gap-3">
+                    <Palette className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Show "Powered by" badge</p>
-                      <p className="text-xs text-gray-500">Display branding at the bottom of the widget</p>
+                      <p className="text-sm font-medium text-blue-900">Configuración de branding centralizada</p>
+                      <p className="text-xs text-blue-700 mt-1">
+                        El branding del widget se configura desde la sección de Branding en Settings.
+                        Puedes personalizar el logo, colores y el badge "Powered by" de forma global.
+                      </p>
+                      <Link href="/settings/branding">
+                        <Button size="sm" variant="outline" className="mt-2 border-blue-300 text-blue-800 hover:bg-blue-100">
+                          <Palette className="w-3 h-3 mr-1" />
+                          Ir a Branding
+                        </Button>
+                      </Link>
                     </div>
-                  </div>
-                  <div className="relative">
-                    {!isEnterprise && (
-                      <div className="absolute inset-0 flex items-center justify-center z-10">
-                        <Lock className="w-4 h-4 text-gray-400" />
-                      </div>
-                    )}
-                    <label className={`relative inline-flex items-center ${!isEnterprise ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-                      <input
-                        type="checkbox"
-                        checked={formData.powered_by_enabled}
-                        onChange={(e) => isEnterprise && setFormData({ ...formData, powered_by_enabled: e.target.checked })}
-                        disabled={!isEnterprise}
-                        className="sr-only peer"
-                      />
-                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600 ${!isEnterprise ? 'opacity-50' : ''}`}></div>
-                    </label>
                   </div>
                 </div>
-
-                {/* Powered By Text */}
-                {formData.powered_by_enabled && (
-                  <div>
-                    <Label>Powered by text</Label>
-                    <div className="relative">
-                      {!isEnterprise && (
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10">
-                          <Lock className="w-4 h-4 text-gray-400" />
-                        </div>
-                      )}
-                      <Input
-                        value={formData.powered_by_text}
-                        onChange={(e) => isEnterprise && setFormData({ ...formData, powered_by_text: e.target.value })}
-                        placeholder="Your Company Name"
-                        disabled={!isEnterprise}
-                        className={!isEnterprise ? 'pr-10 bg-gray-50' : ''}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {isEnterprise 
-                        ? 'Customize the branding text or leave empty to hide it completely'
-                        : 'Upgrade to Enterprise to customize or remove branding'
-                      }
-                    </p>
-                  </div>
-                )}
-
-                {/* Upgrade CTA for non-enterprise */}
-                {!isEnterprise && (
-                  <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200">
-                    <div className="flex items-start gap-3">
-                      <Crown className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-amber-900">Upgrade to Enterprise</p>
-                        <p className="text-xs text-amber-700 mt-1">
-                          Remove or customize the "Powered by" branding to white-label the widget for your clients.
-                        </p>
-                        <Link href="/settings/billing">
-                          <Button size="sm" variant="outline" className="mt-2 border-amber-300 text-amber-800 hover:bg-amber-100">
-                            View Plans
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 
