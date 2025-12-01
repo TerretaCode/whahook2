@@ -24,24 +24,24 @@ interface TeamMember {
   user_email?: string
   user_name?: string
   invited_email: string
-  role: 'agent' | 'viewer'
+  role: 'messages' | 'marketing'
   status: 'pending' | 'active' | 'inactive'
   created_at: string
 }
 
 const ROLE_LABELS: Record<string, string> = {
-  agent: 'Agente',
-  viewer: 'Visor (Marketing)'
+  messages: 'Mensajes',
+  marketing: 'Marketing'
 }
 
 const ROLE_COLORS: Record<string, string> = {
-  agent: 'bg-blue-100 text-blue-800',
-  viewer: 'bg-purple-100 text-purple-800'
+  messages: 'bg-blue-100 text-blue-800',
+  marketing: 'bg-purple-100 text-purple-800'
 }
 
 const ROLE_DESCRIPTIONS: Record<string, string> = {
-  agent: 'Acceso a Dashboard y Mensajes',
-  viewer: 'Acceso a Dashboard, Clientes y Campañas'
+  messages: 'Acceso a Dashboard y Mensajes',
+  marketing: 'Acceso a Dashboard, Clientes y Campañas'
 }
 
 export default function InvitationsPage() {
@@ -53,7 +53,7 @@ export default function InvitationsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [showInviteForm, setShowInviteForm] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteRole, setInviteRole] = useState<'agent' | 'viewer'>('agent')
+  const [inviteRole, setInviteRole] = useState<'messages' | 'marketing'>('messages')
   const [isInviting, setIsInviting] = useState(false)
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function InvitationsPage() {
       if (response.success && response.data?.members) {
         // Filter only agent and viewer roles (team members invited by client)
         const teamMembers = response.data.members.filter(
-          m => m.role === 'agent' || m.role === 'viewer'
+          m => m.role === 'messages' || m.role === 'marketing'
         )
         setMembers(teamMembers)
       }
@@ -209,11 +209,11 @@ export default function InvitationsPage() {
                 </label>
                 <select
                   value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value as 'agent' | 'viewer')}
+                  onChange={(e) => setInviteRole(e.target.value as 'messages' | 'marketing')}
                   className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white"
                 >
-                  <option value="agent">Agente - Gestión de mensajes</option>
-                  <option value="viewer">Visor - Marketing y campañas</option>
+                  <option value="messages">Mensajes - Gestión de mensajes</option>
+                  <option value="marketing">Marketing - Clientes y campañas</option>
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
                   {ROLE_DESCRIPTIONS[inviteRole]}
@@ -316,8 +316,8 @@ export default function InvitationsPage() {
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h3 className="font-medium text-blue-900 mb-2">ℹ️ Sobre los roles</h3>
         <ul className="text-sm text-blue-800 space-y-1">
-          <li><strong>Agente:</strong> Puede ver el dashboard y gestionar mensajes de WhatsApp y Web.</li>
-          <li><strong>Visor:</strong> Puede ver el dashboard, clientes y campañas de marketing.</li>
+          <li><strong>Mensajes:</strong> Puede ver el dashboard y gestionar mensajes de WhatsApp y Web.</li>
+          <li><strong>Marketing:</strong> Puede ver el dashboard, clientes y campañas de marketing.</li>
         </ul>
       </div>
     </div>

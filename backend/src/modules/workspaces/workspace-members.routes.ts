@@ -206,8 +206,8 @@ router.post('/:workspaceId/members', async (req: Request, res: Response) => {
     const defaultPermissions: Record<string, Record<string, boolean>> = {
       admin: { dashboard: true, messages: true, clients: true, campaigns: true, settings: true, ai_costs: true },
       client: { dashboard: true, messages: true, clients: true, campaigns: true, settings: true, ai_costs: false },
-      agent: { dashboard: true, messages: true, clients: false, campaigns: false, settings: true, ai_costs: false },
-      viewer: { dashboard: true, messages: false, clients: true, campaigns: true, settings: true, ai_costs: false },
+      messages: { dashboard: true, messages: true, clients: false, campaigns: false, settings: true, ai_costs: false },
+      marketing: { dashboard: true, messages: false, clients: true, campaigns: true, settings: true, ai_costs: false },
       custom: permissions || { dashboard: true, messages: true, clients: false, campaigns: false, settings: true, ai_costs: false }
     }
 
