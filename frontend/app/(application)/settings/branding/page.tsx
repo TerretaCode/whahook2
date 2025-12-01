@@ -14,8 +14,7 @@ import {
   Upload,
   Save,
   Crown,
-  AlertCircle,
-  Eye
+  AlertCircle
 } from "lucide-react"
 import Link from "next/link"
 
@@ -347,49 +346,7 @@ export default function AgencyBrandingPage() {
           </div>
         </div>
 
-        {/* Preview Section */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Eye className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Vista previa del Widget</h2>
-          </div>
-          <div className="bg-gray-100 rounded-lg p-8 flex justify-center">
-            <div 
-              className="w-80 bg-white rounded-2xl shadow-xl overflow-hidden"
-              style={{ borderTop: `4px solid ${branding.primary_color}` }}
-            >
-              <div 
-                className="p-4 text-white"
-                style={{ backgroundColor: branding.primary_color }}
-              >
-                <div className="flex items-center gap-3">
-                  {branding.logo_url ? (
-                    <img src={branding.logo_url} alt="Logo" className="h-8" />
-                  ) : (
-                    <div className="w-10 h-10 bg-white/20 rounded-full" />
-                  )}
-                  <div>
-                    <p className="font-semibold">
-                      {branding.agency_name || 'Tu Agencia'}
-                    </p>
-                    <p className="text-sm opacity-80">Online</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-4 h-48 bg-gray-50">
-                <div className="bg-white rounded-lg p-3 shadow-sm max-w-[80%]">
-                  <p className="text-sm text-gray-700">¡Hola! ¿En qué podemos ayudarte?</p>
-                </div>
-              </div>
-              {branding.show_powered_by && branding.powered_by_text && (
-                <div className="px-4 py-2 text-center border-t">
-                  <p className="text-xs text-gray-400">{branding.powered_by_text}</p>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
-      </div>
 
       {/* Info Box */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
