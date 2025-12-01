@@ -78,20 +78,41 @@ router.post('/accounts', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    // Verify workspace belongs to user if provided
+    // Verify user has access to workspace if provided
     if (workspace_id) {
       console.log(`[WA-CREATE] Checking workspace ${workspace_id} for user ${userId}`)
-      const { data: workspace, error: wsError } = await supabaseAdmin
+      
+      // First check if user owns the workspace
+      const { data: ownedWorkspace } = await supabaseAdmin
         .from('workspaces')
-        .select('id, whatsapp_session_id')
+        .select('id, user_id, whatsapp_session_id')
         .eq('id', workspace_id)
         .eq('user_id', userId)
         .single()
 
-      console.log(`[WA-CREATE] Workspace lookup result:`, { workspace, wsError })
+      // If not owner, check if user is a member of the workspace
+      let workspace = ownedWorkspace
+      let workspaceOwnerId = ownedWorkspace?.user_id
+      
+      if (!ownedWorkspace) {
+        const { data: membership } = await supabaseAdmin
+          .from('workspace_members')
+          .select('workspace_id, workspaces!inner(id, user_id, whatsapp_session_id)')
+          .eq('workspace_id', workspace_id)
+          .eq('user_id', userId)
+          .single()
 
-      if (wsError || !workspace) {
-        console.log(`[WA-CREATE] ❌ Invalid workspace - user ${userId} does not own workspace ${workspace_id}`)
+        if (membership?.workspaces) {
+          workspace = membership.workspaces as any
+          workspaceOwnerId = (membership.workspaces as any).user_id
+          console.log(`[WA-CREATE] User ${userId} is a member of workspace ${workspace_id}`)
+        }
+      }
+
+      console.log(`[WA-CREATE] Workspace lookup result:`, { workspace, workspaceOwnerId })
+
+      if (!workspace) {
+        console.log(`[WA-CREATE] ❌ Invalid workspace - user ${userId} has no access to workspace ${workspace_id}`)
         return res.status(400).json({ success: false, error: 'Invalid workspace' })
       }
 
