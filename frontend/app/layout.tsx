@@ -8,7 +8,10 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "WhaHook - WhatsApp Multi-Tenant Platform",
+  title: {
+    default: "WhaHook - WhatsApp Multi-Tenant Platform",
+    template: "%s", // Allow child layouts to fully override title
+  },
   description: "Manage multiple WhatsApp accounts with AI chatbot",
   icons: {
     icon: '/icon.svg',
