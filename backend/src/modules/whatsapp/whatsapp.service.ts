@@ -1030,8 +1030,7 @@ class WhatsAppService {
   }
 
   async restoreActiveSessions(): Promise<void> {
-    console.log('[WA-RESTORE] 🔄 Starting session restoration...')
-
+    
     // Buscar TODAS las sesiones que tienen un número de teléfono (fueron conectadas alguna vez)
     // No solo las que están en 'ready', también las que quedaron en estados intermedios
     const { data: accounts, error } = await supabaseAdmin
@@ -1041,20 +1040,13 @@ class WhatsAppService {
       .order('last_seen', { ascending: false })
 
     if (error) {
-      console.error('[WA-RESTORE] ❌ Error fetching accounts:', error)
+      console.error('❌ Error fetching WhatsApp accounts:', error)
       return
     }
 
-    console.log('[WA-RESTORE] Found accounts in DB:', accounts?.map(a => ({ 
-      sessionId: a.session_id, 
-      phone: a.phone_number, 
-      status: a.status,
-      lastSeen: a.last_seen 
-    })))
-
+    
     if (!accounts?.length) {
-      console.log('[WA-RESTORE] No sessions to restore')
-      return
+            return
     }
 
     // Agrupar por user_id y tomar solo la más reciente de cada usuario
@@ -1066,7 +1058,7 @@ class WhatsAppService {
     }
 
     const sessionsToRestore = Array.from(latestByUser.values())
-    console.log(`[WA-RESTORE] Restoring ${sessionsToRestore.length} session(s) (latest per user)`)
+    console.log(`🔄 Restoring ${sessionsToRestore.length} WhatsApp session(s)...`)
 
     for (const account of sessionsToRestore) {
       try {
@@ -1074,19 +1066,18 @@ class WhatsAppService {
         const sessionPath = path.join(env.sessionsPath, `session-${account.session_id}`)
         const hasSessionFiles = fs.existsSync(sessionPath)
         
-        console.log(`[WA-RESTORE] Session ${account.session_id}: status=${account.status}, hasFiles=${hasSessionFiles}`)
-        
+                
         if (hasSessionFiles) {
           await this.restoreSession(account)
         } else {
-          console.log(`[WA-RESTORE] ⚠️ No session files for ${account.session_id}, marking as disconnected`)
+          console.log(`⚠️ No session files for ${account.phone_number}, marking as disconnected`)
           await supabaseAdmin
             .from('whatsapp_accounts')
             .update({ status: 'disconnected' as SessionStatus, error_message: 'Session files not found after restart' })
             .eq('session_id', account.session_id)
         }
       } catch (error) {
-        console.error(`[WA-RESTORE] ❌ Failed to restore ${account.session_id}:`, error)
+        console.error(`❌ Failed to restore ${account.phone_number}:`, error)
         // Marcar como error pero no eliminar - el usuario puede intentar reconectar
         await supabaseAdmin
           .from('whatsapp_accounts')
@@ -1098,14 +1089,12 @@ class WhatsAppService {
 
   private async restoreSession(account: WhatsAppAccount): Promise<void> {
     const { session_id: sessionId, user_id: userId } = account
-    console.log(`[WA-RESTORE] 📱 Restoring session: ${sessionId} (user: ${userId}, phone: ${account.phone_number})`)
+    console.log(`📱 Restoring WhatsApp: ${account.phone_number}`)
 
     // Limpiar locks de Chrome antes de restaurar
-    console.log(`[WA-RESTORE] Cleaning Chrome locks for ${sessionId}...`)
-    await this.cleanChromeLocks(sessionId)
+        await this.cleanChromeLocks(sessionId)
 
-    console.log(`[WA-RESTORE] Creating WhatsApp client for ${sessionId}...`)
-    const client = new Client({
+        const client = new Client({
       authStrategy: new LocalAuth({
         clientId: sessionId,
         dataPath: env.sessionsPath,
@@ -1128,12 +1117,10 @@ class WhatsAppService {
     this.sessions.set(sessionId, session)
     this.setupClientEvents(client, sessionId, userId)
     
-    console.log(`[WA-RESTORE] Initializing client for ${sessionId}...`)
-    try {
+        try {
       await client.initialize()
-      console.log(`[WA-RESTORE] ✅ Client initialized for ${sessionId}`)
-    } catch (error) {
-      console.error(`[WA-RESTORE] ❌ Failed to initialize client for ${sessionId}:`, error)
+          } catch (error) {
+      console.error(`❌ Failed to restore WhatsApp ${account.phone_number}:`, error)
       throw error
     }
   }
@@ -1227,16 +1214,14 @@ class WhatsAppService {
    * Esto asegura que las sesiones activas se puedan restaurar después del reinicio
    */
   async preserveSessionsBeforeShutdown(): Promise<void> {
-    console.log('[WA-SHUTDOWN] 💾 Preserving session states before shutdown...')
-    
+        
     const activeSessions = Array.from(this.sessions.values()).filter(s => s.status === 'ready')
     
     if (activeSessions.length === 0) {
-      console.log('[WA-SHUTDOWN] No active sessions to preserve')
-      return
+            return
     }
 
-    console.log(`[WA-SHUTDOWN] Preserving ${activeSessions.length} active session(s)`)
+    console.log(`💾 Preserving ${activeSessions.length} WhatsApp session(s)...`)
 
     for (const session of activeSessions) {
       try {
@@ -1250,7 +1235,7 @@ class WhatsAppService {
           })
           .eq('session_id', session.sessionId)
 
-        console.log(`[WA-SHUTDOWN] ✅ Preserved: ${session.sessionId} (${session.phoneNumber})`)
+        console.log(`✅ Preserved: ${session.phoneNumber}`)
 
         // Intentar cerrar el cliente de forma limpia (sin logout para mantener la sesión)
         try {
@@ -1259,12 +1244,11 @@ class WhatsAppService {
           // Silencioso - puede fallar si ya está cerrado
         }
       } catch (error) {
-        console.error(`[WA-SHUTDOWN] ❌ Failed to preserve ${session.sessionId}:`, error)
+        console.error(`❌ Failed to preserve ${session.phoneNumber}:`, error)
       }
     }
 
-    console.log('[WA-SHUTDOWN] ✅ All sessions preserved')
-  }
+      }
 }
 
 export const whatsappService = new WhatsAppService()

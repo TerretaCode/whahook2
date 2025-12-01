@@ -553,8 +553,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
  * This is used to show white-label branding to invited users
  */
 router.get('/:id/branding', async (req: Request, res: Response) => {
-  console.log('[BRANDING] GET /workspaces/:id/branding called with id:', req.params.id)
-  try {
+    try {
     const { id } = req.params
     
     // Get the workspace to find the owner
@@ -564,11 +563,9 @@ router.get('/:id/branding', async (req: Request, res: Response) => {
       .eq('id', id)
       .single()
     
-    console.log('[BRANDING] Workspace lookup result:', { workspace, wsError })
-    
+        
     if (wsError || !workspace) {
-      console.log('[BRANDING] Workspace not found, returning 404')
-      return res.status(404).json({ success: false, error: 'Workspace not found' })
+            return res.status(404).json({ success: false, error: 'Workspace not found' })
     }
     
     // Get the owner's branding from their profile
@@ -578,11 +575,9 @@ router.get('/:id/branding', async (req: Request, res: Response) => {
       .eq('id', workspace.user_id)
       .single()
     
-    console.log('[BRANDING] Profile lookup result:', { profile, profileError, ownerId: workspace.user_id })
-    
+        
     if (profileError || !profile) {
-      console.log('[BRANDING] Profile not found, returning default branding')
-      // Return default branding if no profile found
+            // Return default branding if no profile found
       return res.json({
         success: true,
         data: {
@@ -598,10 +593,8 @@ router.get('/:id/branding', async (req: Request, res: Response) => {
     }
     
     // Only return branding if owner has enterprise plan
-    console.log('[BRANDING] Owner subscription tier:', profile.subscription_tier)
-    if (profile.subscription_tier !== 'enterprise') {
-      console.log('[BRANDING] Owner is not enterprise, returning default branding')
-      return res.json({
+        if (profile.subscription_tier !== 'enterprise') {
+            return res.json({
         success: true,
         data: {
           logo_url: null,
@@ -617,8 +610,7 @@ router.get('/:id/branding', async (req: Request, res: Response) => {
     
     // Return the owner's agency branding
     const branding = profile.agency_branding || {}
-    console.log('[BRANDING] Returning custom branding:', branding)
-    res.json({
+        res.json({
       success: true,
       data: {
         logo_url: branding.logo_url || null,
