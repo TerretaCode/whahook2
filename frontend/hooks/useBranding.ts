@@ -30,12 +30,17 @@ const DEFAULT_BRANDING: AgencyBranding = {
  * If no custom branding is set, returns default Whahook branding.
  */
 export function useBranding() {
-  const { workspace, isOwner } = useWorkspaceContext()
+  const { workspace, isOwner, isLoading: isWorkspaceLoading } = useWorkspaceContext()
   const [branding, setBranding] = useState<AgencyBranding>(DEFAULT_BRANDING)
   const [isLoading, setIsLoading] = useState(true)
   const [hasCustomBranding, setHasCustomBranding] = useState(false)
 
   useEffect(() => {
+    // Wait for workspace to finish loading first
+    if (isWorkspaceLoading) {
+      return
+    }
+
     // If user is owner, they see Whahook branding (they configure it themselves)
     if (isOwner) {
       setBranding(DEFAULT_BRANDING)
@@ -44,9 +49,11 @@ export function useBranding() {
       return
     }
 
-    // If no workspace selected yet, keep loading state
+    // If no workspace selected (and not loading), use default
     if (!workspace?.id) {
-      // Don't set isLoading to false - wait for workspace to load
+      setBranding(DEFAULT_BRANDING)
+      setHasCustomBranding(false)
+      setIsLoading(false)
       return
     }
 
@@ -83,7 +90,7 @@ export function useBranding() {
     }
 
     fetchBranding()
-  }, [workspace?.id, isOwner])
+  }, [workspace?.id, isOwner, isWorkspaceLoading])
 
   return {
     branding,
