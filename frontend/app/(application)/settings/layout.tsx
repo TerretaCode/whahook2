@@ -15,7 +15,8 @@ import {
   ChevronRight,
   User,
   CreditCard,
-  Building2
+  Building2,
+  Users
 } from "lucide-react"
 
 interface SettingsLayoutProps {
@@ -40,6 +41,14 @@ const settingsNavigation = [
     icon: Smartphone,
     description: 'WhatsApp & Web Widgets',
     allowedRoles: ['admin', 'client'] // Owners, admins, and clients (not agent/viewer)
+  },
+  {
+    id: 'team',
+    name: 'Team',
+    href: '/settings/team',
+    icon: Users,
+    description: 'Manage your team',
+    allowedRoles: ['client'] // Only clients can invite agent/viewer
   },
   {
     id: 'chatbot',
