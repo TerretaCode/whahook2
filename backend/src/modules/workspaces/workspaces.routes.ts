@@ -276,6 +276,7 @@ router.put('/:id', async (req: Request, res: Response) => {
  * GET /api/workspaces/:id/connections
  * Get all connections data for a workspace in a single request
  * This optimizes loading by fetching everything at once
+ * Accessible by workspace owners AND members with appropriate roles
  */
 router.get('/:id/connections', async (req: Request, res: Response) => {
   try {
@@ -286,19 +287,40 @@ router.get('/:id/connections', async (req: Request, res: Response) => {
 
     const { id } = req.params
 
-    // Verify workspace belongs to user
+    // First check if user is owner
     const { data: workspace, error: wsError } = await supabaseAdmin
       .from('workspaces')
       .select('*')
       .eq('id', id)
-      .eq('user_id', userId)
       .single()
 
     if (wsError || !workspace) {
       return res.status(404).json({ success: false, error: 'Workspace not found' })
     }
 
-    // Fetch all connections in parallel
+    const isOwner = workspace.user_id === userId
+
+    // If not owner, check if user is a member with access
+    if (!isOwner) {
+      const { data: membership } = await supabaseAdmin
+        .from('workspace_members')
+        .select('role, permissions')
+        .eq('workspace_id', id)
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .single()
+
+      if (!membership) {
+        return res.status(403).json({ success: false, error: 'Access denied' })
+      }
+
+      // Only admin and client roles can access connections
+      if (!['admin', 'client'].includes(membership.role)) {
+        return res.status(403).json({ success: false, error: 'Access denied' })
+      }
+    }
+
+    // Fetch all connections in parallel - filter by workspace_id only (not user_id)
     const [
       whatsappResult,
       widgetsResult,
@@ -309,7 +331,6 @@ router.get('/:id/connections', async (req: Request, res: Response) => {
       supabaseAdmin
         .from('whatsapp_accounts')
         .select('*')
-        .eq('user_id', userId)
         .eq('workspace_id', id)
         .order('created_at', { ascending: false }),
       
@@ -317,7 +338,6 @@ router.get('/:id/connections', async (req: Request, res: Response) => {
       supabaseAdmin
         .from('chat_widgets')
         .select('*')
-        .eq('user_id', userId)
         .eq('workspace_id', id)
         .order('created_at', { ascending: false }),
       
@@ -325,7 +345,6 @@ router.get('/:id/connections', async (req: Request, res: Response) => {
       supabaseAdmin
         .from('ecommerce_connections')
         .select('*')
-        .eq('user_id', userId)
         .eq('workspace_id', id)
         .order('created_at', { ascending: false }),
       
@@ -333,7 +352,6 @@ router.get('/:id/connections', async (req: Request, res: Response) => {
       supabaseAdmin
         .from('webhooks')
         .select('*')
-        .eq('user_id', userId)
         .eq('workspace_id', id)
         .order('created_at', { ascending: false })
     ])
