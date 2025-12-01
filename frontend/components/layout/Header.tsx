@@ -19,10 +19,7 @@ export function Header() {
   const { user } = useAuth()
   const { hasUnread } = useNotifications()
   const { hasPermission, isOwner, workspace } = useWorkspaceContext()
-  const { branding, isWhitelabel, hasCustomBranding } = useBranding()
-  
-  // Debug branding
-  console.log('Header branding debug:', { isOwner, isWhitelabel, hasCustomBranding, branding, workspaceId: workspace?.id })
+  const { branding, isWhitelabel, hasCustomBranding, isLoading: isBrandingLoading } = useBranding()
   const [scrollY, setScrollY] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -66,9 +63,12 @@ export function Header() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             
-            {/* Logo - Show agency branding if whitelabel and has logo_url or logo_text */}
+            {/* Logo - Show loading placeholder, then agency branding or WhaHook */}
             <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              {isWhitelabel && (branding.logo_url || branding.logo_text) ? (
+              {isBrandingLoading && !isOwner ? (
+                // Loading placeholder - invisible but takes space
+                <div className="h-8 w-32 bg-gray-100 rounded animate-pulse" />
+              ) : isWhitelabel && (branding.logo_url || branding.logo_text) ? (
                 <>
                   {branding.logo_url && (
                     <img 
