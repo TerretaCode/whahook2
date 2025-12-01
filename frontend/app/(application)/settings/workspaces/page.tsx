@@ -555,15 +555,15 @@ export default function WorkspacesPage() {
               {/* Expanded Settings with Tabs */}
               {expandedId === workspace.id && (
                 <div className="border-t border-gray-200 bg-gray-50">
-                  <Tabs defaultValue="team" className="w-full">
+                  <Tabs defaultValue="invitations" className="w-full">
                     <div className="border-b border-gray-200 px-6 pt-4">
                       <TabsList className="bg-transparent gap-4">
                         <TabsTrigger 
-                          value="team" 
+                          value="invitations" 
                           className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4"
                         >
                           <Users className="w-4 h-4 mr-2" />
-                          Team
+                          Invitaciones
                         </TabsTrigger>
                         <TabsTrigger 
                           value="remote-qr"
@@ -590,7 +590,7 @@ export default function WorkspacesPage() {
                     </div>
 
                     <div className="p-6">
-                      <TabsContent value="team" className="mt-0">
+                      <TabsContent value="invitations" className="mt-0">
                         <WorkspaceMembersSection workspaceId={workspace.id} />
                       </TabsContent>
 

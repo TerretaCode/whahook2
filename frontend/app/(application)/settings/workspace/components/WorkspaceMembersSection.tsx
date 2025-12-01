@@ -74,13 +74,14 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
   const fetchMembers = async () => {
     setIsLoading(true)
     try {
-      const response = await ApiClient.request<{ data: WorkspaceMember[] }>(
+      const response = await ApiClient.request<WorkspaceMember[]>(
         `/api/workspaces/${workspaceId}/members`
       )
-      setMembers(response.data?.data || [])
+      console.log('Members response:', response)
+      setMembers(response.data || [])
     } catch (error) {
       console.error('Error fetching members:', error)
-      toast.error('Error', 'Failed to load team members')
+      toast.error('Error', 'Error al cargar invitaciones')
     } finally {
       setIsLoading(false)
     }
@@ -173,9 +174,9 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
             <Users className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Team Members</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Invitaciones</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Manage who has access to this workspace
+              Gestiona quién tiene acceso a este workspace
             </p>
           </div>
         </div>
@@ -184,7 +185,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
           className="bg-green-600 hover:bg-green-700"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Invite Member
+          Invitar
         </Button>
       </div>
 
@@ -320,8 +321,8 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
           {members.length === 0 && (
             <div className="p-8 text-center text-gray-500">
               <Users className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>No team members yet</p>
-              <p className="text-sm">Invite your first team member to get started</p>
+              <p>No hay invitaciones aún</p>
+              <p className="text-sm">Invita a tu primer miembro para comenzar</p>
             </div>
           )}
         </div>
@@ -330,12 +331,12 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
       {/* Info Box */}
       <div className="bg-green-50 dark:bg-green-950 rounded-lg p-4 border border-green-200 dark:border-green-800">
         <h4 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">
-          💡 About Access Links
+          💡 Sobre los enlaces de acceso
         </h4>
         <p className="text-sm text-green-700 dark:text-green-300">
-          Each member gets a unique access link they can use to access this workspace.
-          Clients can view and manage their data without needing a Whahook account.
-          You can regenerate links at any time to revoke access.
+          Cada miembro recibe un enlace único para acceder a este workspace.
+          Los invitados pueden ver y gestionar sus datos sin necesitar una cuenta de Whahook.
+          Puedes regenerar los enlaces en cualquier momento para revocar el acceso.
         </p>
       </div>
     </div>
