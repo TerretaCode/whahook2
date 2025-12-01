@@ -237,19 +237,38 @@ router.post('/:workspaceId/members', async (req: Request, res: Response) => {
     // Get workspace name for email
     const { data: workspace } = await supabaseAdmin
       .from('workspaces')
-      .select('name')
+      .select('name, user_id')
       .eq('id', workspaceId)
       .single()
 
-    // Get inviter name
+    // Get inviter name and custom domain
     const { data: inviterProfile } = await supabaseAdmin
       .from('profiles')
-      .select('full_name, email')
+      .select('full_name, email, custom_domain, custom_domain_verified')
       .eq('id', userId)
       .single()
 
-    // Send invitation email
-    const accessLink = `${process.env.FRONTEND_URL}/invite/${member.access_token}`
+    // Check if workspace owner has a verified custom domain
+    let baseUrl = process.env.FRONTEND_URL || 'https://app.whahook.com'
+    
+    // If the inviter (or workspace owner) has a custom domain, use it
+    if (inviterProfile?.custom_domain && inviterProfile?.custom_domain_verified) {
+      baseUrl = `https://${inviterProfile.custom_domain}`
+    } else if (workspace?.user_id && workspace.user_id !== userId) {
+      // Check workspace owner's custom domain
+      const { data: ownerProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('custom_domain, custom_domain_verified')
+        .eq('id', workspace.user_id)
+        .single()
+      
+      if (ownerProfile?.custom_domain && ownerProfile?.custom_domain_verified) {
+        baseUrl = `https://${ownerProfile.custom_domain}`
+      }
+    }
+
+    // Send invitation email with custom domain if available
+    const accessLink = `${baseUrl}/invite/${member.access_token}`
     sendWorkspaceInvitationEmail(email, {
       workspace_name: workspace?.name || 'Workspace',
       inviter_name: inviterProfile?.full_name || inviterProfile?.email || undefined,
@@ -260,7 +279,7 @@ router.post('/:workspaceId/members', async (req: Request, res: Response) => {
     res.json({ 
       success: true, 
       data: member,
-      access_link: `${process.env.FRONTEND_URL}/w/${member.access_token}`
+      access_link: `${baseUrl}/w/${member.access_token}`
     })
   } catch (error: any) {
     console.error('Error in POST /members:', error)
@@ -409,10 +428,22 @@ router.post('/:workspaceId/members/:memberId/regenerate-token', async (req: Requ
       return res.status(500).json({ success: false, error: 'Failed to regenerate token' })
     }
 
+    // Check for custom domain
+    const { data: ownerProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('custom_domain, custom_domain_verified')
+      .eq('id', userId)
+      .single()
+
+    let baseUrl = process.env.FRONTEND_URL || 'https://app.whahook.com'
+    if (ownerProfile?.custom_domain && ownerProfile?.custom_domain_verified) {
+      baseUrl = `https://${ownerProfile.custom_domain}`
+    }
+
     res.json({ 
       success: true, 
       data: updated,
-      access_link: `${process.env.FRONTEND_URL}/w/${newToken}`
+      access_link: `${baseUrl}/w/${newToken}`
     })
   } catch (error: any) {
     console.error('Error in POST /regenerate-token:', error)

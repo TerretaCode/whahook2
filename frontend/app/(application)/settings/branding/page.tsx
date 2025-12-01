@@ -484,15 +484,15 @@ export default function AgencyBrandingPage() {
                     </div>
                     <div className="flex items-center justify-between mt-2">
                       <div>
-                        <span className="text-gray-500">Nombre/Host:</span> <span className="font-semibold">{customDomain}</span>
+                        <span className="text-gray-500">Nombre:</span> <span className="font-semibold">{customDomain.split('.')[0]}</span>
                       </div>
-                      <button onClick={() => copyToClipboard(customDomain)} className="text-gray-400 hover:text-gray-600">
+                      <button onClick={() => copyToClipboard(customDomain.split('.')[0])} className="text-gray-400 hover:text-gray-600">
                         <Copy className="w-4 h-4" />
                       </button>
                     </div>
                     <div className="flex items-center justify-between mt-2">
                       <div>
-                        <span className="text-gray-500">Valor/Destino:</span> <span className="font-semibold">cname.vercel-dns.com</span>
+                        <span className="text-gray-500">Valor:</span> <span className="font-semibold">cname.vercel-dns.com</span>
                       </div>
                       <button onClick={() => copyToClipboard('cname.vercel-dns.com')} className="text-gray-400 hover:text-gray-600">
                         <Copy className="w-4 h-4" />
@@ -500,8 +500,7 @@ export default function AgencyBrandingPage() {
                     </div>
                   </div>
                   <p className="text-xs text-gray-500">
-                    Puedes usar cualquier subdominio que prefieras (panel, app, clientes, etc.). 
-                    La propagación DNS puede tardar hasta 48 horas.
+                    La propagación DNS puede tardar hasta 48 horas, aunque normalmente es más rápido.
                   </p>
                   <Button
                     onClick={handleVerifyDomain}

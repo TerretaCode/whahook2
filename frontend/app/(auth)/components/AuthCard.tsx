@@ -2,29 +2,36 @@ import { Card } from "@/components/ui/card"
 import Link from "next/link"
 import { LogoIcon } from "@/components/icons/LogoIcon"
 
-interface AuthCardProps {
+export interface AuthCardProps {
   children: React.ReactNode
   title: string
   description: string
+  customHeader?: React.ReactNode  // For custom domain branding
+  hideLogo?: boolean              // Hide default Whahook logo
 }
 
-export function AuthCard({ children, title, description }: AuthCardProps) {
+export function AuthCard({ children, title, description, customHeader, hideLogo }: AuthCardProps) {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-green-50 via-white to-gray-50">
       <Card className="w-full max-w-md p-8 shadow-xl">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 mb-8 justify-center hover:opacity-80 transition-opacity">
-          <LogoIcon className="w-8 h-8 text-green-600" />
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xl font-bold text-gray-900 leading-tight">
-              WhaHook
-            </span>
-            <span className="text-[10px] leading-tight ml-0.5">
-              <span className="text-gray-900">by </span>
-              <span className="text-green-600">TerretaCode</span>
-            </span>
-          </div>
-        </Link>
+        {/* Custom Header (for branded domains) */}
+        {customHeader}
+        
+        {/* Default Logo (hidden on custom domains) */}
+        {!customHeader && !hideLogo && (
+          <Link href="/" className="flex items-center gap-2 mb-8 justify-center hover:opacity-80 transition-opacity">
+            <LogoIcon className="w-8 h-8 text-green-600" />
+            <div className="flex flex-col gap-0.5">
+              <span className="text-xl font-bold text-gray-900 leading-tight">
+                WhaHook
+              </span>
+              <span className="text-[10px] leading-tight ml-0.5">
+                <span className="text-gray-900">by </span>
+                <span className="text-green-600">TerretaCode</span>
+              </span>
+            </div>
+          </Link>
+        )}
 
         {/* Title & Description */}
         <div className="text-center mb-8">
