@@ -44,15 +44,14 @@ export function useBranding() {
       return
     }
 
-    // If no workspace selected, use default
+    // If no workspace selected yet, keep loading state
     if (!workspace?.id) {
-      setBranding(DEFAULT_BRANDING)
-      setHasCustomBranding(false)
-      setIsLoading(false)
+      // Don't set isLoading to false - wait for workspace to load
       return
     }
 
     // Fetch the owner's branding for this workspace
+    setIsLoading(true)
     async function fetchBranding() {
       try {
         const response = await ApiClient.get(`/api/workspaces/${workspace!.id}/branding`)
