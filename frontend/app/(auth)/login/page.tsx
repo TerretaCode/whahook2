@@ -54,11 +54,20 @@ function LoginContent() {
     password?: string
   }>({})
   
-  // Custom domain state
-  const [isCustomDomain, setIsCustomDomain] = useState(false)
-  const [customBranding, setCustomBranding] = useState<any>(null)
+  // Custom domain state - initialize from cookies immediately to prevent flash
+  const [brandingLoaded, setBrandingLoaded] = useState(false)
+  const [isCustomDomain, setIsCustomDomain] = useState(() => {
+    if (typeof window === 'undefined') return false
+    const { isCustomDomain } = getCustomDomainBranding()
+    return isCustomDomain
+  })
+  const [customBranding, setCustomBranding] = useState<any>(() => {
+    if (typeof window === 'undefined') return null
+    const { branding } = getCustomDomainBranding()
+    return branding
+  })
   
-  // Check for custom domain on mount
+  // Check for custom domain on mount and apply branding
   useEffect(() => {
     const { isCustomDomain: isCd, branding } = getCustomDomainBranding()
     setIsCustomDomain(isCd)
@@ -75,6 +84,8 @@ function LoginContent() {
       const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
       document.documentElement.style.setProperty('--brand-text', luminance > 0.5 ? '#000000' : '#ffffff')
     }
+    
+    setBrandingLoaded(true)
   }, [])
 
   // Show success message if coming from email verification
@@ -168,6 +179,28 @@ function LoginContent() {
     </div>
   ) : null
 
+  // Show loading while branding is being determined on custom domains
+  // This prevents the flash of Whahook branding
+  if (!brandingLoaded && typeof window !== 'undefined') {
+    // Check if we might be on a custom domain (not localhost or known domains)
+    const hostname = window.location.hostname
+    const isLikelyCustomDomain = !['localhost', '127.0.0.1', 'whahook.com', 'app.whahook.com'].includes(hostname) 
+      && !hostname.endsWith('.vercel.app')
+    
+    if (isLikelyCustomDomain) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+        </div>
+      )
+    }
+  }
+
+  // Get brand color for styling (fallback to green for Whahook)
+  const brandColor = isCustomDomain && customBranding?.primary_color 
+    ? customBranding.primary_color 
+    : '#22c55e'
+
   return (
     <AuthCard
       title={isCustomDomain ? "Iniciar sesión" : "Welcome back"}
@@ -211,7 +244,8 @@ function LoginContent() {
             {!isCustomDomain && (
               <Link
                 href="/forgot-password"
-                className="text-xs text-green-600 hover:text-green-700 font-medium"
+                className="text-xs font-medium hover:opacity-80"
+                style={{ color: brandColor }}
               >
                 Forgot password?
               </Link>
@@ -269,10 +303,10 @@ function LoginContent() {
           className="w-full"
           size="lg"
           disabled={isLoading}
-          style={isCustomDomain && customBranding?.primary_color ? {
-            backgroundColor: customBranding.primary_color,
+          style={{
+            backgroundColor: brandColor,
             color: 'var(--brand-text, #ffffff)'
-          } : undefined}
+          }}
         >
           {isLoading ? (
             <>
@@ -343,7 +377,8 @@ function LoginContent() {
           Don&apos;t have an account?{" "}
           <Link
             href="/register"
-            className="font-medium text-green-600 hover:text-green-700"
+            className="font-medium hover:opacity-80"
+            style={{ color: brandColor }}
           >
             Sign up for free
           </Link>
@@ -363,8 +398,8 @@ function LoginContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
       </div>
     }>
       <LoginContent />

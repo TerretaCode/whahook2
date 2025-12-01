@@ -1,7 +1,9 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { usePathname } from 'next/navigation'
 import { ApiClient } from '@/lib/api-client'
+import { useAuth } from './AuthContext'
 
 interface WorkspacePermissions {
   dashboard: boolean
@@ -52,8 +54,31 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [workspace, setWorkspaceState] = useState<Workspace | null>(null)
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const pathname = usePathname()
+  const { user, isLoading: authLoading } = useAuth()
+
+  // Pages where we should NOT load workspaces
+  const isAuthPage = 
+    pathname === '/' ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register') ||
+    pathname.startsWith('/forgot-password') ||
+    pathname.startsWith('/verify-email') ||
+    pathname.startsWith('/change-password') ||
+    pathname.startsWith('/invite') ||
+    pathname.startsWith('/connect') ||
+    pathname.startsWith('/pricing') ||
+    pathname.startsWith('/about') ||
+    pathname.startsWith('/privacy') ||
+    pathname.startsWith('/terms')
 
   const loadWorkspaces = async () => {
+    // Don't load if on auth page or no user
+    if (isAuthPage || !user) {
+      setIsLoading(false)
+      return
+    }
+
     try {
       setIsLoading(true)
       const response = await ApiClient.request<{ workspaces: Workspace[] }>('/api/workspaces')
@@ -87,8 +112,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    loadWorkspaces()
-  }, [])
+    // Only load workspaces when auth is done and user exists
+    if (!authLoading) {
+      loadWorkspaces()
+    }
+  }, [user, authLoading, isAuthPage])
 
   const setWorkspace = (ws: Workspace | null) => {
     setWorkspaceState(ws)

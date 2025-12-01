@@ -24,10 +24,15 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
     pathname.startsWith('/invite') ||
     pathname.startsWith('/connect');
   
-  // Rutas donde NO debe aparecer el Header (páginas públicas de invitación/conexión)
+  // Rutas donde NO debe aparecer el Header (páginas públicas de invitación/conexión y auth)
   const hideHeader = 
     pathname.startsWith('/invite') ||
-    pathname.startsWith('/connect');
+    pathname.startsWith('/connect') ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register') ||
+    pathname.startsWith('/forgot-password') ||
+    pathname.startsWith('/verify-email') ||
+    pathname.startsWith('/change-password');
 
   // Footer en páginas públicas (landing, marketing, legal)
   const showFooter = 
