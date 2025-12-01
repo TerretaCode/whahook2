@@ -83,6 +83,19 @@ function LoginContent() {
       document.documentElement.style.setProperty('--brand-primary-rgb', `${r}, ${g}, ${b}`)
       const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
       document.documentElement.style.setProperty('--brand-text', luminance > 0.5 ? '#000000' : '#ffffff')
+      
+      // Override focus ring color for inputs
+      const style = document.createElement('style')
+      style.textContent = `
+        .custom-domain-inputs input:focus,
+        .custom-domain-inputs input:focus-visible {
+          outline: none !important;
+          border-color: ${branding.primary_color} !important;
+          box-shadow: 0 0 0 2px ${branding.primary_color}33 !important;
+          --tw-ring-color: ${branding.primary_color} !important;
+        }
+      `
+      document.head.appendChild(style)
     }
     
     // Update page title and favicon for custom domain
@@ -234,7 +247,7 @@ function LoginContent() {
       customHeader={brandedHeader}
       brandColor={isCustomDomain ? customBranding?.primary_color : undefined}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className={`space-y-4 ${isCustomDomain ? 'custom-domain-inputs' : ''}`}>
         {/* Email Input */}
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-medium text-gray-700">

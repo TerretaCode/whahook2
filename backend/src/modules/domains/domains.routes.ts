@@ -391,6 +391,8 @@ router.get('/lookup/:domain', async (req: Request, res: Response) => {
         owner_id: profile.id,
         logo_url: branding.logo_url || null,
         logo_text: branding.logo_text || '',
+        favicon_url: branding.favicon_url || null,
+        tab_title: branding.tab_title || '',
         primary_color: branding.primary_color || '#22c55e',
         agency_name: branding.agency_name || ''
       }
