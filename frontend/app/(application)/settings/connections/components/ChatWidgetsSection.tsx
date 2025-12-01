@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Plus, MessageSquare, Trash2, Code, Copy, Check, Loader2, ExternalLink, ChevronDown, ChevronUp, Settings, Download, Puzzle, Bot, Lock, Crown, Palette } from 'lucide-react'
+import { Plus, MessageSquare, Trash2, Code, Copy, Check, Loader2, ExternalLink, ChevronDown, ChevronUp, Settings, Download, Puzzle, Bot } from 'lucide-react'
 import { ApiClient } from '@/lib/api-client'
 import { toast } from '@/lib/toast'
 import { useAuth } from '@/contexts/AuthContext'
@@ -540,35 +540,6 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                     />
                     <span className="text-sm text-gray-700">Enable notification sound for new messages</span>
                   </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Step 4: Branding Info */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-md font-medium">
-                <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center">4</span>
-                Branding
-              </div>
-              
-              <div className="pl-8">
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-start gap-3">
-                    <Palette className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-blue-900">Configuración de branding centralizada</p>
-                      <p className="text-xs text-blue-700 mt-1">
-                        El branding del widget se configura desde la sección de Branding en Settings.
-                        Puedes personalizar el logo, colores y el badge "Powered by" de forma global.
-                      </p>
-                      <Link href="/settings/branding">
-                        <Button size="sm" variant="outline" className="mt-2 border-blue-300 text-blue-800 hover:bg-blue-100">
-                          <Palette className="w-3 h-3 mr-1" />
-                          Ir a Branding
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
