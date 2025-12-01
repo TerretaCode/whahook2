@@ -216,7 +216,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                 >
                   <option value="admin">Admin - Full access</option>
                   <option value="client">Client - Dashboard, Messages, Clients, Campaigns + Connections</option>
-                  <option value="agent">Agente - Dashboard, Messages, Clients</option>
+                  <option value="agent">Agente - Dashboard, Messages, Clients, Campaigns</option>
                   <option value="messages">Mensajes - Dashboard, Messages only</option>
                   <option value="marketing">Marketing - Dashboard, Clients & Campaigns</option>
                 </select>

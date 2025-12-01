@@ -42,7 +42,7 @@ const ROLE_COLORS: Record<string, string> = {
 }
 
 const ROLE_DESCRIPTIONS: Record<string, string> = {
-  agent: 'Acceso a Dashboard, Mensajes y Clientes',
+  agent: 'Acceso a Dashboard, Mensajes, Clientes y Campañas',
   messages: 'Acceso a Dashboard y Mensajes',
   marketing: 'Acceso a Dashboard, Clientes y Campañas'
 }
@@ -215,7 +215,7 @@ export default function InvitationsPage() {
                   onChange={(e) => setInviteRole(e.target.value as 'agent' | 'messages' | 'marketing')}
                   className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white"
                 >
-                  <option value="agent">Agente - Mensajes y Clientes</option>
+                  <option value="agent">Agente - Mensajes, Clientes y Campañas</option>
                   <option value="messages">Mensajes - Solo mensajes</option>
                   <option value="marketing">Marketing - Clientes y campañas</option>
                 </select>
@@ -320,7 +320,7 @@ export default function InvitationsPage() {
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h3 className="font-medium text-blue-900 mb-2">ℹ️ Sobre los roles</h3>
         <ul className="text-sm text-blue-800 space-y-1">
-          <li><strong>Agente:</strong> Puede ver el dashboard, gestionar mensajes y clientes.</li>
+          <li><strong>Agente:</strong> Puede ver el dashboard, gestionar mensajes, clientes y campañas.</li>
           <li><strong>Mensajes:</strong> Puede ver el dashboard y gestionar mensajes de WhatsApp y Web.</li>
           <li><strong>Marketing:</strong> Puede ver el dashboard, clientes y campañas de marketing.</li>
         </ul>
