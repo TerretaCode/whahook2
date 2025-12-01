@@ -80,6 +80,7 @@ router.post('/accounts', async (req: Request, res: Response) => {
 
     // Verify workspace belongs to user if provided
     if (workspace_id) {
+      console.log(`[WA-CREATE] Checking workspace ${workspace_id} for user ${userId}`)
       const { data: workspace, error: wsError } = await supabaseAdmin
         .from('workspaces')
         .select('id, whatsapp_session_id')
@@ -87,12 +88,16 @@ router.post('/accounts', async (req: Request, res: Response) => {
         .eq('user_id', userId)
         .single()
 
+      console.log(`[WA-CREATE] Workspace lookup result:`, { workspace, wsError })
+
       if (wsError || !workspace) {
+        console.log(`[WA-CREATE] ❌ Invalid workspace - user ${userId} does not own workspace ${workspace_id}`)
         return res.status(400).json({ success: false, error: 'Invalid workspace' })
       }
 
       // Check if workspace already has a WhatsApp connection
       if (workspace.whatsapp_session_id) {
+        console.log(`[WA-CREATE] ❌ Workspace already has connection: ${workspace.whatsapp_session_id}`)
         return res.status(400).json({ 
           success: false, 
           error: 'This workspace already has a WhatsApp connection' 
