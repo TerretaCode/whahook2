@@ -47,7 +47,7 @@ interface DashboardStats {
 export default function DashboardPage() {
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
-  const { workspace } = useWorkspaceContext()
+  const { workspace, isOwner } = useWorkspaceContext()
   const [stats, setStats] = useState<DashboardStats>({
     totalConversations: 0,
     whatsappConversations: 0,
@@ -326,20 +326,22 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          {/* Plan */}
-          <Link href="/pricing" className="block">
-            <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 hover:shadow-sm transition-all text-white">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-lg">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold">{getPlanName()}</p>
-                  <p className="text-xs text-green-100">Ver planes</p>
+          {/* Plan - Only show to workspace owners */}
+          {isOwner && (
+            <Link href="/pricing" className="block">
+              <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 hover:shadow-sm transition-all text-white">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold">{getPlanName()}</p>
+                    <p className="text-xs text-green-100">Ver planes</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Link>
+            </Link>
+          )}
         </div>
 
         {/* Quick Actions */}
