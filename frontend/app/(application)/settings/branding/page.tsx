@@ -62,11 +62,9 @@ export default function AgencyBrandingPage() {
   const loadBranding = async () => {
     try {
       setIsLoading(true)
-      const response = await ApiClient.request<{ branding: AgencyBranding }>(
-        '/api/settings/branding'
-      )
-      if (response.success && response.data?.branding) {
-        setBranding({ ...DEFAULT_BRANDING, ...response.data.branding })
+      const response = await ApiClient.get<AgencyBranding>('/api/branding')
+      if (response.success && response.data) {
+        setBranding({ ...DEFAULT_BRANDING, ...response.data })
       }
     } catch (error) {
       console.error('Error loading branding:', error)
@@ -83,13 +81,7 @@ export default function AgencyBrandingPage() {
 
     try {
       setIsSaving(true)
-      const response = await ApiClient.request(
-        '/api/settings/branding',
-        {
-          method: 'PUT',
-          body: JSON.stringify(branding)
-        }
-      )
+      const response = await ApiClient.put('/api/branding', branding)
       if (response.success) {
         toast.success('Guardado', 'Branding actualizado correctamente')
       }
@@ -100,7 +92,7 @@ export default function AgencyBrandingPage() {
     }
   }
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'light' | 'dark') => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -113,23 +105,17 @@ export default function AgencyBrandingPage() {
       setIsUploading(true)
       const formData = new FormData()
       formData.append('logo', file)
-      formData.append('type', type)
 
-      const response = await ApiClient.request<{ url: string }>(
-        '/api/settings/branding/logo',
-        {
-          method: 'POST',
-          body: formData,
-          headers: {} // Let browser set content-type for FormData
-        }
-      )
+      const response = await ApiClient.upload<{ url: string }>('/api/branding/logo', formData)
 
       if (response.success && response.data?.url) {
         setBranding(prev => ({
           ...prev,
-          [type === 'light' ? 'logo_url' : 'logo_dark_url']: response.data!.url
+          logo_url: response.data!.url
         }))
         toast.success('Logo subido', 'El logo se ha subido correctamente')
+        // Auto-save after upload
+        await handleSave()
       }
     } catch (error: any) {
       toast.error('Error', error.message || 'No se pudo subir el logo')
@@ -236,7 +222,7 @@ export default function AgencyBrandingPage() {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => handleLogoUpload(e, 'light')}
+                    onChange={handleLogoUpload}
                     disabled={isUploading}
                   />
                 </label>

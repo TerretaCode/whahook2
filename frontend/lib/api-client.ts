@@ -127,6 +127,67 @@ export class ApiClient {
   }
 
   /**
+   * Generic PUT request
+   */
+  static async put<T>(endpoint: string, data?: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    })
+  }
+
+  /**
+   * Generic DELETE request
+   */
+  static async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'DELETE',
+    })
+  }
+
+  /**
+   * Upload file (FormData)
+   */
+  static async upload<T>(endpoint: string, formData: FormData): Promise<ApiResponse<T>> {
+    const token = AuthStorage.getAccessToken()
+    
+    const headers: Record<string, string> = {}
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+    // Don't set Content-Type - browser will set it with boundary for FormData
+
+    try {
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: 'POST',
+        headers,
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || data.message || 'Upload failed',
+        }
+      }
+
+      return {
+        success: true,
+        data: data.data,
+        message: data.message,
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      return {
+        success: false,
+        error: 'Upload failed. Please try again.',
+      }
+    }
+  }
+
+  /**
    * POST /api/auth/register
    * Register new user (SaaS only)
    */
