@@ -59,8 +59,8 @@ export function useBranding() {
         
         if (response.success && response.data) {
           const data = response.data as AgencyBranding
-          // Only use custom branding if it has at least a logo, logo_text, or agency_name
-          if (data.logo_url || data.logo_text || data.agency_name) {
+          // Only use custom branding if it has logo_url or logo_text
+          if (data.logo_url || data.logo_text) {
             setBranding({
               ...DEFAULT_BRANDING,
               ...data
@@ -105,7 +105,7 @@ export async function fetchWorkspaceBranding(workspaceId: string): Promise<Agenc
     
     if (result.success && result.data) {
       const data = result.data as AgencyBranding
-      if (data.logo_url || data.logo_text || data.agency_name) {
+      if (data.logo_url || data.logo_text) {
         return {
           ...DEFAULT_BRANDING,
           ...data

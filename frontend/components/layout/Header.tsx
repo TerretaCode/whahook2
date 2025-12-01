@@ -66,34 +66,23 @@ export function Header() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             
-            {/* Logo - Show agency branding if whitelabel */}
+            {/* Logo - Show agency branding if whitelabel and has logo_url or logo_text */}
             <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              {isWhitelabel && (branding.logo_url || branding.logo_text || branding.agency_name) ? (
+              {isWhitelabel && (branding.logo_url || branding.logo_text) ? (
                 <>
-                  {/* Show logo image if available */}
                   {branding.logo_url && (
                     <img 
                       src={branding.logo_url} 
-                      alt={branding.agency_name || 'Logo'} 
+                      alt="Logo" 
                       className="h-8 object-contain"
                     />
                   )}
-                  {/* Show logo_text next to logo (optional, for symbol-only logos) */}
                   {branding.logo_text && (
                     <span 
                       className="text-xl font-bold leading-tight"
                       style={{ color: branding.primary_color }}
                     >
                       {branding.logo_text}
-                    </span>
-                  )}
-                  {/* Fallback: show agency_name only if no logo and no logo_text */}
-                  {!branding.logo_url && !branding.logo_text && branding.agency_name && (
-                    <span 
-                      className="text-xl font-bold leading-tight"
-                      style={{ color: branding.primary_color }}
-                    >
-                      {branding.agency_name}
                     </span>
                   )}
                 </>
