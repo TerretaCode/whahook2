@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
+import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,6 +26,7 @@ import { ProfileSkeleton } from "@/components/skeletons/SettingsSkeletons"
 export default function ProfilePage() {
   const router = useRouter()
   const { user, logout, refreshUser, isLoading: authLoading } = useAuth()
+  const { isOwner } = useWorkspaceContext()
   
   const [fullName, setFullName] = useState('')
   const [companyName, setCompanyName] = useState('')
@@ -221,29 +223,31 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Plan Card */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-5 h-5" />
-              <h2 className="text-lg font-semibold">Tu Plan</h2>
+      {/* Plan Card - Only show to workspace owners */}
+      {isOwner && (
+        <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-5 h-5" />
+                <h2 className="text-lg font-semibold">Tu Plan</h2>
+              </div>
+              <p className="text-2xl font-bold">{getPlanName()}</p>
+              <p className="text-green-100 text-sm mt-1 flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                Miembro desde {formatDate(user.profile?.created_at)}
+              </p>
             </div>
-            <p className="text-2xl font-bold">{getPlanName()}</p>
-            <p className="text-green-100 text-sm mt-1 flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
-              Miembro desde {formatDate(user.profile?.created_at)}
-            </p>
+            <Button 
+              variant="secondary" 
+              className="bg-white text-green-600 hover:bg-gray-100"
+              onClick={() => router.push('/pricing')}
+            >
+              Ver planes
+            </Button>
           </div>
-          <Button 
-            variant="secondary" 
-            className="bg-white text-green-600 hover:bg-gray-100"
-            onClick={() => router.push('/pricing')}
-          >
-            Ver planes
-          </Button>
         </div>
-      </div>
+      )}
 
       {/* Security Card */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">

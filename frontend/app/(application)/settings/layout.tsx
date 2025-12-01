@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { 
   Smartphone, 
   Bot,
@@ -21,47 +22,63 @@ interface SettingsLayoutProps {
   children: React.ReactNode
 }
 
+// Navigation items with permission requirements
 const settingsNavigation = [
   {
     id: 'workspaces',
     name: 'Workspaces',
     href: '/settings/workspaces',
     icon: Building2,
-    description: 'Manage workspaces & settings'
+    description: 'Manage workspaces & settings',
+    requiresOwner: true // Only workspace owners
   },
   {
     id: 'connections',
     name: 'Connections',
     href: '/settings/connections',
     icon: Smartphone,
-    description: 'WhatsApp & Web Widgets'
+    description: 'WhatsApp & Web Widgets',
+    requiresOwner: false // Available to invited members too
   },
   {
     id: 'chatbot',
     name: 'Chatbot',
     href: '/settings/chatbot',
     icon: Bot,
-    description: 'AI & API Keys'
+    description: 'AI & API Keys',
+    requiresOwner: true // Only workspace owners
   },
   {
     id: 'billing',
     name: 'Billing',
     href: '/settings/billing',
     icon: CreditCard,
-    description: 'Plan & payments'
+    description: 'Plan & payments',
+    requiresOwner: true // Only workspace owners
   },
   {
     id: 'profile',
     name: 'Profile',
     href: '/settings/profile',
     icon: User,
-    description: 'Your account'
+    description: 'Your account',
+    requiresOwner: false // Available to everyone
   }
 ]
 
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { isOwner } = useWorkspaceContext()
+
+  // Filter navigation based on user permissions
+  const filteredNavigation = useMemo(() => {
+    return settingsNavigation.filter(item => {
+      // If requires owner, only show to owners
+      if (item.requiresOwner && !isOwner) return false
+      return true
+    })
+  }, [isOwner])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -77,7 +94,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
                   <p className="text-sm text-gray-500 mt-1">Manage your account</p>
                 </div>
                 <nav className="p-2">
-                  {settingsNavigation.map((section) => {
+                  {filteredNavigation.map((section) => {
                     const Icon = section.icon
                     const isActive = pathname === section.href || pathname?.startsWith(section.href + '/')
                     
@@ -148,7 +165,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
               >
                 <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
                   <nav className="p-2">
-                    {settingsNavigation.map((section) => {
+                    {filteredNavigation.map((section) => {
                       const Icon = section.icon
                       const isActive = pathname === section.href || pathname?.startsWith(section.href + '/')
                       
