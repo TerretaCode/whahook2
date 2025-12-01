@@ -101,7 +101,7 @@ setupWhatsAppSocket(io)
 
 // Graceful shutdown
 const gracefulShutdown = async (signal: string) => {
-  console.log(`\n🚫 ${signal} received, shutting down...`)
+  console.log(`\n🚫 ${signal} received, shutting down gracefully...`)
   
   // Detener servicios
   keepaliveMessagesService.stop()
@@ -109,14 +109,24 @@ const gracefulShutdown = async (signal: string) => {
   backupService.stop()
   cacheCleanupService.stop()
   
+  // Preservar estado de sesiones activas antes de cerrar
+  // Esto asegura que las sesiones 'ready' se puedan restaurar después del reinicio
+  try {
+    console.log('💾 Preserving WhatsApp session states...')
+    await whatsappService.preserveSessionsBeforeShutdown()
+    console.log('✅ Session states preserved')
+  } catch (error) {
+    console.error('⚠️ Error preserving sessions:', error)
+  }
+  
   // Cerrar servidor HTTP
   httpServer.close(() => {
     console.log('✅ Server closed')
     process.exit(0)
   })
   
-  // Forzar cierre después de 10s
-  setTimeout(() => process.exit(1), 10000)
+  // Forzar cierre después de 15s (más tiempo para guardar sesiones)
+  setTimeout(() => process.exit(1), 15000)
 }
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))

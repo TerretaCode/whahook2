@@ -1032,30 +1032,66 @@ class WhatsAppService {
   async restoreActiveSessions(): Promise<void> {
     console.log('[WA-RESTORE] 🔄 Starting session restoration...')
 
+    // Buscar TODAS las sesiones que tienen un número de teléfono (fueron conectadas alguna vez)
+    // No solo las que están en 'ready', también las que quedaron en estados intermedios
     const { data: accounts, error } = await supabaseAdmin
       .from('whatsapp_accounts')
       .select('*')
-      .eq('status', 'ready')
+      .not('phone_number', 'is', null)  // Solo las que tienen número (fueron conectadas)
+      .order('last_seen', { ascending: false })
 
     if (error) {
       console.error('[WA-RESTORE] ❌ Error fetching accounts:', error)
       return
     }
 
-    console.log('[WA-RESTORE] Found accounts in DB:', accounts?.map(a => ({ sessionId: a.session_id, phone: a.phone_number, status: a.status })))
+    console.log('[WA-RESTORE] Found accounts in DB:', accounts?.map(a => ({ 
+      sessionId: a.session_id, 
+      phone: a.phone_number, 
+      status: a.status,
+      lastSeen: a.last_seen 
+    })))
 
     if (!accounts?.length) {
-      console.log('[WA-RESTORE] No active sessions to restore')
+      console.log('[WA-RESTORE] No sessions to restore')
       return
     }
 
-    console.log(`[WA-RESTORE] Restoring ${accounts.length} session(s)`)
-
+    // Agrupar por user_id y tomar solo la más reciente de cada usuario
+    const latestByUser = new Map<string, WhatsAppAccount>()
     for (const account of accounts as WhatsAppAccount[]) {
+      if (!latestByUser.has(account.user_id)) {
+        latestByUser.set(account.user_id, account)
+      }
+    }
+
+    const sessionsToRestore = Array.from(latestByUser.values())
+    console.log(`[WA-RESTORE] Restoring ${sessionsToRestore.length} session(s) (latest per user)`)
+
+    for (const account of sessionsToRestore) {
       try {
-        await this.restoreSession(account)
+        // Verificar si hay archivos de sesión en disco
+        const sessionPath = path.join(env.sessionsPath, `session-${account.session_id}`)
+        const hasSessionFiles = fs.existsSync(sessionPath)
+        
+        console.log(`[WA-RESTORE] Session ${account.session_id}: status=${account.status}, hasFiles=${hasSessionFiles}`)
+        
+        if (hasSessionFiles) {
+          await this.restoreSession(account)
+        } else {
+          console.log(`[WA-RESTORE] ⚠️ No session files for ${account.session_id}, marking as disconnected`)
+          await supabaseAdmin
+            .from('whatsapp_accounts')
+            .update({ status: 'disconnected' as SessionStatus, error_message: 'Session files not found after restart' })
+            .eq('session_id', account.session_id)
+        }
       } catch (error) {
-        console.error(`Failed to restore ${account.session_id}:`, error)
+        console.error(`[WA-RESTORE] ❌ Failed to restore ${account.session_id}:`, error)
+        // Marcar como error pero no eliminar - el usuario puede intentar reconectar
+        await supabaseAdmin
+          .from('whatsapp_accounts')
+          .update({ status: 'error' as SessionStatus, error_message: 'Failed to restore after restart' })
+          .eq('session_id', account.session_id)
       }
     }
   }
@@ -1184,6 +1220,50 @@ class WhatsAppService {
       .from('whatsapp_accounts')
       .update({ status: 'disconnected' as SessionStatus })
       .eq('session_id', sessionId)
+  }
+
+  /**
+   * Preservar estado de sesiones antes del shutdown
+   * Esto asegura que las sesiones activas se puedan restaurar después del reinicio
+   */
+  async preserveSessionsBeforeShutdown(): Promise<void> {
+    console.log('[WA-SHUTDOWN] 💾 Preserving session states before shutdown...')
+    
+    const activeSessions = Array.from(this.sessions.values()).filter(s => s.status === 'ready')
+    
+    if (activeSessions.length === 0) {
+      console.log('[WA-SHUTDOWN] No active sessions to preserve')
+      return
+    }
+
+    console.log(`[WA-SHUTDOWN] Preserving ${activeSessions.length} active session(s)`)
+
+    for (const session of activeSessions) {
+      try {
+        // Asegurar que el estado en DB es 'ready' para que se restaure
+        await supabaseAdmin
+          .from('whatsapp_accounts')
+          .update({ 
+            status: 'ready' as SessionStatus,
+            last_seen: new Date().toISOString(),
+            error_message: null
+          })
+          .eq('session_id', session.sessionId)
+
+        console.log(`[WA-SHUTDOWN] ✅ Preserved: ${session.sessionId} (${session.phoneNumber})`)
+
+        // Intentar cerrar el cliente de forma limpia (sin logout para mantener la sesión)
+        try {
+          await session.client.destroy()
+        } catch {
+          // Silencioso - puede fallar si ya está cerrado
+        }
+      } catch (error) {
+        console.error(`[WA-SHUTDOWN] ❌ Failed to preserve ${session.sessionId}:`, error)
+      }
+    }
+
+    console.log('[WA-SHUTDOWN] ✅ All sessions preserved')
   }
 }
 
