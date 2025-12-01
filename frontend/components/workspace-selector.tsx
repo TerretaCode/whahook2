@@ -139,6 +139,23 @@ export function WorkspaceSelector({
     )
   }
 
+  // If user only has access to one workspace (e.g., invited member), don't show selector
+  // Just show the workspace name
+  if (workspaces.length === 1) {
+    const workspace = workspaces[0]
+    return (
+      <div className={`flex items-center gap-2 ${className}`}>
+        <Building2 className={`w-4 h-4 ${workspace.is_owner ? 'text-green-600' : 'text-blue-600'}`} />
+        <span className="text-sm font-medium text-gray-700">{workspace.name}</span>
+        {workspace.is_member && !workspace.is_owner && workspace.member_role && (
+          <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+            {workspace.member_role}
+          </span>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <div className="flex items-center gap-2 text-sm text-gray-600">
