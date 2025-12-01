@@ -43,11 +43,11 @@ const settingsNavigation = [
     allowedRoles: ['admin', 'client'] // Owners, admins, and clients (not agent/viewer)
   },
   {
-    id: 'team',
-    name: 'Team',
-    href: '/settings/team',
+    id: 'invitations',
+    name: 'Invitaciones',
+    href: '/settings/invitations',
     icon: Users,
-    description: 'Manage your team',
+    description: 'Invita a tu equipo',
     allowedRoles: ['client'] // Only clients can invite agent/viewer
   },
   {
@@ -83,15 +83,20 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
   
   // Get user's role in the current workspace
   const memberRole = workspace?.member_role
+  
+  // Debug log
+  console.log('Settings Layout - isOwner:', isOwner, 'memberRole:', memberRole, 'workspace:', workspace?.name)
 
   // Filter navigation based on user permissions
   const filteredNavigation = useMemo(() => {
     return settingsNavigation.filter(item => {
-      // Owners can see everything
-      if (isOwner) return true
+      // If user is a member (has member_role), use role-based filtering
+      if (memberRole) {
+        return item.allowedRoles.includes(memberRole)
+      }
       
-      // For members, check if their role is in allowedRoles
-      if (memberRole && item.allowedRoles.includes(memberRole)) return true
+      // If user is owner (is_owner = true), show everything
+      if (isOwner) return true
       
       return false
     })

@@ -44,7 +44,7 @@ const ROLE_DESCRIPTIONS: Record<string, string> = {
   viewer: 'Acceso a Dashboard, Clientes y Campañas'
 }
 
-export default function TeamPage() {
+export default function InvitationsPage() {
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
   const { workspace, isOwner } = useWorkspaceContext()
@@ -169,7 +169,7 @@ export default function TeamPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mi Equipo</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Invitaciones</h1>
           <p className="text-sm text-gray-500 mt-1">
             Invita a miembros de tu equipo para gestionar mensajes o marketing
           </p>
