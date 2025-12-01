@@ -118,35 +118,37 @@ function ConnectionsPageContent() {
         </p>
       </div>
 
-      {/* Workspace Selector - Inline, no separate loading */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Building2 className="w-4 h-4" />
-            <span>Workspace:</span>
+      {/* Workspace Selector - Only show if user has multiple workspaces */}
+      {workspaces.length > 1 && (
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Building2 className="w-4 h-4" />
+              <span>Workspace:</span>
+            </div>
+            <Select value={selectedWorkspace?.id || undefined} onValueChange={handleWorkspaceChange}>
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Select workspace" />
+              </SelectTrigger>
+              <SelectContent>
+                {workspaces.map((workspace) => (
+                  <SelectItem key={workspace.id} value={workspace.id}>
+                    <div className="flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-green-600" />
+                      <span>{workspace.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Link href="/settings/workspaces">
+              <Button size="sm" variant="outline">
+                <Plus className="w-4 h-4" />
+              </Button>
+            </Link>
           </div>
-          <Select value={selectedWorkspace?.id || undefined} onValueChange={handleWorkspaceChange}>
-            <SelectTrigger className="w-[250px]">
-              <SelectValue placeholder="Select workspace" />
-            </SelectTrigger>
-            <SelectContent>
-              {workspaces.map((workspace) => (
-                <SelectItem key={workspace.id} value={workspace.id}>
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-green-600" />
-                    <span>{workspace.name}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Link href="/settings/workspaces">
-            <Button size="sm" variant="outline">
-              <Plus className="w-4 h-4" />
-            </Button>
-          </Link>
         </div>
-      </div>
+      )}
 
       {/* Content */}
       {selectedWorkspace ? (
