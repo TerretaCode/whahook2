@@ -21,24 +21,20 @@ import Link from "next/link"
 
 interface AgencyBranding {
   logo_url: string | null
-  logo_dark_url: string | null
   primary_color: string
   secondary_color: string
   agency_name: string
   powered_by_text: string
   show_powered_by: boolean
-  custom_domain: string | null
 }
 
 const DEFAULT_BRANDING: AgencyBranding = {
   logo_url: null,
-  logo_dark_url: null,
   primary_color: '#22c55e',
   secondary_color: '#16a34a',
   agency_name: '',
   powered_by_text: '',
-  show_powered_by: true,
-  custom_domain: null
+  show_powered_by: true
 }
 
 export default function AgencyBrandingPage() {
@@ -213,78 +209,39 @@ export default function AgencyBrandingPage() {
       <div className={`space-y-6 ${!isEnterprise ? 'opacity-50 pointer-events-none' : ''}`}>
         {/* Logo Section */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Logos</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Light Logo */}
-            <div>
-              <Label className="mb-2 block">Logo (modo claro)</Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors">
-                {branding.logo_url ? (
-                  <div className="space-y-3">
-                    <img 
-                      src={branding.logo_url} 
-                      alt="Logo" 
-                      className="max-h-16 mx-auto"
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setBranding(prev => ({ ...prev, logo_url: null }))}
-                    >
-                      Eliminar
-                    </Button>
-                  </div>
-                ) : (
-                  <label className="cursor-pointer">
-                    <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600">Haz clic para subir</p>
-                    <p className="text-xs text-gray-400">PNG, JPG o SVG (max 2MB)</p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => handleLogoUpload(e, 'light')}
-                      disabled={isUploading}
-                    />
-                  </label>
-                )}
-              </div>
-            </div>
-
-            {/* Dark Logo */}
-            <div>
-              <Label className="mb-2 block">Logo (modo oscuro)</Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors bg-gray-900">
-                {branding.logo_dark_url ? (
-                  <div className="space-y-3">
-                    <img 
-                      src={branding.logo_dark_url} 
-                      alt="Logo Dark" 
-                      className="max-h-16 mx-auto"
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setBranding(prev => ({ ...prev, logo_dark_url: null }))}
-                    >
-                      Eliminar
-                    </Button>
-                  </div>
-                ) : (
-                  <label className="cursor-pointer">
-                    <Upload className="w-8 h-8 mx-auto text-gray-500 mb-2" />
-                    <p className="text-sm text-gray-400">Haz clic para subir</p>
-                    <p className="text-xs text-gray-500">PNG, JPG o SVG (max 2MB)</p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => handleLogoUpload(e, 'dark')}
-                      disabled={isUploading}
-                    />
-                  </label>
-                )}
-              </div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Logo</h2>
+          <div>
+            <Label className="mb-2 block">Logo de la agencia</Label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors max-w-md">
+              {branding.logo_url ? (
+                <div className="space-y-3">
+                  <img 
+                    src={branding.logo_url} 
+                    alt="Logo" 
+                    className="max-h-16 mx-auto"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setBranding(prev => ({ ...prev, logo_url: null }))}
+                  >
+                    Eliminar
+                  </Button>
+                </div>
+              ) : (
+                <label className="cursor-pointer">
+                  <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-600">Haz clic para subir</p>
+                  <p className="text-xs text-gray-400">PNG, JPG o SVG (max 2MB)</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleLogoUpload(e, 'light')}
+                    disabled={isUploading}
+                  />
+                </label>
+              )}
             </div>
           </div>
         </div>
