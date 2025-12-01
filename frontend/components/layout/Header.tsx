@@ -18,8 +18,11 @@ export function Header() {
   const scrollDirection = useScrollDirection({ threshold: 15 })
   const { user } = useAuth()
   const { hasUnread } = useNotifications()
-  const { hasPermission, isOwner, workspace } = useWorkspaceContext()
+  const { hasPermission, isOwner, workspace, isLoading: isWorkspaceLoading } = useWorkspaceContext()
   const { branding, isWhitelabel, hasCustomBranding, isLoading: isBrandingLoading } = useBranding()
+  
+  // Wait for both workspace and branding to load before showing logo
+  const isLoadingLogo = isWorkspaceLoading || isBrandingLoading
   const [scrollY, setScrollY] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -65,8 +68,8 @@ export function Header() {
             
             {/* Logo - Show loading placeholder, then agency branding or WhaHook */}
             <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              {isBrandingLoading && !isOwner ? (
-                // Loading placeholder - invisible but takes space
+              {isLoadingLogo ? (
+                // Loading placeholder while workspace/branding loads
                 <div className="h-8 w-32 bg-gray-100 rounded animate-pulse" />
               ) : isWhitelabel && (branding.logo_url || branding.logo_text) ? (
                 <>
