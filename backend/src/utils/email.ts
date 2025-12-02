@@ -81,6 +81,7 @@ interface WorkspaceInvitationEmailData {
   inviter_name?: string
   role: string
   access_link: string
+  workspace_id?: string  // To fetch branding
 }
 
 /**

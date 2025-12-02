@@ -64,6 +64,7 @@ interface WorkspaceInvitationData {
   inviter_name?: string
   role: string
   access_link: string
+  workspace_id?: string  // For branding lookup
 }
 
 function getWhatsAppConnectedTemplate(data: WhatsAppConnectedData, brandName: string = 'WhaHook') {
@@ -371,11 +372,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Get custom SMTP config if workspace_id is provided
+    // workspace_id can be in the body directly or inside data (for workspace_invitation)
     let smtpConfig: SmtpConfig | null = null
     let branding: AgencyBranding | null = null
     
-    if (workspace_id) {
-      const result = await getWorkspaceSmtpConfig(workspace_id)
+    const effectiveWorkspaceId = workspace_id || data?.workspace_id
+    
+    if (effectiveWorkspaceId) {
+      const result = await getWorkspaceSmtpConfig(effectiveWorkspaceId)
       smtpConfig = result.smtp
       branding = result.branding
     }

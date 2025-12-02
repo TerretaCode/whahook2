@@ -189,12 +189,16 @@ router.post('/:workspaceId/members', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'User already invited' })
     }
 
-    // Check if user exists
-    const { data: existingUser } = await supabaseAdmin
-      .from('profiles')
-      .select('id')
-      .eq('email', email)
-      .single()
+    // Check if user exists in auth (not just profiles)
+    // A user might have a profile but no auth account (e.g., from a previous incomplete registration)
+    let existingAuthUser = null
+    try {
+      const { data: users } = await supabaseAdmin.auth.admin.listUsers()
+      existingAuthUser = users?.users?.find(u => u.email === email) || null
+    } catch {
+      // If we can't check auth, assume user doesn't exist
+      existingAuthUser = null
+    }
 
     // Calculate expiration
     const expiresAt = expires_in_days 
@@ -217,14 +221,14 @@ router.post('/:workspaceId/members', async (req: Request, res: Response) => {
       .from('workspace_members')
       .insert({
         workspace_id: workspaceId,
-        user_id: existingUser?.id || null,
+        user_id: existingAuthUser?.id || null,
         role,
         permissions: defaultPermissions[role],
         invited_email: email,
         invited_by: userId,
         token_expires_at: expiresAt,
-        status: existingUser ? 'active' : 'pending',
-        joined_at: existingUser ? new Date().toISOString() : null
+        status: existingAuthUser ? 'active' : 'pending',
+        joined_at: existingAuthUser ? new Date().toISOString() : null
       })
       .select()
       .single()
@@ -273,7 +277,8 @@ router.post('/:workspaceId/members', async (req: Request, res: Response) => {
       workspace_name: workspace?.name || 'Workspace',
       inviter_name: inviterProfile?.full_name || inviterProfile?.email || undefined,
       role,
-      access_link: accessLink
+      access_link: accessLink,
+      workspace_id: workspaceId  // For branding lookup
     }).catch(err => console.error('Failed to send invitation email:', err))
 
     res.json({ 
