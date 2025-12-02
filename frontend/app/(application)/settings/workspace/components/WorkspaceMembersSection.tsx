@@ -205,6 +205,9 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                   placeholder="colleague@company.com"
                   required
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Este email también recibirá notificaciones del workspace (conexión/desconexión de WhatsApp, etc.)
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

@@ -1,37 +1,22 @@
 -- =====================================================
--- MIGRACIÓN: Añadir email del cliente al workspace
--- Descripción: Permite configurar un email de contacto
--- del cliente para recibir notificaciones del workspace
+-- MIGRACIÓN: Configuración de notificaciones para miembros del workspace
+-- Descripción: Los emails de notificación se envían a los miembros
+-- invitados al workspace según su rol (usando invited_email de workspace_members)
 -- =====================================================
 
--- 1. Añadir columna client_email a workspaces
-ALTER TABLE workspaces 
-ADD COLUMN IF NOT EXISTS client_email TEXT DEFAULT NULL;
+-- Añadir configuración de notificaciones a workspace_members
+-- Permite controlar qué notificaciones recibe cada miembro
+ALTER TABLE workspace_members 
+ADD COLUMN IF NOT EXISTS notifications JSONB DEFAULT '{"whatsapp_connected": true, "whatsapp_disconnected": true}'::jsonb;
 
--- 2. Añadir columna client_name para personalizar notificaciones
-ALTER TABLE workspaces 
-ADD COLUMN IF NOT EXISTS client_name TEXT DEFAULT NULL;
-
--- 3. Añadir configuración de notificaciones del cliente
--- Permite controlar qué notificaciones recibe el cliente
-ALTER TABLE workspaces 
-ADD COLUMN IF NOT EXISTS client_notifications JSONB DEFAULT '{"whatsapp_connected": true, "whatsapp_disconnected": true, "daily_summary": false}'::jsonb;
-
--- 4. Comentarios para documentación
-COMMENT ON COLUMN workspaces.client_email IS 'Email del cliente final del workspace. Recibe notificaciones según client_notifications.';
-COMMENT ON COLUMN workspaces.client_name IS 'Nombre del cliente para personalizar las notificaciones.';
-COMMENT ON COLUMN workspaces.client_notifications IS 'Configuración de qué notificaciones recibe el cliente: whatsapp_connected, whatsapp_disconnected, daily_summary.';
+COMMENT ON COLUMN workspace_members.notifications IS 'Configuración de notificaciones para este miembro: whatsapp_connected, whatsapp_disconnected.';
 
 -- =====================================================
 -- NOTAS:
 -- 
--- Estructura de client_notifications:
--- {
---   "whatsapp_connected": true,      -- Notificar cuando WhatsApp se conecta
---   "whatsapp_disconnected": true,   -- Notificar cuando WhatsApp se desconecta
---   "daily_summary": false           -- Resumen diario de actividad (futuro)
--- }
+-- Las notificaciones se envían usando el campo invited_email 
+-- de workspace_members. No es necesario un campo separado.
 --
 -- El owner siempre recibe todas las notificaciones.
--- El cliente solo recibe las que tenga habilitadas.
+-- Los miembros invitados reciben según su configuración.
 -- =====================================================
