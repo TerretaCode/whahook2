@@ -25,12 +25,14 @@ import {
   ChevronDown,
   ChevronUp,
   Users,
-  Bot
+  Bot,
+  Mail
 } from "lucide-react"
 import Link from "next/link"
 import { WorkspacesSkeleton } from "@/components/skeletons/SettingsSkeletons"
 import { WorkspaceMembersSection } from "../workspace/components/WorkspaceMembersSection"
 import { WhiteLabelSection } from "../workspace/components/WhiteLabelSection"
+import { ClientNotificationsSection } from "../workspace/components/ClientNotificationsSection"
 import { getCached, setCache, getFromSession, persistToSession } from "@/lib/cache"
 
 interface Workspace {
@@ -571,6 +573,13 @@ export default function WorkspacesPage() {
                           Branding
                         </TabsTrigger>
                         <TabsTrigger 
+                          value="client"
+                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4"
+                        >
+                          <Mail className="w-4 h-4 mr-2" />
+                          Cliente
+                        </TabsTrigger>
+                        <TabsTrigger 
                           value="api"
                           className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4"
                         >
@@ -591,6 +600,10 @@ export default function WorkspacesPage() {
                           initialSettings={workspace.white_label as any}
                           userPlan={data?.plan || 'trial'}
                         />
+                      </TabsContent>
+
+                      <TabsContent value="client" className="mt-0">
+                        <ClientNotificationsSection workspaceId={workspace.id} />
                       </TabsContent>
 
                       <TabsContent value="api" className="mt-0">
