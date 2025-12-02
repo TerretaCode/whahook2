@@ -309,7 +309,20 @@ async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: Smtp
     console.log(`📧 Profile found for workspace owner, agency_branding:`, JSON.stringify(profile.agency_branding))
     
     const smtp = profile.smtp_config as SmtpConfig | null
-    const branding = profile.agency_branding as AgencyBranding | null
+    
+    // Handle agency_branding - it might be stored as a JSON string or as an object
+    let branding: AgencyBranding | null = null
+    if (profile.agency_branding) {
+      if (typeof profile.agency_branding === 'string') {
+        try {
+          branding = JSON.parse(profile.agency_branding) as AgencyBranding
+        } catch {
+          console.error('Failed to parse agency_branding JSON string')
+        }
+      } else {
+        branding = profile.agency_branding as AgencyBranding
+      }
+    }
     
     // Always return branding, only return SMTP if enabled
     return { 
