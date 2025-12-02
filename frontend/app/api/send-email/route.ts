@@ -379,10 +379,15 @@ export async function POST(request: NextRequest) {
     
     const effectiveWorkspaceId = workspace_id || data?.workspace_id
     
+    console.log(`📧 Email request: type=${type}, to=${to}, workspace_id=${effectiveWorkspaceId}`)
+    
     if (effectiveWorkspaceId) {
       const result = await getWorkspaceSmtpConfig(effectiveWorkspaceId)
       smtpConfig = result.smtp
       branding = result.branding
+      console.log(`📧 Branding loaded: agency_name=${branding?.agency_name}, primary_color=${branding?.primary_color}`)
+    } else {
+      console.log(`📧 No workspace_id provided, using default branding`)
     }
 
     let subject: string

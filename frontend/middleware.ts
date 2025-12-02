@@ -44,6 +44,7 @@ const MAIN_DOMAINS = [
 // Pages allowed on custom domains (no marketing, no register)
 const ALLOWED_CUSTOM_DOMAIN_PATHS = [
   '/login',
+  '/invite',  // Invitation acceptance page (has its own registration form)
   '/dashboard',
   '/conversations', // Chat/messages page
   '/clients',
