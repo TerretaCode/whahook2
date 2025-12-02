@@ -465,23 +465,6 @@ export default function AgencyBrandingPage() {
             </div>
           </div>
 
-          {/* Logo Text */}
-          <div className="mt-4">
-            <Label htmlFor="logo_text" className="mb-2 block">
-              Texto del logo <span className="text-gray-400 font-normal">(opcional)</span>
-            </Label>
-            <Input
-              id="logo_text"
-              value={branding.logo_text}
-              onChange={(e) => setBranding(prev => ({ ...prev, logo_text: e.target.value }))}
-              placeholder="Mi Agencia"
-              className="max-w-md"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Se mostrará al lado del logo. Déjalo vacío si tu logo ya incluye el nombre.
-            </p>
-          </div>
-
           {/* Favicon Section */}
           <div className="mt-6 pt-6 border-t border-gray-100">
             <Label className="mb-2 block">
