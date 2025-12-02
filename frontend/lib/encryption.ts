@@ -69,7 +69,7 @@ export function decrypt(encryptedData: string): string {
   const combined = Buffer.from(encryptedData, 'base64')
   
   // Extract components
-  const salt = combined.subarray(0, SALT_LENGTH)
+  const _salt = combined.subarray(0, SALT_LENGTH) // Salt is included for future key derivation
   const iv = combined.subarray(SALT_LENGTH, SALT_LENGTH + IV_LENGTH)
   const authTag = combined.subarray(SALT_LENGTH + IV_LENGTH, SALT_LENGTH + IV_LENGTH + AUTH_TAG_LENGTH)
   const encrypted = combined.subarray(SALT_LENGTH + IV_LENGTH + AUTH_TAG_LENGTH)

@@ -1,13 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { decrypt } from '@/lib/encryption'
 
-// Supabase admin client for server-side operations
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy-initialized Supabase admin client
+let _supabaseAdmin: SupabaseClient | null = null
+
+function getSupabaseAdmin(): SupabaseClient {
+  if (!_supabaseAdmin) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+    
+    if (!url || !key) {
+      throw new Error('Supabase configuration missing')
+    }
+    
+    _supabaseAdmin = createClient(url, key)
+  }
+  return _supabaseAdmin
+}
 
 interface SmtpConfig {
   enabled: boolean
@@ -271,7 +282,7 @@ Accede al workspace: ${data.access_link}
 async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: SmtpConfig | null; branding: AgencyBranding | null }> {
   try {
     // Get workspace owner
-    const { data: workspace, error: wsError } = await supabaseAdmin
+    const { data: workspace, error: wsError } = await getSupabaseAdmin()
       .from('workspaces')
       .select('owner_id')
       .eq('id', workspaceId)
@@ -282,7 +293,7 @@ async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: Smtp
     }
     
     // Get owner's SMTP config and branding
-    const { data: profile, error: profileError } = await supabaseAdmin
+    const { data: profile, error: profileError } = await getSupabaseAdmin()
       .from('profiles')
       .select('smtp_config, agency_branding')
       .eq('id', workspace.owner_id)
