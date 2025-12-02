@@ -57,14 +57,15 @@ export async function generateMetadata(): Promise<Metadata> {
  * This prevents the flash of default branding colors.
  * The script runs synchronously in the <head> before any content is rendered.
  */
-function generateBrandingScript(branding: { primary_color?: string } | null): string {
-  if (!branding?.primary_color) {
+function generateBrandingScript(branding: { primary_color?: string; logo_url?: string; logo_text?: string; agency_name?: string } | null): string {
+  if (!branding) {
     return '';
   }
   
-  const color = branding.primary_color;
+  const color = branding.primary_color || '#22c55e';
   
   // This script runs immediately, blocking render until CSS variables are set
+  // It also sets a data attribute to indicate custom domain for CSS-based hiding
   return `
     (function() {
       var color = '${color}';
@@ -78,6 +79,7 @@ function generateBrandingScript(branding: { primary_color?: string } | null): st
       document.documentElement.style.setProperty('--brand-primary', color);
       document.documentElement.style.setProperty('--brand-primary-rgb', r + ', ' + g + ', ' + b);
       document.documentElement.style.setProperty('--brand-text', textColor);
+      document.documentElement.setAttribute('data-custom-domain', 'true');
     })();
   `;
 }

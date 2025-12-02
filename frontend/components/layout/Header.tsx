@@ -68,10 +68,14 @@ export function Header() {
             
             {/* Logo - Show loading placeholder, then agency branding or WhaHook */}
             <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              {/* Loading placeholder - shown on custom domains via CSS until branding loads */}
+              <div className="whahook-logo-loading hidden h-8 w-32 bg-gray-100 rounded animate-pulse" />
+              
               {isLoadingLogo ? (
                 // Loading placeholder while workspace/branding loads
                 <div className="h-8 w-32 bg-gray-100 rounded animate-pulse" />
               ) : isWhitelabel && (branding.logo_url || branding.logo_text) ? (
+                // Custom branding logo
                 <>
                   {branding.logo_url && (
                     <img 
@@ -90,7 +94,8 @@ export function Header() {
                   )}
                 </>
               ) : (
-                <>
+                // Default Whahook logo - hidden on custom domains via CSS
+                <div className="whahook-default-logo flex items-center gap-2">
                   <LogoIcon className="w-8 h-8 text-green-600" />
                   <div className="flex flex-col gap-0.5">
                     <span className="text-xl font-bold text-gray-900 leading-tight">
@@ -101,7 +106,7 @@ export function Header() {
                       <span className="text-green-600">TerretaCode</span>
                     </span>
                   </div>
-                </>
+                </div>
               )}
             </Link>
 

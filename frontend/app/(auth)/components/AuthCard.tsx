@@ -29,7 +29,7 @@ export function AuthCard({ children, title, description, customHeader, hideLogo,
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center px-4 py-12"
+      className="whahook-default-bg min-h-screen flex items-center justify-center px-4 py-12"
       style={{ 
         background: getBrandGradient() || 'linear-gradient(to bottom right, rgb(240, 253, 244), white, rgb(249, 250, 251))'
       }}
@@ -38,9 +38,16 @@ export function AuthCard({ children, title, description, customHeader, hideLogo,
         {/* Custom Header (for branded domains) */}
         {customHeader}
         
-        {/* Default Logo (hidden on custom domains) */}
+        {/* Loading placeholder - shown on custom domains via CSS until branding loads */}
         {!customHeader && !hideLogo && (
-          <Link href="/" className="flex items-center gap-2 mb-8 justify-center hover:opacity-80 transition-opacity">
+          <div className="whahook-logo-loading hidden mb-8 justify-center">
+            <div className="h-8 w-32 bg-gray-100 rounded animate-pulse" />
+          </div>
+        )}
+        
+        {/* Default Logo (hidden on custom domains via CSS) */}
+        {!customHeader && !hideLogo && (
+          <Link href="/" className="whahook-default-logo flex items-center gap-2 mb-8 justify-center hover:opacity-80 transition-opacity">
             <LogoIcon className="w-8 h-8 text-green-600" />
             <div className="flex flex-col gap-0.5">
               <span className="text-xl font-bold text-gray-900 leading-tight">
