@@ -19,7 +19,11 @@ import {
   CheckCircle2,
   Copy,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Mail,
+  Eye,
+  EyeOff,
+  Send
 } from "lucide-react"
 import Link from "next/link"
 
@@ -34,6 +38,18 @@ interface AgencyBranding {
   show_powered_by: boolean
 }
 
+interface SmtpConfig {
+  enabled: boolean
+  host: string
+  port: number
+  secure: boolean
+  auth_user: string
+  auth_pass: string
+  from_email: string
+  from_name: string
+  reply_to: string
+}
+
 const DEFAULT_BRANDING: AgencyBranding = {
   logo_url: null,
   logo_text: '',
@@ -43,6 +59,18 @@ const DEFAULT_BRANDING: AgencyBranding = {
   agency_name: '',
   powered_by_text: '',
   show_powered_by: true
+}
+
+const DEFAULT_SMTP: SmtpConfig = {
+  enabled: false,
+  host: '',
+  port: 587,
+  secure: false,
+  auth_user: '',
+  auth_pass: '',
+  from_email: '',
+  from_name: '',
+  reply_to: ''
 }
 
 export default function AgencyBrandingPage() {
@@ -63,6 +91,12 @@ export default function AgencyBrandingPage() {
   const [isSavingDomain, setIsSavingDomain] = useState(false)
   const [isDeletingDomain, setIsDeletingDomain] = useState(false)
 
+  // SMTP state
+  const [smtpConfig, setSmtpConfig] = useState<SmtpConfig>(DEFAULT_SMTP)
+  const [showSmtpPassword, setShowSmtpPassword] = useState(false)
+  const [isSavingSmtp, setIsSavingSmtp] = useState(false)
+  const [isTestingSmtp, setIsTestingSmtp] = useState(false)
+
   const isEnterprise = user?.profile?.subscription_tier === 'enterprise'
 
   useEffect(() => {
@@ -75,6 +109,7 @@ export default function AgencyBrandingPage() {
     if (user) {
       loadBranding()
       loadDomain()
+      loadSmtpConfig()
     }
   }, [user])
 
@@ -102,6 +137,69 @@ export default function AgencyBrandingPage() {
       }
     } catch (error) {
       console.error('Error loading domain:', error)
+    }
+  }
+
+  const loadSmtpConfig = async () => {
+    try {
+      const response = await ApiClient.get<SmtpConfig>('/api/smtp')
+      if (response.success && response.data) {
+        // Don't load the password - it's encrypted and shouldn't be shown
+        setSmtpConfig({ ...DEFAULT_SMTP, ...response.data, auth_pass: '' })
+      }
+    } catch (error) {
+      console.error('Error loading SMTP config:', error)
+    }
+  }
+
+  const handleSaveSmtp = async () => {
+    if (!isEnterprise) {
+      toast.error('Plan Enterprise requerido', 'Actualiza tu plan para usar SMTP personalizado')
+      return
+    }
+
+    // Validate required fields if SMTP is enabled
+    if (smtpConfig.enabled) {
+      if (!smtpConfig.host || !smtpConfig.auth_user || !smtpConfig.from_email) {
+        toast.error('Campos requeridos', 'Completa todos los campos obligatorios')
+        return
+      }
+    }
+
+    try {
+      setIsSavingSmtp(true)
+      const response = await ApiClient.put('/api/smtp', smtpConfig)
+      if (response.success) {
+        toast.success('Guardado', 'Configuración SMTP guardada correctamente')
+        // Clear password field after save
+        setSmtpConfig(prev => ({ ...prev, auth_pass: '' }))
+      }
+    } catch (error: any) {
+      toast.error('Error', error.message || 'No se pudo guardar la configuración SMTP')
+    } finally {
+      setIsSavingSmtp(false)
+    }
+  }
+
+  const handleTestSmtp = async () => {
+    if (!smtpConfig.host || !smtpConfig.auth_user || !smtpConfig.from_email) {
+      toast.error('Configuración incompleta', 'Completa la configuración SMTP antes de probar')
+      return
+    }
+
+    try {
+      setIsTestingSmtp(true)
+      const response = await ApiClient.post('/api/smtp/test', {
+        ...smtpConfig,
+        test_email: user?.email
+      })
+      if (response.success) {
+        toast.success('Email enviado', `Se ha enviado un email de prueba a ${user?.email}`)
+      }
+    } catch (error: any) {
+      toast.error('Error de conexión', error.message || 'No se pudo conectar al servidor SMTP')
+    } finally {
+      setIsTestingSmtp(false)
     }
   }
 
@@ -649,6 +747,221 @@ export default function AgencyBrandingPage() {
                   Introduce el subdominio completo que quieres usar (ej: panel.tuagencia.com)
                 </p>
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* SMTP Configuration Section */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Mail className="w-5 h-5 text-green-600" />
+              <h2 className="text-lg font-semibold text-gray-900">Servidor de Email (SMTP)</h2>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={smtpConfig.enabled}
+                onChange={(e) => setSmtpConfig(prev => ({ ...prev, enabled: e.target.checked }))}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+            </label>
+          </div>
+          
+          <p className="text-sm text-gray-600 mb-4">
+            Configura tu propio servidor SMTP para que los emails de notificación se envíen desde tu dominio.
+            Esto incluye invitaciones, alertas de conexión/desconexión de WhatsApp, etc.
+          </p>
+
+          {smtpConfig.enabled && (
+            <div className="space-y-4 pt-4 border-t border-gray-100">
+              {/* Server Settings */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="smtp_host" className="mb-2 block">
+                    Servidor SMTP <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="smtp_host"
+                    value={smtpConfig.host}
+                    onChange={(e) => setSmtpConfig(prev => ({ ...prev, host: e.target.value }))}
+                    placeholder="smtp.tudominio.com"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor="smtp_port" className="mb-2 block">Puerto</Label>
+                    <Input
+                      id="smtp_port"
+                      type="number"
+                      value={smtpConfig.port}
+                      onChange={(e) => setSmtpConfig(prev => ({ ...prev, port: parseInt(e.target.value) || 587 }))}
+                      placeholder="587"
+                    />
+                  </div>
+                  <div>
+                    <Label className="mb-2 block">SSL/TLS</Label>
+                    <div className="flex items-center h-10">
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={smtpConfig.secure}
+                          onChange={(e) => setSmtpConfig(prev => ({ ...prev, secure: e.target.checked }))}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                        <span className="ml-2 text-sm text-gray-600">Puerto 465</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Authentication */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="smtp_user" className="mb-2 block">
+                    Usuario SMTP <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="smtp_user"
+                    value={smtpConfig.auth_user}
+                    onChange={(e) => setSmtpConfig(prev => ({ ...prev, auth_user: e.target.value }))}
+                    placeholder="noreply@tudominio.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="smtp_pass" className="mb-2 block">
+                    Contraseña SMTP
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="smtp_pass"
+                      type={showSmtpPassword ? 'text' : 'password'}
+                      value={smtpConfig.auth_pass}
+                      onChange={(e) => setSmtpConfig(prev => ({ ...prev, auth_pass: e.target.value }))}
+                      placeholder="••••••••"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSmtpPassword(!showSmtpPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showSmtpPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Deja vacío para mantener la contraseña actual
+                  </p>
+                </div>
+              </div>
+
+              {/* From Settings */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="smtp_from_email" className="mb-2 block">
+                    Email remitente <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="smtp_from_email"
+                    type="email"
+                    value={smtpConfig.from_email}
+                    onChange={(e) => setSmtpConfig(prev => ({ ...prev, from_email: e.target.value }))}
+                    placeholder="noreply@tudominio.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="smtp_from_name" className="mb-2 block">
+                    Nombre remitente
+                  </Label>
+                  <Input
+                    id="smtp_from_name"
+                    value={smtpConfig.from_name}
+                    onChange={(e) => setSmtpConfig(prev => ({ ...prev, from_name: e.target.value }))}
+                    placeholder="Mi Agencia"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="smtp_reply_to" className="mb-2 block">
+                  Reply-To <span className="text-gray-400 font-normal">(opcional)</span>
+                </Label>
+                <Input
+                  id="smtp_reply_to"
+                  type="email"
+                  value={smtpConfig.reply_to}
+                  onChange={(e) => setSmtpConfig(prev => ({ ...prev, reply_to: e.target.value }))}
+                  placeholder="soporte@tudominio.com"
+                  className="max-w-md"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Email al que responderán los usuarios cuando contesten a tus notificaciones
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={handleSaveSmtp}
+                  disabled={isSavingSmtp}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {isSavingSmtp ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Guardar SMTP
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleTestSmtp}
+                  disabled={isTestingSmtp || !smtpConfig.host}
+                >
+                  {isTestingSmtp ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Enviar email de prueba
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Help */}
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-4">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+                  <div className="text-sm text-amber-800">
+                    <p className="font-medium mb-1">Proveedores SMTP populares:</p>
+                    <ul className="space-y-1 text-amber-700">
+                      <li>• <strong>Gmail:</strong> smtp.gmail.com, puerto 587 (requiere contraseña de aplicación)</li>
+                      <li>• <strong>Outlook:</strong> smtp.office365.com, puerto 587</li>
+                      <li>• <strong>SendGrid:</strong> smtp.sendgrid.net, puerto 587</li>
+                      <li>• <strong>Mailgun:</strong> smtp.mailgun.org, puerto 587</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!smtpConfig.enabled && (
+            <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+              <Mail className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p>Los emails se enviarán desde el servidor de Whahook</p>
             </div>
           )}
         </div>
