@@ -403,8 +403,8 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* AI Control Panel - Only show to workspace owners */}
-        {isOwner && (
+        {/* AI Control Panel - Show to everyone with at least one AI permission */}
+        {(canViewMessages || canViewClients || isOwner) && (
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
@@ -418,7 +418,8 @@ export default function DashboardPage() {
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {/* Activar Todas */}
+            {/* Activar Todas - Only for owners */}
+            {isOwner && (
             <button
               onClick={() => toggleAi('all', true)}
               disabled={togglingAi !== null}
@@ -433,8 +434,10 @@ export default function DashboardPage() {
                 <p className="text-xs font-semibold text-green-700">Activar todas</p>
               </div>
             </button>
+            )}
 
-            {/* WhatsApp AI */}
+            {/* WhatsApp AI - For users with messages permission */}
+            {canViewMessages && (
             <button
               onClick={() => toggleAi('whatsapp', stats.whatsappAiActive === 0)}
               disabled={togglingAi !== null}
@@ -454,8 +457,10 @@ export default function DashboardPage() {
                 <p className="text-[10px] text-gray-400">{stats.whatsappAiActive > 0 ? 'Activa' : 'Inactiva'}</p>
               </div>
             </button>
+            )}
 
-            {/* Web AI */}
+            {/* Web AI - For users with messages permission */}
+            {canViewMessages && (
             <button
               onClick={() => toggleAi('web', stats.webAiActive === 0)}
               disabled={togglingAi !== null}
@@ -475,8 +480,10 @@ export default function DashboardPage() {
                 <p className="text-[10px] text-gray-400">{stats.webAiActive > 0 ? 'Activa' : 'Inactiva'}</p>
               </div>
             </button>
+            )}
 
-            {/* Clients AI */}
+            {/* Clients AI - For users with clients permission (marketing) */}
+            {canViewClients && (
             <button
               onClick={() => toggleAi('clients', !stats.clientsAiActive)}
               disabled={togglingAi !== null}
@@ -496,8 +503,10 @@ export default function DashboardPage() {
                 <p className="text-[10px] text-gray-400">{stats.clientsAiActive ? 'Activa' : 'Inactiva'}</p>
               </div>
             </button>
+            )}
 
-            {/* Desactivar Todas */}
+            {/* Desactivar Todas - Only for owners */}
+            {isOwner && (
             <button
               onClick={() => toggleAi('all', false)}
               disabled={togglingAi !== null}
@@ -512,6 +521,7 @@ export default function DashboardPage() {
                 <p className="text-xs font-semibold text-red-700">Pausar todas</p>
               </div>
             </button>
+            )}
           </div>
         </div>
         )}
