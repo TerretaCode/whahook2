@@ -279,10 +279,10 @@ Accede al workspace: ${data.access_link}
 
 /**
  * Get SMTP config for a workspace owner (for custom SMTP)
- * Updated: Force redeploy with detailed logging
  */
-async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: SmtpConfig | null; branding: AgencyBranding | null }> {
-  console.log(`📧 [v2] getWorkspaceSmtpConfig called with workspaceId: ${workspaceId}`)
+async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: SmtpConfig | null; branding: AgencyBranding | null; debugLogs: string[] }> {
+  const logs: string[] = []
+  logs.push(`getWorkspaceSmtpConfig called with workspaceId: ${workspaceId}`)
   
   try {
     // Get workspace owner (column is user_id, not owner_id)
@@ -292,11 +292,11 @@ async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: Smtp
       .eq('id', workspaceId)
       .single()
     
-    console.log(`📧 Workspace query result: workspace=${JSON.stringify(workspace)}, error=${wsError?.message || 'none'}`)
+    logs.push(`Workspace query: user_id=${workspace?.user_id || 'null'}, error=${wsError?.message || 'none'}`)
     
     if (wsError || !workspace?.user_id) {
-      console.error('Workspace not found or no user_id:', wsError)
-      return { smtp: null, branding: null }
+      logs.push('FAILED: Workspace not found or no user_id')
+      return { smtp: null, branding: null, debugLogs: logs }
     }
     
     // Get owner's SMTP config and branding
@@ -306,14 +306,12 @@ async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: Smtp
       .eq('id', workspace.user_id)
       .single()
     
-    console.log(`📧 Profile query result: has_branding=${!!profile?.agency_branding}, error=${profileError?.message || 'none'}`)
+    logs.push(`Profile query: has_branding=${!!profile?.agency_branding}, branding_type=${typeof profile?.agency_branding}, error=${profileError?.message || 'none'}`)
     
     if (profileError || !profile) {
-      console.error('Profile not found:', profileError)
-      return { smtp: null, branding: null }
+      logs.push('FAILED: Profile not found')
+      return { smtp: null, branding: null, debugLogs: logs }
     }
-    
-    console.log(`📧 Profile found, agency_branding type: ${typeof profile.agency_branding}`)
     
     const smtp = profile.smtp_config as SmtpConfig | null
     
@@ -323,22 +321,27 @@ async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: Smtp
       if (typeof profile.agency_branding === 'string') {
         try {
           branding = JSON.parse(profile.agency_branding) as AgencyBranding
-        } catch {
-          console.error('Failed to parse agency_branding JSON string')
+          logs.push(`Parsed JSON string branding: agency_name=${branding?.agency_name}`)
+        } catch (e) {
+          logs.push(`FAILED to parse JSON: ${e}`)
         }
       } else {
         branding = profile.agency_branding as AgencyBranding
+        logs.push(`Using object branding: agency_name=${branding?.agency_name}`)
       }
+    } else {
+      logs.push('No agency_branding in profile')
     }
     
     // Always return branding, only return SMTP if enabled
     return { 
       smtp: smtp?.enabled ? smtp : null, 
-      branding 
+      branding,
+      debugLogs: logs
     }
   } catch (error) {
-    console.error('Error fetching workspace SMTP config:', error)
-    return { smtp: null, branding: null }
+    logs.push(`EXCEPTION: ${error}`)
+    return { smtp: null, branding: null, debugLogs: logs }
   }
 }
 
@@ -398,6 +401,7 @@ export async function POST(request: NextRequest) {
     // workspace_id can be in the body directly or inside data (for workspace_invitation)
     let smtpConfig: SmtpConfig | null = null
     let branding: AgencyBranding | null = null
+    let debugLogs: string[] = []
     
     const effectiveWorkspaceId = workspace_id || data?.workspace_id
     
@@ -407,9 +411,10 @@ export async function POST(request: NextRequest) {
       const result = await getWorkspaceSmtpConfig(effectiveWorkspaceId)
       smtpConfig = result.smtp
       branding = result.branding
+      debugLogs = result.debugLogs
       console.log(`📧 Branding loaded: agency_name=${branding?.agency_name}, primary_color=${branding?.primary_color}`)
     } else {
-      console.log(`📧 No workspace_id provided, using default branding`)
+      debugLogs.push('No workspace_id provided, using default branding')
     }
 
     let subject: string
@@ -475,6 +480,7 @@ export async function POST(request: NextRequest) {
         primary_color: branding?.primary_color || null,
         from_name: fromName,
         from_email: fromEmail,
+        logs: debugLogs,
       }
     })
   } catch (error) {
