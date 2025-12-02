@@ -101,8 +101,15 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
         return item.allowedRoles.includes(memberRole)
       }
       
-      // If user is owner (is_owner = true), show everything
-      if (isOwner) return true
+      // If user is owner (is_owner = true), show everything EXCEPT client-only items
+      // Owners use Workspaces for invitations, not the Invitations page
+      if (isOwner) {
+        // Hide items that are exclusively for clients (like invitations)
+        if (item.allowedRoles.length === 1 && item.allowedRoles[0] === 'client') {
+          return false
+        }
+        return true
+      }
       
       return false
     })

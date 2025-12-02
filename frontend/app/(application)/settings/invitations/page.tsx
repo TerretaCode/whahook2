@@ -146,14 +146,22 @@ export default function InvitationsPage() {
     }
   }
 
-  // Only clients can access this page
-  if (!authLoading && workspace && !workspace.member_role?.includes('client') && !isOwner) {
+  // Only clients can access this page - owners should use Workspaces section
+  const isClient = workspace?.member_role === 'client'
+  
+  if (!authLoading && workspace && isOwner) {
+    // Redirect owners to workspaces page
+    router.push('/settings/workspaces')
+    return null
+  }
+  
+  if (!authLoading && workspace && !isClient) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Acceso denegado</h2>
-          <p className="text-gray-600">No tienes permisos para gestionar el equipo.</p>
+          <p className="text-gray-600">Solo los clientes pueden invitar miembros a su equipo.</p>
         </div>
       </div>
     )
@@ -172,9 +180,9 @@ export default function InvitationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Invitaciones</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Mi Equipo</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Invita a miembros de tu equipo para gestionar mensajes o marketing
+            Invita a miembros de tu equipo para ayudarte a gestionar mensajes o marketing
           </p>
         </div>
         {!showInviteForm && (
