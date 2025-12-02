@@ -281,6 +281,8 @@ Accede al workspace: ${data.access_link}
  * Get SMTP config for a workspace owner (for custom SMTP)
  */
 async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: SmtpConfig | null; branding: AgencyBranding | null }> {
+  console.log(`📧 getWorkspaceSmtpConfig called with workspaceId: ${workspaceId}`)
+  
   try {
     // Get workspace owner (column is user_id, not owner_id)
     const { data: workspace, error: wsError } = await getSupabaseAdmin()
@@ -288,6 +290,8 @@ async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: Smtp
       .select('user_id')
       .eq('id', workspaceId)
       .single()
+    
+    console.log(`📧 Workspace query result: workspace=${JSON.stringify(workspace)}, error=${wsError?.message || 'none'}`)
     
     if (wsError || !workspace?.user_id) {
       console.error('Workspace not found or no user_id:', wsError)
@@ -301,12 +305,14 @@ async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: Smtp
       .eq('id', workspace.user_id)
       .single()
     
+    console.log(`📧 Profile query result: has_branding=${!!profile?.agency_branding}, error=${profileError?.message || 'none'}`)
+    
     if (profileError || !profile) {
       console.error('Profile not found:', profileError)
       return { smtp: null, branding: null }
     }
     
-    console.log(`📧 Profile found for workspace owner, agency_branding:`, JSON.stringify(profile.agency_branding))
+    console.log(`📧 Profile found, agency_branding type: ${typeof profile.agency_branding}`)
     
     const smtp = profile.smtp_config as SmtpConfig | null
     
