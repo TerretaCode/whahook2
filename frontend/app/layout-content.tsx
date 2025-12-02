@@ -57,16 +57,6 @@ function getCustomDomainInfo(): { isCustomDomain: boolean; branding: CustomBrand
   return { isCustomDomain: false, branding: null }
 }
 
-// Check if current hostname is a custom domain (not Whahook's domains)
-function isLikelyCustomDomain(): boolean {
-  if (typeof window === 'undefined') return false
-  const hostname = window.location.hostname
-  const mainDomains = ['localhost', '127.0.0.1', 'whahook.com', 'www.whahook.com', 'app.whahook.com']
-  if (mainDomains.includes(hostname)) return false
-  if (hostname.endsWith('.vercel.app')) return false
-  return true
-}
-
 export function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   // Start with brandingReady = false to always show loading first
@@ -74,9 +64,6 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
   const [brandingReady, setBrandingReady] = useState(false);
   const [isCustomDomain, setIsCustomDomain] = useState(false);
   const [customBranding, setCustomBranding] = useState<CustomBranding | null>(null);
-  
-  // Track if we've checked for custom domain
-  const [checkedDomain, setCheckedDomain] = useState(false);
   
   // Check for custom domain on mount
   useEffect(() => {
@@ -134,7 +121,6 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
       }
     }
     
-    setCheckedDomain(true)
     setBrandingReady(true)
   }, []);
   
@@ -212,12 +198,10 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
   // Páginas que necesitan altura completa sin scroll (solo conversations)
   const isFullHeightPage = pathname.startsWith('/conversations');
   
-  // Show loading screen while branding is being determined on custom domains
-  // This prevents flash of Whahook branding
-  // Only show loading if we haven't checked yet AND we're likely on a custom domain
-  const shouldShowLoading = !checkedDomain && (typeof window !== 'undefined' && isLikelyCustomDomain())
-  
-  if (shouldShowLoading) {
+  // Show loading screen while branding is being determined
+  // This prevents flash of Whahook branding on custom domains
+  // brandingReady starts as false and becomes true after useEffect runs
+  if (!brandingReady) {
     // Use branding color if already loaded, otherwise neutral gray
     const spinnerColor = customBranding?.primary_color || '#9ca3af'
     
