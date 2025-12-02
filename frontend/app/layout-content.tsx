@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
@@ -18,43 +17,11 @@ function getCookie(name: string): string | null {
   return match ? match[2] : null
 }
 
-interface CustomBranding {
-  primary_color?: string
-}
-
-// Helper to get branding from cookies
-function getBrandingFromCookies(): CustomBranding | null {
-  if (typeof window === 'undefined') return null
-  
-  try {
-    const brandingStr = getCookie('x-custom-domain-branding')
-    if (brandingStr) {
-      return JSON.parse(brandingStr)
-    }
-  } catch (e) {
-    console.error('Error parsing branding cookie:', e)
-  }
-  return null
-}
-
 export function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   
-  // Apply CSS custom properties for branding colors on mount
-  // Favicon and title are handled server-side via generateMetadata in layout.tsx
-  useEffect(() => {
-    const branding = getBrandingFromCookies()
-    
-    if (branding?.primary_color) {
-      // Apply CSS custom properties for brand color
-      document.documentElement.style.setProperty('--brand-primary', branding.primary_color)
-      const hex = branding.primary_color.replace('#', '')
-      const r = parseInt(hex.substring(0, 2), 16)
-      const g = parseInt(hex.substring(2, 4), 16)
-      const b = parseInt(hex.substring(4, 6), 16)
-      document.documentElement.style.setProperty('--brand-primary-rgb', `${r}, ${g}, ${b}`)
-    }
-  }, []);
+  // CSS variables are now applied via blocking script in layout.tsx <head>
+  // This prevents any flash of default colors
   
   // Check if we're on a custom domain (for hiding footer/mobile nav)
   const isCustomDomain = typeof window !== 'undefined' && getCookie('x-custom-domain') !== null;

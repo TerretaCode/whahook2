@@ -43,40 +43,32 @@ function LoginContent() {
     password?: string
   }>({})
   
-  // Custom domain state
+  // Custom domain state - read from script tag injected by server
+  // CSS variables are already applied via blocking script in layout.tsx <head>
   const [isCustomDomain, setIsCustomDomain] = useState(false)
   const [customBranding, setCustomBranding] = useState<any>(null)
   
-  // Check for custom domain on mount and apply CSS colors
-  // Note: Favicon and title are handled server-side via generateMetadata in layout.tsx
+  // Read branding data from script tag on mount
   useEffect(() => {
     const { isCustomDomain: isCd, branding } = getBrandingFromScript()
     setIsCustomDomain(isCd)
     setCustomBranding(branding)
     
-    // Apply branding colors if custom domain
+    // Add custom focus styles for inputs if custom domain
     if (isCd && branding?.primary_color) {
-      document.documentElement.style.setProperty('--brand-primary', branding.primary_color)
-      const hex = branding.primary_color.replace('#', '')
-      const r = parseInt(hex.substring(0, 2), 16)
-      const g = parseInt(hex.substring(2, 4), 16)
-      const b = parseInt(hex.substring(4, 6), 16)
-      document.documentElement.style.setProperty('--brand-primary-rgb', `${r}, ${g}, ${b}`)
-      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
-      document.documentElement.style.setProperty('--brand-text', luminance > 0.5 ? '#000000' : '#ffffff')
-      
-      // Override focus ring color for inputs
       const style = document.createElement('style')
+      style.id = 'custom-domain-input-styles'
       style.textContent = `
         .custom-domain-inputs input:focus,
         .custom-domain-inputs input:focus-visible {
           outline: none !important;
-          border-color: ${branding.primary_color} !important;
-          box-shadow: 0 0 0 2px ${branding.primary_color}33 !important;
-          --tw-ring-color: ${branding.primary_color} !important;
+          border-color: var(--brand-primary) !important;
+          box-shadow: 0 0 0 2px rgba(var(--brand-primary-rgb), 0.2) !important;
         }
       `
-      document.head.appendChild(style)
+      if (!document.getElementById('custom-domain-input-styles')) {
+        document.head.appendChild(style)
+      }
     }
   }, [])
 

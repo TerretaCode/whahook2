@@ -61,31 +61,12 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-// Server Component that provides branding context
-async function BrandingWrapper({ children }: { children: React.ReactNode }) {
-  const branding = await getBrandingFromCookies()
-  const cookieStore = await cookies()
-  const isCustomDomain = !!cookieStore.get('x-custom-domain')?.value
-  
-  // Inject branding data as a script tag for client-side access without hydration issues
-  return (
-    <>
-      <script
-        id="branding-data"
-        type="application/json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({ isCustomDomain, branding })
-        }}
-      />
-      {children}
-    </>
-  )
-}
-
+// Branding data is now injected in root layout.tsx via blocking script
+// This layout only handles auth-specific metadata
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <BrandingWrapper>{children}</BrandingWrapper>
+  return <>{children}</>
 }
