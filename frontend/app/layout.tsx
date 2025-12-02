@@ -65,9 +65,15 @@ function generateBrandingScript(branding: { primary_color?: string; logo_url?: s
   const color = branding.primary_color || '#22c55e';
   
   // This script runs immediately, blocking render until CSS variables are set
-  // It also sets a data attribute to indicate custom domain for CSS-based hiding
+  // It sets data-custom-domain first (which hides body via CSS), then applies
+  // branding, then sets data-branding-ready (which shows body via CSS).
+  // This all happens BEFORE the browser paints anything.
   return `
     (function() {
+      // Step 1: Mark as custom domain (CSS will hide body)
+      document.documentElement.setAttribute('data-custom-domain', 'true');
+      
+      // Step 2: Apply brand colors
       var color = '${color}';
       var hex = color.replace('#', '');
       var r = parseInt(hex.substring(0, 2), 16);
@@ -79,7 +85,9 @@ function generateBrandingScript(branding: { primary_color?: string; logo_url?: s
       document.documentElement.style.setProperty('--brand-primary', color);
       document.documentElement.style.setProperty('--brand-primary-rgb', r + ', ' + g + ', ' + b);
       document.documentElement.style.setProperty('--brand-text', textColor);
-      document.documentElement.setAttribute('data-custom-domain', 'true');
+      
+      // Step 3: Mark branding as ready (CSS will show body)
+      document.documentElement.setAttribute('data-branding-ready', 'true');
     })();
   `;
 }

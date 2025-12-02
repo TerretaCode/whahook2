@@ -25,10 +25,28 @@
 }
 
 /* 
- * Hide default Whahook branding on custom domains until custom branding loads.
- * The data-custom-domain attribute is set by the blocking script in layout.tsx
- * BEFORE the browser paints, so this CSS rule applies immediately.
+ * CRITICAL: Hide body on custom domains until branding is applied.
+ * This prevents ANY flash of Whahook branding.
+ * 
+ * The blocking script in layout.tsx will:
+ * 1. Set data-custom-domain="true" on <html>
+ * 2. Apply CSS variables for brand colors
+ * 3. Set data-branding-ready="true" to show the body
+ * 
+ * This all happens BEFORE the browser paints.
  */
+
+/* Initially hide body on custom domains */
+html[data-custom-domain] body {
+  visibility: hidden;
+}
+
+/* Show body once branding is ready */
+html[data-custom-domain][data-branding-ready] body {
+  visibility: visible;
+}
+
+/* Hide default Whahook branding elements on custom domains */
 html[data-custom-domain] .whahook-default-logo {
   display: none !important;
 }
