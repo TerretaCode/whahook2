@@ -88,7 +88,7 @@ export default async function RootLayout({
         {/* Inline CSS for branding colors - no flash because it's in the HTML */}
         <style dangerouslySetInnerHTML={{ __html: brandingStyles }} />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased ${isCustomDomain ? 'whitelabel' : ''}`}>
         <LayoutContent branding={branding} isCustomDomain={isCustomDomain}>
           {children}
         </LayoutContent>

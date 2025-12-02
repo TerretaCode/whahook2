@@ -130,7 +130,7 @@ export async function middleware(request: NextRequest) {
       // Add branding info to the redirect
       const redirectResponse = NextResponse.redirect(url)
       redirectResponse.cookies.set('x-custom-domain', hostname, { path: '/' })
-      redirectResponse.cookies.set('x-custom-domain-branding', encodeURIComponent(JSON.stringify(data.data)), { path: '/' })
+      redirectResponse.cookies.set('x-custom-domain-branding', JSON.stringify(data.data), { path: '/' })
       return redirectResponse
     }
 
