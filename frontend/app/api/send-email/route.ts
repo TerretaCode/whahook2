@@ -423,6 +423,7 @@ export async function POST(request: NextRequest) {
       html = template.html
       text = template.text
     } else if (type === 'workspace_invitation') {
+      console.log(`📧 Invitation template: brandName=${brandName}, primaryColor=${branding?.primary_color}`)
       const template = getWorkspaceInvitationTemplate(data as WorkspaceInvitationData, brandName, branding?.primary_color)
       subject = template.subject
       html = template.html
@@ -464,6 +465,7 @@ export async function POST(request: NextRequest) {
         workspace_id: effectiveWorkspaceId,
         branding_found: !!branding,
         agency_name: branding?.agency_name || null,
+        primary_color: branding?.primary_color || null,
         from_name: fromName,
         from_email: fromEmail,
       }
