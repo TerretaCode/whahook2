@@ -90,7 +90,7 @@ export function LayoutContent({ children, branding, isCustomDomain }: LayoutCont
               </main>
 
               {showFooter && !isCustomDomain && <Footer />}
-              {!hideBottomNav && !isCustomDomain && <MobileBottomNav className="md:hidden" />}
+              {!hideBottomNav && <MobileBottomNav className="md:hidden" />}
             </div>
             
             <Toaster />
