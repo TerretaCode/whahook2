@@ -57,11 +57,26 @@ function getCustomDomainInfo(): { isCustomDomain: boolean; branding: CustomBrand
   return { isCustomDomain: false, branding: null }
 }
 
+// Check if current hostname is a custom domain (not Whahook's domains)
+function isLikelyCustomDomain(): boolean {
+  if (typeof window === 'undefined') return false
+  const hostname = window.location.hostname
+  const mainDomains = ['localhost', '127.0.0.1', 'whahook.com', 'www.whahook.com', 'app.whahook.com']
+  if (mainDomains.includes(hostname)) return false
+  if (hostname.endsWith('.vercel.app')) return false
+  return true
+}
+
 export function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  // Start with brandingReady = false to always show loading first
+  // This prevents any flash of wrong branding
   const [brandingReady, setBrandingReady] = useState(false);
   const [isCustomDomain, setIsCustomDomain] = useState(false);
   const [customBranding, setCustomBranding] = useState<CustomBranding | null>(null);
+  
+  // Track if we've checked for custom domain
+  const [checkedDomain, setCheckedDomain] = useState(false);
   
   // Check for custom domain on mount
   useEffect(() => {
@@ -81,20 +96,19 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
         document.documentElement.style.setProperty('--brand-primary-rgb', `${r}, ${g}, ${b}`)
       }
       
-      // Update favicon - create if doesn't exist
+      // Update favicon - remove old and create new to force browser refresh
       const faviconUrl = branding.favicon_url || branding.logo_url
       if (faviconUrl) {
-        const existingFavicon = document.querySelector("link[rel='icon']") as HTMLLinkElement
-        if (existingFavicon) {
-          existingFavicon.href = faviconUrl
-        } else {
-          const newFavicon = document.createElement('link')
-          newFavicon.rel = 'icon'
-          newFavicon.href = faviconUrl
-          document.head.appendChild(newFavicon)
-        }
+        // Remove all existing favicons
+        document.querySelectorAll("link[rel='icon'], link[rel='shortcut icon']").forEach(el => el.remove())
         
-        // Also update apple-touch-icon if exists
+        // Create new favicon with cache-busting
+        const newFavicon = document.createElement('link')
+        newFavicon.rel = 'icon'
+        newFavicon.href = faviconUrl + (faviconUrl.includes('?') ? '&' : '?') + 't=' + Date.now()
+        document.head.appendChild(newFavicon)
+        
+        // Also update apple-touch-icon
         const appleIcon = document.querySelector("link[rel='apple-touch-icon']") as HTMLLinkElement
         if (appleIcon) {
           appleIcon.href = faviconUrl
@@ -110,6 +124,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
       }
     }
     
+    setCheckedDomain(true)
     setBrandingReady(true)
   }, []);
   
@@ -187,25 +202,12 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
   
   // Show loading screen while branding is being determined on custom domains
   // This prevents flash of Whahook branding
-  if (!brandingReady) {
-    // Try to get branding color from cookies for the loading spinner
-    let spinnerColor = '#9ca3af' // gray-400 default
-    if (typeof window !== 'undefined') {
-      try {
-        const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-          const [key, value] = cookie.trim().split('=')
-          acc[key] = value
-          return acc
-        }, {} as Record<string, string>)
-        const brandingStr = cookies['x-custom-domain-branding']
-        if (brandingStr) {
-          const branding = JSON.parse(decodeURIComponent(brandingStr))
-          if (branding?.primary_color) {
-            spinnerColor = branding.primary_color
-          }
-        }
-      } catch {}
-    }
+  // Only show loading if we haven't checked yet AND we're likely on a custom domain
+  const shouldShowLoading = !checkedDomain && (typeof window !== 'undefined' && isLikelyCustomDomain())
+  
+  if (shouldShowLoading) {
+    // Use branding color if already loaded, otherwise neutral gray
+    const spinnerColor = customBranding?.primary_color || '#9ca3af'
     
     return (
       <ThemeProvider
