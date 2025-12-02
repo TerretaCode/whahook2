@@ -282,14 +282,15 @@ Accede al workspace: ${data.access_link}
  */
 async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: SmtpConfig | null; branding: AgencyBranding | null }> {
   try {
-    // Get workspace owner
+    // Get workspace owner (column is user_id, not owner_id)
     const { data: workspace, error: wsError } = await getSupabaseAdmin()
       .from('workspaces')
-      .select('owner_id')
+      .select('user_id')
       .eq('id', workspaceId)
       .single()
     
-    if (wsError || !workspace?.owner_id) {
+    if (wsError || !workspace?.user_id) {
+      console.error('Workspace not found or no user_id:', wsError)
       return { smtp: null, branding: null }
     }
     
@@ -297,22 +298,22 @@ async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: Smtp
     const { data: profile, error: profileError } = await getSupabaseAdmin()
       .from('profiles')
       .select('smtp_config, agency_branding')
-      .eq('id', workspace.owner_id)
+      .eq('id', workspace.user_id)
       .single()
     
     if (profileError || !profile) {
+      console.error('Profile not found:', profileError)
       return { smtp: null, branding: null }
     }
     
     const smtp = profile.smtp_config as SmtpConfig | null
     const branding = profile.agency_branding as AgencyBranding | null
     
-    // Only return SMTP if enabled
-    if (smtp?.enabled) {
-      return { smtp, branding }
+    // Always return branding, only return SMTP if enabled
+    return { 
+      smtp: smtp?.enabled ? smtp : null, 
+      branding 
     }
-    
-    return { smtp: null, branding }
   } catch (error) {
     console.error('Error fetching workspace SMTP config:', error)
     return { smtp: null, branding: null }

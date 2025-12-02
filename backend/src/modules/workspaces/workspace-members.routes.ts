@@ -189,16 +189,8 @@ router.post('/:workspaceId/members', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'User already invited' })
     }
 
-    // Check if user exists in auth (not just profiles)
-    // A user might have a profile but no auth account (e.g., from a previous incomplete registration)
-    let existingAuthUser = null
-    try {
-      const { data: users } = await supabaseAdmin.auth.admin.listUsers()
-      existingAuthUser = users?.users?.find(u => u.email === email) || null
-    } catch {
-      // If we can't check auth, assume user doesn't exist
-      existingAuthUser = null
-    }
+    // Always create invitation as pending - the accept flow will handle user creation/linking
+    // This ensures new users always see the registration form
 
     // Calculate expiration
     const expiresAt = expires_in_days 
@@ -221,14 +213,14 @@ router.post('/:workspaceId/members', async (req: Request, res: Response) => {
       .from('workspace_members')
       .insert({
         workspace_id: workspaceId,
-        user_id: existingAuthUser?.id || null,
+        user_id: null,  // Will be set when user accepts invitation
         role,
         permissions: defaultPermissions[role],
         invited_email: email,
         invited_by: userId,
         token_expires_at: expiresAt,
-        status: existingAuthUser ? 'active' : 'pending',
-        joined_at: existingAuthUser ? new Date().toISOString() : null
+        status: 'pending',  // Always pending until accepted
+        joined_at: null
       })
       .select()
       .single()
