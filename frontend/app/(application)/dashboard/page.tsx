@@ -392,7 +392,7 @@ export default function DashboardPage() {
                 </div>
               </Link>
             )}
-            {isOwner && (
+            {canViewSettings && (
               <Link href="/settings/connections">
                 <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
                   <Settings className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
