@@ -4,27 +4,21 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import { BrandingProvider } from "@/components/providers/BrandingProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
+import { ServerBrandingProvider } from "@/contexts/ServerBrandingContext";
 import { Toaster } from "@/components/ui/sonner";
 import { usePathname } from "next/navigation";
+import { Branding } from "@/lib/branding";
 
-// Helper to get cookie value
-function getCookie(name: string): string | null {
-  if (typeof document === 'undefined') return null
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
-  return match ? match[2] : null
+interface LayoutContentProps {
+  children: React.ReactNode;
+  branding: Branding;
+  isCustomDomain: boolean;
 }
 
-export function LayoutContent({ children }: { children: React.ReactNode }) {
+export function LayoutContent({ children, branding, isCustomDomain }: LayoutContentProps) {
   const pathname = usePathname();
-  
-  // CSS variables are now applied via blocking script in layout.tsx <head>
-  // This prevents any flash of default colors
-  
-  // Check if we're on a custom domain (for hiding footer/mobile nav)
-  const isCustomDomain = typeof window !== 'undefined' && getCookie('x-custom-domain') !== null;
   
   // Rutas donde NO debe aparecer el MobileBottomNav
   const hideBottomNav = 
@@ -80,27 +74,27 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
     >
       <AuthProvider>
         <WorkspaceProvider>
-          <BrandingProvider>
-        <div className={`flex flex-col ${isFullHeightPage ? 'h-screen' : 'min-h-screen'}`}>
-          {/* Header: oculto en páginas de invitación/conexión */}
-          {!hideHeader && <Header />}
-          
-          <main className={`flex-1 ${isFullHeightPage ? 'overflow-hidden' : ''} ${
-            isFullHeightPage 
-              ? 'pb-20 md:pb-0'
-              : hideBottomNav 
-                ? (pathname === '/' ? '' : 'pb-8') 
-                : 'pb-20 md:pb-8'
-          }`}>
-            {children}
-          </main>
+          <ServerBrandingProvider branding={branding} isCustomDomain={isCustomDomain}>
+            <div className={`flex flex-col ${isFullHeightPage ? 'h-screen' : 'min-h-screen'}`}>
+              {/* Header: oculto en páginas de invitación/conexión */}
+              {!hideHeader && <Header />}
+              
+              <main className={`flex-1 ${isFullHeightPage ? 'overflow-hidden' : ''} ${
+                isFullHeightPage 
+                  ? 'pb-20 md:pb-0'
+                  : hideBottomNav 
+                    ? (pathname === '/' ? '' : 'pb-8') 
+                    : 'pb-20 md:pb-8'
+              }`}>
+                {children}
+              </main>
 
-          {showFooter && !isCustomDomain && <Footer />}
-          {!hideBottomNav && !isCustomDomain && <MobileBottomNav className="md:hidden" />}
-        </div>
-        
-        <Toaster />
-          </BrandingProvider>
+              {showFooter && !isCustomDomain && <Footer />}
+              {!hideBottomNav && !isCustomDomain && <MobileBottomNav className="md:hidden" />}
+            </div>
+            
+            <Toaster />
+          </ServerBrandingProvider>
         </WorkspaceProvider>
       </AuthProvider>
     </ThemeProvider>

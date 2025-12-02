@@ -3,48 +3,53 @@ import { cookies } from "next/headers";
 import { Metadata } from "next";
 import "./globals.css";
 import { LayoutContent } from "./layout-content";
+import { Branding, DEFAULT_BRANDING, mergeBranding, hexToRgb, getContrastColor } from "@/lib/branding";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
 });
 
-// Get branding from cookies
-async function getBranding() {
+/**
+ * Get branding from cookies (set by middleware for custom domains)
+ * Returns merged branding with defaults
+ */
+async function getBrandingFromCookies(): Promise<{ branding: Branding; isCustomDomain: boolean }> {
   const cookieStore = await cookies();
   const brandingStr = cookieStore.get('x-custom-domain-branding')?.value;
+  const isCustomDomain = !!cookieStore.get('x-custom-domain')?.value;
   
   if (brandingStr) {
     try {
-      return JSON.parse(brandingStr);
+      const customBranding = JSON.parse(brandingStr);
+      return {
+        branding: mergeBranding(customBranding),
+        isCustomDomain: true,
+      };
     } catch {
-      return null;
+      // Parse error - use defaults
     }
   }
-  return null;
+  
+  return {
+    branding: DEFAULT_BRANDING,
+    isCustomDomain,
+  };
 }
 
-// Dynamic metadata based on custom domain
+// Dynamic metadata based on branding
 export async function generateMetadata(): Promise<Metadata> {
-  const branding = await getBranding();
+  const { branding } = await getBrandingFromCookies();
   
-  // Default metadata for Whahook
-  let title = "WhaHook - WhatsApp Multi-Tenant Platform";
-  const description = "Manage multiple WhatsApp accounts with AI chatbot";
-  let faviconUrl = '/icon.svg';
-  
-  // If custom domain, use tenant branding
-  if (branding) {
-    title = branding.tab_title || branding.agency_name || branding.logo_text || title;
-    faviconUrl = branding.favicon_url || branding.logo_url || faviconUrl;
-  }
+  const title = branding.tab_title || branding.agency_name || branding.logo_text;
+  const faviconUrl = branding.favicon_url || branding.logo_url || '/icon.svg';
   
   return {
     title: {
       default: title,
-      template: `%s - ${title}`,
+      template: `%s - ${branding.agency_name}`,
     },
-    description,
+    description: `${branding.agency_name} - WhatsApp Multi-Tenant Platform`,
     icons: {
       icon: faviconUrl,
       apple: faviconUrl,
@@ -53,42 +58,19 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * Generate a blocking script that applies CSS variables BEFORE the browser paints.
- * This prevents the flash of default branding colors.
- * The script runs synchronously in the <head> before any content is rendered.
+ * Generate inline CSS for branding colors.
+ * This is applied directly in the HTML so there's no flash.
  */
-function generateBrandingScript(branding: { primary_color?: string; logo_url?: string; logo_text?: string; agency_name?: string } | null): string {
-  if (!branding) {
-    return '';
-  }
+function generateBrandingStyles(branding: Branding): string {
+  const rgb = hexToRgb(branding.primary_color);
+  const textColor = getContrastColor(branding.primary_color);
   
-  const color = branding.primary_color || '#22c55e';
-  
-  // This script runs immediately, blocking render until CSS variables are set
-  // It sets data-custom-domain first (which hides body via CSS), then applies
-  // branding, then sets data-branding-ready (which shows body via CSS).
-  // This all happens BEFORE the browser paints anything.
   return `
-    (function() {
-      // Step 1: Mark as custom domain (CSS will hide body)
-      document.documentElement.setAttribute('data-custom-domain', 'true');
-      
-      // Step 2: Apply brand colors
-      var color = '${color}';
-      var hex = color.replace('#', '');
-      var r = parseInt(hex.substring(0, 2), 16);
-      var g = parseInt(hex.substring(2, 4), 16);
-      var b = parseInt(hex.substring(4, 6), 16);
-      var luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-      var textColor = luminance > 0.5 ? '#000000' : '#ffffff';
-      
-      document.documentElement.style.setProperty('--brand-primary', color);
-      document.documentElement.style.setProperty('--brand-primary-rgb', r + ', ' + g + ', ' + b);
-      document.documentElement.style.setProperty('--brand-text', textColor);
-      
-      // Step 3: Mark branding as ready (CSS will show body)
-      document.documentElement.setAttribute('data-branding-ready', 'true');
-    })();
+    :root {
+      --brand-primary: ${branding.primary_color};
+      --brand-primary-rgb: ${rgb};
+      --brand-text: ${textColor};
+    }
   `;
 }
 
@@ -97,31 +79,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const branding = await getBranding();
-  const brandingScript = generateBrandingScript(branding);
+  const { branding, isCustomDomain } = await getBrandingFromCookies();
+  const brandingStyles = generateBrandingStyles(branding);
   
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Blocking script to apply branding colors BEFORE render - prevents flash */}
-        {brandingScript && (
-          <script
-            dangerouslySetInnerHTML={{ __html: brandingScript }}
-          />
-        )}
-        {/* Store branding data for client-side access */}
-        {branding && (
-          <script
-            id="branding-data"
-            type="application/json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({ isCustomDomain: true, branding })
-            }}
-          />
-        )}
+        {/* Inline CSS for branding colors - no flash because it's in the HTML */}
+        <style dangerouslySetInnerHTML={{ __html: brandingStyles }} />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <LayoutContent>{children}</LayoutContent>
+        <LayoutContent branding={branding} isCustomDomain={isCustomDomain}>
+          {children}
+        </LayoutContent>
       </body>
     </html>
   );

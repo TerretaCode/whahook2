@@ -1,26 +1,27 @@
+"use client"
+
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
 import { LogoIcon } from "@/components/icons/LogoIcon"
+import { useServerBranding } from "@/contexts/ServerBrandingContext"
+import { DEFAULT_BRANDING } from "@/lib/branding"
 
 export interface AuthCardProps {
   children: React.ReactNode
   title: string
   description: string
-  customHeader?: React.ReactNode  // For custom domain branding
-  hideLogo?: boolean              // Hide default Whahook logo
-  brandColor?: string             // Custom brand color for background
 }
 
-export function AuthCard({ children, title, description, customHeader, hideLogo, brandColor }: AuthCardProps) {
-  // Generate lighter version of brand color for gradient
+export function AuthCard({ children, title, description }: AuthCardProps) {
+  const { branding, isCustomDomain } = useServerBranding()
+  
+  // Generate lighter version of brand color for gradient background
   const getBrandGradient = () => {
-    if (!brandColor) return undefined
-    // Convert hex to RGB and create a very light version
-    const hex = brandColor.replace('#', '')
+    const hex = branding.primary_color.replace('#', '')
     const r = parseInt(hex.substring(0, 2), 16)
     const g = parseInt(hex.substring(2, 4), 16)
     const b = parseInt(hex.substring(4, 6), 16)
-    // Create very light tint (95% white)
+    // Create very light tint (92% white)
     const lightR = Math.round(r + (255 - r) * 0.92)
     const lightG = Math.round(g + (255 - g) * 0.92)
     const lightB = Math.round(b + (255 - b) * 0.92)
@@ -29,37 +30,41 @@ export function AuthCard({ children, title, description, customHeader, hideLogo,
 
   return (
     <div 
-      className="whahook-default-bg min-h-screen flex items-center justify-center px-4 py-12"
-      style={{ 
-        background: getBrandGradient() || 'linear-gradient(to bottom right, rgb(240, 253, 244), white, rgb(249, 250, 251))'
-      }}
+      className="min-h-screen flex items-center justify-center px-4 py-12"
+      style={{ background: getBrandGradient() }}
     >
       <Card className="w-full max-w-md p-8 shadow-xl">
-        {/* Custom Header (for branded domains) */}
-        {customHeader}
-        
-        {/* Loading placeholder - shown on custom domains via CSS until branding loads */}
-        {!customHeader && !hideLogo && (
-          <div className="whahook-logo-loading hidden mb-8 justify-center">
-            <div className="h-8 w-32 bg-gray-100 rounded animate-pulse" />
-          </div>
-        )}
-        
-        {/* Default Logo (hidden on custom domains via CSS) */}
-        {!customHeader && !hideLogo && (
-          <Link href="/" className="whahook-default-logo flex items-center gap-2 mb-8 justify-center hover:opacity-80 transition-opacity">
-            <LogoIcon className="w-8 h-8 text-green-600" />
-            <div className="flex flex-col gap-0.5">
-              <span className="text-xl font-bold text-gray-900 leading-tight">
-                WhaHook
-              </span>
+        {/* Logo - rendered from server branding (no flash) */}
+        <Link href="/" className="flex items-center gap-2 mb-8 justify-center hover:opacity-80 transition-opacity">
+          {branding.logo_url && branding.logo_url !== DEFAULT_BRANDING.logo_url ? (
+            <img 
+              src={branding.logo_url} 
+              alt={branding.agency_name} 
+              className="h-8 object-contain"
+            />
+          ) : (
+            <LogoIcon 
+              className="w-8 h-8" 
+              style={{ color: branding.primary_color }}
+            />
+          )}
+          <div className="flex flex-col gap-0.5">
+            <span 
+              className="text-xl font-bold leading-tight"
+              style={{ color: isCustomDomain ? branding.primary_color : undefined }}
+            >
+              {branding.logo_text || branding.agency_name}
+            </span>
+            {branding.show_powered_by && branding.powered_by_text && (
               <span className="text-[10px] leading-tight ml-0.5">
                 <span className="text-gray-900">by </span>
-                <span className="text-green-600">TerretaCode</span>
+                <span style={{ color: branding.primary_color }}>
+                  {branding.powered_by_text}
+                </span>
               </span>
-            </div>
-          </Link>
-        )}
+            )}
+          </div>
+        </Link>
 
         {/* Title & Description */}
         <div className="text-center mb-8">

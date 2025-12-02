@@ -10,27 +10,14 @@ import { Separator } from "@/components/ui/separator"
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react"
 import { toast } from "@/lib/toast"
 import { useAuth } from "@/contexts/AuthContext"
-
-// Get branding from script tag injected by server (no hydration issues)
-function getBrandingFromScript(): { isCustomDomain: boolean; branding: any } {
-  if (typeof document === 'undefined') return { isCustomDomain: false, branding: null }
-  
-  try {
-    const script = document.getElementById('branding-data')
-    if (script) {
-      return JSON.parse(script.textContent || '{}')
-    }
-  } catch (e) {
-    console.error('Error parsing branding data:', e)
-  }
-  
-  return { isCustomDomain: false, branding: null }
-}
+import { useServerBranding } from "@/contexts/ServerBrandingContext"
 
 function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { login: authLogin, user } = useAuth()
+  const { branding, isCustomDomain } = useServerBranding()
+  
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
@@ -42,35 +29,6 @@ function LoginContent() {
     email?: string
     password?: string
   }>({})
-  
-  // Custom domain state - read from script tag injected by server
-  // CSS variables are already applied via blocking script in layout.tsx <head>
-  const [isCustomDomain, setIsCustomDomain] = useState(false)
-  const [customBranding, setCustomBranding] = useState<any>(null)
-  
-  // Read branding data from script tag on mount
-  useEffect(() => {
-    const { isCustomDomain: isCd, branding } = getBrandingFromScript()
-    setIsCustomDomain(isCd)
-    setCustomBranding(branding)
-    
-    // Add custom focus styles for inputs if custom domain
-    if (isCd && branding?.primary_color) {
-      const style = document.createElement('style')
-      style.id = 'custom-domain-input-styles'
-      style.textContent = `
-        .custom-domain-inputs input:focus,
-        .custom-domain-inputs input:focus-visible {
-          outline: none !important;
-          border-color: var(--brand-primary) !important;
-          box-shadow: 0 0 0 2px rgba(var(--brand-primary-rgb), 0.2) !important;
-        }
-      `
-      if (!document.getElementById('custom-domain-input-styles')) {
-        document.head.appendChild(style)
-      }
-    }
-  }, [])
 
   // Show success message if coming from email verification
   useEffect(() => {
@@ -142,40 +100,12 @@ function LoginContent() {
     }
   }
 
-  // Custom header for branded login
-  const brandedHeader = isCustomDomain && customBranding ? (
-    <div className="text-center mb-6">
-      {customBranding.logo_url ? (
-        <img 
-          src={customBranding.logo_url} 
-          alt={customBranding.agency_name || 'Logo'} 
-          className="h-12 mx-auto mb-4 object-contain"
-        />
-      ) : customBranding.logo_text ? (
-        <h1 className="text-2xl font-bold mb-4" style={{ color: customBranding.primary_color }}>
-          {customBranding.logo_text}
-        </h1>
-      ) : customBranding.agency_name ? (
-        <h1 className="text-2xl font-bold mb-4" style={{ color: customBranding.primary_color }}>
-          {customBranding.agency_name}
-        </h1>
-      ) : null}
-    </div>
-  ) : null
-
-  // Get brand color for styling (fallback to green for Whahook)
-  const brandColor = isCustomDomain && customBranding?.primary_color 
-    ? customBranding.primary_color 
-    : '#22c55e'
-
   return (
     <AuthCard
       title={isCustomDomain ? "Iniciar sesión" : "Welcome back"}
       description={isCustomDomain ? "Accede a tu cuenta para continuar" : "Sign in to your account to continue"}
-      customHeader={brandedHeader}
-      brandColor={isCustomDomain ? customBranding?.primary_color : undefined}
     >
-      <form onSubmit={handleSubmit} className={`space-y-4 ${isCustomDomain ? 'custom-domain-inputs' : ''}`}>
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Email Input */}
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-medium text-gray-700">
@@ -212,7 +142,7 @@ function LoginContent() {
               <Link
                 href="/forgot-password"
                 className="text-xs font-medium hover:opacity-80"
-                style={{ color: brandColor }}
+                style={{ color: branding.primary_color }}
               >
                 Forgot password?
               </Link>
@@ -271,7 +201,7 @@ function LoginContent() {
           size="lg"
           disabled={isLoading}
           style={{
-            backgroundColor: brandColor,
+            backgroundColor: branding.primary_color,
             color: 'var(--brand-text, #ffffff)'
           }}
         >
@@ -345,7 +275,7 @@ function LoginContent() {
           <Link
             href="/register"
             className="font-medium hover:opacity-80"
-            style={{ color: brandColor }}
+            style={{ color: branding.primary_color }}
           >
             Sign up for free
           </Link>

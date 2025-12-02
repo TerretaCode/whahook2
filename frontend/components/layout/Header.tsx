@@ -8,21 +8,20 @@ import { useScrollDirection } from '@/hooks/ui/useScrollDirection'
 import { useAuth } from '@/contexts/AuthContext'
 import { useNotifications } from '@/hooks/ui/useNotifications'
 import { useWorkspaceContext } from '@/contexts/WorkspaceContext'
-import { useBranding } from '@/hooks/useBranding'
+import { useServerBranding } from '@/contexts/ServerBrandingContext'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { LogoIcon } from '@/components/icons/LogoIcon'
+import { DEFAULT_BRANDING } from '@/lib/branding'
 
 export function Header() {
   const scrollDirection = useScrollDirection({ threshold: 15 })
   const { user } = useAuth()
   const { hasUnread } = useNotifications()
-  const { hasPermission, isOwner, workspace, isLoading: isWorkspaceLoading } = useWorkspaceContext()
-  const { branding, isWhitelabel, hasCustomBranding, isLoading: isBrandingLoading } = useBranding()
+  const { hasPermission, isOwner } = useWorkspaceContext()
+  const { branding, isCustomDomain } = useServerBranding()
   
-  // Wait for both workspace and branding to load before showing logo
-  const isLoadingLogo = isWorkspaceLoading || isBrandingLoading
   const [scrollY, setScrollY] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -66,48 +65,40 @@ export function Header() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             
-            {/* Logo - Show loading placeholder, then agency branding or WhaHook */}
+            {/* Logo - Rendered from server branding (no flash) */}
             <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              {/* Loading placeholder - shown on custom domains via CSS until branding loads */}
-              <div className="whahook-logo-loading hidden h-8 w-32 bg-gray-100 rounded animate-pulse" />
-              
-              {isLoadingLogo ? (
-                // Loading placeholder while workspace/branding loads
-                <div className="h-8 w-32 bg-gray-100 rounded animate-pulse" />
-              ) : isWhitelabel && (branding.logo_url || branding.logo_text) ? (
-                // Custom branding logo
-                <>
-                  {branding.logo_url && (
-                    <img 
-                      src={branding.logo_url} 
-                      alt="Logo" 
-                      className="h-8 object-contain"
-                    />
-                  )}
-                  {branding.logo_text && (
-                    <span 
-                      className="text-xl font-bold leading-tight"
-                      style={{ color: branding.primary_color }}
-                    >
-                      {branding.logo_text}
-                    </span>
-                  )}
-                </>
+              {branding.logo_url && branding.logo_url !== DEFAULT_BRANDING.logo_url ? (
+                // Custom logo image
+                <img 
+                  src={branding.logo_url} 
+                  alt={branding.agency_name} 
+                  className="h-8 object-contain"
+                />
               ) : (
-                // Default Whahook logo - hidden on custom domains via CSS
-                <div className="whahook-default-logo flex items-center gap-2">
-                  <LogoIcon className="w-8 h-8 text-green-600" />
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-xl font-bold text-gray-900 leading-tight">
-                      WhaHook
-                    </span>
-                    <span className="text-[10px] leading-tight ml-0.5">
-                      <span className="text-gray-900">by </span>
-                      <span className="text-green-600">TerretaCode</span>
-                    </span>
-                  </div>
-                </div>
+                // Default or Whahook logo icon
+                <LogoIcon 
+                  className="w-8 h-8" 
+                  style={{ color: branding.primary_color }}
+                />
               )}
+              
+              {/* Logo text */}
+              <div className="flex flex-col gap-0.5">
+                <span 
+                  className="text-xl font-bold leading-tight"
+                  style={{ color: isCustomDomain ? branding.primary_color : undefined }}
+                >
+                  {branding.logo_text || branding.agency_name}
+                </span>
+                {branding.show_powered_by && branding.powered_by_text && (
+                  <span className="text-[10px] leading-tight ml-0.5">
+                    <span className="text-gray-900">by </span>
+                    <span style={{ color: branding.primary_color }}>
+                      {branding.powered_by_text}
+                    </span>
+                  </span>
+                )}
+              </div>
             </Link>
 
             {/* Desktop Navigation - Only show if logged in */}

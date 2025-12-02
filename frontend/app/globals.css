@@ -18,52 +18,10 @@
   --ring: #25D366;
   --radius: 0.5rem;
   
-  /* Brand color - overridden by blocking script for custom domains */
+  /* Brand color - set by inline CSS in layout.tsx for each tenant */
   --brand-primary: #22c55e;
   --brand-primary-rgb: 34, 197, 94;
   --brand-text: #ffffff; /* Auto-calculated: white for dark colors, black for light */
-}
-
-/* 
- * CRITICAL: Hide body on custom domains until branding is applied.
- * This prevents ANY flash of Whahook branding.
- * 
- * The blocking script in layout.tsx will:
- * 1. Set data-custom-domain="true" on <html>
- * 2. Apply CSS variables for brand colors
- * 3. Set data-branding-ready="true" to show the body
- * 
- * This all happens BEFORE the browser paints.
- */
-
-/* Initially hide body on custom domains */
-html[data-custom-domain] body {
-  visibility: hidden;
-}
-
-/* Show body once branding is ready */
-html[data-custom-domain][data-branding-ready] body {
-  visibility: visible;
-}
-
-/* Hide default Whahook branding elements on custom domains */
-html[data-custom-domain] .whahook-default-logo {
-  display: none !important;
-}
-
-/* Show loading placeholder on custom domains */
-html[data-custom-domain] .whahook-logo-loading {
-  display: flex !important;
-}
-
-/* Override default green gradient background on custom domains */
-html[data-custom-domain] .whahook-default-bg {
-  background: linear-gradient(
-    to bottom right, 
-    rgba(var(--brand-primary-rgb), 0.08), 
-    white, 
-    rgb(249, 250, 251)
-  ) !important;
 }
 
 @theme inline {
