@@ -306,6 +306,8 @@ async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: Smtp
       return { smtp: null, branding: null }
     }
     
+    console.log(`📧 Profile found for workspace owner, agency_branding:`, JSON.stringify(profile.agency_branding))
+    
     const smtp = profile.smtp_config as SmtpConfig | null
     const branding = profile.agency_branding as AgencyBranding | null
     
@@ -426,6 +428,8 @@ export async function POST(request: NextRequest) {
     const fromEmail = smtpConfig?.from_email || process.env.EMAIL_FROM || 'noreply@whahook.com'
     const fromName = smtpConfig?.from_name || branding?.agency_name || 'WhaHook'
     const replyTo = smtpConfig?.reply_to
+    
+    console.log(`📧 Sending email: from="${fromName} <${fromEmail}>", brandName=${brandName}, branding=${JSON.stringify(branding)}`)
 
     // Send email
     const info = await transporter.sendMail({
