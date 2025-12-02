@@ -1,5 +1,5 @@
 import { Inter } from "next/font/google";
-import { headers } from "next/headers";
+import { cookies } from "next/headers";
 import { Metadata } from "next";
 import "./globals.css";
 import { LayoutContent } from "./layout-content";
@@ -11,8 +11,8 @@ const inter = Inter({
 
 // Dynamic metadata based on custom domain
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = await headers();
-  const brandingStr = headersList.get('x-custom-domain-branding');
+  const cookieStore = await cookies();
+  const brandingStr = cookieStore.get('x-custom-domain-branding')?.value;
   
   // Default metadata for Whahook
   let title = "WhaHook - WhatsApp Multi-Tenant Platform";

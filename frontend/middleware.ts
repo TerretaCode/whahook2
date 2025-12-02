@@ -1,5 +1,35 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { ResponseCookies, RequestCookies } from 'next/dist/server/web/spec-extension/cookies'
+
+/**
+ * Copy cookies from the Set-Cookie header of the response to the Cookie header of the request,
+ * so that it will appear to SSR/RSC as if the user already has the new cookies.
+ * This is necessary because cookies set in middleware are not available in Server Components
+ * until the next request.
+ * @see https://github.com/vercel/next.js/discussions/50374
+ */
+function applySetCookie(req: NextRequest, res: NextResponse) {
+  // 1. Parse Set-Cookie header from the response
+  const setCookies = new ResponseCookies(res.headers)
+  
+  // 2. Construct updated Cookie header for the request
+  const newReqHeaders = new Headers(req.headers)
+  const newReqCookies = new RequestCookies(newReqHeaders)
+  setCookies.getAll().forEach((cookie) => newReqCookies.set(cookie))
+  
+  // 3. Set up the "request header overrides" (see https://github.com/vercel/next.js/pull/41380)
+  // on a dummy response
+  // NextResponse.next will set x-middleware-override-headers / x-middleware-request-* headers
+  const dummyRes = NextResponse.next({ request: { headers: newReqHeaders } })
+  
+  // 4. Copy the "request header overrides" headers from our dummy response to the real response
+  dummyRes.headers.forEach((value, key) => {
+    if (key === 'x-middleware-override-headers' || key.startsWith('x-middleware-request-')) {
+      res.headers.set(key, value)
+    }
+  })
+}
 
 // Main Whahook domains - these should NOT be treated as custom domains
 const MAIN_DOMAINS = [
@@ -111,22 +141,15 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url)
     }
 
-    // Clone the request URL and add custom domain info to headers/cookies
-    const requestHeaders = new Headers(request.headers)
-    requestHeaders.set('x-custom-domain', hostname)
-    requestHeaders.set('x-custom-domain-owner', data.data.owner_id)
-    requestHeaders.set('x-custom-domain-branding', JSON.stringify(data.data))
-
-    const response2 = NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    })
+    // Create response with custom domain info
+    const response2 = NextResponse.next()
     
-    // Also set cookies for client-side access
-    // Encode the branding JSON to handle special characters
+    // Set cookies for both server-side (via applySetCookie) and client-side access
     response2.cookies.set('x-custom-domain', hostname, { path: '/' })
-    response2.cookies.set('x-custom-domain-branding', encodeURIComponent(JSON.stringify(data.data)), { path: '/' })
+    response2.cookies.set('x-custom-domain-branding', JSON.stringify(data.data), { path: '/' })
+    
+    // Apply cookies to the request so they're available immediately in Server Components
+    applySetCookie(request, response2)
     
     return response2
   } catch (error) {

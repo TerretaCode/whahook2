@@ -29,11 +29,7 @@ function getBrandingFromCookies(): CustomBranding | null {
   try {
     const brandingStr = getCookie('x-custom-domain-branding')
     if (brandingStr) {
-      try {
-        return JSON.parse(decodeURIComponent(brandingStr))
-      } catch {
-        return JSON.parse(brandingStr)
-      }
+      return JSON.parse(brandingStr)
     }
   } catch (e) {
     console.error('Error parsing branding cookie:', e)

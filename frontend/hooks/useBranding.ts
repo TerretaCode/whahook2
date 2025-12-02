@@ -38,12 +38,7 @@ function getBrandingFromCookies(): AgencyBranding | null {
   try {
     const brandingStr = getCookie('x-custom-domain-branding')
     if (brandingStr) {
-      let parsed
-      try {
-        parsed = JSON.parse(decodeURIComponent(brandingStr))
-      } catch {
-        parsed = JSON.parse(brandingStr)
-      }
+      const parsed = JSON.parse(brandingStr)
       return {
         ...DEFAULT_BRANDING,
         ...parsed

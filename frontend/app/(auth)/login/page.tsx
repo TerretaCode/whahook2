@@ -11,32 +11,17 @@ import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react"
 import { toast } from "@/lib/toast"
 import { useAuth } from "@/contexts/AuthContext"
 
-// Helper to get cookie value
-function getCookie(name: string): string | null {
-  if (typeof document === 'undefined') return null
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
-  return match ? match[2] : null
-}
-
-// Helper to get branding from cookies
-function getBrandingFromCookies(): { isCustomDomain: boolean; branding: any } {
-  if (typeof window === 'undefined') return { isCustomDomain: false, branding: null }
+// Get branding from script tag injected by server (no hydration issues)
+function getBrandingFromScript(): { isCustomDomain: boolean; branding: any } {
+  if (typeof document === 'undefined') return { isCustomDomain: false, branding: null }
   
   try {
-    const customDomain = getCookie('x-custom-domain')
-    const brandingStr = getCookie('x-custom-domain-branding')
-    
-    if (customDomain && brandingStr) {
-      let parsed
-      try {
-        parsed = JSON.parse(decodeURIComponent(brandingStr))
-      } catch {
-        parsed = JSON.parse(brandingStr)
-      }
-      return { isCustomDomain: true, branding: parsed }
+    const script = document.getElementById('branding-data')
+    if (script) {
+      return JSON.parse(script.textContent || '{}')
     }
   } catch (e) {
-    console.error('Error parsing branding cookie:', e)
+    console.error('Error parsing branding data:', e)
   }
   
   return { isCustomDomain: false, branding: null }
@@ -65,7 +50,7 @@ function LoginContent() {
   // Check for custom domain on mount and apply CSS colors
   // Note: Favicon and title are handled server-side via generateMetadata in layout.tsx
   useEffect(() => {
-    const { isCustomDomain: isCd, branding } = getBrandingFromCookies()
+    const { isCustomDomain: isCd, branding } = getBrandingFromScript()
     setIsCustomDomain(isCd)
     setCustomBranding(branding)
     
