@@ -66,7 +66,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
       // Update favicon - create if doesn't exist
       const faviconUrl = branding.favicon_url || branding.logo_url
       if (faviconUrl) {
-        let existingFavicon = document.querySelector("link[rel='icon']") as HTMLLinkElement
+        const existingFavicon = document.querySelector("link[rel='icon']") as HTMLLinkElement
         if (existingFavicon) {
           existingFavicon.href = faviconUrl
         } else {
@@ -167,9 +167,6 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
   // Páginas que necesitan altura completa sin scroll (solo conversations)
   const isFullHeightPage = pathname.startsWith('/conversations');
   
-  // On custom domains, hide Whahook footer and show loading until branding is ready
-  const hideFooterOnCustomDomain = isCustomDomain;
-  
   // Show loading screen while branding is being determined on custom domains
   // This prevents flash of Whahook branding
   if (!brandingReady) {
@@ -189,7 +186,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
             spinnerColor = branding.primary_color
           }
         }
-      } catch (e) {}
+      } catch {}
     }
     
     return (
