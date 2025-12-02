@@ -8,12 +8,13 @@ import { useWorkspaceContext } from '@/contexts/WorkspaceContext'
 
 export function MobileBottomNav({ className }: { className?: string }) {
   const pathname = usePathname()
-  const { hasPermission, isOwner } = useWorkspaceContext()
+  const { hasPermission, isOwner, isLoading } = useWorkspaceContext()
   
   // Check permissions for navigation items
-  const canViewMessages = isOwner || hasPermission('messages')
-  const canViewClients = isOwner || hasPermission('clients')
-  const canViewSettings = isOwner || hasPermission('settings')
+  // While loading, only show Dashboard to avoid flash of all items
+  const canViewMessages = !isLoading && (isOwner || hasPermission('messages'))
+  const canViewClients = !isLoading && (isOwner || hasPermission('clients'))
+  const canViewSettings = !isLoading && (isOwner || hasPermission('settings'))
 
   // Build nav items based on permissions
   const navItems = [

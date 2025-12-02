@@ -19,7 +19,7 @@ export function Header() {
   const scrollDirection = useScrollDirection({ threshold: 15 })
   const { user } = useAuth()
   const { hasUnread } = useNotifications()
-  const { hasPermission, isOwner } = useWorkspaceContext()
+  const { hasPermission, isOwner, isLoading: isWorkspaceLoading } = useWorkspaceContext()
   const { branding, isCustomDomain } = useServerBranding()
   
   const [scrollY, setScrollY] = useState(0)
@@ -28,9 +28,10 @@ export function Header() {
   const isAdmin = user?.profile?.subscription_tier === 'enterprise' && user?.profile?.account_type === 'agency'
   
   // Check permissions for navigation items
-  const canViewMessages = isOwner || hasPermission('messages')
-  const canViewClients = isOwner || hasPermission('clients')
-  const canViewSettings = isOwner || hasPermission('settings')
+  // While loading, hide permission-based items to avoid flash
+  const canViewMessages = !isWorkspaceLoading && (isOwner || hasPermission('messages'))
+  const canViewClients = !isWorkspaceLoading && (isOwner || hasPermission('clients'))
+  const canViewSettings = !isWorkspaceLoading && (isOwner || hasPermission('settings'))
 
   useEffect(() => {
     const handleScroll = () => {
