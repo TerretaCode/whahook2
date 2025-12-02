@@ -6,12 +6,15 @@ import Link from "next/link"
 import { AuthCard } from "../components/AuthCard"
 import { Button } from "@/components/ui/button"
 import { Mail, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import { useServerBranding } from "@/contexts/ServerBrandingContext"
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get('email')
   const [isResending, setIsResending] = useState(false)
   const [resendSuccess, setResendSuccess] = useState(false)
+  const { branding } = useServerBranding()
+  const primaryColor = branding.primary_color
 
   const handleResendEmail = async () => {
     setIsResending(true)
@@ -35,8 +38,11 @@ function VerifyEmailContent() {
       <div className="space-y-6">
         {/* Email Icon */}
         <div className="flex justify-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-            <Mail className="w-10 h-10 text-green-600" />
+          <div 
+            className="w-20 h-20 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: `${primaryColor}20` }}
+          >
+            <Mail className="w-10 h-10" style={{ color: primaryColor }} />
           </div>
         </div>
 
@@ -107,7 +113,11 @@ function VerifyEmailContent() {
         <div className="text-center">
           <p className="text-sm text-gray-600">
             Already verified?{" "}
-            <Link href="/login" className="text-green-600 hover:text-green-700 font-medium">
+            <Link 
+              href="/login" 
+              className="font-medium hover:underline"
+              style={{ color: primaryColor }}
+            >
               Sign in
             </Link>
           </p>
@@ -117,7 +127,11 @@ function VerifyEmailContent() {
         <div className="pt-4 border-t border-gray-200">
           <p className="text-xs text-center text-gray-500">
             Need help?{" "}
-            <a href="mailto:support@whahook.com" className="text-green-600 hover:text-green-700">
+            <a 
+              href="mailto:support@whahook.com" 
+              className="hover:underline"
+              style={{ color: primaryColor }}
+            >
               Contact support
             </a>
           </p>
@@ -131,7 +145,10 @@ export default function VerifyEmailPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div 
+          className="animate-spin rounded-full h-12 w-12 border-b-2"
+          style={{ borderColor: 'var(--brand-primary, #22c55e)' }}
+        />
       </div>
     }>
       <VerifyEmailContent />

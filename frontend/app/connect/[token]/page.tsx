@@ -139,17 +139,36 @@ export default function ConnectPage() {
   const brandColor = whiteLabel?.brand_color || '#10b981'
   const hideWhahook = whiteLabel?.hide_whahook_branding
 
+  // Generate gradient background
+  const getBrandGradient = (color: string) => {
+    const hex = color.replace('#', '')
+    const r = parseInt(hex.substring(0, 2), 16)
+    const g = parseInt(hex.substring(2, 4), 16)
+    const b = parseInt(hex.substring(4, 6), 16)
+    const lightR = Math.round(r + (255 - r) * 0.92)
+    const lightG = Math.round(g + (255 - g) * 0.92)
+    const lightB = Math.round(b + (255 - b) * 0.92)
+    return `linear-gradient(to bottom right, rgb(${lightR}, ${lightG}, ${lightB}), white, rgb(249, 250, 251))`
+  }
+  const backgroundGradient = getBrandGradient(brandColor)
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+      <div 
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: backgroundGradient }}
+      >
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: brandColor }} />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div 
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{ background: backgroundGradient }}
+      >
         <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <XCircle className="w-8 h-8 text-red-600" />
@@ -168,7 +187,10 @@ export default function ConnectPage() {
   // Connected state
   if (data?.status === 'connected') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div 
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{ background: backgroundGradient }}
+      >
         <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
           {brandLogo && (
             <Image 
@@ -179,15 +201,18 @@ export default function ConnectPage() {
               className="mx-auto mb-6 object-contain"
             />
           )}
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-10 h-10 text-green-600" />
+          <div 
+            className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
+            style={{ backgroundColor: `${brandColor}20` }}
+          >
+            <CheckCircle2 className="w-10 h-10" style={{ color: brandColor }} />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">WhatsApp Connected!</h1>
           <p className="text-gray-600 mb-2">
             Your WhatsApp has been successfully connected.
           </p>
           {data.phone && (
-            <p className="text-lg font-medium text-green-600 mb-6">
+            <p className="text-lg font-medium mb-6" style={{ color: brandColor }}>
               {data.phone}
             </p>
           )}
@@ -207,7 +232,10 @@ export default function ConnectPage() {
   // Pending state - show start button
   if (data?.status === 'pending') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div 
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{ background: backgroundGradient }}
+      >
         <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
           {brandLogo && (
             <Image 
@@ -270,7 +298,10 @@ export default function ConnectPage() {
 
   // Connecting state - show QR
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: backgroundGradient }}
+    >
       <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
         {brandLogo && (
           <Image 
@@ -314,19 +345,31 @@ export default function ConnectPage() {
           <h3 className="font-medium text-gray-900 mb-3">How to connect:</h3>
           <ol className="space-y-2 text-sm text-gray-600">
             <li className="flex items-start gap-2">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs flex items-center justify-center font-medium">1</span>
+              <span 
+                className="flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium"
+                style={{ backgroundColor: `${brandColor}20`, color: brandColor }}
+              >1</span>
               <span>Open WhatsApp on your phone</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs flex items-center justify-center font-medium">2</span>
+              <span 
+                className="flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium"
+                style={{ backgroundColor: `${brandColor}20`, color: brandColor }}
+              >2</span>
               <span>Go to Settings → Linked Devices</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs flex items-center justify-center font-medium">3</span>
+              <span 
+                className="flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium"
+                style={{ backgroundColor: `${brandColor}20`, color: brandColor }}
+              >3</span>
               <span>Tap "Link a Device"</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs flex items-center justify-center font-medium">4</span>
+              <span 
+                className="flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium"
+                style={{ backgroundColor: `${brandColor}20`, color: brandColor }}
+              >4</span>
               <span>Point your phone at this QR code</span>
             </li>
           </ol>
