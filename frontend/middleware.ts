@@ -100,7 +100,7 @@ export async function middleware(request: NextRequest) {
       // Add branding info to the redirect
       const redirectResponse = NextResponse.redirect(url)
       redirectResponse.cookies.set('x-custom-domain', hostname, { path: '/' })
-      redirectResponse.cookies.set('x-custom-domain-branding', JSON.stringify(data.data), { path: '/' })
+      redirectResponse.cookies.set('x-custom-domain-branding', encodeURIComponent(JSON.stringify(data.data)), { path: '/' })
       return redirectResponse
     }
 
@@ -124,8 +124,9 @@ export async function middleware(request: NextRequest) {
     })
     
     // Also set cookies for client-side access
+    // Encode the branding JSON to handle special characters
     response2.cookies.set('x-custom-domain', hostname, { path: '/' })
-    response2.cookies.set('x-custom-domain-branding', JSON.stringify(data.data), { path: '/' })
+    response2.cookies.set('x-custom-domain-branding', encodeURIComponent(JSON.stringify(data.data)), { path: '/' })
     
     return response2
   } catch (error) {
