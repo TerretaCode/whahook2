@@ -33,6 +33,7 @@ async function sendEmailViaFrontend(
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
     
     console.log(`📧 Sending ${type} email to ${to} via ${frontendUrl}`)
+    console.log(`📧 Email data:`, JSON.stringify(data, null, 2))
     
     const response = await fetch(`${frontendUrl}/api/send-email`, {
       method: 'POST',
@@ -42,13 +43,16 @@ async function sendEmailViaFrontend(
       body: JSON.stringify({ type, to, data }),
     })
 
-    const result = await response.json() as { success?: boolean; messageId?: string; error?: string }
+    const result = await response.json() as { success?: boolean; messageId?: string; error?: string; debug?: unknown }
 
     if (!response.ok) {
       throw new Error(result.error || 'Failed to send email')
     }
 
     console.log(`✅ Email sent successfully: ${result.messageId}`)
+    if (result.debug) {
+      console.log(`📧 Debug info:`, JSON.stringify(result.debug, null, 2))
+    }
     return { success: true, messageId: result.messageId }
   } catch (error) {
     console.error(`❌ Error sending ${type} email:`, error)

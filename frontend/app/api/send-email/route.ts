@@ -447,6 +447,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       messageId: info.messageId,
+      debug: {
+        workspace_id: effectiveWorkspaceId,
+        branding_found: !!branding,
+        agency_name: branding?.agency_name || null,
+        from_name: fromName,
+        from_email: fromEmail,
+      }
     })
   } catch (error) {
     console.error('❌ Error sending email:', error)
