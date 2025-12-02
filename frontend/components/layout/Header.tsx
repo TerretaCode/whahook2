@@ -68,37 +68,37 @@ export function Header() {
             {/* Logo - Rendered from server branding (no flash) */}
             <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               {branding.logo_url && branding.logo_url !== DEFAULT_BRANDING.logo_url ? (
-                // Custom logo image
+                // Custom logo image - show only the image, no text
                 <img 
                   src={branding.logo_url} 
                   alt={branding.agency_name} 
                   className="h-8 object-contain"
                 />
               ) : (
-                // Default or Whahook logo icon
-                <LogoIcon 
-                  className="w-8 h-8" 
-                  style={{ color: branding.primary_color }}
-                />
-              )}
-              
-              {/* Logo text */}
-              <div className="flex flex-col gap-0.5">
-                <span 
-                  className="text-xl font-bold leading-tight"
-                  style={{ color: isCustomDomain ? branding.primary_color : undefined }}
-                >
-                  {branding.logo_text || branding.agency_name}
-                </span>
-                {branding.show_powered_by && branding.powered_by_text && (
-                  <span className="text-[10px] leading-tight ml-0.5">
-                    <span className="text-gray-900">by </span>
-                    <span style={{ color: branding.primary_color }}>
-                      {branding.powered_by_text}
+                // Default: icon + text
+                <>
+                  <LogoIcon 
+                    className="w-8 h-8" 
+                    style={{ color: branding.primary_color }}
+                  />
+                  <div className="flex flex-col gap-0.5">
+                    <span 
+                      className="text-xl font-bold leading-tight"
+                      style={{ color: isCustomDomain ? branding.primary_color : undefined }}
+                    >
+                      {branding.logo_text || branding.agency_name}
                     </span>
-                  </span>
-                )}
-              </div>
+                    {branding.show_powered_by && branding.powered_by_text && (
+                      <span className="text-[10px] leading-tight ml-0.5">
+                        <span className="text-gray-900">by </span>
+                        <span style={{ color: branding.primary_color }}>
+                          {branding.powered_by_text}
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                </>
+              )}
             </Link>
 
             {/* Desktop Navigation - Only show if logged in */}
