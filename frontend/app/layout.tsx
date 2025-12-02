@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
   
   // Default metadata for Whahook
   let title = "WhaHook - WhatsApp Multi-Tenant Platform";
-  let description = "Manage multiple WhatsApp accounts with AI chatbot";
+  const description = "Manage multiple WhatsApp accounts with AI chatbot";
   let faviconUrl = '/icon.svg';
   
   // If custom domain, use tenant branding
