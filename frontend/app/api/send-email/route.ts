@@ -279,9 +279,10 @@ Accede al workspace: ${data.access_link}
 
 /**
  * Get SMTP config for a workspace owner (for custom SMTP)
+ * Updated: Force redeploy with detailed logging
  */
 async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: SmtpConfig | null; branding: AgencyBranding | null }> {
-  console.log(`📧 getWorkspaceSmtpConfig called with workspaceId: ${workspaceId}`)
+  console.log(`📧 [v2] getWorkspaceSmtpConfig called with workspaceId: ${workspaceId}`)
   
   try {
     // Get workspace owner (column is user_id, not owner_id)
