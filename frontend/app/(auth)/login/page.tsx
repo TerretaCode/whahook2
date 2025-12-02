@@ -18,8 +18,8 @@ function getCookie(name: string): string | null {
   return match ? match[2] : null
 }
 
-// Helper to check if we're on a custom domain
-function getCustomDomainBranding(): { isCustomDomain: boolean; branding: any } {
+// Helper to get branding from cookies
+function getBrandingFromCookies(): { isCustomDomain: boolean; branding: any } {
   if (typeof window === 'undefined') return { isCustomDomain: false, branding: null }
   
   try {
@@ -27,21 +27,16 @@ function getCustomDomainBranding(): { isCustomDomain: boolean; branding: any } {
     const brandingStr = getCookie('x-custom-domain-branding')
     
     if (customDomain && brandingStr) {
-      // Try to parse - the cookie might be URL encoded or not
       let parsed
       try {
         parsed = JSON.parse(decodeURIComponent(brandingStr))
       } catch {
-        // Try without decoding
         parsed = JSON.parse(brandingStr)
       }
-      return {
-        isCustomDomain: true,
-        branding: parsed
-      }
+      return { isCustomDomain: true, branding: parsed }
     }
   } catch (e) {
-    console.error('Error parsing custom domain branding:', e)
+    console.error('Error parsing branding cookie:', e)
   }
   
   return { isCustomDomain: false, branding: null }
@@ -63,15 +58,14 @@ function LoginContent() {
     password?: string
   }>({})
   
-  // Custom domain state - start as null to avoid hydration mismatch
-  // brandingLoaded will be false until we check on client side
-  const [brandingLoaded, setBrandingLoaded] = useState(false)
+  // Custom domain state
   const [isCustomDomain, setIsCustomDomain] = useState(false)
   const [customBranding, setCustomBranding] = useState<any>(null)
   
-  // Check for custom domain on mount and apply branding
+  // Check for custom domain on mount and apply CSS colors
+  // Note: Favicon and title are handled server-side via generateMetadata in layout.tsx
   useEffect(() => {
-    const { isCustomDomain: isCd, branding } = getCustomDomainBranding()
+    const { isCustomDomain: isCd, branding } = getBrandingFromCookies()
     setIsCustomDomain(isCd)
     setCustomBranding(branding)
     
@@ -99,34 +93,6 @@ function LoginContent() {
       `
       document.head.appendChild(style)
     }
-    
-    // Update page title and favicon for custom domain
-    if (isCd && branding) {
-      const agencyName = branding.tab_title || branding.agency_name || branding.logo_text || 'Panel'
-      document.title = `${agencyName} - Iniciar sesión`
-      
-      // Update favicon - prefer favicon_url, fallback to logo_url
-      const faviconUrl = branding.favicon_url || branding.logo_url
-      if (faviconUrl) {
-        const existingFavicon = document.querySelector("link[rel='icon']") as HTMLLinkElement
-        const existingAppleIcon = document.querySelector("link[rel='apple-touch-icon']") as HTMLLinkElement
-        
-        if (existingFavicon) {
-          existingFavicon.href = faviconUrl
-        } else {
-          const favicon = document.createElement('link')
-          favicon.rel = 'icon'
-          favicon.href = faviconUrl
-          document.head.appendChild(favicon)
-        }
-        
-        if (existingAppleIcon) {
-          existingAppleIcon.href = faviconUrl
-        }
-      }
-    }
-    
-    setBrandingLoaded(true)
   }, [])
 
   // Show success message if coming from email verification
@@ -219,16 +185,6 @@ function LoginContent() {
       ) : null}
     </div>
   ) : null
-
-  // Show loading while branding is being determined
-  // This prevents the flash of Whahook branding on custom domains
-  if (!brandingLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-      </div>
-    )
-  }
 
   // Get brand color for styling (fallback to green for Whahook)
   const brandColor = isCustomDomain && customBranding?.primary_color 

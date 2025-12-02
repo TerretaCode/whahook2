@@ -12,6 +12,8 @@ export interface AgencyBranding {
   agency_name: string
   powered_by_text: string
   show_powered_by: boolean
+  favicon_url?: string | null
+  tab_title?: string | null
 }
 
 const DEFAULT_BRANDING: AgencyBranding = {
@@ -22,6 +24,35 @@ const DEFAULT_BRANDING: AgencyBranding = {
   agency_name: 'WhaHook',
   powered_by_text: '',
   show_powered_by: true
+}
+
+// Helper to get cookie value
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+  return match ? match[2] : null
+}
+
+// Get branding from custom domain cookies
+function getBrandingFromCookies(): AgencyBranding | null {
+  try {
+    const brandingStr = getCookie('x-custom-domain-branding')
+    if (brandingStr) {
+      let parsed
+      try {
+        parsed = JSON.parse(decodeURIComponent(brandingStr))
+      } catch {
+        parsed = JSON.parse(brandingStr)
+      }
+      return {
+        ...DEFAULT_BRANDING,
+        ...parsed
+      }
+    }
+  } catch (e) {
+    console.error('Error parsing branding cookie:', e)
+  }
+  return null
 }
 
 /**
@@ -36,6 +67,15 @@ export function useBranding() {
   const [hasCustomBranding, setHasCustomBranding] = useState(false)
 
   useEffect(() => {
+    // First, check if we're on a custom domain with branding in cookies
+    const cookieBranding = getBrandingFromCookies()
+    if (cookieBranding) {
+      setBranding(cookieBranding)
+      setHasCustomBranding(true)
+      setIsLoading(false)
+      return
+    }
+
     // Wait for workspace to finish loading first
     if (isWorkspaceLoading) {
       return
