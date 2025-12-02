@@ -355,7 +355,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-primary, #22c55e)' }} />
       </div>
     )
   }

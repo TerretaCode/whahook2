@@ -12,24 +12,42 @@ import { Toaster } from "@/components/ui/sonner";
 import { usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+// Helper to get cookie value
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+  return match ? match[2] : null
+}
+
+interface CustomBranding {
+  primary_color?: string
+  favicon_url?: string
+  logo_url?: string
+  tab_title?: string
+  agency_name?: string
+  logo_text?: string
+}
+
 // Helper to check if we're on a custom domain
-function getCustomDomainInfo(): { isCustomDomain: boolean; branding: any } {
+function getCustomDomainInfo(): { isCustomDomain: boolean; branding: CustomBranding | null } {
   if (typeof window === 'undefined') return { isCustomDomain: false, branding: null }
   
   try {
-    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-      const [key, value] = cookie.trim().split('=')
-      acc[key] = value
-      return acc
-    }, {} as Record<string, string>)
-    
-    const customDomain = cookies['x-custom-domain']
-    const brandingStr = cookies['x-custom-domain-branding']
+    const customDomain = getCookie('x-custom-domain')
+    const brandingStr = getCookie('x-custom-domain-branding')
     
     if (customDomain && brandingStr) {
+      // Try to parse - the cookie might be URL encoded or not
+      let parsed
+      try {
+        parsed = JSON.parse(decodeURIComponent(brandingStr))
+      } catch {
+        // Try without decoding
+        parsed = JSON.parse(brandingStr)
+      }
       return {
         isCustomDomain: true,
-        branding: JSON.parse(decodeURIComponent(brandingStr))
+        branding: parsed
       }
     }
   } catch (e) {
@@ -43,7 +61,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [brandingReady, setBrandingReady] = useState(false);
   const [isCustomDomain, setIsCustomDomain] = useState(false);
-  const [customBranding, setCustomBranding] = useState<any>(null);
+  const [customBranding, setCustomBranding] = useState<CustomBranding | null>(null);
   
   // Check for custom domain on mount
   useEffect(() => {

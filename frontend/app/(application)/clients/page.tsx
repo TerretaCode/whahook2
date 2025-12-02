@@ -202,7 +202,7 @@ export default function ClientsPage() {
   if (authLoading || !user) {
     return (
       <div className="h-full flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-primary, #22c55e)' }} />
       </div>
     )
   }
