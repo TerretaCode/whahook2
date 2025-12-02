@@ -81,6 +81,16 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
   // Check for custom domain on mount
   useEffect(() => {
     const { isCustomDomain: isCd, branding } = getCustomDomainInfo()
+    
+    // Debug logging
+    console.log('[Branding] Custom domain check:', { 
+      isCustomDomain: isCd, 
+      hasBranding: !!branding,
+      favicon: branding?.favicon_url,
+      logo: branding?.logo_url,
+      title: branding?.tab_title
+    })
+    
     setIsCustomDomain(isCd)
     setCustomBranding(branding)
     
@@ -147,10 +157,12 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
       // Re-apply favicon on navigation (some browsers reset it)
       const faviconUrl = customBranding.favicon_url || customBranding.logo_url
       if (faviconUrl) {
-        const existingFavicon = document.querySelector("link[rel='icon']") as HTMLLinkElement
-        if (existingFavicon) {
-          existingFavicon.href = faviconUrl
-        }
+        // Remove existing and create new to ensure it updates
+        document.querySelectorAll("link[rel='icon'], link[rel='shortcut icon']").forEach(el => el.remove())
+        const newFavicon = document.createElement('link')
+        newFavicon.rel = 'icon'
+        newFavicon.href = faviconUrl + (faviconUrl.includes('?') ? '&' : '?') + 't=' + Date.now()
+        document.head.appendChild(newFavicon)
       }
     }
   }, [pathname, isCustomDomain, customBranding]);

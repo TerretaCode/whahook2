@@ -11,24 +11,33 @@ import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react"
 import { toast } from "@/lib/toast"
 import { useAuth } from "@/contexts/AuthContext"
 
+// Helper to get cookie value
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+  return match ? match[2] : null
+}
+
 // Helper to check if we're on a custom domain
 function getCustomDomainBranding(): { isCustomDomain: boolean; branding: any } {
   if (typeof window === 'undefined') return { isCustomDomain: false, branding: null }
   
   try {
-    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-      const [key, value] = cookie.trim().split('=')
-      acc[key] = value
-      return acc
-    }, {} as Record<string, string>)
-    
-    const customDomain = cookies['x-custom-domain']
-    const brandingStr = cookies['x-custom-domain-branding']
+    const customDomain = getCookie('x-custom-domain')
+    const brandingStr = getCookie('x-custom-domain-branding')
     
     if (customDomain && brandingStr) {
+      // Try to parse - the cookie might be URL encoded or not
+      let parsed
+      try {
+        parsed = JSON.parse(decodeURIComponent(brandingStr))
+      } catch {
+        // Try without decoding
+        parsed = JSON.parse(brandingStr)
+      }
       return {
         isCustomDomain: true,
-        branding: JSON.parse(decodeURIComponent(brandingStr))
+        branding: parsed
       }
     }
   } catch (e) {
