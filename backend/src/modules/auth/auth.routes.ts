@@ -26,12 +26,19 @@ router.post('/register', async (req, res) => {
     
     console.log('✅ User registered:', data.user?.id)
     
+    // If session exists, email verification is disabled in Supabase
+    // User can login immediately
+    const requiresVerification = !data.session
+    
     res.status(201).json({ 
       success: true, 
       data: { 
         user: data.user,
-        requires_email_verification: true,
-        message: 'Please check your email to verify your account'
+        session: data.session, // Include session if available (no verification required)
+        requires_email_verification: requiresVerification,
+        message: requiresVerification 
+          ? 'Please check your email to verify your account'
+          : 'Account created successfully'
       }
     })
   } catch (error: any) {

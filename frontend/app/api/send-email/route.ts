@@ -1,5 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
+import { createClient } from '@supabase/supabase-js'
+import { decrypt } from '@/lib/encryption'
+
+// Supabase admin client for server-side operations
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+interface SmtpConfig {
+  enabled: boolean
+  host: string
+  port: number
+  secure: boolean
+  auth_user: string
+  auth_pass: string  // Encrypted
+  from_email: string
+  from_name: string
+  reply_to?: string
+}
+
+interface AgencyBranding {
+  logo_url?: string
+  logo_text?: string
+  primary_color?: string
+  agency_name?: string
+  powered_by_text?: string
+  show_powered_by?: boolean
+}
 
 interface WhatsAppConnectedData {
   user_name: string
@@ -26,7 +55,7 @@ interface WorkspaceInvitationData {
   access_link: string
 }
 
-function getWhatsAppConnectedTemplate(data: WhatsAppConnectedData) {
+function getWhatsAppConnectedTemplate(data: WhatsAppConnectedData, brandName: string = 'WhaHook') {
   const subject = `✅ WhatsApp Conectado Exitosamente - ${data.session_label}`
   
   const html = `
@@ -69,7 +98,7 @@ function getWhatsAppConnectedTemplate(data: WhatsAppConnectedData) {
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
         
         <p style="font-size: 12px; color: #666; text-align: center;">
-          Este es un email automático de WhaHook.
+          Este es un email automático de ${brandName}.
         </p>
       </div>
     </body>
@@ -95,7 +124,7 @@ Ir al dashboard: ${data.dashboard_url}
   return { subject, html, text }
 }
 
-function getWhatsAppDisconnectedTemplate(data: WhatsAppDisconnectedData) {
+function getWhatsAppDisconnectedTemplate(data: WhatsAppDisconnectedData, brandName: string = 'WhaHook') {
   const subject = `⚠️ Tu sesión de WhatsApp "${data.session_label}" se ha desconectado`
   
   const html = `
@@ -135,7 +164,7 @@ function getWhatsAppDisconnectedTemplate(data: WhatsAppDisconnectedData) {
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
         
         <p style="font-size: 12px; color: #666; text-align: center;">
-          Este es un email automático de WhaHook.
+          Este es un email automático de ${brandName}.
         </p>
       </div>
     </body>
@@ -158,7 +187,8 @@ Ir al panel: ${data.login_url}
   return { subject, html, text }
 }
 
-function getWorkspaceInvitationTemplate(data: WorkspaceInvitationData) {
+function getWorkspaceInvitationTemplate(data: WorkspaceInvitationData, brandName: string = 'WhaHook', primaryColor?: string) {
+  const color = primaryColor || '#10B981'
   const roleLabels: Record<string, string> = {
     admin: 'Administrador',
     client: 'Cliente',
@@ -167,7 +197,7 @@ function getWorkspaceInvitationTemplate(data: WorkspaceInvitationData) {
   }
   
   const roleLabel = roleLabels[data.role] || data.role
-  const subject = `🎉 Has sido invitado a ${data.workspace_name} en WhaHook`
+  const subject = `🎉 Has sido invitado a ${data.workspace_name} en ${brandName}`
   
   const html = `
     <!DOCTYPE html>
@@ -177,7 +207,7 @@ function getWorkspaceInvitationTemplate(data: WorkspaceInvitationData) {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+      <div style="background: linear-gradient(135deg, ${color} 0%, ${color}dd 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
         <h1 style="color: white; margin: 0; font-size: 24px;">🎉 ¡Estás Invitado!</h1>
       </div>
       
@@ -185,10 +215,10 @@ function getWorkspaceInvitationTemplate(data: WorkspaceInvitationData) {
         <p style="font-size: 16px; margin-bottom: 20px;">¡Hola!</p>
         
         <p style="font-size: 16px; margin-bottom: 20px;">
-          ${data.inviter_name ? `<strong>${data.inviter_name}</strong> te ha invitado` : 'Has sido invitado'} a unirte al workspace <strong>"${data.workspace_name}"</strong> en WhaHook.
+          ${data.inviter_name ? `<strong>${data.inviter_name}</strong> te ha invitado` : 'Has sido invitado'} a unirte al workspace <strong>"${data.workspace_name}"</strong> en ${brandName}.
         </p>
         
-        <div style="background: white; padding: 20px; border-left: 4px solid #10B981; margin: 20px 0; border-radius: 5px;">
+        <div style="background: white; padding: 20px; border-left: 4px solid ${color}; margin: 20px 0; border-radius: 5px;">
           <p style="margin: 0; font-size: 14px;"><strong>📋 Workspace:</strong> ${data.workspace_name}</p>
           <p style="margin: 10px 0 0 0; font-size: 14px;"><strong>👤 Tu rol:</strong> ${roleLabel}</p>
         </div>
@@ -198,7 +228,7 @@ function getWorkspaceInvitationTemplate(data: WorkspaceInvitationData) {
         </p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${data.access_link}" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+          <a href="${data.access_link}" style="background: linear-gradient(135deg, ${color} 0%, ${color}dd 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             Acceder al Workspace
           </a>
         </div>
@@ -212,7 +242,7 @@ function getWorkspaceInvitationTemplate(data: WorkspaceInvitationData) {
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
         
         <p style="font-size: 12px; color: #666; text-align: center;">
-          Este es un email automático de WhaHook. Si no esperabas esta invitación, puedes ignorar este mensaje.
+          Este es un email automático de ${brandName}. Si no esperabas esta invitación, puedes ignorar este mensaje.
         </p>
       </div>
     </body>
@@ -222,7 +252,7 @@ function getWorkspaceInvitationTemplate(data: WorkspaceInvitationData) {
   const text = `
 ¡Estás Invitado!
 
-${data.inviter_name ? `${data.inviter_name} te ha invitado` : 'Has sido invitado'} a unirte al workspace "${data.workspace_name}" en WhaHook.
+${data.inviter_name ? `${data.inviter_name} te ha invitado` : 'Has sido invitado'} a unirte al workspace "${data.workspace_name}" en ${brandName}.
 
 📋 Workspace: ${data.workspace_name}
 👤 Tu rol: ${roleLabel}
@@ -235,10 +265,92 @@ Accede al workspace: ${data.access_link}
   return { subject, html, text }
 }
 
+/**
+ * Get SMTP config for a workspace owner (for custom SMTP)
+ */
+async function getWorkspaceSmtpConfig(workspaceId: string): Promise<{ smtp: SmtpConfig | null; branding: AgencyBranding | null }> {
+  try {
+    // Get workspace owner
+    const { data: workspace, error: wsError } = await supabaseAdmin
+      .from('workspaces')
+      .select('owner_id')
+      .eq('id', workspaceId)
+      .single()
+    
+    if (wsError || !workspace?.owner_id) {
+      return { smtp: null, branding: null }
+    }
+    
+    // Get owner's SMTP config and branding
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('smtp_config, agency_branding')
+      .eq('id', workspace.owner_id)
+      .single()
+    
+    if (profileError || !profile) {
+      return { smtp: null, branding: null }
+    }
+    
+    const smtp = profile.smtp_config as SmtpConfig | null
+    const branding = profile.agency_branding as AgencyBranding | null
+    
+    // Only return SMTP if enabled
+    if (smtp?.enabled) {
+      return { smtp, branding }
+    }
+    
+    return { smtp: null, branding }
+  } catch (error) {
+    console.error('Error fetching workspace SMTP config:', error)
+    return { smtp: null, branding: null }
+  }
+}
+
+/**
+ * Create nodemailer transporter (custom or default)
+ */
+function createTransporter(smtpConfig: SmtpConfig | null) {
+  if (smtpConfig) {
+    // Decrypt password
+    let password: string
+    try {
+      password = decrypt(smtpConfig.auth_pass)
+    } catch (error) {
+      console.error('Failed to decrypt SMTP password, using default:', error)
+      return createDefaultTransporter()
+    }
+    
+    return nodemailer.createTransport({
+      host: smtpConfig.host,
+      port: smtpConfig.port,
+      secure: smtpConfig.secure,
+      auth: {
+        user: smtpConfig.auth_user,
+        pass: password,
+      },
+    })
+  }
+  
+  return createDefaultTransporter()
+}
+
+function createDefaultTransporter() {
+  return nodemailer.createTransport({
+    host: process.env.EMAIL_HOST || 'smtp.hostinger.com',
+    port: parseInt(process.env.EMAIL_PORT || '587'),
+    secure: process.env.EMAIL_SECURE === 'true',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  })
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { type, to, data } = body
+    const { type, to, data, workspace_id } = body
 
     if (!to || !type) {
       return NextResponse.json(
@@ -247,22 +359,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get custom SMTP config if workspace_id is provided
+    let smtpConfig: SmtpConfig | null = null
+    let branding: AgencyBranding | null = null
+    
+    if (workspace_id) {
+      const result = await getWorkspaceSmtpConfig(workspace_id)
+      smtpConfig = result.smtp
+      branding = result.branding
+    }
+
     let subject: string
     let html: string
     let text: string
 
+    // Get brand name for templates
+    const brandName = branding?.agency_name || 'WhaHook'
+
     if (type === 'whatsapp_connected') {
-      const template = getWhatsAppConnectedTemplate(data as WhatsAppConnectedData)
+      const template = getWhatsAppConnectedTemplate(data as WhatsAppConnectedData, brandName)
       subject = template.subject
       html = template.html
       text = template.text
     } else if (type === 'whatsapp_disconnected') {
-      const template = getWhatsAppDisconnectedTemplate(data as WhatsAppDisconnectedData)
+      const template = getWhatsAppDisconnectedTemplate(data as WhatsAppDisconnectedData, brandName)
       subject = template.subject
       html = template.html
       text = template.text
     } else if (type === 'workspace_invitation') {
-      const template = getWorkspaceInvitationTemplate(data as WorkspaceInvitationData)
+      const template = getWorkspaceInvitationTemplate(data as WorkspaceInvitationData, brandName, branding?.primary_color)
       subject = template.subject
       html = template.html
       text = template.text
@@ -273,28 +398,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create transporter with SMTP
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST || 'smtp.hostinger.com',
-      port: parseInt(process.env.EMAIL_PORT || '587'),
-      secure: process.env.EMAIL_SECURE === 'true',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    })
+    // Create transporter (custom or default)
+    const transporter = createTransporter(smtpConfig)
+    
+    // Determine from address
+    const fromEmail = smtpConfig?.from_email || process.env.EMAIL_FROM || 'noreply@whahook.com'
+    const fromName = smtpConfig?.from_name || branding?.agency_name || 'WhaHook'
+    const replyTo = smtpConfig?.reply_to
 
     // Send email
     const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM || 'WhaHook <noreply@whahook.com>',
+      from: `${fromName} <${fromEmail}>`,
       to,
       subject,
       text,
       html,
+      replyTo,
     })
 
     // eslint-disable-next-line no-console
-    console.log('✅ Email sent:', info.messageId)
+    console.log(`✅ Email sent via ${smtpConfig ? 'custom SMTP' : 'default'}:`, info.messageId)
 
     return NextResponse.json({
       success: true,

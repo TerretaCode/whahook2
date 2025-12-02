@@ -102,7 +102,7 @@ export default function RegisterPage() {
         return
       }
 
-      const { requires_email_verification } = response.data
+      const { requires_email_verification, session, user } = response.data
 
       // Check if email verification is required
       if (requires_email_verification) {
@@ -115,24 +115,37 @@ export default function RegisterPage() {
         return
       }
 
-      // If no verification required, auto-login
+      // If session is returned directly (no verification required), use it
+      if (session) {
+        AuthStorage.saveSession(
+          session.access_token,
+          session.refresh_token,
+          user,
+          true
+        )
+        toast.success("Account created", "Welcome!")
+        router.push("/dashboard")
+        return
+      }
+
+      // Fallback: try to login
       const loginResponse = await ApiClient.login({
         email: formData.email,
         password: formData.password,
       })
 
       if (loginResponse.success && loginResponse.data && loginResponse.data.session) {
-        const { user: loginUser, session } = loginResponse.data
+        const { user: loginUser, session: loginSession } = loginResponse.data
 
         // Save session (default to rememberMe = true for new users)
         AuthStorage.saveSession(
-          session.access_token,
-          session.refresh_token,
+          loginSession.access_token,
+          loginSession.refresh_token,
           loginUser,
           true
         )
 
-        toast.success("Account created", "Welcome to WhaHook!")
+        toast.success("Account created", "Welcome!")
         router.push("/dashboard")
       } else {
         // Registration successful but auto-login failed
