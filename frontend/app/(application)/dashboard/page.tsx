@@ -169,11 +169,13 @@ export default function DashboardPage() {
               <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
               Actualizar
             </Button>
-            <Link href="/settings">
-              <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4" />
-              </Button>
-            </Link>
+            {canViewSettings && (
+              <Link href="/settings">
+                <Button variant="outline" size="sm">
+                  <Settings className="w-4 h-4" />
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -291,8 +293,8 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Secondary Stats Row - Only show to users with settings permission */}
-        {canViewSettings && (
+        {/* Secondary Stats Row - Only show to workspace owners */}
+        {isOwner && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           
           {/* WhatsApp Sessions */}
@@ -382,27 +384,27 @@ export default function DashboardPage() {
               </div>
             </Link>
             )}
-            {canViewSettings && (
-            <>
-            <Link href="/settings/chatbot">
-              <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
-                <Bot className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
-                <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Chatbots</p>
-              </div>
-            </Link>
-            <Link href="/settings/connections">
-              <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
-                <Settings className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
-                <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Conexiones</p>
-              </div>
-            </Link>
-            </>
+            {isOwner && (
+              <Link href="/settings/chatbot">
+                <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
+                  <Bot className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
+                  <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Chatbots</p>
+                </div>
+              </Link>
+            )}
+            {isOwner && (
+              <Link href="/settings/connections">
+                <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
+                  <Settings className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
+                  <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Conexiones</p>
+                </div>
+              </Link>
             )}
           </div>
         </div>
 
-        {/* AI Control Panel - Only show to users with settings permission */}
-        {canViewSettings && (
+        {/* AI Control Panel - Only show to workspace owners */}
+        {isOwner && (
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
