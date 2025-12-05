@@ -344,6 +344,7 @@ router.patch('/:workspaceId/members/:memberId', async (req: Request, res: Respon
 /**
  * DELETE /api/workspaces/:workspaceId/members/:memberId
  * Remove member from workspace
+ * If user has no other workspaces, also delete from auth.users
  */
 router.delete('/:workspaceId/members/:memberId', async (req: Request, res: Response) => {
   try {
@@ -353,6 +354,7 @@ router.delete('/:workspaceId/members/:memberId', async (req: Request, res: Respo
     }
 
     const { workspaceId, memberId } = req.params
+    const { deleteUser } = req.query // Optional: force delete user account
 
     // Only owners can remove members
     const isOwner = await isWorkspaceOwner(userId, workspaceId)
@@ -360,18 +362,24 @@ router.delete('/:workspaceId/members/:memberId', async (req: Request, res: Respo
       return res.status(403).json({ success: false, error: 'Only owners can remove members' })
     }
 
-    // Can't remove owner
+    // Get member details before deleting
     const { data: member } = await supabaseAdmin
       .from('workspace_members')
-      .select('role')
+      .select('role, user_id, invited_email')
       .eq('id', memberId)
       .single()
 
-    if (member?.role === 'owner') {
+    if (!member) {
+      return res.status(404).json({ success: false, error: 'Member not found' })
+    }
+
+    if (member.role === 'owner') {
       return res.status(400).json({ success: false, error: 'Cannot remove owner' })
     }
 
-    // Delete member
+    const memberUserId = member.user_id
+
+    // Delete member from workspace
     const { error } = await supabaseAdmin
       .from('workspace_members')
       .delete()
@@ -383,7 +391,53 @@ router.delete('/:workspaceId/members/:memberId', async (req: Request, res: Respo
       return res.status(500).json({ success: false, error: 'Failed to remove member' })
     }
 
-    res.json({ success: true, message: 'Member removed' })
+    let userDeleted = false
+
+    // If member had a user account, check if they have any other workspaces
+    if (memberUserId) {
+      // Check if user owns any workspaces
+      const { count: ownedWorkspaces } = await supabaseAdmin
+        .from('workspaces')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', memberUserId)
+
+      // Check if user is member of any other workspaces
+      const { count: otherMemberships } = await supabaseAdmin
+        .from('workspace_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', memberUserId)
+
+      // If user has no workspaces (neither owned nor member), delete the user account
+      if ((ownedWorkspaces || 0) === 0 && (otherMemberships || 0) === 0) {
+        try {
+          // Delete profile first (due to foreign key)
+          await supabaseAdmin
+            .from('profiles')
+            .delete()
+            .eq('id', memberUserId)
+
+          // Delete user from auth
+          const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(memberUserId)
+          
+          if (authError) {
+            console.error('Error deleting user from auth:', authError)
+            // Don't fail the request, member was already removed
+          } else {
+            userDeleted = true
+            console.log(`✅ User ${memberUserId} deleted from auth (no remaining workspaces)`)
+          }
+        } catch (deleteError) {
+          console.error('Error deleting user account:', deleteError)
+          // Don't fail the request, member was already removed
+        }
+      }
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Member removed',
+      userDeleted
+    })
   } catch (error: any) {
     console.error('Error in DELETE /members:', error)
     res.status(500).json({ success: false, error: error.message })
