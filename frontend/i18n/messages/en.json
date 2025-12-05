@@ -294,6 +294,27 @@
         "phoneNumber": "Phone number",
         "lastActive": "Last active"
       },
+      "whatsappSection": {
+        "title": "WhatsApp Connection",
+        "hasConnection": "This workspace has a WhatsApp connection configured",
+        "noConnection": "Connect your WhatsApp account to start sending messages",
+        "connect": "Connect WhatsApp",
+        "socketWarning": "Real-time connection is not active. QR codes may not update automatically.",
+        "accountName": "Account Name",
+        "accountNamePlaceholder": "e.g., Main Business Account",
+        "accountNameHint": "Give this WhatsApp connection a memorable name",
+        "createAndConnect": "Create & Connect",
+        "noConnections": "No WhatsApp Connections",
+        "addFirstAccount": "Add your first WhatsApp account to start sending messages",
+        "addFirst": "Add Your First Account",
+        "howToConnect": "How to connect WhatsApp:",
+        "step1": "Click \"Add Account\" and give it a name",
+        "step2": "A QR code will appear",
+        "step3": "Open WhatsApp on your phone",
+        "step4": "Go to Settings → Linked Devices → Link a Device",
+        "step5": "Scan the QR code displayed here",
+        "step6": "Your WhatsApp will be connected!"
+      },
       "widgets": {
         "title": "Web Widgets",
         "create": "Create widget",
@@ -301,6 +322,29 @@
         "copyCode": "Copy code",
         "preview": "Preview",
         "customize": "Customize"
+      },
+      "widgetsSection": {
+        "title": "Web Widget",
+        "hasConnection": "This workspace has a Web Widget configured",
+        "noConnection": "Create an AI chatbot for your website",
+        "create": "Create Widget",
+        "createNew": "Create New Chatbot",
+        "editChatbot": "Edit Chatbot",
+        "noChatbots": "No Chatbots Yet",
+        "createFirstDesc": "Create your first AI chatbot to embed on your website",
+        "createFirst": "Create Your First Chatbot",
+        "nameRequired": "Widget name is required",
+        "created": "Widget Created!",
+        "createdDesc": "Now follow the instructions below to add it to your website.",
+        "createError": "Failed to create widget",
+        "updated": "Updated!",
+        "updatedDesc": "Widget updated successfully",
+        "updateError": "Failed to update widget",
+        "confirmDelete": "Are you sure you want to delete the widget \"{name}\"?",
+        "deleted": "Deleted",
+        "deletedDesc": "Widget deleted successfully",
+        "deleteError": "Failed to delete widget",
+        "codeCopied": "Embed code copied to clipboard"
       }
     },
     "chatbot": {

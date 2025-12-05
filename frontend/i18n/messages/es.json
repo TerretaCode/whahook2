@@ -294,6 +294,27 @@
         "phoneNumber": "Número de teléfono",
         "lastActive": "Última actividad"
       },
+      "whatsappSection": {
+        "title": "Conexión WhatsApp",
+        "hasConnection": "Este workspace tiene una conexión de WhatsApp configurada",
+        "noConnection": "Conecta tu cuenta de WhatsApp para empezar a enviar mensajes",
+        "connect": "Conectar WhatsApp",
+        "socketWarning": "La conexión en tiempo real no está activa. Los códigos QR pueden no actualizarse automáticamente.",
+        "accountName": "Nombre de la Cuenta",
+        "accountNamePlaceholder": "ej., Cuenta Principal del Negocio",
+        "accountNameHint": "Dale a esta conexión de WhatsApp un nombre memorable",
+        "createAndConnect": "Crear y Conectar",
+        "noConnections": "Sin Conexiones de WhatsApp",
+        "addFirstAccount": "Añade tu primera cuenta de WhatsApp para empezar a enviar mensajes",
+        "addFirst": "Añadir Tu Primera Cuenta",
+        "howToConnect": "Cómo conectar WhatsApp:",
+        "step1": "Haz clic en \"Añadir Cuenta\" y dale un nombre",
+        "step2": "Aparecerá un código QR",
+        "step3": "Abre WhatsApp en tu teléfono",
+        "step4": "Ve a Ajustes → Dispositivos vinculados → Vincular un dispositivo",
+        "step5": "Escanea el código QR que aparece aquí",
+        "step6": "¡Tu WhatsApp estará conectado!"
+      },
       "widgets": {
         "title": "Widgets Web",
         "create": "Crear widget",
@@ -301,6 +322,29 @@
         "copyCode": "Copiar código",
         "preview": "Vista previa",
         "customize": "Personalizar"
+      },
+      "widgetsSection": {
+        "title": "Web Widget",
+        "hasConnection": "Este workspace tiene un Web Widget configurado",
+        "noConnection": "Crea un chatbot con IA para tu sitio web",
+        "create": "Crear Widget",
+        "createNew": "Crear Nuevo Chatbot",
+        "editChatbot": "Editar Chatbot",
+        "noChatbots": "Aún no hay Chatbots",
+        "createFirstDesc": "Crea tu primer chatbot con IA para insertar en tu sitio web",
+        "createFirst": "Crea Tu Primer Chatbot",
+        "nameRequired": "El nombre del widget es obligatorio",
+        "created": "¡Widget Creado!",
+        "createdDesc": "Ahora sigue las instrucciones para añadirlo a tu sitio web.",
+        "createError": "Error al crear el widget",
+        "updated": "¡Actualizado!",
+        "updatedDesc": "Widget actualizado correctamente",
+        "updateError": "Error al actualizar el widget",
+        "confirmDelete": "¿Estás seguro de que quieres eliminar el widget \"{name}\"?",
+        "deleted": "Eliminado",
+        "deletedDesc": "Widget eliminado correctamente",
+        "deleteError": "Error al eliminar el widget",
+        "codeCopied": "Código de inserción copiado al portapapeles"
       }
     },
     "chatbot": {

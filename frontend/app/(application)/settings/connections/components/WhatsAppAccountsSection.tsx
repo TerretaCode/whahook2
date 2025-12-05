@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { WhatsAppSessionCard } from './WhatsAppSessionCard'
@@ -26,6 +27,8 @@ interface WhatsAppAccountsSectionProps {
 }
 
 export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = false, onConnectionChange, initialData }: WhatsAppAccountsSectionProps) {
+  const t = useTranslations('settings.connections.whatsappSection')
+  const tCommon = useTranslations('common')
   const { accounts, isLoading: accountsLoading, createAccount } = useWhatsAppAccounts(workspaceId)
   const { sessions, isLoading: sessionsLoading, createSession, destroySession, isSocketConnected } = useWhatsAppSessions(workspaceId)
   
@@ -86,11 +89,11 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">WhatsApp Connection</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
           <p className="text-sm text-gray-600 mt-1">
             {hasExistingConnection 
-              ? 'This workspace has a WhatsApp connection configured'
-              : 'Connect your WhatsApp account to start sending messages'
+              ? t('hasConnection')
+              : t('noConnection')
             }
           </p>
         </div>
@@ -102,7 +105,7 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
             className="bg-green-600 hover:bg-green-700 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Connect WhatsApp
+            {t('connect')}
           </Button>
         )}
       </div>
@@ -113,7 +116,7 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
           <div className="flex items-center gap-2 text-yellow-800">
             <AlertCircle className="w-5 h-5" />
             <p className="text-sm font-medium">
-              Real-time connection is not active. QR codes may not update automatically.
+              {t('socketWarning')}
             </p>
           </div>
         </div>
@@ -125,19 +128,19 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
           <form onSubmit={handleCreateAccount} className="space-y-4">
             <div>
               <label htmlFor="account_name" className="block text-sm font-medium text-gray-700 mb-2">
-                Account Name
+                {t('accountName')}
               </label>
               <Input
                 id="account_name"
                 type="text"
                 value={newAccountName}
                 onChange={(e) => setNewAccountName(e.target.value)}
-                placeholder="e.g., Main Business Account"
+                placeholder={t('accountNamePlaceholder')}
                 required
                 disabled={isCreating}
               />
               <p className="mt-1 text-xs text-gray-500">
-                Give this WhatsApp connection a memorable name
+                {t('accountNameHint')}
               </p>
             </div>
             <div className="flex gap-2">
@@ -145,12 +148,12 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
                 {isCreating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating...
+                    {tCommon('loading')}
                   </>
                 ) : (
                   <>
                     <Smartphone className="w-4 h-4 mr-2" />
-                    Create & Connect
+                    {t('createAndConnect')}
                   </>
                 )}
               </Button>
@@ -163,7 +166,7 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
                 }}
                 disabled={isCreating}
               >
-                Cancel
+                {tCommon('cancel')}
               </Button>
             </div>
           </form>
@@ -175,10 +178,10 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
         <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
           <Smartphone className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No WhatsApp Connections
+            {t('noConnections')}
           </h3>
           <p className="text-sm text-gray-600 mb-4">
-            Add your first WhatsApp account to start sending messages
+            {t('addFirstAccount')}
           </p>
           <Button
             onClick={() => setShowNewAccountForm(true)}
@@ -186,7 +189,7 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
             className="bg-green-600 hover:bg-green-700 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add Your First Account
+            {t('addFirst')}
           </Button>
         </div>
       ) : (
@@ -209,15 +212,15 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
       {/* Info Box */}
       <div className="bg-green-50 border border-green-200 rounded-lg p-4">
         <h4 className="text-sm font-medium text-green-900 mb-2">
-          How to connect WhatsApp:
+          {t('howToConnect')}
         </h4>
         <ol className="text-sm text-green-800 space-y-1 list-decimal list-inside">
-          <li>Click "Add Account" and give it a name</li>
-          <li>A QR code will appear</li>
-          <li>Open WhatsApp on your phone</li>
-          <li>Go to Settings → Linked Devices → Link a Device</li>
-          <li>Scan the QR code displayed here</li>
-          <li>Your WhatsApp will be connected!</li>
+          <li>{t('step1')}</li>
+          <li>{t('step2')}</li>
+          <li>{t('step3')}</li>
+          <li>{t('step4')}</li>
+          <li>{t('step5')}</li>
+          <li>{t('step6')}</li>
         </ol>
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -142,6 +143,8 @@ interface ChatWidgetsSectionProps {
 }
 
 export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false, onConnectionChange, initialData }: ChatWidgetsSectionProps) {
+  const t = useTranslations('settings.connections.widgetsSection')
+  const tCommon = useTranslations('common')
   const { user } = useAuth()
   const isEnterprise = user?.profile?.subscription_tier === 'enterprise'
   
@@ -217,7 +220,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
     e.preventDefault()
     
     if (!formData.name.trim()) {
-      toast.error('Error', 'Widget name is required')
+      toast.error(tCommon('error'), t('nameRequired'))
       return
     }
     
@@ -247,14 +250,14 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
         onConnectionChange?.()
         // Fetch embed code for the new widget
         handleGetEmbedCode(newWidget.id)
-        toast.success('Widget Created!', 'Now follow the instructions below to add it to your website.')
+        toast.success(t('created'), t('createdDesc'))
       } else {
         console.error('Create widget failed:', response)
-        toast.error('Error', (response as any).error || 'Failed to create widget')
+        toast.error(tCommon('error'), (response as any).error || t('createError'))
       }
     } catch (error: any) {
       console.error('Error creating widget:', error)
-      toast.error('Error', error?.message || 'Failed to create widget')
+      toast.error(tCommon('error'), error?.message || t('createError'))
     }
   }
 
@@ -272,11 +275,11 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
         setWidgets(widgets.map(w => w.id === editingWidget ? response.data as ChatWidget : w))
         setShowForm(false)
         resetForm()
-        toast.success('Updated!', 'Widget updated successfully')
+        toast.success(t('updated'), t('updatedDesc'))
       }
     } catch (error) {
       console.error('Error updating widget:', error)
-      toast.error('Error', 'Failed to update widget')
+      toast.error(tCommon('error'), t('updateError'))
     }
   }
 
@@ -302,7 +305,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
   }
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete the widget "${name}"?`)) return
+    if (!confirm(t('confirmDelete', { name }))) return
 
     try {
       const response = await ApiClient.request(`/api/chat-widgets/${id}`, {
@@ -312,13 +315,13 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
       if (response.success) {
         setWidgets(widgets.filter(w => w.id !== id))
         if (expandedWidget === id) setExpandedWidget(null)
-        toast.success('Deleted', 'Widget deleted successfully')
+        toast.success(t('deleted'), t('deletedDesc'))
         // Notify parent to refresh workspace data
         onConnectionChange?.()
       }
     } catch (error) {
       console.error('Error deleting widget:', error)
-      toast.error('Error', 'Failed to delete widget')
+      toast.error(tCommon('error'), t('deleteError'))
     }
   }
 
@@ -349,7 +352,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
     navigator.clipboard.writeText(code)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-    toast.success('Copied!', 'Embed code copied to clipboard')
+    toast.success(tCommon('copied'), t('codeCopied'))
   }
 
   if (loading) {
@@ -365,11 +368,11 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Web Widget</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
           <p className="text-sm text-gray-600 mt-1">
             {hasExistingConnection 
-              ? 'This workspace has a Web Widget configured'
-              : 'Create an AI chatbot for your website'
+              ? t('hasConnection')
+              : t('noConnection')
             }
           </p>
         </div>
@@ -380,7 +383,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
             className="bg-green-600 hover:bg-green-700 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Create Widget
+            {t('create')}
           </Button>
         )}
       </div>
@@ -389,7 +392,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
       {showForm && (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
           <h4 className="text-lg font-medium mb-4">
-            {editingWidget ? 'Edit Chatbot' : 'Create New Chatbot'}
+            {editingWidget ? t('editChatbot') : t('createNew')}
           </h4>
           <form onSubmit={editingWidget ? handleUpdate : handleCreate} className="space-y-6">
             {/* Step 1: Basic Info */}
@@ -560,13 +563,13 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
       {widgets.length === 0 && !showForm ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
           <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Chatbots Yet</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('noChatbots')}</h3>
           <p className="text-sm text-gray-600 mb-4">
-            Create your first AI chatbot to embed on your website
+            {t('createFirstDesc')}
           </p>
           <Button onClick={() => setShowForm(true)} className="bg-green-600 hover:bg-green-700 text-white">
             <Plus className="w-4 h-4 mr-2" />
-            Create Your First Chatbot
+            {t('createFirst')}
           </Button>
         </div>
       ) : (
