@@ -3,6 +3,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslations } from 'next-intl'
 import { useAuth } from "@/contexts/AuthContext"
 import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
@@ -52,6 +53,8 @@ interface WhatsAppChatbotConfigProps {
 }
 
 export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChatbotConfigProps) {
+  const t = useTranslations('settings.chatbot.whatsapp')
+  const tCommon = useTranslations('common')
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(!initialData) // Skip loading if we have initialData
@@ -537,7 +540,7 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
       
       console.log('✅ Main config saved:', response)
       
-      toast.success("Success", "Configuration saved successfully")
+      toast.success(t('configSaved'), t('configSavedDesc'))
       
       // Reload config after a short delay to ensure DB is updated
       setTimeout(() => {
@@ -545,14 +548,14 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
       }, 500)
     } catch (error) {
       console.error('❌ Error saving config:', error)
-      toast.error("Error", "Failed to save configuration")
+      toast.error(tCommon('error'), t('configSaveError'))
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleDelete = async (sessionId: string) => {
-    if (!confirm("Are you sure you want to delete this chatbot configuration?")) return
+    if (!confirm(t('confirmDelete'))) return
 
     setIsLoading(true)
     try {
@@ -560,7 +563,7 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
         method: 'DELETE'
       })
       
-      toast.success("Success", "Configuration deleted successfully")
+      toast.success(t('configDeleted'), t('configDeletedDesc'))
       setConfigs(prev => {
         const newConfigs = { ...prev }
         delete newConfigs[sessionId]
@@ -569,7 +572,7 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
       loadConfig(sessionId) // Reset to defaults
     } catch (error) {
       console.error('Error deleting config:', error)
-      toast.error("Error", "Failed to delete configuration")
+      toast.error(tCommon('error'), t('configDeleteError'))
     } finally {
       setIsLoading(false)
     }
@@ -581,7 +584,7 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
       // Get current config from server first
       const currentConfig = configs[sessionId]
       if (!currentConfig) {
-        toast.error("Error", "No hay configuración guardada. Por favor, configura el bot primero.")
+        toast.error(tCommon('error'), t('noConfigSaved'))
         return
       }
       
@@ -658,17 +661,17 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
       }))
       
       toast.success(
-        newAutoReplyState ? "IA Activada" : "IA Pausada", 
+        newAutoReplyState ? t('aiEnabled') : t('aiPaused'), 
         newAutoReplyState 
-          ? "El bot responderá automáticamente" 
-          : "El bot NO responderá hasta que lo reactives"
+          ? t('aiEnabledDesc') 
+          : t('aiPausedDesc')
       )
       
       // Reload config to confirm
       await loadConfig(sessionId)
     } catch (error: any) {
       console.error('Error toggling auto reply:', error)
-      toast.error("Error", error.message || "No se pudo cambiar el estado")
+      toast.error(tCommon('error'), error.message || t('toggleError'))
     } finally {
       setIsLoading(false)
     }
@@ -686,9 +689,9 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
               <Smartphone className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">WhatsApp Chatbot</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
               <p className="text-sm text-gray-600 mt-0.5">
-                Configure AI for your WhatsApp business accounts
+                {t('subtitle')}
               </p>
             </div>
           </div>
@@ -697,11 +700,11 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
         <div className="flex flex-col items-center justify-center py-16 space-y-4">
           <Loader2 className="w-12 h-12 text-green-600 animate-spin" />
           <div className="text-center">
-            <p className="text-sm font-medium text-gray-900">Cargando configuración...</p>
+            <p className="text-sm font-medium text-gray-900">{t('loadingConfig')}</p>
             <p className="text-xs text-gray-500 mt-1">
-              {loadingStates.sessions && "Cargando sesiones de WhatsApp..."}
-              {loadingStates.ecommerce && "Cargando conexiones de ecommerce..."}
-              {loadingStates.configs && "Cargando configuraciones..."}
+              {loadingStates.sessions && t('loadingSessions')}
+              {loadingStates.ecommerce && t('loadingEcommerce')}
+              {loadingStates.configs && t('loadingConfigs')}
             </p>
           </div>
         </div>
@@ -717,9 +720,9 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
             <Smartphone className="w-5 h-5 text-green-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">WhatsApp Chatbot</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
             <p className="text-sm text-gray-600 mt-0.5">
-              Configure AI for your WhatsApp business accounts
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -728,8 +731,8 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
       {sessions.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <Smartphone className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-          <p className="text-sm">No WhatsApp sessions available</p>
-          <p className="text-xs mt-1">Please connect a WhatsApp session first in the Connections section</p>
+          <p className="text-sm">{t('noSessions')}</p>
+          <p className="text-xs mt-1">{t('connectFirst')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -759,7 +762,7 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
                       <p className="font-medium text-gray-900">{session.name || session.phone}</p>
                       {hasConfig && (
                         <p className="text-xs text-green-600 mt-0.5">
-                          ✓ Configured with {configs[session.id].provider}
+                          ✓ {t('configuredWith', { provider: configs[session.id].provider })}
                         </p>
                       )}
                     </div>
@@ -768,7 +771,7 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
                     {hasConfig && (
                       <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                         <span className={`text-sm font-medium ${currentAutoReply !== false ? 'text-green-600' : 'text-gray-500'}`}>
-                          {currentAutoReply !== false ? 'IA Activa' : 'IA Pausada'}
+                          {currentAutoReply !== false ? t('aiActive') : t('aiPausedLabel')}
                         </span>
                         <Switch
                           checked={currentAutoReply !== false}
@@ -810,12 +813,12 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
                         {isLoading ? (
                           <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Guardando...
+                            {tCommon('loading')}
                           </>
                         ) : (
                           <>
                             <Save className="w-4 h-4 mr-2" />
-                            Guardar Configuración
+                            {t('saveConfig')}
                           </>
                         )}
                       </Button>
@@ -829,7 +832,7 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
                               className="text-green-600 hover:text-green-700 hover:bg-green-50"
                             >
                               <TestTube className="w-4 h-4 mr-2" />
-                              Probar Bot
+                              {t('testBot')}
                             </Button>
                           </Link>
                           
