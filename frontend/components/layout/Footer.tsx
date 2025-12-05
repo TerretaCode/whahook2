@@ -1,10 +1,12 @@
+'use client'
+
 import Link from 'next/link'
 import { Github, Twitter, Linkedin, Mail, Activity } from 'lucide-react'
-import { getTranslations } from 'next-intl/server'
+import { useTranslations } from 'next-intl'
 import { LogoIcon } from '@/components/icons/LogoIcon'
 
-export async function Footer() {
-  const t = await getTranslations('footer')
+export function Footer() {
+  const t = useTranslations('footer')
   const currentYear = new Date().getFullYear()
 
   return (
