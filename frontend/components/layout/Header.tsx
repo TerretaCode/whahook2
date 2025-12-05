@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo, memo } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Shield, Bell, Menu, X } from 'lucide-react'
@@ -33,16 +33,20 @@ export function Header() {
   const canViewClients = !isWorkspaceLoading && (isOwner || hasPermission('clients'))
   const canViewSettings = !isWorkspaceLoading && (isOwner || hasPermission('settings'))
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.pageYOffset)
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+  const handleScroll = useCallback(() => {
+    setScrollY(window.pageYOffset)
   }, [])
 
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [handleScroll])
+
   // Don't hide header when mobile menu or notifications are open
-  const shouldHideHeader = scrollDirection === 'down' && scrollY > 80 && !mobileMenuOpen && !notificationsOpen
+  const shouldHideHeader = useMemo(() => 
+    scrollDirection === 'down' && scrollY > 80 && !mobileMenuOpen && !notificationsOpen,
+    [scrollDirection, scrollY, mobileMenuOpen, notificationsOpen]
+  )
 
   return (
     <>
@@ -298,7 +302,7 @@ export function Header() {
 }
 
 // NavLink Component (Desktop)
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+const NavLink = memo(function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link
       href={href}
@@ -307,4 +311,4 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
       {children}
     </Link>
   )
-}
+})

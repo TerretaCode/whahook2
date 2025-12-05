@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, MessageSquare, Users, Settings } from 'lucide-react'
@@ -16,13 +17,13 @@ export function MobileBottomNav({ className }: { className?: string }) {
   const canViewClients = !isLoading && (isOwner || hasPermission('clients'))
   const canViewSettings = !isLoading && (isOwner || hasPermission('settings'))
 
-  // Build nav items based on permissions
-  const navItems = [
+  // Build nav items based on permissions - memoized
+  const navItems = useMemo(() => [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', active: pathname === '/dashboard', show: true },
     { href: '/conversations', icon: MessageSquare, label: 'Mensajes', active: pathname === '/conversations', show: canViewMessages },
     { href: '/clients', icon: Users, label: 'Clientes', active: pathname === '/clients', show: canViewClients },
     { href: '/settings', icon: Settings, label: 'Ajustes', active: pathname?.startsWith('/settings'), show: canViewSettings },
-  ].filter(item => item.show)
+  ].filter(item => item.show), [pathname, canViewMessages, canViewClients, canViewSettings])
 
   return (
     <nav className={cn(
@@ -46,7 +47,7 @@ export function MobileBottomNav({ className }: { className?: string }) {
   )
 }
 
-function BottomNavItem({ 
+const BottomNavItem = memo(function BottomNavItem({ 
   href, 
   icon: Icon, 
   label, 
@@ -77,4 +78,4 @@ function BottomNavItem({
       </span>
     </Link>
   )
-}
+})
