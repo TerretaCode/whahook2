@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useTranslations } from 'next-intl'
 import { useAuth } from "@/contexts/AuthContext"
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { Button } from "@/components/ui/button"
@@ -62,6 +63,8 @@ const DEFAULT_STATS: DashboardStats = {
 
 export default function DashboardPage() {
   const router = useRouter()
+  const t = useTranslations('dashboard')
+  const tCommon = useTranslations('common')
   const { user, isLoading: authLoading } = useAuth()
   const { workspace, isOwner, hasPermission } = useWorkspaceContext()
   
@@ -158,11 +161,11 @@ export default function DashboardPage() {
 
   const getPlanName = () => {
     switch (user.profile?.subscription_tier) {
-      case 'trial': return 'Trial Gratuito'
-      case 'starter': return 'Plan Starter'
-      case 'professional': return 'Plan Professional'
-      case 'enterprise': return 'Plan Enterprise'
-      default: return 'Trial'
+      case 'trial': return t('plan.trial')
+      case 'starter': return t('plan.starter')
+      case 'professional': return t('plan.professional')
+      case 'enterprise': return t('plan.enterprise')
+      default: return t('plan.trial')
     }
   }
 
@@ -174,10 +177,10 @@ export default function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              ¡Hola, {user.profile?.full_name?.split(' ')[0] || 'Usuario'}!
+              {t('greeting', { name: user.profile?.full_name?.split(' ')[0] || 'User' })}
             </h1>
             <p className="text-sm text-gray-500 mt-1">
-              Aquí tienes el resumen de tu actividad
+              {t('summary')}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -188,7 +191,7 @@ export default function DashboardPage() {
               disabled={isRefreshing}
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Actualizar
+              {t('refresh')}
             </Button>
             {canViewSettings && (
               <Link href="/settings">
@@ -210,7 +213,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-red-800">
-                    {stats.needsAttention} {stats.needsAttention === 1 ? 'conversación requiere' : 'conversaciones requieren'} tu atención
+                    {t('requireAttention', { count: stats.needsAttention })}
                   </p>
                   <p className="text-sm text-red-600">
                     {stats.whatsappNeedsAttention > 0 && `${stats.whatsappNeedsAttention} WhatsApp`}
@@ -239,14 +242,14 @@ export default function DashboardPage() {
                 </div>
                 {stats.needsAttention > 0 && (
                   <span className="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded-full animate-pulse">
-                    URGENTE
+                    {t('urgent')}
                   </span>
                 )}
               </div>
               <p className={`text-3xl font-bold transition-opacity duration-200 ${stats.needsAttention > 0 ? 'text-red-600' : 'text-gray-900'} ${isInitialLoad ? 'opacity-50' : 'opacity-100'}`}>
                 {stats.needsAttention}
               </p>
-              <p className="text-sm text-gray-500 mt-1">Requieren atención</p>
+              <p className="text-sm text-gray-500 mt-1">{t('needsAttention')}</p>
             </div>
           </Link>
           )}
@@ -260,13 +263,13 @@ export default function DashboardPage() {
                   <TrendingUp className="w-5 h-5 text-green-600" />
                 </div>
                 <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                  HOY
+                  {t('today')}
                 </span>
               </div>
               <p className={`text-3xl font-bold text-gray-900 transition-opacity duration-200 ${isInitialLoad ? 'opacity-50' : 'opacity-100'}`}>
                 {stats.todayConversations}
               </p>
-              <p className="text-sm text-gray-500 mt-1">Conversaciones</p>
+              <p className="text-sm text-gray-500 mt-1">{t('conversations')}</p>
             </div>
           </Link>
           )}
@@ -283,7 +286,7 @@ export default function DashboardPage() {
               <p className={`text-3xl font-bold text-gray-900 transition-opacity duration-200 ${isInitialLoad ? 'opacity-50' : 'opacity-100'}`}>
                 {stats.totalConversations}
               </p>
-              <p className="text-sm text-gray-500 mt-1">Total conversaciones</p>
+              <p className="text-sm text-gray-500 mt-1">{t('totalConversations')}</p>
               <div className="flex gap-3 mt-2 text-xs text-gray-400">
                 <span className="flex items-center gap-1">
                   <Smartphone className="w-3 h-3" /> {stats.whatsappConversations}
@@ -308,7 +311,7 @@ export default function DashboardPage() {
               <p className={`text-3xl font-bold text-gray-900 transition-opacity duration-200 ${isInitialLoad ? 'opacity-50' : 'opacity-100'}`}>
                 {stats.totalClients}
               </p>
-              <p className="text-sm text-gray-500 mt-1">Clientes</p>
+              <p className="text-sm text-gray-500 mt-1">{t('clients')}</p>
             </div>
           </Link>
           )}
@@ -327,7 +330,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-xl font-bold text-gray-900">{stats.whatsappSessions}</p>
-                  <p className="text-xs text-gray-500">WhatsApp conectados</p>
+                  <p className="text-xs text-gray-500">{t('whatsappConnected')}</p>
                 </div>
               </div>
             </div>
@@ -342,7 +345,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-xl font-bold text-gray-900">{stats.webWidgets}</p>
-                  <p className="text-xs text-gray-500">Widgets Web</p>
+                  <p className="text-xs text-gray-500">{t('webWidgets')}</p>
                 </div>
               </div>
             </div>
@@ -357,7 +360,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-xl font-bold text-gray-900">{stats.whatsappAiActive + stats.webAiActive}</p>
-                  <p className="text-xs text-gray-500">IAs activas</p>
+                  <p className="text-xs text-gray-500">{t('activeAIs')}</p>
                 </div>
               </div>
             </div>
@@ -373,7 +376,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-sm font-bold">{getPlanName()}</p>
-                    <p className="text-xs text-green-100">Ver planes</p>
+                    <p className="text-xs text-green-100">{t('viewPlans')}</p>
                   </div>
                 </div>
               </div>
@@ -386,14 +389,14 @@ export default function DashboardPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6">
           <h2 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Zap className="w-4 h-4 text-green-500" />
-            Acciones rápidas
+            {t('quickActions')}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {canViewMessages && (
             <Link href="/conversations">
               <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
                 <MessageSquare className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
-                <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Mensajes</p>
+                <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">{t('messages')}</p>
               </div>
             </Link>
             )}
@@ -401,7 +404,7 @@ export default function DashboardPage() {
             <Link href="/clients">
               <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
                 <Users className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
-                <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Clientes</p>
+                <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">{t('clients')}</p>
               </div>
             </Link>
             )}
@@ -409,7 +412,7 @@ export default function DashboardPage() {
               <Link href="/settings/chatbot">
                 <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
                   <Bot className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
-                  <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Chatbots</p>
+                  <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">{t('chatbots')}</p>
                 </div>
               </Link>
             )}
@@ -417,7 +420,7 @@ export default function DashboardPage() {
               <Link href="/settings/connections">
                 <div className="group p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors text-center">
                   <Settings className="w-5 h-5 text-gray-400 group-hover:text-green-600 mx-auto mb-2" />
-                  <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">Conexiones</p>
+                  <p className="text-xs font-medium text-gray-700 group-hover:text-green-700">{tCommon('settings')}</p>
                 </div>
               </Link>
             )}
@@ -430,11 +433,11 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-green-600" />
-              Control de IA
+              {t('aiControl')}
             </h2>
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${stats.totalAiActive > 0 ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-              <span className="text-xs text-gray-500">{stats.totalAiActive} activas</span>
+              <span className="text-xs text-gray-500">{stats.totalAiActive} {tCommon('active').toLowerCase()}</span>
             </div>
           </div>
           
@@ -452,7 +455,7 @@ export default function DashboardPage() {
                 <Power className="w-4 h-4 text-green-600" />
               )}
               <div className="text-left">
-                <p className="text-xs font-semibold text-green-700">Activar todas</p>
+                <p className="text-xs font-semibold text-green-700">{t('activateAll')}</p>
               </div>
             </button>
             )}
@@ -475,7 +478,7 @@ export default function DashboardPage() {
               )}
               <div className="text-left">
                 <p className="text-xs font-semibold text-gray-700">WhatsApp</p>
-                <p className="text-[10px] text-gray-400">{stats.whatsappAiActive > 0 ? 'Activa' : 'Inactiva'}</p>
+                <p className="text-[10px] text-gray-400">{stats.whatsappAiActive > 0 ? tCommon('active') : tCommon('inactive')}</p>
               </div>
             </button>
             )}
@@ -498,7 +501,7 @@ export default function DashboardPage() {
               )}
               <div className="text-left">
                 <p className="text-xs font-semibold text-gray-700">Web</p>
-                <p className="text-[10px] text-gray-400">{stats.webAiActive > 0 ? 'Activa' : 'Inactiva'}</p>
+                <p className="text-[10px] text-gray-400">{stats.webAiActive > 0 ? tCommon('active') : tCommon('inactive')}</p>
               </div>
             </button>
             )}
@@ -520,8 +523,8 @@ export default function DashboardPage() {
                 <Users className={`w-4 h-4 ${stats.clientsAiActive ? 'text-green-600' : 'text-gray-400'}`} />
               )}
               <div className="text-left">
-                <p className="text-xs font-semibold text-gray-700">Clientes</p>
-                <p className="text-[10px] text-gray-400">{stats.clientsAiActive ? 'Activa' : 'Inactiva'}</p>
+                <p className="text-xs font-semibold text-gray-700">{t('clients')}</p>
+                <p className="text-[10px] text-gray-400">{stats.clientsAiActive ? tCommon('active') : tCommon('inactive')}</p>
               </div>
             </button>
             )}
@@ -539,7 +542,7 @@ export default function DashboardPage() {
                 <PowerOff className="w-4 h-4 text-red-600" />
               )}
               <div className="text-left">
-                <p className="text-xs font-semibold text-red-700">Pausar todas</p>
+                <p className="text-xs font-semibold text-red-700">{t('pauseAll')}</p>
               </div>
             </button>
             )}

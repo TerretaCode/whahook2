@@ -1,0 +1,344 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "update": "Actualizar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "all": "Todos",
+    "none": "Ninguno",
+    "yes": "Sí",
+    "no": "No",
+    "or": "o",
+    "and": "y",
+    "error": "Error",
+    "success": "Éxito",
+    "warning": "Advertencia",
+    "info": "Información",
+    "required": "Requerido",
+    "optional": "Opcional",
+    "actions": "Acciones",
+    "settings": "Configuración",
+    "profile": "Perfil",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "name": "Nombre",
+    "phone": "Teléfono",
+    "status": "Estado",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "pending": "Pendiente",
+    "enabled": "Habilitado",
+    "disabled": "Deshabilitado",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "refresh": "Actualizar",
+    "download": "Descargar",
+    "upload": "Subir",
+    "view": "Ver",
+    "details": "Detalles",
+    "more": "Más",
+    "less": "Menos",
+    "showMore": "Ver más",
+    "showLess": "Ver menos",
+    "noResults": "No se encontraron resultados",
+    "tryAgain": "Intentar de nuevo",
+    "comingSoon": "Próximamente"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "conversations": "Mensajes",
+    "clients": "Clientes",
+    "campaigns": "Campañas",
+    "settings": "Configuración",
+    "connections": "Conexiones",
+    "chatbot": "Chatbot",
+    "branding": "Marca",
+    "team": "Equipo",
+    "billing": "Facturación",
+    "help": "Ayuda"
+  },
+  "auth": {
+    "login": {
+      "title": "Bienvenido de nuevo",
+      "subtitle": "Inicia sesión en tu cuenta",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "rememberMe": "Recordarme",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "signIn": "Iniciar sesión",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUp": "Regístrate",
+      "orContinueWith": "O continúa con",
+      "invalidCredentials": "Correo o contraseña inválidos",
+      "accountLocked": "Cuenta bloqueada. Intenta más tarde."
+    },
+    "register": {
+      "title": "Crea tu cuenta",
+      "subtitle": "Comienza tu prueba gratuita hoy",
+      "fullName": "Nombre completo",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "agreeTerms": "Acepto los",
+      "termsOfService": "Términos de servicio",
+      "privacyPolicy": "Política de privacidad",
+      "createAccount": "Crear cuenta",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Inicia sesión",
+      "passwordRequirements": "La contraseña debe tener al menos 8 caracteres",
+      "passwordMismatch": "Las contraseñas no coinciden"
+    },
+    "forgotPassword": {
+      "title": "Recupera tu contraseña",
+      "subtitle": "Ingresa tu correo y te enviaremos un enlace",
+      "email": "Correo electrónico",
+      "sendLink": "Enviar enlace",
+      "backToLogin": "Volver al inicio de sesión",
+      "checkEmail": "Revisa tu correo",
+      "emailSent": "Hemos enviado un enlace para restablecer tu contraseña"
+    },
+    "resetPassword": {
+      "title": "Nueva contraseña",
+      "subtitle": "Ingresa tu nueva contraseña",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "resetPassword": "Restablecer contraseña",
+      "passwordChanged": "Contraseña cambiada exitosamente"
+    }
+  },
+  "dashboard": {
+    "greeting": "¡Hola, {name}!",
+    "summary": "Aquí tienes el resumen de tu actividad",
+    "refresh": "Actualizar",
+    "needsAttention": "Requieren atención",
+    "urgent": "URGENTE",
+    "requireAttention": "{count} {count, plural, one {conversación requiere} other {conversaciones requieren}} tu atención",
+    "today": "HOY",
+    "conversations": "Conversaciones",
+    "totalConversations": "Total conversaciones",
+    "clients": "Clientes",
+    "whatsappConnected": "WhatsApp conectados",
+    "webWidgets": "Widgets Web",
+    "activeAIs": "IAs activas",
+    "viewPlans": "Ver planes",
+    "quickActions": "Acciones rápidas",
+    "messages": "Mensajes",
+    "chatbots": "Chatbots",
+    "aiControl": "Control de IA",
+    "activateAll": "Activar todas",
+    "pauseAll": "Pausar todas",
+    "whatsapp": "WhatsApp",
+    "web": "Web",
+    "plan": {
+      "trial": "Prueba Gratuita",
+      "starter": "Plan Starter",
+      "professional": "Plan Professional",
+      "enterprise": "Plan Enterprise"
+    }
+  },
+  "conversations": {
+    "title": "Mensajes",
+    "searchPlaceholder": "Buscar conversaciones...",
+    "filters": {
+      "all": "Todas",
+      "whatsapp": "WhatsApp",
+      "web": "Web",
+      "attention": "Requieren atención"
+    },
+    "empty": {
+      "title": "Sin conversaciones",
+      "subtitle": "Comienza a chatear con tus clientes"
+    },
+    "selectConversation": "Selecciona una conversación para comenzar",
+    "encrypted": "Cifrado de extremo a extremo",
+    "typing": "escribiendo...",
+    "online": "En línea",
+    "offline": "Desconectado",
+    "lastSeen": "Última vez {time}",
+    "unread": "{count} sin leer",
+    "sendMessage": "Escribe un mensaje...",
+    "send": "Enviar",
+    "attachFile": "Adjuntar archivo",
+    "emoji": "Emoji",
+    "aiEnabled": "IA activada",
+    "aiDisabled": "IA desactivada",
+    "toggleAI": "Cambiar IA",
+    "markAsRead": "Marcar como leído",
+    "markAsUnread": "Marcar como no leído",
+    "archive": "Archivar",
+    "block": "Bloquear contacto"
+  },
+  "clients": {
+    "title": "Clientes",
+    "subtitle": "Gestiona tu base de datos de clientes",
+    "addClient": "Añadir cliente",
+    "importClients": "Importar",
+    "exportClients": "Exportar",
+    "searchPlaceholder": "Buscar clientes...",
+    "columns": {
+      "name": "Nombre",
+      "phone": "Teléfono",
+      "email": "Correo",
+      "status": "Estado",
+      "tags": "Etiquetas",
+      "lastInteraction": "Última interacción",
+      "createdAt": "Creado"
+    },
+    "status": {
+      "lead": "Lead",
+      "prospect": "Prospecto",
+      "customer": "Cliente",
+      "inactive": "Inactivo"
+    },
+    "empty": {
+      "title": "Sin clientes",
+      "subtitle": "Añade tu primer cliente o importa desde un archivo"
+    },
+    "details": {
+      "title": "Detalles del cliente",
+      "conversations": "Conversaciones",
+      "notes": "Notas",
+      "addNote": "Añadir nota",
+      "tags": "Etiquetas",
+      "addTag": "Añadir etiqueta"
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "connections": {
+      "title": "Conexiones",
+      "subtitle": "Gestiona tus sesiones de WhatsApp y widgets web",
+      "whatsapp": {
+        "title": "Sesiones de WhatsApp",
+        "connect": "Conectar WhatsApp",
+        "disconnect": "Desconectar",
+        "scanQR": "Escanea el código QR con WhatsApp",
+        "connected": "Conectado",
+        "disconnected": "Desconectado",
+        "connecting": "Conectando...",
+        "phoneNumber": "Número de teléfono",
+        "lastActive": "Última actividad"
+      },
+      "widgets": {
+        "title": "Widgets Web",
+        "create": "Crear widget",
+        "embedCode": "Código de inserción",
+        "copyCode": "Copiar código",
+        "preview": "Vista previa",
+        "customize": "Personalizar"
+      }
+    },
+    "chatbot": {
+      "title": "Chatbot",
+      "subtitle": "Configura tu asistente de IA",
+      "enable": "Activar chatbot",
+      "disable": "Desactivar chatbot",
+      "personality": "Personalidad",
+      "instructions": "Instrucciones",
+      "instructionsPlaceholder": "Indica cómo debe comportarse la IA...",
+      "knowledgeBase": "Base de conocimiento",
+      "addDocument": "Añadir documento",
+      "testChat": "Probar chat",
+      "responseDelay": "Retraso de respuesta",
+      "businessHours": "Solo horario laboral"
+    },
+    "branding": {
+      "title": "Marca",
+      "subtitle": "Personaliza la apariencia de tu marca",
+      "logo": "Logo",
+      "uploadLogo": "Subir logo",
+      "brandName": "Nombre de marca",
+      "primaryColor": "Color principal",
+      "poweredBy": "Mostrar 'Powered by WhaHook'",
+      "customDomain": "Dominio personalizado",
+      "verifyDomain": "Verificar dominio"
+    },
+    "team": {
+      "title": "Equipo",
+      "subtitle": "Gestiona los miembros de tu equipo",
+      "inviteMember": "Invitar miembro",
+      "members": "Miembros",
+      "pending": "Invitaciones pendientes",
+      "roles": {
+        "owner": "Propietario",
+        "admin": "Administrador",
+        "agent": "Agente",
+        "client": "Cliente",
+        "viewer": "Visor"
+      },
+      "permissions": "Permisos",
+      "remove": "Eliminar miembro",
+      "resendInvite": "Reenviar invitación"
+    },
+    "profile": {
+      "title": "Perfil",
+      "subtitle": "Gestiona tu información personal",
+      "fullName": "Nombre completo",
+      "email": "Correo electrónico",
+      "phone": "Número de teléfono",
+      "language": "Idioma",
+      "timezone": "Zona horaria",
+      "changePassword": "Cambiar contraseña",
+      "currentPassword": "Contraseña actual",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar contraseña"
+    }
+  },
+  "campaigns": {
+    "title": "Campañas",
+    "subtitle": "Crea y gestiona campañas de marketing",
+    "create": "Crear campaña",
+    "types": {
+      "whatsapp": "WhatsApp",
+      "email": "Email"
+    },
+    "status": {
+      "draft": "Borrador",
+      "scheduled": "Programada",
+      "sending": "Enviando",
+      "paused": "Pausada",
+      "completed": "Completada",
+      "cancelled": "Cancelada"
+    },
+    "stats": {
+      "recipients": "Destinatarios",
+      "sent": "Enviados",
+      "delivered": "Entregados",
+      "read": "Leídos",
+      "replied": "Respondidos",
+      "failed": "Fallidos"
+    },
+    "empty": {
+      "title": "Sin campañas",
+      "subtitle": "Crea tu primera campaña de marketing"
+    }
+  },
+  "errors": {
+    "generic": "Algo salió mal. Por favor, inténtalo de nuevo.",
+    "network": "Error de red. Verifica tu conexión.",
+    "unauthorized": "No tienes autorización para realizar esta acción.",
+    "notFound": "El recurso solicitado no fue encontrado.",
+    "validation": "Por favor, verifica los datos e inténtalo de nuevo.",
+    "serverError": "Error del servidor. Inténtalo más tarde."
+  },
+  "toast": {
+    "saved": "Cambios guardados correctamente",
+    "deleted": "Eliminado correctamente",
+    "copied": "Copiado al portapapeles",
+    "error": "Ocurrió un error",
+    "connectionLost": "Conexión perdida. Reconectando...",
+    "connectionRestored": "Conexión restablecida"
+  }
+}

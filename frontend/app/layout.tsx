@@ -1,6 +1,8 @@
 import { Inter } from "next/font/google";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { Metadata } from "next";
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages, getLocale } from 'next-intl/server';
 import "./globals.css";
 import { LayoutContent } from "./layout-content";
 import { Branding, DEFAULT_BRANDING, mergeBranding, hexToRgb, getContrastColor } from "@/lib/branding";
@@ -82,16 +84,22 @@ export default async function RootLayout({
   const { branding, isCustomDomain } = await getBrandingFromCookies();
   const brandingStyles = generateBrandingStyles(branding);
   
+  // Get locale and messages for i18n
+  const locale = await getLocale();
+  const messages = await getMessages();
+  
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {/* Inline CSS for branding colors - no flash because it's in the HTML */}
         <style dangerouslySetInnerHTML={{ __html: brandingStyles }} />
       </head>
       <body className={`${inter.variable} font-sans antialiased ${isCustomDomain ? 'whitelabel' : ''}`}>
-        <LayoutContent branding={branding} isCustomDomain={isCustomDomain}>
-          {children}
-        </LayoutContent>
+        <NextIntlClientProvider messages={messages}>
+          <LayoutContent branding={branding} isCustomDomain={isCustomDomain}>
+            {children}
+          </LayoutContent>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
