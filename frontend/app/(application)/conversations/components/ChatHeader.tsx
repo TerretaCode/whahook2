@@ -1,5 +1,6 @@
 "use client"
 
+import { memo, useCallback } from "react"
 import { ArrowLeft, Bot, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -14,7 +15,7 @@ interface ChatHeaderProps {
   onBack?: () => void
 }
 
-export function ChatHeader({ 
+function ChatHeaderComponent({ 
   name, 
   avatar, 
   isOnline, 
@@ -24,9 +25,9 @@ export function ChatHeader({
   onBack 
 }: ChatHeaderProps) {
 
-  const handleToggle = () => {
+  const handleToggle = useCallback(() => {
     onToggleChatbot(!chatbotEnabled)
-  }
+  }, [chatbotEnabled, onToggleChatbot])
 
   return (
     <div className="bg-[#F0F2F5] px-4 py-2 border-b border-gray-300 flex items-center gap-3">
@@ -100,3 +101,5 @@ export function ChatHeader({
     </div>
   )
 }
+
+export const ChatHeader = memo(ChatHeaderComponent)

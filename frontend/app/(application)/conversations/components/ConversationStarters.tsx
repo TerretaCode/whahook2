@@ -1,5 +1,6 @@
 "use client"
 
+import { memo, useCallback } from "react"
 import { MessageSquare } from "lucide-react"
 
 interface ConversationStartersProps {
@@ -7,7 +8,11 @@ interface ConversationStartersProps {
   onSelect: (starter: string) => void
 }
 
-export function ConversationStarters({ starters, onSelect }: ConversationStartersProps) {
+function ConversationStartersComponent({ starters, onSelect }: ConversationStartersProps) {
+  const handleClick = useCallback((starter: string) => {
+    onSelect(starter)
+  }, [onSelect])
+
   if (!starters || starters.length === 0) {
     return null
   }
@@ -22,7 +27,7 @@ export function ConversationStarters({ starters, onSelect }: ConversationStarter
         {starters.map((starter, index) => (
           <button
             key={index}
-            onClick={() => onSelect(starter)}
+            onClick={() => handleClick(starter)}
             className="text-left p-3 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group"
           >
             <p className="text-sm text-gray-700 group-hover:text-blue-700">
@@ -34,3 +39,5 @@ export function ConversationStarters({ starters, onSelect }: ConversationStarter
     </div>
   )
 }
+
+export const ConversationStarters = memo(ConversationStartersComponent)

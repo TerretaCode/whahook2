@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { ApiClient } from "@/lib/api-client"
@@ -78,7 +78,8 @@ export default function AgencyBrandingPage() {
   const { user, isLoading: authLoading } = useAuth()
   
   const [branding, setBranding] = useState<AgencyBranding>(DEFAULT_BRANDING)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const initialLoadDone = useRef(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [isUploadingFavicon, setIsUploadingFavicon] = useState(false)
@@ -113,9 +114,8 @@ export default function AgencyBrandingPage() {
     }
   }, [user])
 
-  const loadBranding = async () => {
+  const loadBranding = useCallback(async () => {
     try {
-      setIsLoading(true)
       const response = await ApiClient.get<AgencyBranding>('/api/branding')
       if (response.success && response.data) {
         setBranding({ ...DEFAULT_BRANDING, ...response.data })
@@ -123,9 +123,9 @@ export default function AgencyBrandingPage() {
     } catch (error) {
       console.error('Error loading branding:', error)
     } finally {
-      setIsLoading(false)
+      setIsInitialLoad(false)
     }
-  }
+  }, [])
 
   const loadDomain = async () => {
     try {
@@ -359,7 +359,7 @@ export default function AgencyBrandingPage() {
     }
   }
 
-  if (authLoading || isLoading) {
+  if (authLoading || isInitialLoad) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="w-8 h-8 animate-spin text-green-600" />

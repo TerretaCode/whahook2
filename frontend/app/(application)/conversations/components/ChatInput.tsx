@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback, memo } from "react"
 import { Send, Paperclip, Smile } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -9,23 +9,26 @@ interface ChatInputProps {
   disabled?: boolean
 }
 
-export function ChatInput({ onSendMessage, disabled = false }: ChatInputProps) {
+function ChatInputComponent({ onSendMessage, disabled = false }: ChatInputProps) {
   const [message, setMessage] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault()
     if (message.trim() && !disabled) {
       onSendMessage(message.trim())
       setMessage("")
     }
-  }
+  }, [message, disabled, onSendMessage])
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      handleSubmit(e)
+      if (message.trim() && !disabled) {
+        onSendMessage(message.trim())
+        setMessage("")
+      }
     }
-  }
+  }, [message, disabled, onSendMessage])
 
   return (
     <div className="bg-[#F0F2F5] px-4 py-3 border-t border-gray-300">
@@ -79,3 +82,5 @@ export function ChatInput({ onSendMessage, disabled = false }: ChatInputProps) {
     </div>
   )
 }
+
+export const ChatInput = memo(ChatInputComponent)

@@ -1,5 +1,6 @@
 "use client"
 
+import { memo, useCallback } from "react"
 import { Zap } from "lucide-react"
 
 interface QuickRepliesProps {
@@ -7,7 +8,11 @@ interface QuickRepliesProps {
   onSelect: (reply: string) => void
 }
 
-export function QuickReplies({ replies, onSelect }: QuickRepliesProps) {
+function QuickRepliesComponent({ replies, onSelect }: QuickRepliesProps) {
+  const handleClick = useCallback((reply: string) => {
+    onSelect(reply)
+  }, [onSelect])
+
   if (!replies || replies.length === 0) {
     return null
   }
@@ -19,7 +24,7 @@ export function QuickReplies({ replies, onSelect }: QuickRepliesProps) {
         {replies.map((reply, index) => (
           <button
             key={index}
-            onClick={() => onSelect(reply)}
+            onClick={() => handleClick(reply)}
             className="flex-shrink-0 px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-full hover:bg-blue-50 hover:border-blue-500 hover:text-blue-700 transition-all duration-200"
           >
             {reply}
@@ -29,3 +34,5 @@ export function QuickReplies({ replies, onSelect }: QuickRepliesProps) {
     </div>
   )
 }
+
+export const QuickReplies = memo(QuickRepliesComponent)

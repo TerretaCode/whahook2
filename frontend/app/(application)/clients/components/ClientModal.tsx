@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, memo } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,7 @@ interface ClientModalProps {
   client: Client | null
 }
 
-export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProps) {
+function ClientModalComponent({ isOpen, onClose, onSave, client }: ClientModalProps) {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -50,10 +50,10 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
     }
   }, [client, isOpen])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault()
     onSave(formData)
-  }
+  }, [formData, onSave])
 
   if (!isOpen) return null
 
@@ -197,3 +197,5 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
     </div>
   )
 }
+
+export const ClientModal = memo(ClientModalComponent)

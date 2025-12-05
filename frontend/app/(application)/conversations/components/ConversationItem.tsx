@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AlertCircle } from "lucide-react"
 import { ApiClient } from "@/lib/api-client"
@@ -27,7 +27,7 @@ interface ConversationItemProps {
 // Cache de fotos de perfil para evitar requests repetidos
 const profilePicCache = new Map<string, string | null>()
 
-export function ConversationItem({ conversation, isSelected, onClick }: ConversationItemProps) {
+function ConversationItemComponent({ conversation, isSelected, onClick }: ConversationItemProps) {
   const [profilePic, setProfilePic] = useState<string | null>(conversation.avatar || null)
 
   // Cargar foto de perfil desde WhatsApp si no hay avatar guardado
@@ -109,3 +109,14 @@ export function ConversationItem({ conversation, isSelected, onClick }: Conversa
     </div>
   )
 }
+
+// Memoize to prevent re-renders when parent list updates
+export const ConversationItem = memo(ConversationItemComponent, (prev, next) => {
+  return (
+    prev.conversation.id === next.conversation.id &&
+    prev.conversation.lastMessage === next.conversation.lastMessage &&
+    prev.conversation.unreadCount === next.conversation.unreadCount &&
+    prev.conversation.needsAttention === next.conversation.needsAttention &&
+    prev.isSelected === next.isSelected
+  )
+})
