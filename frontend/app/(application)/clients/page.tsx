@@ -11,6 +11,7 @@ import { Search, Download, Loader2, Users, UserCheck, Star, Smartphone, RefreshC
 import { Switch } from "@/components/ui/switch"
 import { ClientsTable } from "./components/ClientsTable"
 import { ClientModal } from "./components/ClientModal"
+import { CampaignsSection } from "./components/CampaignsSection"
 
 export interface Client {
   id: string
@@ -401,6 +402,14 @@ export default function ClientsPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Campaigns Section */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <CampaignsSection 
+            clients={clients} 
+            onRefreshClients={fetchClients}
+          />
         </div>
 
         {/* Table */}
