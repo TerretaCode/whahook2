@@ -1,5 +1,6 @@
 "use client"
 
+import { memo, useMemo } from "react"
 import { Check, CheckCheck } from "lucide-react"
 
 interface Message {
@@ -15,13 +16,13 @@ interface MessageItemProps {
   message: Message
 }
 
-export function MessageItem({ message }: MessageItemProps) {
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp)
+function MessageItemComponent({ message }: MessageItemProps) {
+  const formattedTime = useMemo(() => {
+    const date = new Date(message.timestamp)
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
-  }
+  }, [message.timestamp])
 
-  const getStatusIcon = () => {
+  const statusIcon = useMemo(() => {
     if (!message.isOwn) return null
 
     if (message.status === 'read') {
@@ -31,7 +32,7 @@ export function MessageItem({ message }: MessageItemProps) {
     } else {
       return <Check className="w-4 h-4 text-gray-500" />
     }
-  }
+  }, [message.isOwn, message.status])
 
   return (
     <div className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'} w-full`}>
@@ -47,11 +48,21 @@ export function MessageItem({ message }: MessageItemProps) {
         </p>
         <div className="flex items-center justify-end gap-1 mt-1">
           <span className="text-xs text-gray-500">
-            {formatTime(message.timestamp)}
+            {formattedTime}
           </span>
-          {getStatusIcon()}
+          {statusIcon}
         </div>
       </div>
     </div>
   )
 }
+
+// Memoize to prevent re-renders when parent updates
+export const MessageItem = memo(MessageItemComponent, (prevProps, nextProps) => {
+  // Only re-render if message content or status changed
+  return (
+    prevProps.message.id === nextProps.message.id &&
+    prevProps.message.content === nextProps.message.content &&
+    prevProps.message.status === nextProps.message.status
+  )
+})

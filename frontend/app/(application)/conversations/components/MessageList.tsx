@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { MessageItem } from "./MessageItem"
 
 interface Message {
@@ -15,7 +16,7 @@ interface MessageListProps {
   messages: Message[]
 }
 
-export function MessageList({ messages }: MessageListProps) {
+function MessageListComponent({ messages }: MessageListProps) {
   if (messages.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -35,3 +36,6 @@ export function MessageList({ messages }: MessageListProps) {
     </div>
   )
 }
+
+// Memoize to prevent re-renders when parent updates
+export const MessageList = memo(MessageListComponent)
