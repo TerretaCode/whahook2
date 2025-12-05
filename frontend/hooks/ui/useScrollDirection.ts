@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 
 interface UseScrollDirectionOptions {
   threshold?: number
@@ -11,35 +11,33 @@ export function useScrollDirection(options: UseScrollDirectionOptions = {}) {
   const { threshold = 10, initialDirection = 'up' } = options
   
   const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>(initialDirection)
-  const [lastScrollY, setLastScrollY] = useState(0)
+  const lastScrollY = useRef(0)
 
-  useEffect(() => {
-    const updateScrollDirection = () => {
-      const scrollY = window.pageYOffset
+  const updateScrollDirection = useCallback(() => {
+    const scrollY = window.pageYOffset
 
-      // Si el scroll es menor que threshold, no cambiar
-      if (Math.abs(scrollY - lastScrollY) < threshold) {
-        return
-      }
-
-      // Determinar dirección
-      const direction = scrollY > lastScrollY ? 'down' : 'up'
-      
-      // Actualizar solo si cambió
-      if (direction !== scrollDirection) {
-        setScrollDirection(direction)
-      }
-
-      // Actualizar último scroll
-      setLastScrollY(scrollY > 0 ? scrollY : 0)
+    // Si el scroll es menor que threshold, no cambiar
+    if (Math.abs(scrollY - lastScrollY.current) < threshold) {
+      return
     }
 
+    // Determinar dirección
+    const direction = scrollY > lastScrollY.current ? 'down' : 'up'
+    
+    // Actualizar solo si cambió
+    setScrollDirection(prev => prev !== direction ? direction : prev)
+
+    // Actualizar último scroll
+    lastScrollY.current = scrollY > 0 ? scrollY : 0
+  }, [threshold])
+
+  useEffect(() => {
     window.addEventListener('scroll', updateScrollDirection, { passive: true })
 
     return () => {
       window.removeEventListener('scroll', updateScrollDirection)
     }
-  }, [scrollDirection, lastScrollY, threshold])
+  }, [updateScrollDirection])
 
   return scrollDirection
 }
