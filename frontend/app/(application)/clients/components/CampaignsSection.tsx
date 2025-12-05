@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { ApiClient } from "@/lib/api-client"
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { Button } from "@/components/ui/button"
@@ -77,7 +77,8 @@ interface CampaignsSectionProps {
 export function CampaignsSection({ clients, onRefreshClients }: CampaignsSectionProps) {
   const { workspace } = useWorkspaceContext()
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const lastWorkspaceId = useRef<string | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false)
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
@@ -99,11 +100,14 @@ export function CampaignsSection({ clients, onRefreshClients }: CampaignsSection
     }
   })
 
-  // Get unique tags from clients
-  const allTags = Array.from(new Set(clients.flatMap(c => c.tags || [])))
+  // Get unique tags from clients - memoized
+  const allTags = useMemo(() => 
+    Array.from(new Set(clients.flatMap(c => c.tags || []))),
+    [clients]
+  )
 
-  // Calculate recipients based on filters
-  const getFilteredRecipients = () => {
+  // Calculate recipients based on filters - memoized
+  const filteredRecipients = useMemo(() => {
     let filtered = clients
 
     // Filter by tags
@@ -136,21 +140,14 @@ export function CampaignsSection({ clients, onRefreshClients }: CampaignsSection
     }
 
     return filtered
-  }
+  }, [clients, formData.filters, formData.type])
 
-  const filteredRecipients = getFilteredRecipients()
-
-  useEffect(() => {
-    if (workspace?.id) {
-      fetchCampaigns()
-    }
-  }, [workspace?.id])
-
-  const fetchCampaigns = async () => {
+  // Memoized fetch function
+  const fetchCampaigns = useCallback(async () => {
+    if (!workspace?.id) return
     try {
-      setIsLoading(true)
       const response = await ApiClient.request<Campaign[]>(
-        `/api/campaigns?workspace_id=${workspace?.id}`
+        `/api/campaigns?workspace_id=${workspace.id}`
       )
       if (response.success && response.data) {
         setCampaigns(response.data)
@@ -158,9 +155,20 @@ export function CampaignsSection({ clients, onRefreshClients }: CampaignsSection
     } catch (error) {
       console.error('Error fetching campaigns:', error)
     } finally {
-      setIsLoading(false)
+      setIsInitialLoad(false)
     }
-  }
+  }, [workspace?.id])
+
+  useEffect(() => {
+    if (workspace?.id) {
+      // Only show loading on workspace change
+      if (lastWorkspaceId.current !== workspace.id) {
+        setIsInitialLoad(true)
+        lastWorkspaceId.current = workspace.id
+      }
+      fetchCampaigns()
+    }
+  }, [workspace?.id, fetchCampaigns])
 
   const handleCreateCampaign = async () => {
     if (!formData.name || !formData.message_template) {
@@ -295,7 +303,7 @@ export function CampaignsSection({ clients, onRefreshClients }: CampaignsSection
       </div>
 
       {/* Campaigns List */}
-      {isLoading ? (
+      {isInitialLoad ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
         </div>
