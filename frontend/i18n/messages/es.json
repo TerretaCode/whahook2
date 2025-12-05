@@ -373,8 +373,11 @@
   },
   "campaigns": {
     "title": "Campañas",
-    "subtitle": "Crea y gestiona campañas de marketing",
-    "create": "Crear campaña",
+    "subtitle": "Envía mensajes masivos a tus clientes",
+    "create": "Crear Campaña",
+    "newCampaign": "Nueva Campaña",
+    "confirmSend": "¿Estás seguro de que quieres enviar esta campaña ahora?",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar esta campaña?",
     "types": {
       "whatsapp": "WhatsApp",
       "email": "Email"
@@ -396,8 +399,15 @@
       "failed": "Fallidos"
     },
     "empty": {
-      "title": "Sin campañas",
-      "subtitle": "Crea tu primera campaña de marketing"
+      "title": "No hay campañas",
+      "subtitle": "Crea tu primera campaña para enviar mensajes masivos a tus clientes"
+    },
+    "errors": {
+      "completeFields": "Por favor completa el nombre y el mensaje de la campaña",
+      "noRecipients": "No hay destinatarios que coincidan con los filtros seleccionados",
+      "createError": "Error al crear la campaña",
+      "sendError": "Error al enviar la campaña",
+      "deleteError": "Error al eliminar la campaña"
     }
   },
   "footer": {

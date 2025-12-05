@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { useTranslations } from 'next-intl'
 import { ApiClient } from "@/lib/api-client"
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { Button } from "@/components/ui/button"
@@ -74,6 +75,7 @@ interface CampaignsSectionProps {
 }
 
 export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients }: CampaignsSectionProps) {
+  const t = useTranslations('campaigns')
   const { workspace } = useWorkspaceContext()
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [isInitialLoad, setIsInitialLoad] = useState(true)
@@ -171,12 +173,12 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
 
   const handleCreateCampaign = async () => {
     if (!formData.name || !formData.message_template) {
-      alert('Por favor completa el nombre y el mensaje de la campaña')
+      alert(t('errors.completeFields'))
       return
     }
 
     if (filteredRecipients.length === 0) {
-      alert('No hay destinatarios que coincidan con los filtros seleccionados')
+      alert(t('errors.noRecipients'))
       return
     }
 
@@ -198,14 +200,14 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
       }
     } catch (error) {
       console.error('Error creating campaign:', error)
-      alert('Error al crear la campaña')
+      alert(t('errors.createError'))
     } finally {
       setIsSaving(false)
     }
   }
 
   const handleSendCampaign = async (campaignId: string) => {
-    if (!confirm('¿Estás seguro de que quieres enviar esta campaña ahora?')) return
+    if (!confirm(t('confirmSend'))) return
 
     try {
       setIsSending(true)
@@ -215,14 +217,14 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
       await fetchCampaigns()
     } catch (error) {
       console.error('Error sending campaign:', error)
-      alert('Error al enviar la campaña')
+      alert(t('errors.sendError'))
     } finally {
       setIsSending(false)
     }
   }
 
   const handleDeleteCampaign = async (campaignId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta campaña?')) return
+    if (!confirm(t('confirmDelete'))) return
 
     try {
       await ApiClient.request(`/api/campaigns/${campaignId}`, {
@@ -231,7 +233,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
       setCampaigns(prev => prev.filter(c => c.id !== campaignId))
     } catch (error) {
       console.error('Error deleting campaign:', error)
-      alert('Error al eliminar la campaña')
+      alert(t('errors.deleteError'))
     }
   }
 
@@ -261,12 +263,12 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
       cancelled: 'bg-red-100 text-red-700'
     }
     const labels = {
-      draft: 'Borrador',
-      scheduled: 'Programada',
-      sending: 'Enviando',
-      paused: 'Pausada',
-      completed: 'Completada',
-      cancelled: 'Cancelada'
+      draft: t('status.draft'),
+      scheduled: t('status.scheduled'),
+      sending: t('status.sending'),
+      paused: t('status.paused'),
+      completed: t('status.completed'),
+      cancelled: t('status.cancelled')
     }
     return <Badge className={styles[status]}>{labels[status]}</Badge>
   }
@@ -286,9 +288,9 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
             <Megaphone className="w-5 h-5 text-green-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Campañas</h3>
+            <h3 className="font-semibold text-gray-900">{t('title')}</h3>
             <p className="text-sm text-gray-500">
-              Envía mensajes masivos a tus clientes
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -297,7 +299,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
           className="gap-2 bg-green-600 hover:bg-green-700 text-white"
         >
           <Plus className="w-4 h-4" />
-          Nueva Campaña
+          {t('newCampaign')}
         </Button>
       </div>
 
@@ -310,17 +312,17 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
         <div className="bg-gray-50 rounded-lg p-8 text-center">
           <Megaphone className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h4 className="text-lg font-medium text-gray-900 mb-2">
-            No hay campañas
+            {t('empty.title')}
           </h4>
           <p className="text-gray-500 mb-4">
-            Crea tu primera campaña para enviar mensajes masivos a tus clientes
+            {t('empty.subtitle')}
           </p>
           <Button 
             onClick={() => setIsCreateModalOpen(true)}
             className="gap-2 bg-green-600 hover:bg-green-700 text-white"
           >
             <Plus className="w-4 h-4" />
-            Crear Campaña
+            {t('create')}
           </Button>
         </div>
       ) : (
