@@ -40,7 +40,7 @@ export function AdvancedConfigTab({ formData, updateField }: AdvancedConfigTabPr
                 <select
                   value={formData.log_level || 'detailed'}
                   onChange={(e) => updateField('log_level', e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
                 >
                   <option value="basic">Básico - Solo mensajes</option>
                   <option value="detailed">Detallado - Mensajes + Intent + Tokens</option>
@@ -93,7 +93,7 @@ export function AdvancedConfigTab({ formData, updateField }: AdvancedConfigTabPr
               max="365"
               value={formData.data_retention_days || 90}
               onChange={(e) => updateField('data_retention_days', parseInt(e.target.value))}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
             />
             <p className="text-xs text-muted-foreground">
               🗓️ Tiempo que se mantienen los datos antes de eliminarse (30-365 días)
@@ -125,8 +125,8 @@ export function AdvancedConfigTab({ formData, updateField }: AdvancedConfigTabPr
           </div>
 
           {formData.soft_delete_enabled !== false && (
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-xs text-blue-800">
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-xs text-green-800">
                 ℹ️ <strong>Soft Delete:</strong> Los datos se marcan como eliminados y se mantienen 30 días antes de borrarse permanentemente. Cumple con GDPR.
               </p>
             </div>
@@ -136,3 +136,4 @@ export function AdvancedConfigTab({ formData, updateField }: AdvancedConfigTabPr
     </Card>
   )
 }
+

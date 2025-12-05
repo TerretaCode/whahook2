@@ -120,14 +120,14 @@ function TestWebChatbotContent() {
       </div>
 
       {/* Instructions */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <MessageSquare className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <MessageSquare className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-blue-800">
+            <p className="text-sm font-medium text-green-800">
               Test your chatbot
             </p>
-            <p className="text-sm text-blue-700 mt-1">
+            <p className="text-sm text-green-700 mt-1">
               Click on the chat bubble in the bottom right corner to open the chat and test your bot.
               This is exactly how it will appear on your website.
             </p>
@@ -180,3 +180,4 @@ export default function TestWebChatbotPage() {
     </Suspense>
   )
 }
+

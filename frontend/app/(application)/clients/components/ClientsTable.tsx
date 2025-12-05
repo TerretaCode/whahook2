@@ -18,7 +18,7 @@ interface ClientsTableProps {
 // Status badge styles - defined outside component to avoid recreation
 const STATUS_STYLES: Record<string, string> = {
   customer: 'bg-green-100 text-green-800 border-green-200',
-  prospect: 'bg-blue-100 text-blue-800 border-blue-200',
+  prospect: 'bg-green-100 text-green-800 border-green-200',
   lead: 'bg-yellow-100 text-yellow-800 border-yellow-200',
   inactive: 'bg-gray-100 text-gray-800 border-gray-200'
 }
@@ -31,10 +31,10 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 const INTEREST_STYLES: Record<string, string> = {
-  product: 'bg-purple-100 text-purple-800',
-  service: 'bg-indigo-100 text-indigo-800',
-  support: 'bg-orange-100 text-orange-800',
-  information: 'bg-cyan-100 text-cyan-800',
+  product: 'bg-green-100 text-green-800',
+  service: 'bg-green-100 text-green-800',
+  support: 'bg-green-100 text-green-800',
+  information: 'bg-green-100 text-green-800',
   complaint: 'bg-red-100 text-red-800',
   other: 'bg-gray-100 text-gray-800'
 }
@@ -172,7 +172,7 @@ function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtract
                   <div className="flex items-center gap-2">
                     {/* Source indicator */}
                     <span className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
-                      client.source === 'web' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
+                      client.source === 'web' ? 'bg-green-100 text-green-600' : 'bg-green-100 text-green-600'
                     }`} title={client.source === 'web' ? 'Web Visitor' : 'WhatsApp'}>
                       {client.source === 'web' ? <Globe className="w-3 h-3" /> : <Smartphone className="w-3 h-3" />}
                     </span>
@@ -254,7 +254,7 @@ function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtract
                       size="sm"
                       onClick={() => handleExtract(client.id)}
                       disabled={extractingId === client.id}
-                      className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                      className="text-green-600 hover:text-green-700 hover:bg-green-50"
                       title="Extract info with AI"
                     >
                       {extractingId === client.id ? (
@@ -294,7 +294,7 @@ function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtract
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
                 <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
-                  client.source === 'web' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
+                  client.source === 'web' ? 'bg-green-100 text-green-600' : 'bg-green-100 text-green-600'
                 }`}>
                   {client.source === 'web' ? <Globe className="w-3 h-3" /> : <Smartphone className="w-3 h-3" />}
                 </span>
@@ -343,3 +343,4 @@ function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtract
 
 // Memoize component to prevent unnecessary re-renders
 export const ClientsTable = memo(ClientsTableComponent)
+

@@ -22,7 +22,7 @@ export function WebhooksSection({ workspaceId, initialData }: WebhooksSectionPro
       {/* Coming Soon Banner */}
       <div className="relative overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-gray-100 p-12">
         <div className="absolute top-4 right-4">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
             <Clock className="w-3 h-3" />
             Coming Soon
           </span>
@@ -65,3 +65,4 @@ export function WebhooksSection({ workspaceId, initialData }: WebhooksSectionPro
     </div>
   )
 }
+

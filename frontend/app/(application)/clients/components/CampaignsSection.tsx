@@ -254,7 +254,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
   const getStatusBadge = (status: Campaign['status']) => {
     const styles = {
       draft: 'bg-gray-100 text-gray-700',
-      scheduled: 'bg-blue-100 text-blue-700',
+      scheduled: 'bg-green-100 text-green-700',
       sending: 'bg-yellow-100 text-yellow-700',
       paused: 'bg-orange-100 text-orange-700',
       completed: 'bg-green-100 text-green-700',
@@ -274,7 +274,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
   const getTypeIcon = (type: 'whatsapp' | 'email') => {
     return type === 'whatsapp' 
       ? <MessageSquare className="w-4 h-4 text-green-600" />
-      : <Mail className="w-4 h-4 text-blue-600" />
+      : <Mail className="w-4 h-4 text-green-600" />
   }
 
   return (
@@ -282,8 +282,8 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-            <Megaphone className="w-5 h-5 text-purple-600" />
+          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+            <Megaphone className="w-5 h-5 text-green-600" />
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">Campañas</h3>
@@ -294,7 +294,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
         </div>
         <Button 
           onClick={() => setIsCreateModalOpen(true)}
-          className="gap-2 bg-purple-600 hover:bg-purple-700"
+          className="gap-2 bg-green-600 hover:bg-green-700"
         >
           <Plus className="w-4 h-4" />
           Nueva Campaña
@@ -304,7 +304,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
       {/* Campaigns List */}
       {isInitialLoad ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-green-600" />
         </div>
       ) : campaigns.length === 0 ? (
         <div className="bg-gray-50 rounded-lg p-8 text-center">
@@ -317,7 +317,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
           </p>
           <Button 
             onClick={() => setIsCreateModalOpen(true)}
-            className="gap-2 bg-purple-600 hover:bg-purple-700"
+            className="gap-2 bg-green-600 hover:bg-green-700"
           >
             <Plus className="w-4 h-4" />
             Crear Campaña
@@ -333,7 +333,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    campaign.type === 'whatsapp' ? 'bg-green-100' : 'bg-blue-100'
+                    campaign.type === 'whatsapp' ? 'bg-green-100' : 'bg-green-100'
                   }`}>
                     {getTypeIcon(campaign.type)}
                   </div>
@@ -439,7 +439,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Megaphone className="w-5 h-5 text-purple-600" />
+              <Megaphone className="w-5 h-5 text-green-600" />
               Nueva Campaña
             </DialogTitle>
           </DialogHeader>
@@ -471,12 +471,12 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
                   onClick={() => setFormData(prev => ({ ...prev, type: 'email' }))}
                   className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
                     formData.type === 'email'
-                      ? 'border-blue-500 bg-blue-50'
+                      ? 'border-green-500 bg-green-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
                   <Mail className={`w-8 h-8 mx-auto mb-2 ${
-                    formData.type === 'email' ? 'text-blue-600' : 'text-gray-400'
+                    formData.type === 'email' ? 'text-green-600' : 'text-gray-400'
                   }`} />
                   <p className="font-medium">Email</p>
                   <p className="text-xs text-gray-500 mt-1">
@@ -567,8 +567,8 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
                       }}
                       className={`px-3 py-1 rounded-full text-sm transition-colors ${
                         formData.filters.status.includes(status)
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-white border border-gray-300 text-gray-700 hover:border-purple-300'
+                          ? 'bg-green-600 text-white'
+                          : 'bg-white border border-gray-300 text-gray-700 hover:border-green-300'
                       }`}
                     >
                       {status === 'customer' ? 'Clientes' :
@@ -601,8 +601,8 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
                         }}
                         className={`px-3 py-1 rounded-full text-sm transition-colors ${
                           formData.filters.tags.includes(tag)
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-white border border-gray-300 text-gray-700 hover:border-purple-300'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-white border border-gray-300 text-gray-700 hover:border-green-300'
                         }`}
                       >
                         {tag}
@@ -641,12 +641,12 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
               <div className="mt-4 p-3 bg-white rounded-lg border border-gray-200">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Destinatarios:</span>
-                  <span className="font-semibold text-purple-600">
+                  <span className="font-semibold text-green-600">
                     {filteredRecipients.length} contactos
                   </span>
                 </div>
                 {filteredRecipients.length === 0 && (
-                  <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
+                  <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" />
                     No hay contactos que coincidan con los filtros
                   </p>
@@ -679,7 +679,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
             <Button 
               onClick={handleCreateCampaign}
               disabled={isSaving || !formData.name || !formData.message_template || filteredRecipients.length === 0}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-green-600 hover:bg-green-700"
             >
               {isSaving ? (
                 <>
@@ -709,7 +709,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
                 </>
               ) : (
                 <>
-                  <Eye className="w-5 h-5 text-purple-600" />
+                  <Eye className="w-5 h-5 text-green-600" />
                   Vista Previa
                 </>
               )}
@@ -733,17 +733,17 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
 
               {selectedCampaign.status !== 'draft' && (
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 bg-blue-50 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-blue-600">{selectedCampaign.sent_count}</p>
-                    <p className="text-xs text-blue-600">Enviados</p>
+                  <div className="p-3 bg-green-50 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-green-600">{selectedCampaign.sent_count}</p>
+                    <p className="text-xs text-green-600">Enviados</p>
                   </div>
                   <div className="p-3 bg-green-50 rounded-lg text-center">
                     <p className="text-2xl font-bold text-green-600">{selectedCampaign.delivered_count}</p>
                     <p className="text-xs text-green-600">Entregados</p>
                   </div>
-                  <div className="p-3 bg-purple-50 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-purple-600">{selectedCampaign.read_count}</p>
-                    <p className="text-xs text-purple-600">Leídos</p>
+                  <div className="p-3 bg-green-50 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-green-600">{selectedCampaign.read_count}</p>
+                    <p className="text-xs text-green-600">Leídos</p>
                   </div>
                   <div className="p-3 bg-red-50 rounded-lg text-center">
                     <p className="text-2xl font-bold text-red-600">{selectedCampaign.failed_count}</p>
@@ -769,3 +769,4 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
     </div>
   )
 }
+

@@ -116,3 +116,4 @@ export function BotSection({ formData, updateField }: BotSectionProps) {
     </Card>
   )
 }
+

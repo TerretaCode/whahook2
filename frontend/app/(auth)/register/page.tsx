@@ -432,3 +432,4 @@ export default function RegisterPage() {
     </AuthCard>
   )
 }
+

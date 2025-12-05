@@ -122,3 +122,4 @@ function QRCodeDisplayComponent({ qrCode, size = 256, accountName = 'WhatsApp' }
 }
 
 export const QRCodeDisplay = memo(QRCodeDisplayComponent)
+

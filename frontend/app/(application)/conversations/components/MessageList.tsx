@@ -39,3 +39,4 @@ function MessageListComponent({ messages }: MessageListProps) {
 
 // Memoize to prevent re-renders when parent updates
 export const MessageList = memo(MessageListComponent)
+

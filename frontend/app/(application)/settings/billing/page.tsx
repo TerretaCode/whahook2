@@ -225,7 +225,7 @@ function BillingPageContent() {
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="p-6 border-b border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <Crown className="w-5 h-5 text-amber-500" />
+              <Crown className="w-5 h-5 text-green-500" />
               Your Current Subscription
             </h2>
           </div>
@@ -235,11 +235,11 @@ function BillingPageContent() {
                 <div className="flex items-center gap-2 mb-2">
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${
                     subscription.plan === 'enterprise' 
-                      ? 'bg-purple-100 text-purple-700'
+                      ? 'bg-green-100 text-green-700'
                       : subscription.plan === 'professional'
                       ? 'bg-green-100 text-green-700'
                       : subscription.plan === 'starter'
-                      ? 'bg-blue-100 text-blue-700'
+                      ? 'bg-green-100 text-green-700'
                       : 'bg-gray-100 text-gray-700'
                   }`}>
                     {subscription.plan === 'trial' ? 'Trial (7 days)' : 
@@ -266,7 +266,7 @@ function BillingPageContent() {
                 )}
                 
                 {subscription.cancel_at_period_end && (
-                  <p className="text-sm text-amber-600 flex items-center gap-1 mt-1">
+                  <p className="text-sm text-green-600 flex items-center gap-1 mt-1">
                     <AlertCircle className="w-4 h-4" />
                     Your subscription will not renew
                   </p>
@@ -333,3 +333,4 @@ export default function BillingPage() {
     </Suspense>
   )
 }
+

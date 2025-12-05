@@ -55,22 +55,22 @@ function VerifyEmailContent() {
         )}
 
         {/* Instructions */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
           <div className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-blue-900">
+            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-green-900">
               <p className="font-medium mb-1">Check your inbox</p>
-              <p className="text-blue-700">
+              <p className="text-green-700">
                 Click the verification link in the email we sent you to activate your account.
               </p>
             </div>
           </div>
 
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-blue-900">
+            <AlertCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-green-900">
               <p className="font-medium mb-1">Can&apos;t find the email?</p>
-              <p className="text-blue-700">
+              <p className="text-green-700">
                 Check your spam or junk folder. The email should arrive within a few minutes.
               </p>
             </div>
@@ -155,3 +155,4 @@ export default function VerifyEmailPage() {
     </Suspense>
   )
 }
+

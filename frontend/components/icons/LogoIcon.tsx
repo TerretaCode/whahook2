@@ -27,3 +27,4 @@ export function LogoIcon({ className, style }: LogoIconProps) {
     </svg>
   )
 }
+

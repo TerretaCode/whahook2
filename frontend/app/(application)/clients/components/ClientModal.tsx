@@ -199,3 +199,4 @@ function ClientModalComponent({ isOpen, onClose, onSave, client }: ClientModalPr
 }
 
 export const ClientModal = memo(ClientModalComponent)
+

@@ -142,25 +142,25 @@ export function ConversationConfigTab({ formData, updateField }: ConversationCon
           </div>
 
           <div className="space-y-2">
-            <div className="text-xs text-muted-foreground space-y-2 bg-blue-50 p-4 rounded-md border border-blue-200">
-              <p className="font-semibold text-blue-900">ℹ️ Cómo funciona el sistema automático:</p>
+            <div className="text-xs text-muted-foreground space-y-2 bg-green-50 p-4 rounded-md border border-green-200">
+              <p className="font-semibold text-green-900">ℹ️ Cómo funciona el sistema automático:</p>
               
               <div className="space-y-1 pl-2">
                 <p><strong>1. Incertidumbre de la IA:</strong></p>
-                <p className="pl-4 text-blue-800">• La IA está instruida para responder <code className="bg-blue-100 px-1 rounded">[FALLBACK]</code> cuando no tiene información</p>
-                <p className="pl-4 text-blue-800">• El sistema detecta esto automáticamente y envía tu mensaje de fallback personalizado</p>
+                <p className="pl-4 text-green-800">• La IA está instruida para responder <code className="bg-green-100 px-1 rounded">[FALLBACK]</code> cuando no tiene información</p>
+                <p className="pl-4 text-green-800">• El sistema detecta esto automáticamente y envía tu mensaje de fallback personalizado</p>
                 
                 <p className="pt-2"><strong>2. Solicitud de humano:</strong></p>
-                <p className="pl-4 text-blue-800">• Si el usuario pide hablar con alguien, se detecta automáticamente (sin palabras clave)</p>
-                <p className="pl-4 text-blue-800">• El sistema usa inteligencia artificial para interpretar la intención</p>
+                <p className="pl-4 text-green-800">• Si el usuario pide hablar con alguien, se detecta automáticamente (sin palabras clave)</p>
+                <p className="pl-4 text-green-800">• El sistema usa inteligencia artificial para interpretar la intención</p>
                 
                 <p className="pt-2"><strong>3. Acción automática:</strong></p>
-                <p className="pl-4 text-blue-800">• Pausa la IA inmediatamente</p>
-                <p className="pl-4 text-blue-800">• Envía notificación por email + campanita en el dashboard</p>
-                <p className="pl-4 text-blue-800">• Solo 1 mensaje de fallback, luego espera intervención manual</p>
+                <p className="pl-4 text-green-800">• Pausa la IA inmediatamente</p>
+                <p className="pl-4 text-green-800">• Envía notificación por email + campanita en el dashboard</p>
+                <p className="pl-4 text-green-800">• Solo 1 mensaje de fallback, luego espera intervención manual</p>
               </div>
               
-              <p className="pt-2 text-xs italic text-blue-700">
+              <p className="pt-2 text-xs italic text-green-700">
                 💡 El mensaje que se envía al usuario es el "Mensaje de Fallback" que configuraste en la sección de Prompt
               </p>
             </div>
@@ -170,3 +170,4 @@ export function ConversationConfigTab({ formData, updateField }: ConversationCon
     </Card>
   )
 }
+

@@ -84,3 +84,4 @@ function ChatInputComponent({ onSendMessage, disabled = false }: ChatInputProps)
 }
 
 export const ChatInput = memo(ChatInputComponent)
+

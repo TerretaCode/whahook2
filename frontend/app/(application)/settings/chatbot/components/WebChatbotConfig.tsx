@@ -666,7 +666,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
                             <Button 
                               variant="outline"
                               disabled={isLoading}
-                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50"
                             >
                               <TestTube className="w-4 h-4 mr-2" />
                               Probar Bot
@@ -694,3 +694,4 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
     </div>
   )
 }
+

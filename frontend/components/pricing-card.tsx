@@ -208,10 +208,11 @@ export function BillingToggle({ billingPeriod, onToggle }: BillingToggleProps) {
         }`}
       >
         Yearly
-        <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded font-semibold">
+        <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-semibold">
           Save 17%
         </span>
       </button>
     </div>
   )
 }
+

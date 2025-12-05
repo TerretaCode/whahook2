@@ -66,7 +66,7 @@ function ChatHeaderComponent({
           <span className={`text-xs px-1.5 py-0.5 rounded ${
             source === 'whatsapp' 
               ? 'bg-green-100 text-green-800' 
-              : 'bg-blue-100 text-blue-800'
+              : 'bg-green-100 text-green-800'
           }`}>
             {source === 'whatsapp' ? 'Phone' : 'Web'}
           </span>
@@ -80,7 +80,7 @@ function ChatHeaderComponent({
           onClick={handleToggle}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
             chatbotEnabled
-              ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+              ? 'bg-green-100 text-green-700 hover:bg-green-200'
               : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
           }`}
           title={chatbotEnabled ? 'Click to disable chatbot' : 'Click to enable chatbot'}
@@ -103,3 +103,4 @@ function ChatHeaderComponent({
 }
 
 export const ChatHeader = memo(ChatHeaderComponent)
+

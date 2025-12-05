@@ -140,7 +140,7 @@ export function FallbackStats() {
           {/* This Week */}
           <div className="space-y-1">
             <p className="text-sm text-gray-500">Esta Semana</p>
-            <p className="text-2xl font-bold text-blue-600">{stats.thisWeek}</p>
+            <p className="text-2xl font-bold text-green-600">{stats.thisWeek}</p>
             <div className="flex items-center gap-1">
               {trendIcon}
               <p className={`text-xs font-medium ${trendColor}`}>
@@ -209,9 +209,9 @@ export function FallbackStats() {
 
         {/* Insights */}
         {stats.total > 0 && (
-          <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <h4 className="text-sm font-semibold text-blue-900 mb-2">💡 Insights</h4>
-            <ul className="space-y-1 text-sm text-blue-800">
+          <div className="p-4 bg-green-50 rounded-lg border border-green-100">
+            <h4 className="text-sm font-semibold text-green-900 mb-2">💡 Insights</h4>
+            <ul className="space-y-1 text-sm text-green-800">
               {stats.uncertainty > stats.human_request && (
                 <li>• Considera mejorar el prompt o agregar más contexto al bot</li>
               )}
@@ -234,3 +234,4 @@ export function FallbackStats() {
     </Card>
   )
 }
+

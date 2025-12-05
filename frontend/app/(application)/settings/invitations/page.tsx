@@ -37,8 +37,8 @@ const ROLE_LABELS: Record<string, string> = {
 
 const ROLE_COLORS: Record<string, string> = {
   agent: 'bg-green-100 text-green-800',
-  messages: 'bg-blue-100 text-blue-800',
-  marketing: 'bg-purple-100 text-purple-800'
+  messages: 'bg-green-100 text-green-800',
+  marketing: 'bg-green-100 text-green-800'
 }
 
 const ROLE_DESCRIPTIONS: Record<string, string> = {
@@ -326,9 +326,9 @@ export default function InvitationsPage() {
       </div>
 
       {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-medium text-blue-900 mb-2">ℹ️ Sobre los roles</h3>
-        <ul className="text-sm text-blue-800 space-y-1">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <h3 className="font-medium text-green-900 mb-2">ℹ️ Sobre los roles</h3>
+        <ul className="text-sm text-green-800 space-y-1">
           <li><strong>Agente:</strong> Puede ver el dashboard, gestionar mensajes, clientes y campañas.</li>
           <li><strong>Mensajes:</strong> Puede ver el dashboard y gestionar mensajes de WhatsApp y Web.</li>
           <li><strong>Marketing:</strong> Puede ver el dashboard, clientes y campañas de marketing.</li>
@@ -337,3 +337,4 @@ export default function InvitationsPage() {
     </div>
   )
 }
+

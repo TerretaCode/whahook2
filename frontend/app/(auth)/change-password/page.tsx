@@ -373,3 +373,4 @@ function ChangePasswordContent() {
 export default function ChangePasswordPage() {
   return <ChangePasswordContent />
 }
+

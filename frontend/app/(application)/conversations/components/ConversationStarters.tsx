@@ -28,9 +28,9 @@ function ConversationStartersComponent({ starters, onSelect }: ConversationStart
           <button
             key={index}
             onClick={() => handleClick(starter)}
-            className="text-left p-3 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group"
+            className="text-left p-3 rounded-lg border border-gray-200 hover:border-green-500 hover:bg-green-50 transition-all duration-200 group"
           >
-            <p className="text-sm text-gray-700 group-hover:text-blue-700">
+            <p className="text-sm text-gray-700 group-hover:text-green-700">
               {starter}
             </p>
           </button>
@@ -41,3 +41,4 @@ function ConversationStartersComponent({ starters, onSelect }: ConversationStart
 }
 
 export const ConversationStarters = memo(ConversationStartersComponent)
+

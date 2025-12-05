@@ -25,7 +25,7 @@ function QuickRepliesComponent({ replies, onSelect }: QuickRepliesProps) {
           <button
             key={index}
             onClick={() => handleClick(reply)}
-            className="flex-shrink-0 px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-full hover:bg-blue-50 hover:border-blue-500 hover:text-blue-700 transition-all duration-200"
+            className="flex-shrink-0 px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-full hover:bg-green-50 hover:border-green-500 hover:text-green-700 transition-all duration-200"
           >
             {reply}
           </button>
@@ -36,3 +36,4 @@ function QuickRepliesComponent({ replies, onSelect }: QuickRepliesProps) {
 }
 
 export const QuickReplies = memo(QuickRepliesComponent)
+

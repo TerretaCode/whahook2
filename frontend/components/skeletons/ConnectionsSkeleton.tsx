@@ -39,7 +39,7 @@ export function WhatsAppSkeleton() {
       </div>
 
       {/* Info box skeleton */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
         <Skeleton className="h-5 w-48 mb-2" />
         <div className="space-y-1">
           <Skeleton className="h-4 w-full" />
@@ -189,3 +189,4 @@ export function ConnectionsPageSkeleton() {
     </div>
   )
 }
+

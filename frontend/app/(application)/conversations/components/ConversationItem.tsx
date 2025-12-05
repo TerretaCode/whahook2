@@ -120,3 +120,4 @@ export const ConversationItem = memo(ConversationItemComponent, (prev, next) => 
     prev.isSelected === next.isSelected
   )
 })
+

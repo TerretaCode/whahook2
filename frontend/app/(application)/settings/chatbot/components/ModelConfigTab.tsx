@@ -126,3 +126,4 @@ export function ModelConfigTab({ formData, updateField }: ModelConfigTabProps) {
     </Card>
   )
 }
+

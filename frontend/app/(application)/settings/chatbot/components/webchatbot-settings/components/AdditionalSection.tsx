@@ -62,7 +62,7 @@ export function AdditionalSection({
             
             <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
               <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">💡 Ideas de qué poner aquí:</p>
-              <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1 ml-4">
+              <ul className="text-sm text-green-700 dark:text-green-300 space-y-1 ml-4">
                 <li>• <strong>Promociones:</strong> "Ahora mismo tenemos 20% de descuento con el código VERANO20"</li>
                 <li>• <strong>Avisos temporales:</strong> "Esta semana estamos de vacaciones, los pedidos se envían el lunes"</li>
                 <li>• <strong>Reglas especiales:</strong> "Los pedidos de más de 100€ tienen regalo sorpresa"</li>
@@ -76,3 +76,4 @@ export function AdditionalSection({
     </Collapsible>
   )
 }
+

@@ -376,8 +376,8 @@ export default function ClientsPage() {
                   {clients.filter(c => c.status === 'customer').length}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <UserCheck className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <UserCheck className="w-6 h-6 text-green-600" />
               </div>
             </div>
           </div>
@@ -442,3 +442,4 @@ export default function ClientsPage() {
     </div>
   )
 }
+

@@ -128,7 +128,7 @@ export function Header() {
                   </NavLink>
                 )}
                 {isAdmin && (
-                  <Link href="/admin/users" className="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                  <Link href="/admin/users" className="flex items-center gap-2 text-green-600 hover:text-green-700 font-medium transition-colors">
                     <Shield className="w-4 h-4" />
                     Admin
                   </Link>
@@ -181,7 +181,7 @@ export function Header() {
                 <>
                   {isAdmin && (
                     <Link href="/admin/users">
-                      <Button variant="ghost" size="icon" className="text-purple-600">
+                      <Button variant="ghost" size="icon" className="text-green-600">
                         <Shield className="w-5 h-5" />
                       </Button>
                     </Link>
@@ -312,3 +312,4 @@ const NavLink = memo(function NavLink({ href, children }: { href: string; childr
     </Link>
   )
 })
+

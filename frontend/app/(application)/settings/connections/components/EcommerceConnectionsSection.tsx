@@ -400,24 +400,24 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
 
               {/* Help box with detailed instructions */}
               {formData.store_url && (
-                <div className="ml-8 p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-4">
+                <div className="ml-8 p-4 bg-green-50 border border-green-200 rounded-lg space-y-4">
                   <div className="flex items-start gap-3">
-                    <Key className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <Key className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 space-y-3">
-                      <p className="text-sm font-medium text-blue-900">
+                      <p className="text-sm font-medium text-green-900">
                         How to get your {platformConfig[formData.platform].name} API credentials:
                       </p>
                       
                       {/* Step 1: Open settings */}
                       <div className="flex items-start gap-2">
-                        <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center flex-shrink-0">1</span>
+                        <span className="w-5 h-5 rounded-full bg-green-600 text-white text-xs flex items-center justify-center flex-shrink-0">1</span>
                         <div>
-                          <p className="text-sm text-blue-800">Open your API settings:</p>
+                          <p className="text-sm text-green-800">Open your API settings:</p>
                           <Button
                             type="button"
                             size="sm"
                             variant="outline"
-                            className="mt-1 bg-white border-blue-300 text-blue-700 hover:bg-blue-100"
+                            className="mt-1 bg-white border-green-300 text-green-700 hover:bg-green-100"
                             onClick={() => window.open(getApiUrl(formData.store_url, formData.platform), '_blank')}
                           >
                             <ExternalLink className="w-3 h-3 mr-2" />
@@ -428,91 +428,91 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                       
                       {/* Step 2: Fill form - Platform specific */}
                       <div className="flex items-start gap-2">
-                        <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center flex-shrink-0">2</span>
+                        <span className="w-5 h-5 rounded-full bg-green-600 text-white text-xs flex items-center justify-center flex-shrink-0">2</span>
                         <div className="flex-1">
-                          <p className="text-sm text-blue-800 mb-2">Click "Add key" and fill in:</p>
+                          <p className="text-sm text-green-800 mb-2">Click "Add key" and fill in:</p>
                           
                           {formData.platform === 'woocommerce' && (
-                            <div className="bg-white border border-blue-200 rounded-lg p-3 space-y-2 text-sm">
+                            <div className="bg-white border border-green-200 rounded-lg p-3 space-y-2 text-sm">
                               <div className="flex items-center gap-2">
-                                <span className="w-24 text-blue-700 font-medium">Description:</span>
+                                <span className="w-24 text-green-700 font-medium">Description:</span>
                                 <span className="text-gray-700">Whahook Sync</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="w-24 text-blue-700 font-medium">User:</span>
+                                <span className="w-24 text-green-700 font-medium">User:</span>
                                 <span className="text-gray-700">Select an admin user</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="w-24 text-blue-700 font-medium">Permissions:</span>
-                                <code className="bg-blue-100 px-2 py-0.5 rounded text-xs">Read</code>
+                                <span className="w-24 text-green-700 font-medium">Permissions:</span>
+                                <code className="bg-green-100 px-2 py-0.5 rounded text-xs">Read</code>
                               </div>
                             </div>
                           )}
                           
                           {formData.platform === 'shopify' && (
-                            <div className="bg-white border border-blue-200 rounded-lg p-3 space-y-2 text-sm">
-                              <p className="text-xs text-blue-600 mb-2">Click "Create an app" → then "Configure Admin API scopes"</p>
+                            <div className="bg-white border border-green-200 rounded-lg p-3 space-y-2 text-sm">
+                              <p className="text-xs text-green-600 mb-2">Click "Create an app" → then "Configure Admin API scopes"</p>
                               <div className="flex items-center gap-2">
-                                <span className="w-28 text-blue-700 font-medium">App name:</span>
+                                <span className="w-28 text-green-700 font-medium">App name:</span>
                                 <span className="text-gray-700">Whahook Sync</span>
                               </div>
                               <div className="flex items-start gap-2">
-                                <span className="w-28 text-blue-700 font-medium flex-shrink-0">API scopes:</span>
+                                <span className="w-28 text-green-700 font-medium flex-shrink-0">API scopes:</span>
                                 <div className="text-gray-700 text-xs space-y-1">
-                                  <div>✓ <code className="bg-blue-100 px-1 rounded">read_orders</code></div>
-                                  <div>✓ <code className="bg-blue-100 px-1 rounded">read_products</code></div>
+                                  <div>✓ <code className="bg-green-100 px-1 rounded">read_orders</code></div>
+                                  <div>✓ <code className="bg-green-100 px-1 rounded">read_products</code></div>
                                 </div>
                               </div>
-                              <p className="text-xs text-blue-600 mt-2">After saving, click "Install app" → then "Reveal token once"</p>
+                              <p className="text-xs text-green-600 mt-2">After saving, click "Install app" → then "Reveal token once"</p>
                             </div>
                           )}
                           
                           {formData.platform === 'prestashop' && (
-                            <div className="bg-white border border-blue-200 rounded-lg p-3 space-y-2 text-sm">
-                              <p className="text-xs text-blue-600 mb-2">First enable Webservice: Configuration → General → Enable</p>
+                            <div className="bg-white border border-green-200 rounded-lg p-3 space-y-2 text-sm">
+                              <p className="text-xs text-green-600 mb-2">First enable Webservice: Configuration → General → Enable</p>
                               <div className="flex items-center gap-2">
-                                <span className="w-28 text-blue-700 font-medium">Key:</span>
+                                <span className="w-28 text-green-700 font-medium">Key:</span>
                                 <span className="text-gray-700">(click Generate to create)</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="w-28 text-blue-700 font-medium">Description:</span>
+                                <span className="w-28 text-green-700 font-medium">Description:</span>
                                 <span className="text-gray-700">Whahook Sync</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="w-28 text-blue-700 font-medium">Status:</span>
+                                <span className="w-28 text-green-700 font-medium">Status:</span>
                                 <code className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">Yes</code>
                               </div>
                               <div className="flex items-start gap-2">
-                                <span className="w-28 text-blue-700 font-medium flex-shrink-0">Permissions:</span>
+                                <span className="w-28 text-green-700 font-medium flex-shrink-0">Permissions:</span>
                                 <div className="text-gray-700 text-xs space-y-1">
-                                  <div>✓ <code className="bg-blue-100 px-1 rounded">orders</code> → View (GET)</div>
-                                  <div>✓ <code className="bg-blue-100 px-1 rounded">products</code> → View (GET)</div>
-                                  <div>✓ <code className="bg-blue-100 px-1 rounded">customers</code> → View (GET)</div>
+                                  <div>✓ <code className="bg-green-100 px-1 rounded">orders</code> → View (GET)</div>
+                                  <div>✓ <code className="bg-green-100 px-1 rounded">products</code> → View (GET)</div>
+                                  <div>✓ <code className="bg-green-100 px-1 rounded">customers</code> → View (GET)</div>
                                 </div>
                               </div>
                             </div>
                           )}
                           
                           {formData.platform === 'magento' && (
-                            <div className="bg-white border border-blue-200 rounded-lg p-3 space-y-2 text-sm">
-                              <p className="text-xs text-blue-600 mb-2">Go to System → Extensions → Integrations → Add New</p>
+                            <div className="bg-white border border-green-200 rounded-lg p-3 space-y-2 text-sm">
+                              <p className="text-xs text-green-600 mb-2">Go to System → Extensions → Integrations → Add New</p>
                               <div className="flex items-center gap-2">
-                                <span className="w-28 text-blue-700 font-medium">Name:</span>
+                                <span className="w-28 text-green-700 font-medium">Name:</span>
                                 <span className="text-gray-700">Whahook Sync</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="w-28 text-blue-700 font-medium">Email:</span>
+                                <span className="w-28 text-green-700 font-medium">Email:</span>
                                 <span className="text-gray-700">your@email.com</span>
                               </div>
                               <div className="flex items-start gap-2">
-                                <span className="w-28 text-blue-700 font-medium flex-shrink-0">API tab:</span>
+                                <span className="w-28 text-green-700 font-medium flex-shrink-0">API tab:</span>
                                 <div className="text-gray-700 text-xs space-y-1">
-                                  <div>Resource Access: <code className="bg-blue-100 px-1 rounded">Custom</code></div>
-                                  <div>✓ <code className="bg-blue-100 px-1 rounded">Sales</code> → Orders (Read)</div>
-                                  <div>✓ <code className="bg-blue-100 px-1 rounded">Catalog</code> → Products (Read)</div>
+                                  <div>Resource Access: <code className="bg-green-100 px-1 rounded">Custom</code></div>
+                                  <div>✓ <code className="bg-green-100 px-1 rounded">Sales</code> → Orders (Read)</div>
+                                  <div>✓ <code className="bg-green-100 px-1 rounded">Catalog</code> → Products (Read)</div>
                                 </div>
                               </div>
-                              <p className="text-xs text-blue-600 mt-2">After saving, click "Activate" → copy the Access Token</p>
+                              <p className="text-xs text-green-600 mt-2">After saving, click "Activate" → copy the Access Token</p>
                             </div>
                           )}
                         </div>
@@ -520,8 +520,8 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                       
                       {/* Step 3: Generate and copy */}
                       <div className="flex items-start gap-2">
-                        <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center flex-shrink-0">3</span>
-                        <p className="text-sm text-blue-800">
+                        <span className="w-5 h-5 rounded-full bg-green-600 text-white text-xs flex items-center justify-center flex-shrink-0">3</span>
+                        <p className="text-sm text-green-800">
                           Click "Generate API key" and copy the keys below 👇
                         </p>
                       </div>
@@ -632,14 +632,14 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
             </div>
 
             {/* Info about auto-sync */}
-            <div className="ml-0 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+            <div className="ml-0 p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-start gap-3">
-                <Webhook className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                <Webhook className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-purple-900">
+                  <p className="text-sm font-medium text-green-900">
                     🚀 Auto-sync available after connecting
                   </p>
-                  <p className="text-sm text-purple-800 mt-1">
+                  <p className="text-sm text-green-800 mt-1">
                     Once connected, you'll get a unique webhook URL to set up automatic sync for orders and products.
                   </p>
                 </div>
@@ -714,7 +714,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                     <div className="flex gap-2">
                       <Button
                         size="sm"
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        className="bg-green-600 hover:bg-green-700 text-white"
                         onClick={() => handleSync(connection.id)}
                         disabled={syncing === connection.id}
                       >
@@ -755,11 +755,11 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                 {isExpanded && (
                   <div className="border-t bg-gray-50 p-4 space-y-4">
                     <div className="flex items-center gap-2 text-lg font-medium text-gray-900">
-                      <Webhook className="w-5 h-5 text-purple-600" />
+                      <Webhook className="w-5 h-5 text-green-600" />
                       Auto-sync (Webhook Setup) - {config.name}
                     </div>
                     
-                    <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg space-y-4">
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg space-y-4">
                       {/* Note for platforms requiring extensions */}
                       {config.webhookNote && (
                         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -771,9 +771,9 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                       
                       {/* Step 1: Open settings */}
                       <div className="flex items-start gap-3">
-                        <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">1</span>
+                        <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center flex-shrink-0">1</span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-purple-900">{config.webhookInstructions}</p>
+                          <p className="text-sm font-medium text-green-900">{config.webhookInstructions}</p>
                           <Button
                             size="sm"
                             variant="outline"
@@ -788,15 +788,15 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
 
                       {/* Step 2: Create webhooks - one card per topic */}
                       <div className="flex items-start gap-3">
-                        <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">2</span>
+                        <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center flex-shrink-0">2</span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-purple-900 mb-3">Create these webhooks (one per event):</p>
+                          <p className="text-sm font-medium text-green-900 mb-3">Create these webhooks (one per event):</p>
                           
                           <div className="space-y-3">
                             {config.webhookTopics.map((topic, idx) => (
-                              <div key={idx} className="bg-white border border-purple-200 rounded-lg p-3">
-                                <div className="flex items-center gap-2 mb-2 pb-2 border-b border-purple-100">
-                                  <span className="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded">
+                              <div key={idx} className="bg-white border border-green-200 rounded-lg p-3">
+                                <div className="flex items-center gap-2 mb-2 pb-2 border-b border-green-100">
+                                  <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded">
                                     Webhook {idx + 1}
                                   </span>
                                   <span className="text-sm font-medium text-gray-900">{topic.description}</span>
@@ -805,25 +805,25 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                                 <div className="space-y-2 text-sm">
                                   {/* Name */}
                                   <div className="flex items-center gap-2">
-                                    <span className="w-28 text-purple-700 font-medium">Name:</span>
+                                    <span className="w-28 text-green-700 font-medium">Name:</span>
                                     <span className="text-gray-700">{topic.topic}</span>
                                   </div>
                                   
                                   {/* Status */}
                                   <div className="flex items-center gap-2">
-                                    <span className="w-28 text-purple-700 font-medium">Status:</span>
+                                    <span className="w-28 text-green-700 font-medium">Status:</span>
                                     <code className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">Active</code>
                                   </div>
                                   
                                   {/* Topic */}
                                   <div className="flex items-center gap-2">
-                                    <span className="w-28 text-purple-700 font-medium">Topic:</span>
-                                    <code className="bg-purple-100 px-2 py-0.5 rounded text-xs">{topic.topic}</code>
+                                    <span className="w-28 text-green-700 font-medium">Topic:</span>
+                                    <code className="bg-green-100 px-2 py-0.5 rounded text-xs">{topic.topic}</code>
                                   </div>
                                   
                                   {/* URL */}
                                   <div className="flex items-start gap-2">
-                                    <span className="w-28 text-purple-700 font-medium flex-shrink-0">{config.urlLabel}:</span>
+                                    <span className="w-28 text-green-700 font-medium flex-shrink-0">{config.urlLabel}:</span>
                                     <div className="flex-1">
                                       <div className="flex items-center gap-2">
                                         <Input 
@@ -846,8 +846,8 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                                   {/* Extra fields */}
                                   {config.extraFields?.map((field, i) => (
                                     <div key={i} className="flex items-center gap-2">
-                                      <span className="w-28 text-purple-700 font-medium">{field.label}:</span>
-                                      <code className="bg-purple-100 px-2 py-0.5 rounded text-xs">{field.value}</code>
+                                      <span className="w-28 text-green-700 font-medium">{field.label}:</span>
+                                      <code className="bg-green-100 px-2 py-0.5 rounded text-xs">{field.value}</code>
                                     </div>
                                   ))}
                                 </div>
@@ -855,7 +855,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                             ))}
                           </div>
                           
-                          <p className="text-xs text-purple-600 mt-2 italic">
+                          <p className="text-xs text-green-600 mt-2 italic">
                             Tip: Start with just "Order created" if you want to test first.
                           </p>
                         </div>
@@ -863,9 +863,9 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
 
                       {/* Step 3: Complete setup */}
                       <div className="flex items-start gap-3">
-                        <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-sm flex items-center justify-center flex-shrink-0">3</span>
+                        <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center flex-shrink-0">3</span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-purple-900">Save webhooks in your store, then click below:</p>
+                          <p className="text-sm font-medium text-green-900">Save webhooks in your store, then click below:</p>
                           <Button
                             size="sm"
                             className="mt-2 bg-green-600 hover:bg-green-700"
@@ -874,7 +874,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                             <Check className="h-4 w-4 mr-2" />
                             Complete Setup & Sync Now
                           </Button>
-                          <p className="text-xs text-purple-600 mt-2">
+                          <p className="text-xs text-green-600 mt-2">
                             This will do an initial sync. After that, new orders and products will sync automatically.
                           </p>
                         </div>
@@ -890,3 +890,4 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
     </div>
   )
 }
+

@@ -30,3 +30,4 @@ export function BrandedSpinner({ className, size = "md" }: BrandedSpinnerProps) 
     />
   )
 }
+

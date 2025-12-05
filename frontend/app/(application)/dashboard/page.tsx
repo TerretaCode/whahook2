@@ -274,10 +274,10 @@ export default function DashboardPage() {
           {/* Total Conversations - Only if can view messages */}
           {canViewMessages && (
           <Link href="/conversations" className="block">
-            <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-md hover:border-blue-200 transition-all h-full">
+            <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-md hover:border-green-200 transition-all h-full">
               <div className="flex items-center justify-between mb-3">
-                <div className="p-2.5 bg-blue-100 rounded-lg">
-                  <MessageSquare className="w-5 h-5 text-blue-600" />
+                <div className="p-2.5 bg-green-100 rounded-lg">
+                  <MessageSquare className="w-5 h-5 text-green-600" />
                 </div>
               </div>
               <p className={`text-3xl font-bold text-gray-900 transition-opacity duration-200 ${isInitialLoad ? 'opacity-50' : 'opacity-100'}`}>
@@ -299,10 +299,10 @@ export default function DashboardPage() {
           {/* Clients - Only if can view clients */}
           {canViewClients && (
           <Link href="/clients" className="block">
-            <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-md hover:border-purple-200 transition-all h-full">
+            <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-md hover:border-green-200 transition-all h-full">
               <div className="flex items-center justify-between mb-3">
-                <div className="p-2.5 bg-purple-100 rounded-lg">
-                  <Users className="w-5 h-5 text-purple-600" />
+                <div className="p-2.5 bg-green-100 rounded-lg">
+                  <Users className="w-5 h-5 text-green-600" />
                 </div>
               </div>
               <p className={`text-3xl font-bold text-gray-900 transition-opacity duration-200 ${isInitialLoad ? 'opacity-50' : 'opacity-100'}`}>
@@ -337,8 +337,8 @@ export default function DashboardPage() {
           <Link href="/settings/connections" className="block">
             <div className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-sm transition-all">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Globe className="w-4 h-4 text-blue-600" />
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Globe className="w-4 h-4 text-green-600" />
                 </div>
                 <div>
                   <p className="text-xl font-bold text-gray-900">{stats.webWidgets}</p>
@@ -352,8 +352,8 @@ export default function DashboardPage() {
           <Link href="/settings/chatbot" className="block">
             <div className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-sm transition-all">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-amber-100 rounded-lg">
-                  <Bot className="w-4 h-4 text-amber-600" />
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Bot className="w-4 h-4 text-green-600" />
                 </div>
                 <div>
                   <p className="text-xl font-bold text-gray-900">{stats.whatsappAiActive + stats.webAiActive}</p>
@@ -385,7 +385,7 @@ export default function DashboardPage() {
         {/* Quick Actions - Show based on permissions */}
         <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6">
           <h2 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Zap className="w-4 h-4 text-amber-500" />
+            <Zap className="w-4 h-4 text-green-500" />
             Acciones rápidas
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -550,3 +550,4 @@ export default function DashboardPage() {
     </div>
   )
 }
+

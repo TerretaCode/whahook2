@@ -372,8 +372,8 @@ export default function AgencyBrandingPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-purple-100 rounded-lg">
-            <Palette className="w-6 h-6 text-purple-600" />
+          <div className="p-2 bg-green-100 rounded-lg">
+            <Palette className="w-6 h-6 text-green-600" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Branding de Agencia</h1>
@@ -401,21 +401,21 @@ export default function AgencyBrandingPage() {
 
       {/* Enterprise Required Banner */}
       {!isEnterprise && (
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-xl p-6">
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-purple-100 rounded-full">
-              <Crown className="w-6 h-6 text-purple-600" />
+            <div className="p-3 bg-green-100 rounded-full">
+              <Crown className="w-6 h-6 text-green-600" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-purple-900 mb-1">
+              <h3 className="text-lg font-semibold text-green-900 mb-1">
                 Plan Enterprise requerido
               </h3>
-              <p className="text-purple-700 mb-4">
+              <p className="text-green-700 mb-4">
                 El branding personalizado está disponible exclusivamente para el plan Enterprise.
                 Personaliza tu logo, colores y elimina la marca "Powered by Whahook".
               </p>
               <Link href="/settings/billing">
-                <Button className="bg-purple-600 hover:bg-purple-700">
+                <Button className="bg-green-600 hover:bg-green-700">
                   <Crown className="w-4 h-4 mr-2" />
                   Actualizar a Enterprise
                 </Button>
@@ -626,17 +626,17 @@ export default function AgencyBrandingPage() {
           {customDomain ? (
             <div className="space-y-4">
               {/* Current domain status */}
-              <div className={`p-4 rounded-lg border ${domainVerified ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+              <div className={`p-4 rounded-lg border ${domainVerified ? 'bg-green-50 border-green-200' : 'bg-green-50 border-green-200'}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {domainVerified ? (
                       <CheckCircle2 className="w-5 h-5 text-green-600" />
                     ) : (
-                      <AlertCircle className="w-5 h-5 text-amber-600" />
+                      <AlertCircle className="w-5 h-5 text-green-600" />
                     )}
                     <div>
                       <p className="font-medium text-gray-900">{customDomain}</p>
-                      <p className={`text-sm ${domainVerified ? 'text-green-600' : 'text-amber-600'}`}>
+                      <p className={`text-sm ${domainVerified ? 'text-green-600' : 'text-green-600'}`}>
                         {domainVerified ? 'Dominio activo y verificado' : 'Pendiente de verificación DNS'}
                       </p>
                     </div>
@@ -924,12 +924,12 @@ export default function AgencyBrandingPage() {
               </div>
 
               {/* Help */}
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-4">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
                 <div className="flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
-                  <div className="text-sm text-amber-800">
+                  <AlertCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div className="text-sm text-green-800">
                     <p className="font-medium mb-1">Proveedores SMTP populares:</p>
-                    <ul className="space-y-1 text-amber-700">
+                    <ul className="space-y-1 text-green-700">
                       <li>• <strong>Gmail:</strong> smtp.gmail.com, puerto 587 (requiere contraseña de aplicación)</li>
                       <li>• <strong>Outlook:</strong> smtp.office365.com, puerto 587</li>
                       <li>• <strong>SendGrid:</strong> smtp.sendgrid.net, puerto 587</li>
@@ -952,12 +952,12 @@ export default function AgencyBrandingPage() {
         </div>
 
       {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+          <AlertCircle className="w-5 h-5 text-green-600 mt-0.5" />
           <div>
-            <h3 className="font-medium text-blue-900 mb-1">Sobre el branding</h3>
-            <ul className="text-sm text-blue-800 space-y-1">
+            <h3 className="font-medium text-green-900 mb-1">Sobre el branding</h3>
+            <ul className="text-sm text-green-800 space-y-1">
               <li>• Este branding se aplica a todos tus workspaces por defecto</li>
               <li>• Puedes personalizar el branding de cada workspace individualmente</li>
               <li>• Si un workspace no tiene branding propio, usará este branding de agencia</li>
@@ -968,3 +968,4 @@ export default function AgencyBrandingPage() {
     </div>
   )
 }
+

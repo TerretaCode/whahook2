@@ -34,7 +34,7 @@ interface ConnectionLinksSectionProps {
 
 const STATUS_CONFIG: Record<string, { icon: any; color: string; label: string }> = {
   pending: { icon: Clock, color: 'text-yellow-600 bg-yellow-100', label: 'Waiting' },
-  connecting: { icon: QrCode, color: 'text-blue-600 bg-blue-100', label: 'Connecting' },
+  connecting: { icon: QrCode, color: 'text-green-600 bg-green-100', label: 'Connecting' },
   connected: { icon: CheckCircle2, color: 'text-green-600 bg-green-100', label: 'Connected' },
   expired: { icon: XCircle, color: 'text-gray-600 bg-gray-100', label: 'Expired' },
   failed: { icon: XCircle, color: 'text-red-600 bg-red-100', label: 'Failed' }
@@ -288,3 +288,4 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
     </div>
   )
 }
+

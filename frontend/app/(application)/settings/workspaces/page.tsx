@@ -230,13 +230,13 @@ export default function WorkspacesPage() {
 
       {/* Plan Limit Warning */}
       {data && !data.limits.canCreate && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-          <Crown className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
+          <Crown className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-amber-800">
+            <p className="text-sm font-medium text-green-800">
               Workspace limit reached
             </p>
-            <p className="text-sm text-amber-700 mt-1">
+            <p className="text-sm text-green-700 mt-1">
               Your {data.plan} plan allows {data.limits.max} workspace{data.limits.max > 1 ? 's' : ''}.{' '}
               <Link href="/settings/billing" className="underline font-medium">
                 Upgrade your plan
@@ -521,8 +521,8 @@ export default function WorkspacesPage() {
               {expandedId === workspace.id && (
                 <div className="border-t border-gray-200 bg-gray-50 p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Users className="w-5 h-5 text-blue-600" />
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <Users className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">Miembros e Invitaciones</h3>
@@ -540,10 +540,10 @@ export default function WorkspacesPage() {
       </div>
 
       {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-blue-800">
+          <AlertCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-green-800">
             <p className="font-medium mb-1">About Workspaces</p>
             <p>
               Each workspace represents a separate business or client. It includes its own WhatsApp connection, 
@@ -560,3 +560,4 @@ export default function WorkspacesPage() {
     </div>
   )
 }
+

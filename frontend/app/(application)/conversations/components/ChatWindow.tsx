@@ -459,3 +459,4 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     </div>
   )
 }
+

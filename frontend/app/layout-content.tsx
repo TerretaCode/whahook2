@@ -100,3 +100,4 @@ export function LayoutContent({ children, branding, isCustomDomain }: LayoutCont
     </ThemeProvider>
   );
 }
+

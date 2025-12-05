@@ -156,8 +156,8 @@ export default function ForgotPasswordPage() {
         </div>
 
         {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <p className="text-sm text-green-800">
             <strong>Note:</strong> If an account exists with this email, you'll receive password reset instructions. For security reasons, we don't reveal whether an account exists.
           </p>
         </div>
@@ -192,3 +192,4 @@ export default function ForgotPasswordPage() {
     </AuthCard>
   )
 }
+

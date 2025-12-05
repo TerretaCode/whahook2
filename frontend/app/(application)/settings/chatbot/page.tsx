@@ -68,16 +68,16 @@ function ChatbotSettingsContent() {
             Configure AI chatbot settings for your workspace
           </p>
         </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-amber-800">No workspaces found</p>
-              <p className="text-sm text-amber-700 mt-1">
+              <p className="text-sm font-medium text-green-800">No workspaces found</p>
+              <p className="text-sm text-green-700 mt-1">
                 Create a workspace first to configure chatbot settings.
               </p>
               <Link href="/settings/workspaces">
-                <Button size="sm" className="mt-3 bg-amber-600 hover:bg-amber-700">
+                <Button size="sm" className="mt-3 bg-green-600 hover:bg-green-700">
                   <Plus className="w-4 h-4 mr-2" />
                   Create Workspace
                 </Button>
@@ -179,16 +179,16 @@ function ChatbotSettingsContent() {
                 } : undefined}
               />
             ) : (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
-                <Smartphone className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-amber-900 mb-2">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+                <Smartphone className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-green-900 mb-2">
                   No WhatsApp Connection
                 </h3>
-                <p className="text-amber-700 mb-4">
+                <p className="text-green-700 mb-4">
                   Connect a WhatsApp account to this workspace first to configure the chatbot.
                 </p>
                 <Link href={`/settings/connections?workspace=${selectedWorkspace.id}`}>
-                  <Button className="bg-amber-600 hover:bg-amber-700">
+                  <Button className="bg-green-600 hover:bg-green-700">
                     <Smartphone className="w-4 h-4 mr-2" />
                     Connect WhatsApp
                   </Button>
@@ -208,16 +208,16 @@ function ChatbotSettingsContent() {
                 } : undefined}
               />
             ) : (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
-                <Globe className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-amber-900 mb-2">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+                <Globe className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-green-900 mb-2">
                   No Web Widget
                 </h3>
-                <p className="text-amber-700 mb-4">
+                <p className="text-green-700 mb-4">
                   Create a Web Widget for this workspace first to configure the chatbot.
                 </p>
                 <Link href={`/settings/connections?workspace=${selectedWorkspace.id}&tab=web`}>
-                  <Button className="bg-amber-600 hover:bg-amber-700">
+                  <Button className="bg-green-600 hover:bg-green-700">
                     <Globe className="w-4 h-4 mr-2" />
                     Create Web Widget
                   </Button>
@@ -242,10 +242,10 @@ function ChatbotSettingsContent() {
       )}
 
       {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-blue-800">
+          <AlertCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-green-800">
             <p className="font-medium mb-1">Workspace-specific settings</p>
             <p>
               Chatbot configuration is unique to each workspace. Changes here only affect
@@ -265,3 +265,4 @@ export default function ChatbotSettingsPage() {
     </Suspense>
   )
 }
+

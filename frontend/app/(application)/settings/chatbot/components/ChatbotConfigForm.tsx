@@ -154,3 +154,4 @@ function ChatbotConfigFormComponent(props: ChatbotConfigFormProps) {
 }
 
 export const ChatbotConfigForm = memo(ChatbotConfigFormComponent)
+

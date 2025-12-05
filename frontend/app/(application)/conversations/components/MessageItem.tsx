@@ -26,7 +26,7 @@ function MessageItemComponent({ message }: MessageItemProps) {
     if (!message.isOwn) return null
 
     if (message.status === 'read') {
-      return <CheckCheck className="w-4 h-4 text-blue-500" />
+      return <CheckCheck className="w-4 h-4 text-green-500" />
     } else if (message.status === 'delivered') {
       return <CheckCheck className="w-4 h-4 text-gray-500" />
     } else {
@@ -66,3 +66,4 @@ export const MessageItem = memo(MessageItemComponent, (prevProps, nextProps) => 
     prevProps.message.status === nextProps.message.status
   )
 })
+
