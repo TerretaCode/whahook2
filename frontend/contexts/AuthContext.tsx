@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { AuthStorage } from '@/lib/auth-storage'
 import { ApiClient } from '@/lib/api-client'
@@ -131,7 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const login = async (email: string, password: string, rememberMe: boolean = false): Promise<boolean> => {
+  const login = useCallback(async (email: string, password: string, rememberMe: boolean = false): Promise<boolean> => {
     try {
       const response = await ApiClient.login({ email, password })
       
@@ -158,9 +158,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Login error:', error)
       return false
     }
-  }
+  }, [])
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await ApiClient.logout()
     } catch (error) {
@@ -170,9 +170,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       router.push('/login')
     }
-  }
+  }, [router])
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     try {
       const response = await ApiClient.getCurrentUser()
       
@@ -192,19 +192,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Refresh user error:', error)
     }
-  }
+  }, [])
+
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    user,
+    isLoading,
+    isAuthenticated,
+    login,
+    logout,
+    refreshUser,
+  }), [user, isLoading, isAuthenticated, login, logout, refreshUser])
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        isAuthenticated,
-        login,
-        logout,
-        refreshUser,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   )

@@ -6,6 +6,17 @@
 import { AuthStorage } from './auth-storage'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+const DEFAULT_TIMEOUT = 30000 // 30 seconds
+
+// Helper to create fetch with timeout
+function fetchWithTimeout(url: string, options: RequestInit, timeout: number): Promise<Response> {
+  return Promise.race([
+    fetch(url, options),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Request timeout')), timeout)
+    )
+  ])
+}
 
 export interface ApiResponse<T = unknown> {
   success: boolean
@@ -79,10 +90,11 @@ export class ApiClient {
     }
 
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        ...options,
-        headers,
-      })
+      const response = await fetchWithTimeout(
+        `${API_URL}${endpoint}`,
+        { ...options, headers },
+        DEFAULT_TIMEOUT
+      )
 
       const data = await response.json()
 
@@ -100,9 +112,12 @@ export class ApiClient {
       }
     } catch (error) {
       console.error('API request error:', error)
+      const errorMessage = error instanceof Error && error.message === 'Request timeout'
+        ? 'Request timed out. Please try again.'
+        : 'Network error. Please check your connection.'
       return {
         success: false,
-        error: 'Network error. Please check your connection.',
+        error: errorMessage,
       }
     }
   }

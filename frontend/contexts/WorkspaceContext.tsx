@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { ApiClient } from '@/lib/api-client'
 import { useAuth } from './AuthContext'
@@ -72,7 +72,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     pathname.startsWith('/privacy') ||
     pathname.startsWith('/terms')
 
-  const loadWorkspaces = async () => {
+  const loadWorkspaces = useCallback(async () => {
     // Don't load if on auth page or no user
     if (isAuthPage || !user) {
       setIsLoading(false)
@@ -109,47 +109,52 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [isAuthPage, user])
 
   useEffect(() => {
     // Only load workspaces when auth is done and user exists
     if (!authLoading) {
       loadWorkspaces()
     }
-  }, [user, authLoading, isAuthPage])
+  }, [authLoading, loadWorkspaces])
 
-  const setWorkspace = (ws: Workspace | null) => {
+  const setWorkspace = useCallback((ws: Workspace | null) => {
     setWorkspaceState(ws)
     if (ws) {
       localStorage.setItem(STORAGE_KEY, ws.id)
     } else {
       localStorage.removeItem(STORAGE_KEY)
     }
-  }
+  }, [])
 
   // Calculate permissions based on workspace ownership/membership
-  const permissions: WorkspacePermissions = workspace?.is_owner 
-    ? DEFAULT_PERMISSIONS 
-    : workspace?.member_permissions || DEFAULT_PERMISSIONS
+  const permissions: WorkspacePermissions = useMemo(() => 
+    workspace?.is_owner 
+      ? DEFAULT_PERMISSIONS 
+      : workspace?.member_permissions || DEFAULT_PERMISSIONS
+  , [workspace?.is_owner, workspace?.member_permissions])
 
   const isOwner = workspace?.is_owner === true
 
-  const hasPermission = (permission: keyof WorkspacePermissions): boolean => {
-    if (isOwner) return true
+  const hasPermission = useCallback((permission: keyof WorkspacePermissions): boolean => {
+    if (workspace?.is_owner) return true
     return permissions[permission] ?? false
-  }
+  }, [workspace?.is_owner, permissions])
+
+  // Memoize context value
+  const contextValue = useMemo(() => ({
+    workspace,
+    workspaces,
+    permissions,
+    isOwner,
+    isLoading,
+    setWorkspace,
+    refreshWorkspaces: loadWorkspaces,
+    hasPermission
+  }), [workspace, workspaces, permissions, isOwner, isLoading, setWorkspace, loadWorkspaces, hasPermission])
 
   return (
-    <WorkspaceContext.Provider value={{
-      workspace,
-      workspaces,
-      permissions,
-      isOwner,
-      isLoading,
-      setWorkspace,
-      refreshWorkspaces: loadWorkspaces,
-      hasPermission
-    }}>
+    <WorkspaceContext.Provider value={contextValue}>
       {children}
     </WorkspaceContext.Provider>
   )
