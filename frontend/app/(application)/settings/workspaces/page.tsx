@@ -67,35 +67,32 @@ export default function WorkspacesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!initialLoadDone.current) {
-      initialLoadDone.current = true
-      loadWorkspaces()
-    }
-  }, [])
-
-  const loadWorkspaces = async () => {
+  const loadWorkspaces = useCallback(async () => {
     // Try cache first
     const cached = getCached<WorkspacesData>(CACHE_KEY) || getFromSession<WorkspacesData>(CACHE_KEY)
     if (cached) {
       setData(cached)
       setIsLoading(false)
       // Revalidate in background
-      revalidateInBackground()
+      ApiClient.request<WorkspacesData>('/api/workspaces').then(response => {
+        if (response.success && response.data) {
+          setData(response.data)
+          setCache(CACHE_KEY, response.data)
+          persistToSession(CACHE_KEY, response.data)
+        }
+      }).catch(() => {})
       return
     }
 
     try {
       setIsLoading(true)
       const response = await ApiClient.request<WorkspacesData>('/api/workspaces')
-      console.log('Workspaces response:', response)
       if (response.success && response.data) {
         setData(response.data)
         setCache(CACHE_KEY, response.data)
         persistToSession(CACHE_KEY, response.data)
       } else {
         console.error('Failed to load workspaces:', response)
-        // Set default data so UI shows create button
         setData({
           workspaces: [],
           limits: { max: 1, used: 0, canCreate: true },
@@ -105,7 +102,6 @@ export default function WorkspacesPage() {
     } catch (error) {
       console.error('Error loading workspaces:', error)
       toast.error('Failed to load workspaces')
-      // Set default data so UI shows create button
       setData({
         workspaces: [],
         limits: { max: 1, used: 0, canCreate: true },
@@ -113,19 +109,6 @@ export default function WorkspacesPage() {
       })
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const revalidateInBackground = useCallback(async () => {
-    try {
-      const response = await ApiClient.request<WorkspacesData>('/api/workspaces')
-      if (response.success && response.data) {
-        setData(response.data)
-        setCache(CACHE_KEY, response.data)
-        persistToSession(CACHE_KEY, response.data)
-      }
-    } catch (error) {
-      console.warn('Background revalidation failed:', error)
     }
   }, [])
 
@@ -210,22 +193,14 @@ export default function WorkspacesPage() {
     } finally {
       setDeletingId(null)
     }
-  }, [])
+  }, [loadWorkspaces])
 
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text)
-    toast.success(`${label} copied to clipboard!`)
-  }
-
-  const generateClientAccessLink = (workspaceId: string) => {
-    // TODO: Implement actual token generation on backend
-    return `${window.location.origin}/w/${workspaceId.slice(0, 8)}`
-  }
-
-  const generateQRConnectionLink = (workspaceId: string) => {
-    // TODO: Implement actual token generation on backend
-    return `${window.location.origin}/connect/${workspaceId.slice(0, 8)}`
-  }
+  useEffect(() => {
+    if (!initialLoadDone.current) {
+      initialLoadDone.current = true
+      loadWorkspaces()
+    }
+  }, [loadWorkspaces])
 
   if (isLoading) {
     return <WorkspacesSkeleton />
