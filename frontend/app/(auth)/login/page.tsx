@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { useTranslations } from 'next-intl'
 import { AuthCard } from "../components/AuthCard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +16,8 @@ import { useServerBranding } from "@/contexts/ServerBrandingContext"
 function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const t = useTranslations('auth.login')
+  const tCommon = useTranslations('common')
   const { login: authLogin, user } = useAuth()
   const { branding, isCustomDomain } = useServerBranding()
   
@@ -33,7 +36,7 @@ function LoginContent() {
   // Show success message if coming from email verification
   useEffect(() => {
     if (searchParams.get('verified') === 'true') {
-      toast.success("Email verified!", "You can now log in to your account.")
+      toast.success(t('emailVerified'), t('canNowLogin'))
     }
   }, [searchParams])
 
@@ -49,16 +52,16 @@ function LoginContent() {
 
     // Email validation
     if (!formData.email) {
-      newErrors.email = "Email is required"
+      newErrors.email = t('emailRequired')
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email"
+      newErrors.email = t('emailInvalid')
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = "Password is required"
+      newErrors.password = t('passwordRequired')
     } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
+      newErrors.password = t('passwordMinLength')
     }
 
     setErrors(newErrors)
@@ -78,15 +81,15 @@ function LoginContent() {
       const success = await authLogin(formData.email, formData.password, rememberMe)
 
       if (!success) {
-        toast.error("Login failed", "Invalid email or password")
+        toast.error(t('loginFailed'), t('invalidCredentials'))
         setIsLoading(false)
         return
       }
 
-      toast.success("Logged in", "Welcome back!")
+      toast.success(t('loggedIn'), t('welcomeBack'))
       // useEffect will handle the redirect when user updates
     } catch {
-      toast.error("Login failed", "Something went wrong. Please try again.")
+      toast.error(t('loginFailed'), t('somethingWrong'))
       setIsLoading(false)
     }
   }
@@ -102,14 +105,14 @@ function LoginContent() {
 
   return (
     <AuthCard
-      title={isCustomDomain ? "Iniciar sesión" : "Welcome back"}
-      description={isCustomDomain ? "Accede a tu cuenta para continuar" : "Sign in to your account to continue"}
+      title={t('title')}
+      description={t('subtitle')}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Email Input */}
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-medium text-gray-700">
-            Email
+            {t('email')}
           </label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -135,7 +138,7 @@ function LoginContent() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label htmlFor="password" className="text-sm font-medium text-gray-700">
-              {isCustomDomain ? "Contraseña" : "Password"}
+              {t('password')}
             </label>
             {/* Hide forgot password link on custom domains */}
             {!isCustomDomain && (
@@ -144,7 +147,7 @@ function LoginContent() {
                 className="text-xs font-medium hover:opacity-80"
                 style={{ color: branding.primary_color }}
               >
-                Forgot password?
+                {t('forgotPassword')}
               </Link>
             )}
           </div>
@@ -190,7 +193,7 @@ function LoginContent() {
             disabled={isLoading}
           />
           <label htmlFor="remember" className="ml-2 text-sm text-gray-600 cursor-pointer">
-            Remember me for 30 days
+            {t('rememberMe')}
           </label>
         </div>
 
@@ -208,10 +211,10 @@ function LoginContent() {
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              {isCustomDomain ? "Iniciando sesión..." : "Signing in..."}
+              {t('signingIn')}
             </>
           ) : (
-            isCustomDomain ? "Iniciar sesión" : "Sign in"
+            t('signIn')
           )}
         </Button>
 
@@ -222,7 +225,7 @@ function LoginContent() {
             <div className="relative my-6">
               <Separator />
               <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-xs text-gray-500">
-                Or continue with
+                {t('orContinueWith')}
               </span>
             </div>
 
@@ -271,13 +274,13 @@ function LoginContent() {
       {/* Sign Up Link - Hidden on custom domains */}
       {!isCustomDomain && (
         <p className="mt-6 text-center text-sm text-gray-600">
-          Don&apos;t have an account?{" "}
+          {t('noAccount')}{" "}
           <Link
             href="/register"
             className="font-medium hover:opacity-80"
             style={{ color: branding.primary_color }}
           >
-            Sign up for free
+            {t('signUpFree')}
           </Link>
         </p>
       )}
@@ -285,7 +288,7 @@ function LoginContent() {
       {/* Custom domain message */}
       {isCustomDomain && (
         <p className="mt-6 text-center text-xs text-gray-500">
-          Si no tienes cuenta, contacta con tu administrador para recibir una invitación.
+          {t('contactAdmin')}
         </p>
       )}
     </AuthCard>

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useTranslations } from 'next-intl'
 import { AuthCard } from "../components/AuthCard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,6 +15,7 @@ import { AuthStorage } from "@/lib/auth-storage"
 
 export default function RegisterPage() {
   const router = useRouter()
+  const t = useTranslations('auth.register')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -38,37 +40,37 @@ export default function RegisterPage() {
 
     // Full name validation
     if (!formData.fullName.trim()) {
-      newErrors.fullName = "Full name is required"
+      newErrors.fullName = t('fullNameRequired')
     } else if (formData.fullName.trim().length < 2) {
-      newErrors.fullName = "Name must be at least 2 characters"
+      newErrors.fullName = t('nameMinLength')
     }
 
     // Email validation
     if (!formData.email) {
-      newErrors.email = "Email is required"
+      newErrors.email = t('emailRequired')
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email"
+      newErrors.email = t('emailInvalid')
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = "Password is required"
+      newErrors.password = t('passwordRequired')
     } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters"
+      newErrors.password = t('passwordMinLength')
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = "Password must contain uppercase, lowercase, and number"
+      newErrors.password = t('passwordRequirements')
     }
 
     // Confirm password validation
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password"
+      newErrors.confirmPassword = t('confirmPasswordRequired')
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match"
+      newErrors.confirmPassword = t('passwordMismatch')
     }
 
     // Terms validation
     if (!formData.agreedToTerms) {
-      newErrors.agreedToTerms = "You must agree to the terms and conditions"
+      newErrors.agreedToTerms = t('mustAgreeTerms')
     }
 
     setErrors(newErrors)
@@ -98,7 +100,7 @@ export default function RegisterPage() {
       })
 
       if (!response.success || !response.data) {
-        toast.error("Registration failed", response.error || "Could not create account")
+        toast.error(t('registrationFailed'), response.error || t('couldNotCreate'))
         return
       }
 
@@ -107,8 +109,8 @@ export default function RegisterPage() {
       // Check if email verification is required
       if (requires_email_verification) {
         toast.success(
-          "Account created!", 
-          "Please check your email to verify your account before logging in."
+          t('accountCreated'), 
+          t('checkEmailVerify')
         )
         // Redirect to email verification page
         router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`)
@@ -123,7 +125,7 @@ export default function RegisterPage() {
           user,
           true
         )
-        toast.success("Account created", "Welcome!")
+        toast.success(t('accountCreated'), t('welcome'))
         router.push("/dashboard")
         return
       }
@@ -145,15 +147,15 @@ export default function RegisterPage() {
           true
         )
 
-        toast.success("Account created", "Welcome!")
+        toast.success(t('accountCreated'), t('welcome'))
         router.push("/dashboard")
       } else {
         // Registration successful but auto-login failed
-        toast.success("Account created", "Please log in to continue")
+        toast.success(t('accountCreated'), t('pleaseLogin'))
         router.push("/login")
       }
     } catch {
-      toast.error("Registration failed", "Something went wrong. Please try again.")
+      toast.error(t('registrationFailed'), t('somethingWrong'))
     } finally {
       setIsLoading(false)
     }
@@ -173,14 +175,14 @@ export default function RegisterPage() {
 
   return (
     <AuthCard
-      title="Create your account"
-      description="Start automating your WhatsApp today"
+      title={t('title')}
+      description={t('subtitle')}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Full Name Input */}
         <div className="space-y-2">
           <label htmlFor="fullName" className="text-sm font-medium text-gray-700">
-            Full Name
+            {t('fullName')}
           </label>
           <div className="relative">
             <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -205,7 +207,7 @@ export default function RegisterPage() {
         {/* Email Input */}
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-medium text-gray-700">
-            Email
+            {t('email')}
           </label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -229,7 +231,7 @@ export default function RegisterPage() {
         {/* Company Input (Optional) */}
         <div className="space-y-2">
           <label htmlFor="company" className="text-sm font-medium text-gray-700">
-            Company <span className="text-gray-400 font-normal">(optional)</span>
+            {t('company')} <span className="text-gray-400 font-normal">({t('optional')})</span>
           </label>
           <div className="relative">
             <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -250,7 +252,7 @@ export default function RegisterPage() {
         {/* Password Input */}
         <div className="space-y-2">
           <label htmlFor="password" className="text-sm font-medium text-gray-700">
-            Password
+            {t('password')}
           </label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -283,7 +285,7 @@ export default function RegisterPage() {
           )}
           {!errors.password && formData.password && (
             <p className="text-xs text-gray-500">
-              Must contain uppercase, lowercase, and number
+              {t('passwordHint')}
             </p>
           )}
         </div>
@@ -291,7 +293,7 @@ export default function RegisterPage() {
         {/* Confirm Password Input */}
         <div className="space-y-2">
           <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
-            Confirm Password
+            {t('confirmPassword')}
           </label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -339,13 +341,13 @@ export default function RegisterPage() {
               disabled={isLoading}
             />
             <label htmlFor="agreedToTerms" className="ml-2 text-sm text-gray-600 cursor-pointer">
-              I agree to the{" "}
+              {t('agreeTerms')}{" "}
               <Link href="/terms" className="text-green-600 hover:text-green-700 font-medium">
-                Terms of Service
+                {t('termsOfService')}
               </Link>{" "}
-              and{" "}
+              {t('and')}{" "}
               <Link href="/privacy" className="text-green-600 hover:text-green-700 font-medium">
-                Privacy Policy
+                {t('privacyPolicy')}
               </Link>
             </label>
           </div>
@@ -364,10 +366,10 @@ export default function RegisterPage() {
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Creating account...
+              {t('creatingAccount')}
             </>
           ) : (
-            "Create account"
+            t('createAccount')
           )}
         </Button>
 
@@ -375,7 +377,7 @@ export default function RegisterPage() {
         <div className="relative my-6">
           <Separator />
           <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-xs text-gray-500">
-            Or continue with
+            {t('orContinueWith')}
           </span>
         </div>
 
@@ -421,12 +423,12 @@ export default function RegisterPage() {
 
       {/* Sign In Link */}
       <p className="mt-6 text-center text-sm text-gray-600">
-        Already have an account?{" "}
+        {t('haveAccount')}{" "}
         <Link
           href="/login"
           className="font-medium text-green-600 hover:text-green-700"
         >
-          Sign in
+          {t('signIn')}
         </Link>
       </p>
     </AuthCard>
