@@ -24,6 +24,7 @@ async function getUserIdFromToken(req: Request): Promise<string | null> {
 /**
  * GET /api/dashboard/stats
  * Get dashboard statistics for the user
+ * Supports workspace_id filter
  */
 router.get('/stats', async (req: Request, res: Response) => {
   try {
@@ -32,20 +33,83 @@ router.get('/stats', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
+    const workspaceId = req.query.workspace_id as string | undefined
+
+    // If workspace_id provided, get stats for that workspace
+    // Otherwise, get stats for all user's data (owner view)
+    
+    let whatsappAccountId: string | null = null
+    let widgetIds: string[] = []
+
+    if (workspaceId) {
+      // Verify user has access to this workspace
+      const { data: workspace } = await supabaseAdmin
+        .from('workspaces')
+        .select('id, user_id')
+        .eq('id', workspaceId)
+        .single()
+
+      if (!workspace) {
+        return res.status(404).json({ success: false, error: 'Workspace not found' })
+      }
+
+      const isOwner = workspace.user_id === userId
+      if (!isOwner) {
+        const { data: membership } = await supabaseAdmin
+          .from('workspace_members')
+          .select('id')
+          .eq('workspace_id', workspaceId)
+          .eq('user_id', userId)
+          .single()
+
+        if (!membership) {
+          return res.status(403).json({ success: false, error: 'Access denied' })
+        }
+      }
+
+      // Get WhatsApp account for this workspace
+      const { data: waAccount } = await supabaseAdmin
+        .from('whatsapp_accounts')
+        .select('id')
+        .eq('workspace_id', workspaceId)
+        .single()
+      
+      whatsappAccountId = waAccount?.id || null
+
+      // Get widgets for this workspace
+      const { data: widgets } = await supabaseAdmin
+        .from('chat_widgets')
+        .select('id')
+        .eq('workspace_id', workspaceId)
+      
+      widgetIds = widgets?.map(w => w.id) || []
+    } else {
+      // No workspace filter - get all user's widgets
+      const { data: widgets } = await supabaseAdmin
+        .from('chat_widgets')
+        .select('id')
+        .eq('user_id', userId)
+      
+      widgetIds = widgets?.map(w => w.id) || []
+    }
+
     // Get WhatsApp conversations count
-    const { count: whatsappConversations } = await supabaseAdmin
-      .from('conversations')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
+    let whatsappConversations = 0
+    if (workspaceId && whatsappAccountId) {
+      const { count } = await supabaseAdmin
+        .from('conversations')
+        .select('*', { count: 'exact', head: true })
+        .eq('whatsapp_account_id', whatsappAccountId)
+      whatsappConversations = count || 0
+    } else if (!workspaceId) {
+      const { count } = await supabaseAdmin
+        .from('conversations')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+      whatsappConversations = count || 0
+    }
 
     // Get Web widget conversations count
-    const { data: widgets } = await supabaseAdmin
-      .from('chat_widgets')
-      .select('id')
-      .eq('user_id', userId)
-
-    const widgetIds = widgets?.map(w => w.id) || []
-    
     let webConversations = 0
     if (widgetIds.length > 0) {
       const { count } = await supabaseAdmin
@@ -56,17 +120,38 @@ router.get('/stats', async (req: Request, res: Response) => {
     }
 
     // Get clients count
-    const { count: totalClients } = await supabaseAdmin
-      .from('clients')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
+    let totalClients = 0
+    if (workspaceId) {
+      const { count } = await supabaseAdmin
+        .from('clients')
+        .select('*', { count: 'exact', head: true })
+        .eq('workspace_id', workspaceId)
+      totalClients = count || 0
+    } else {
+      const { count } = await supabaseAdmin
+        .from('clients')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+      totalClients = count || 0
+    }
 
     // Get conversations needing attention (WhatsApp)
-    const { count: whatsappNeedsAttention } = await supabaseAdmin
-      .from('conversations')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('needs_attention', true)
+    let whatsappNeedsAttention = 0
+    if (workspaceId && whatsappAccountId) {
+      const { count } = await supabaseAdmin
+        .from('conversations')
+        .select('*', { count: 'exact', head: true })
+        .eq('whatsapp_account_id', whatsappAccountId)
+        .eq('needs_attention', true)
+      whatsappNeedsAttention = count || 0
+    } else if (!workspaceId) {
+      const { count } = await supabaseAdmin
+        .from('conversations')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('needs_attention', true)
+      whatsappNeedsAttention = count || 0
+    }
 
     // Get web conversations with unread messages (needs attention)
     let webNeedsAttention = 0
@@ -80,19 +165,39 @@ router.get('/stats', async (req: Request, res: Response) => {
     }
 
     // Get WhatsApp sessions count
-    const { count: whatsappSessions } = await supabaseAdmin
-      .from('whatsapp_sessions')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
+    let whatsappSessions = 0
+    if (workspaceId) {
+      const { count } = await supabaseAdmin
+        .from('whatsapp_sessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('workspace_id', workspaceId)
+      whatsappSessions = count || 0
+    } else {
+      const { count } = await supabaseAdmin
+        .from('whatsapp_sessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+      whatsappSessions = count || 0
+    }
 
     // Get active chatbot configs
-    const { data: chatbotConfigs } = await supabaseAdmin
-      .from('chatbot_configs')
-      .select('id, session_id, widget_id, auto_reply')
-      .eq('user_id', userId)
+    let chatbotConfigs: { id: string; session_id: string | null; widget_id: string | null; auto_reply: boolean }[] = []
+    if (workspaceId) {
+      const { data } = await supabaseAdmin
+        .from('chatbot_configs')
+        .select('id, session_id, widget_id, auto_reply')
+        .eq('workspace_id', workspaceId)
+      chatbotConfigs = data || []
+    } else {
+      const { data } = await supabaseAdmin
+        .from('chatbot_configs')
+        .select('id, session_id, widget_id, auto_reply')
+        .eq('user_id', userId)
+      chatbotConfigs = data || []
+    }
 
-    const whatsappAiActive = chatbotConfigs?.filter(c => c.session_id && c.auto_reply).length || 0
-    const webAiActive = chatbotConfigs?.filter(c => c.widget_id && c.auto_reply).length || 0
+    const whatsappAiActive = chatbotConfigs.filter(c => c.session_id && c.auto_reply).length
+    const webAiActive = chatbotConfigs.filter(c => c.widget_id && c.auto_reply).length
 
     // Get clients AI auto-capture setting
     const { data: clientSettings } = await supabaseAdmin
@@ -103,15 +208,26 @@ router.get('/stats', async (req: Request, res: Response) => {
     
     const clientsAiActive = clientSettings?.auto_capture_enabled ?? false
 
-    // Get today's conversations (WhatsApp)
+    // Get today's conversations
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     
-    const { count: todayWhatsapp } = await supabaseAdmin
-      .from('conversations')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .gte('updated_at', today.toISOString())
+    let todayWhatsapp = 0
+    if (workspaceId && whatsappAccountId) {
+      const { count } = await supabaseAdmin
+        .from('conversations')
+        .select('*', { count: 'exact', head: true })
+        .eq('whatsapp_account_id', whatsappAccountId)
+        .gte('updated_at', today.toISOString())
+      todayWhatsapp = count || 0
+    } else if (!workspaceId) {
+      const { count } = await supabaseAdmin
+        .from('conversations')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .gte('updated_at', today.toISOString())
+      todayWhatsapp = count || 0
+    }
 
     let todayWeb = 0
     if (widgetIds.length > 0) {
@@ -127,22 +243,22 @@ router.get('/stats', async (req: Request, res: Response) => {
       success: true,
       data: {
         // Conversations
-        totalConversations: (whatsappConversations || 0) + webConversations,
-        whatsappConversations: whatsappConversations || 0,
-        webConversations: webConversations,
-        todayConversations: (todayWhatsapp || 0) + todayWeb,
+        totalConversations: whatsappConversations + webConversations,
+        whatsappConversations,
+        webConversations,
+        todayConversations: todayWhatsapp + todayWeb,
         
         // Clients
-        totalClients: totalClients || 0,
+        totalClients,
         
         // Connections
-        whatsappSessions: whatsappSessions || 0,
+        whatsappSessions,
         webWidgets: widgetIds.length,
         
         // Needs Attention
-        needsAttention: (whatsappNeedsAttention || 0) + webNeedsAttention,
-        whatsappNeedsAttention: whatsappNeedsAttention || 0,
-        webNeedsAttention: webNeedsAttention,
+        needsAttention: whatsappNeedsAttention + webNeedsAttention,
+        whatsappNeedsAttention,
+        webNeedsAttention,
         
         // AI Status
         whatsappAiActive,
