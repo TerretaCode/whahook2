@@ -2,10 +2,12 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useTranslations } from 'next-intl'
 import { Button } from "@/components/ui/button"
 import { PricingCard, BillingToggle, PLANS } from "@/components/pricing-card"
 
 export function HomePricingSection() {
+  const t = useTranslations('pricing')
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly')
 
   return (
@@ -13,10 +15,10 @@ export function HomePricingSection() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Simple, Transparent Pricing
+            {t('title')}
           </h2>
           <p className="text-xl text-gray-600 mb-8">
-            Choose the plan that fits your business needs
+            {t('subtitle')}
           </p>
           <BillingToggle billingPeriod={billingPeriod} onToggle={setBillingPeriod} />
         </div>
@@ -30,7 +32,7 @@ export function HomePricingSection() {
         <div className="text-center mt-12">
           <Link href="/pricing">
             <Button variant="outline" size="lg" className="text-green-600 border-green-600 hover:bg-green-50">
-              View Full Pricing Details
+              {t('viewFullDetails')}
             </Button>
           </Link>
         </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useTranslations } from 'next-intl'
 import { Button } from "@/components/ui/button"
 import { CheckCircle } from "lucide-react"
 
@@ -114,6 +115,7 @@ export function PricingCard({
   isProcessing = false,
   showAsLink = true,
 }: PricingCardProps) {
+  const t = useTranslations('pricing')
   const price = billingPeriod === 'monthly' ? plan.monthlyPrice : Math.round(plan.yearlyPrice / 12)
   const yearlyTotal = billingPeriod === 'yearly' ? plan.yearlyPrice : undefined
 
@@ -131,10 +133,10 @@ export function PricingCard({
       </p>
       <div className="mb-6">
         <span className="text-5xl font-bold">€{price}</span>
-        <span className={`text-xl ${plan.highlighted ? 'text-green-100' : 'text-gray-600'}`}>/month</span>
+        <span className={`text-xl ${plan.highlighted ? 'text-green-100' : 'text-gray-600'}`}>/{t('month')}</span>
         {yearlyTotal && (
           <p className={`text-sm mt-1 ${plan.highlighted ? 'text-green-200' : 'text-gray-500'}`}>
-            Billed annually (€{yearlyTotal}/year)
+            {t('billedAnnually', { total: yearlyTotal })}
           </p>
         )}
       </div>
@@ -152,7 +154,7 @@ export function PricingCard({
           className={`w-full py-6 text-lg ${plan.highlighted ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-gray-100 text-gray-500'}`}
           disabled
         >
-          Current Plan
+          {t('currentPlan')}
         </Button>
       ) : showAsLink ? (
         <Link href={plan.ctaLink} className="block">
@@ -174,7 +176,7 @@ export function PricingCard({
           onClick={onSubscribe}
           disabled={isProcessing}
         >
-          {isProcessing ? 'Processing...' : plan.cta}
+          {isProcessing ? t('processing') : plan.cta}
         </Button>
       )}
     </div>
@@ -187,6 +189,7 @@ interface BillingToggleProps {
 }
 
 export function BillingToggle({ billingPeriod, onToggle }: BillingToggleProps) {
+  const t = useTranslations('pricing')
   return (
     <div className="flex items-center justify-center gap-4 mb-12">
       <button
@@ -197,7 +200,7 @@ export function BillingToggle({ billingPeriod, onToggle }: BillingToggleProps) {
             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
         }`}
       >
-        Monthly
+        {t('monthly')}
       </button>
       <button
         onClick={() => onToggle('yearly')}
@@ -207,9 +210,9 @@ export function BillingToggle({ billingPeriod, onToggle }: BillingToggleProps) {
             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
         }`}
       >
-        Yearly
+        {t('yearly')}
         <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-semibold">
-          Save 17%
+          {t('save17')}
         </span>
       </button>
     </div>

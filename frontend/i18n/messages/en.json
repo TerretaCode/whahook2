@@ -482,6 +482,60 @@
       "deleteError": "Error deleting campaign"
     }
   },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Choose the plan that fits your business needs",
+    "month": "month",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save17": "Save 17%",
+    "billedAnnually": "Billed annually (€{total}/year)",
+    "currentPlan": "Current Plan",
+    "processing": "Processing...",
+    "viewFullDetails": "View Full Pricing Details",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "description": "Perfect for small businesses",
+        "cta": "Start Free Trial"
+      },
+      "professional": {
+        "name": "Professional",
+        "description": "For growing businesses & small agencies",
+        "cta": "Get Started"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "For agencies & multi-brand businesses",
+        "cta": "Get Started"
+      }
+    },
+    "features": {
+      "whatsappConnections": "{count} WhatsApp connection(s)",
+      "webWidgets": "{count} Web widget(s)",
+      "workspaces": "{count} Workspace(s)",
+      "users": "{count} User(s)",
+      "usersPerWorkspace": "{count} Users per workspace",
+      "unlimitedAI": "Unlimited AI (your own API key)",
+      "unlimitedAIPerWorkspace": "Unlimited AI (API key per workspace)",
+      "basicCRM": "Basic CRM (contacts & tags)",
+      "fullCRM": "Full CRM (tags, notes, custom fields)",
+      "conversationHistory": "Conversation history",
+      "csvExport": "CSV export",
+      "messageHistory30": "30-day message history",
+      "messageHistory90": "90-day message history",
+      "emailSupport": "Email support",
+      "whatsappCampaigns": "WhatsApp campaigns (scheduled bulk)",
+      "emailCampaigns": "Email campaigns",
+      "advancedSegmentation": "Advanced segmentation",
+      "advancedAnalytics": "Advanced analytics",
+      "clientAccessLinks": "Client access links",
+      "remoteQR": "Remote QR connection",
+      "apiKeyPerWorkspace": "API Key per workspace",
+      "whiteLabel": "White-label (hide Whahook brand)",
+      "customDomain": "Custom domain support"
+    }
+  },
   "footer": {
     "description": "Automate your WhatsApp with AI-powered chatbot. Manage multiple accounts effortlessly.",
     "product": "Product",
