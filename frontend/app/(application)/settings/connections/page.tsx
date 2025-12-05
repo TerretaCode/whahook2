@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useTranslations } from 'next-intl'
 import { useAuth } from "@/contexts/AuthContext"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { WhatsAppAccountsSection } from "./components/WhatsAppAccountsSection"
@@ -24,6 +25,7 @@ import Link from "next/link"
 function ConnectionsPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const t = useTranslations('settings.connections')
   const { user, isLoading: authLoading } = useAuth()
   const [activeTab, setActiveTab] = useState<string>('whatsapp')
   
@@ -81,9 +83,9 @@ function ConnectionsPageContent() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Connections</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Configure WhatsApp and Web Widget for your workspace
+            {t('subtitle')}
           </p>
         </div>
         
@@ -91,14 +93,14 @@ function ConnectionsPageContent() {
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-green-800">No workspaces found</p>
+              <p className="text-sm font-medium text-green-800">{t('noWorkspaces')}</p>
               <p className="text-sm text-green-700 mt-1">
-                Create a workspace first to configure connections and chatbots.
+                {t('createWorkspaceFirst')}
               </p>
               <Link href="/settings/workspaces">
                 <Button size="sm" className="mt-3 bg-green-600 hover:bg-green-700 text-white">
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Workspace
+                  {t('createWorkspace')}
                 </Button>
               </Link>
             </div>
@@ -112,9 +114,9 @@ function ConnectionsPageContent() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Connections</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Configure WhatsApp and Web Widget for your workspace
+          {t('subtitle')}
         </p>
       </div>
 
@@ -124,11 +126,11 @@ function ConnectionsPageContent() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Building2 className="w-4 h-4" />
-              <span>Workspace:</span>
+              <span>{t('workspace')}:</span>
             </div>
             <Select value={selectedWorkspace?.id || undefined} onValueChange={handleWorkspaceChange}>
               <SelectTrigger className="w-[250px]">
-                <SelectValue placeholder="Select workspace" />
+                <SelectValue placeholder={t('selectWorkspace')} />
               </SelectTrigger>
               <SelectContent>
                 {workspaces.map((workspace) => (
@@ -235,13 +237,13 @@ function ConnectionsPageContent() {
       ) : (
         <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
           <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Select a Workspace</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('selectWorkspace')}</h3>
           <p className="text-gray-500 mb-6">
-            Choose a workspace above to configure its connections.
+            {t('chooseWorkspace')}
           </p>
           <Link href="/settings/workspaces">
             <Button className="bg-green-600 hover:bg-green-700 text-white">
-              Manage Workspaces
+              {t('manageWorkspaces')}
             </Button>
           </Link>
         </div>
@@ -252,10 +254,9 @@ function ConnectionsPageContent() {
         <div className="flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-green-800">
-            <p className="font-medium mb-1">One connection per workspace</p>
+            <p className="font-medium mb-1">{t('oneConnectionPerWorkspace')}</p>
             <p>
-              Each workspace can have one WhatsApp connection and one Web Widget.
-              This keeps your conversations and settings organized per client or project.
+              {t('oneConnectionDescription')}
             </p>
           </div>
         </div>

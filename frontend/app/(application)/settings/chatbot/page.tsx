@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
+import { useTranslations } from 'next-intl'
 import { WhatsAppChatbotConfig } from "./components/WhatsAppChatbotConfig"
 import { WebChatbotConfig } from "./components/WebChatbotConfig"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -13,6 +14,8 @@ import { useChatbotPage } from "@/hooks/useChatbotPage"
 
 function ChatbotSettingsContent() {
   const searchParams = useSearchParams()
+  const t = useTranslations('settings.chatbot')
+  const tConn = useTranslations('settings.connections')
   const widgetParam = searchParams.get('widget')
   const tabParam = searchParams.get('tab')
   
@@ -63,23 +66,23 @@ function ChatbotSettingsContent() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Chatbot Configuration</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Configure AI chatbot settings for your workspace
+            {t('subtitle')}
           </p>
         </div>
         <div className="bg-green-50 border border-green-200 rounded-lg p-6">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-green-800">No workspaces found</p>
+              <p className="text-sm font-medium text-green-800">{tConn('noWorkspaces')}</p>
               <p className="text-sm text-green-700 mt-1">
-                Create a workspace first to configure chatbot settings.
+                {t('createWorkspaceFirst')}
               </p>
               <Link href="/settings/workspaces">
                 <Button size="sm" className="mt-3 bg-green-600 hover:bg-green-700 text-white">
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Workspace
+                  {tConn('createWorkspace')}
                 </Button>
               </Link>
             </div>
@@ -93,9 +96,9 @@ function ChatbotSettingsContent() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Chatbot Configuration</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Configure AI chatbot settings for your workspace
+          {t('subtitle')}
         </p>
       </div>
 
@@ -104,11 +107,11 @@ function ChatbotSettingsContent() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Building2 className="w-4 h-4" />
-            <span>Workspace:</span>
+            <span>{tConn('workspace')}:</span>
           </div>
           <Select value={selectedWorkspace?.id || undefined} onValueChange={handleWorkspaceChange}>
             <SelectTrigger className="w-[250px]">
-              <SelectValue placeholder="Select workspace" />
+              <SelectValue placeholder={tConn('selectWorkspace')} />
             </SelectTrigger>
             <SelectContent>
               {workspaces.map((workspace) => (
@@ -144,7 +147,7 @@ function ChatbotSettingsContent() {
                 }`}
               >
                 <Smartphone className="w-5 h-5" />
-                WhatsApp Chatbot
+                {t('whatsappChatbot')}
                 {hasWhatsAppConnection && (
                   <span className="w-2 h-2 bg-green-500 rounded-full" />
                 )}
@@ -158,7 +161,7 @@ function ChatbotSettingsContent() {
                 }`}
               >
                 <Globe className="w-5 h-5" />
-                Web Widget Chatbot
+                {t('webChatbot')}
                 {hasWebWidgetConnection && (
                   <span className="w-2 h-2 bg-green-500 rounded-full" />
                 )}
@@ -182,15 +185,15 @@ function ChatbotSettingsContent() {
               <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
                 <Smartphone className="w-12 h-12 text-green-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-green-900 mb-2">
-                  No WhatsApp Connection
+                  {t('noWhatsAppConnection')}
                 </h3>
                 <p className="text-green-700 mb-4">
-                  Connect a WhatsApp account to this workspace first to configure the chatbot.
+                  {t('connectWhatsAppFirst')}
                 </p>
                 <Link href={`/settings/connections?workspace=${selectedWorkspace.id}`}>
                   <Button className="bg-green-600 hover:bg-green-700 text-white">
                     <Smartphone className="w-4 h-4 mr-2" />
-                    Connect WhatsApp
+                    {t('connectWhatsApp')}
                   </Button>
                 </Link>
               </div>
@@ -211,15 +214,15 @@ function ChatbotSettingsContent() {
               <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
                 <Globe className="w-12 h-12 text-green-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-green-900 mb-2">
-                  No Web Widget
+                  {t('noWebWidget')}
                 </h3>
                 <p className="text-green-700 mb-4">
-                  Create a Web Widget for this workspace first to configure the chatbot.
+                  {t('createWebWidgetFirst')}
                 </p>
                 <Link href={`/settings/connections?workspace=${selectedWorkspace.id}&tab=web`}>
                   <Button className="bg-green-600 hover:bg-green-700 text-white">
                     <Globe className="w-4 h-4 mr-2" />
-                    Create Web Widget
+                    {t('createWebWidget')}
                   </Button>
                 </Link>
               </div>
@@ -229,13 +232,13 @@ function ChatbotSettingsContent() {
       ) : (
         <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
           <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Select a Workspace</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{tConn('selectWorkspace')}</h3>
           <p className="text-gray-500 mb-6">
-            Choose a workspace above to configure its chatbot settings.
+            {t('chooseWorkspace')}
           </p>
           <Link href="/settings/workspaces">
             <Button className="bg-green-600 hover:bg-green-700 text-white">
-              Manage Workspaces
+              {tConn('manageWorkspaces')}
             </Button>
           </Link>
         </div>
@@ -246,10 +249,9 @@ function ChatbotSettingsContent() {
         <div className="flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-green-800">
-            <p className="font-medium mb-1">Workspace-specific settings</p>
+            <p className="font-medium mb-1">{t('workspaceSpecific')}</p>
             <p>
-              Chatbot configuration is unique to each workspace. Changes here only affect
-              the selected workspace's WhatsApp and Web Widget chatbots.
+              {t('workspaceSpecificDescription')}
             </p>
           </div>
         </div>
