@@ -345,6 +345,24 @@
         "deletedDesc": "Widget deleted successfully",
         "deleteError": "Failed to delete widget",
         "codeCopied": "Embed code copied to clipboard"
+      },
+      "ecommerce": {
+        "title": "E-commerce Connections",
+        "subtitle": "Connect your online store to sync products and orders",
+        "connectStore": "Connect Store",
+        "connectFirst": "Connect Your First Store",
+        "noConnections": "No E-commerce Connections",
+        "connected": "Connected!",
+        "connectedDesc": "Store connected! Now set up the webhook below for auto-sync.",
+        "connectError": "Failed to connect store",
+        "confirmDisconnect": "Are you sure you want to disconnect \"{name}\"?",
+        "disconnected": "Disconnected",
+        "disconnectedDesc": "Store disconnected successfully",
+        "disconnectError": "Failed to disconnect store",
+        "syncComplete": "Setup Complete!",
+        "syncCompleteDesc": "Syncing products and orders. Webhooks will handle future updates automatically.",
+        "syncError": "Failed to start sync",
+        "webhookCopied": "Webhook URL copied to clipboard"
       }
     },
     "chatbot": {

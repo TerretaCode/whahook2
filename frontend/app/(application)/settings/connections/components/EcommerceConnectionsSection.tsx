@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { ShoppingCart, Plus, Trash2, RefreshCw, Check, AlertCircle, Loader2, ExternalLink, HelpCircle, Key, ChevronDown, ChevronUp, Copy, Webhook, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -160,6 +161,8 @@ interface EcommerceConnectionsSectionProps {
 }
 
 export function EcommerceConnectionsSection({ workspaceId, initialData }: EcommerceConnectionsSectionProps) {
+  const t = useTranslations('settings.connections.ecommerce')
+  const tCommon = useTranslations('common')
   const [connections, setConnections] = useState<EcommerceConnection[]>(initialData || [])
   const [loading, setLoading] = useState(!initialData)
   const [showForm, setShowForm] = useState(false)
@@ -236,16 +239,16 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
         resetForm()
         // Auto-expand webhook section for the new connection
         setExpandedConnection(newConnection.id)
-        toast.success('Connected!', 'Store connected! Now set up the webhook below for auto-sync.')
+        toast.success(t('connected'), t('connectedDesc'))
       }
     } catch (error) {
       console.error('Error creating connection:', error)
-      toast.error('Error', error instanceof Error ? error.message : 'Failed to connect store')
+      toast.error(tCommon('error'), error instanceof Error ? error.message : t('connectError'))
     }
   }
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to disconnect "${name}"?`)) return
+    if (!confirm(t('confirmDisconnect', { name }))) return
 
     try {
       const response = await ApiClient.request(`/api/ecommerce/connections/${id}`, {
@@ -254,11 +257,11 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
 
       if (response.success) {
         setConnections(connections.filter(c => c.id !== id))
-        toast.success('Disconnected', 'Store disconnected successfully')
+        toast.success(t('disconnected'), t('disconnectedDesc'))
       }
     } catch (error) {
       console.error('Error deleting connection:', error)
-      toast.error('Error', 'Failed to disconnect store')
+      toast.error(tCommon('error'), t('disconnectError'))
     }
   }
 
@@ -271,7 +274,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
       })
 
       if (response.success) {
-        toast.success('Setup Complete!', 'Syncing products and orders. Webhooks will handle future updates automatically.')
+        toast.success(t('syncComplete'), t('syncCompleteDesc'))
         // Close the expanded section
         setExpandedConnection(null)
         // Refetch after a delay
@@ -279,7 +282,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
       }
     } catch (error) {
       console.error('Error syncing:', error)
-      toast.error('Error', 'Failed to start sync')
+      toast.error(tCommon('error'), t('syncError'))
     } finally {
       setSyncing(null)
     }
@@ -300,7 +303,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    toast.success('Copied!', 'Webhook URL copied to clipboard')
+    toast.success(tCommon('copied'), t('webhookCopied'))
   }
 
   const getStatusBadge = (status: string) => {
@@ -329,9 +332,9 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">E-commerce Connections</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
           <p className="text-sm text-gray-600 mt-1">
-            Connect your online store to sync products and orders
+            {t('subtitle')}
           </p>
         </div>
         <Button 
@@ -340,7 +343,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
           onClick={() => setShowForm(!showForm)}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Connect Store
+          {t('connectStore')}
         </Button>
       </div>
 
@@ -664,14 +667,14 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
         <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
           <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No E-commerce Connections
+            {t('noConnections')}
           </h3>
           <p className="text-sm text-gray-600 mb-4">
-            Connect your online store to sync products and orders
+            {t('subtitle')}
           </p>
           <Button onClick={() => setShowForm(true)} className="bg-green-600 hover:bg-green-700 text-white">
             <Plus className="w-4 h-4 mr-2" />
-            Connect Your First Store
+            {t('connectFirst')}
           </Button>
         </div>
       ) : (

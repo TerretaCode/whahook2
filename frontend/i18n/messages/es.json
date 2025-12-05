@@ -345,6 +345,24 @@
         "deletedDesc": "Widget eliminado correctamente",
         "deleteError": "Error al eliminar el widget",
         "codeCopied": "Código de inserción copiado al portapapeles"
+      },
+      "ecommerce": {
+        "title": "Conexiones E-commerce",
+        "subtitle": "Conecta tu tienda online para sincronizar productos y pedidos",
+        "connectStore": "Conectar Tienda",
+        "connectFirst": "Conecta Tu Primera Tienda",
+        "noConnections": "Sin Conexiones E-commerce",
+        "connected": "¡Conectado!",
+        "connectedDesc": "¡Tienda conectada! Ahora configura el webhook para sincronización automática.",
+        "connectError": "Error al conectar la tienda",
+        "confirmDisconnect": "¿Estás seguro de que quieres desconectar \"{name}\"?",
+        "disconnected": "Desconectado",
+        "disconnectedDesc": "Tienda desconectada correctamente",
+        "disconnectError": "Error al desconectar la tienda",
+        "syncComplete": "¡Configuración Completa!",
+        "syncCompleteDesc": "Sincronizando productos y pedidos. Los webhooks gestionarán las actualizaciones automáticamente.",
+        "syncError": "Error al iniciar la sincronización",
+        "webhookCopied": "URL del webhook copiada al portapapeles"
       }
     },
     "chatbot": {
