@@ -363,6 +363,18 @@
         "syncCompleteDesc": "Sincronizando productos y pedidos. Los webhooks gestionarán las actualizaciones automáticamente.",
         "syncError": "Error al iniciar la sincronización",
         "webhookCopied": "URL del webhook copiada al portapapeles"
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "comingSoon": "Próximamente",
+        "description": "Recibe notificaciones en tiempo real cuando ocurran eventos en tu cuenta. Integra WhatsApp con tus sistemas externos de forma automática.",
+        "messages": "Mensajes",
+        "messagesDesc": "Recibidos, enviados, leídos",
+        "sessions": "Sesiones",
+        "sessionsDesc": "Conexión, desconexión, QR",
+        "contacts": "Contactos",
+        "contactsDesc": "Nuevos, actualizados",
+        "workingOnIt": "Estamos trabajando en esta funcionalidad. ¡Pronto estará disponible!"
       }
     },
     "chatbot": {

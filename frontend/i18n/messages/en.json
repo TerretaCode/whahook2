@@ -363,6 +363,18 @@
         "syncCompleteDesc": "Syncing products and orders. Webhooks will handle future updates automatically.",
         "syncError": "Failed to start sync",
         "webhookCopied": "Webhook URL copied to clipboard"
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "comingSoon": "Coming Soon",
+        "description": "Receive real-time notifications when events occur in your account. Integrate WhatsApp with your external systems automatically.",
+        "messages": "Messages",
+        "messagesDesc": "Received, sent, read",
+        "sessions": "Sessions",
+        "sessionsDesc": "Connection, disconnection, QR",
+        "contacts": "Contacts",
+        "contactsDesc": "New, updated",
+        "workingOnIt": "We're working on this feature. It will be available soon!"
       }
     },
     "chatbot": {

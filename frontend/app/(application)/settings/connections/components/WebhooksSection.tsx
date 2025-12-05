@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Webhook as WebhookIcon, Clock } from "lucide-react"
 
 interface WebhookData {
@@ -17,6 +18,8 @@ interface WebhooksSectionProps {
 }
 
 export function WebhooksSection({ workspaceId, initialData }: WebhooksSectionProps) {
+  const t = useTranslations('settings.connections.webhooks')
+  
   return (
     <div className="space-y-6">
       {/* Coming Soon Banner */}
@@ -24,7 +27,7 @@ export function WebhooksSection({ workspaceId, initialData }: WebhooksSectionPro
         <div className="absolute top-4 right-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
             <Clock className="w-3 h-3" />
-            Coming Soon
+            {t('comingSoon')}
           </span>
         </div>
         
@@ -34,31 +37,30 @@ export function WebhooksSection({ workspaceId, initialData }: WebhooksSectionPro
           </div>
           
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            Webhooks
+            {t('title')}
           </h3>
           
           <p className="text-gray-600 max-w-md mb-6">
-            Recibe notificaciones en tiempo real cuando ocurran eventos en tu cuenta. 
-            Integra WhatsApp con tus sistemas externos de forma automática.
+            {t('description')}
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl">
             <div className="p-4 bg-white rounded-lg border border-gray-200">
-              <p className="text-sm font-medium text-gray-900">Mensajes</p>
-              <p className="text-xs text-gray-500 mt-1">Recibidos, enviados, leídos</p>
+              <p className="text-sm font-medium text-gray-900">{t('messages')}</p>
+              <p className="text-xs text-gray-500 mt-1">{t('messagesDesc')}</p>
             </div>
             <div className="p-4 bg-white rounded-lg border border-gray-200">
-              <p className="text-sm font-medium text-gray-900">Sesiones</p>
-              <p className="text-xs text-gray-500 mt-1">Conexión, desconexión, QR</p>
+              <p className="text-sm font-medium text-gray-900">{t('sessions')}</p>
+              <p className="text-xs text-gray-500 mt-1">{t('sessionsDesc')}</p>
             </div>
             <div className="p-4 bg-white rounded-lg border border-gray-200">
-              <p className="text-sm font-medium text-gray-900">Contactos</p>
-              <p className="text-xs text-gray-500 mt-1">Nuevos, actualizados</p>
+              <p className="text-sm font-medium text-gray-900">{t('contacts')}</p>
+              <p className="text-xs text-gray-500 mt-1">{t('contactsDesc')}</p>
             </div>
           </div>
           
           <p className="text-sm text-gray-500 mt-6">
-            Estamos trabajando en esta funcionalidad. ¡Pronto estará disponible!
+            {t('workingOnIt')}
           </p>
         </div>
       </div>
