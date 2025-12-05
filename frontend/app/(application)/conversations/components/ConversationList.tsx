@@ -109,15 +109,33 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
     }
   }
 
+  // Web conversation interface
+  interface WebConversation {
+    id: string
+    widget_id: string
+    widget_name: string
+    visitor_id: string
+    visitor_name: string | null
+    visitor_email: string | null
+    last_message_preview: string | null
+    last_message_at: string | null
+    unread_count: number
+    status: string
+  }
+
   const fetchConversations = async () => {
     try {
-      // Fetch WhatsApp conversations
-      const whatsappResponse = await ApiClient.request('/api/whatsapp/conversations')
+      // Fetch both WhatsApp and Web conversations in parallel for better performance
+      const [whatsappResponse, webResponse] = await Promise.allSettled([
+        ApiClient.request('/api/whatsapp/conversations'),
+        ApiClient.request('/api/chat-widgets/conversations/all')
+      ])
       
       let allConversations: Conversation[] = []
       
-      if (whatsappResponse.success && whatsappResponse.data) {
-        const whatsappMapped = (whatsappResponse.data as ApiConversation[]).map((conv): Conversation => ({
+      // Process WhatsApp conversations
+      if (whatsappResponse.status === 'fulfilled' && whatsappResponse.value.success && whatsappResponse.value.data) {
+        const whatsappMapped = (whatsappResponse.value.data as ApiConversation[]).map((conv): Conversation => ({
           id: conv.id,
           name: conv.contact_name || conv.contact_phone || 'Unknown',
           phone: conv.contact_phone || '',
@@ -133,42 +151,22 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
         allConversations = [...whatsappMapped]
       }
 
-      // Fetch Web Widget conversations
-      try {
-        const webResponse = await ApiClient.request('/api/chat-widgets/conversations/all')
-        
-        if (webResponse.success && webResponse.data) {
-          interface WebConversation {
-            id: string
-            widget_id: string
-            widget_name: string
-            visitor_id: string
-            visitor_name: string | null
-            visitor_email: string | null
-            last_message_preview: string | null
-            last_message_at: string | null
-            unread_count: number
-            status: string
-          }
-          
-          const webMapped = (webResponse.data as WebConversation[]).map((conv): Conversation => ({
-            id: `web_${conv.id}`, // Prefix to distinguish from WhatsApp
-            name: conv.visitor_name || conv.visitor_email || `Visitor ${conv.visitor_id.slice(-6)}`,
-            phone: conv.visitor_email || '',
-            avatar: undefined,
-            lastMessage: conv.last_message_preview || '',
-            timestamp: conv.last_message_at || '',
-            unreadCount: conv.id === selectedConversationId?.replace('web_', '') ? 0 : (conv.unread_count || 0),
-            source: 'web',
-            needsAttention: conv.unread_count > 0,
-            isOnline: false,
-            chatbotEnabled: true,
-          }))
-          allConversations = [...allConversations, ...webMapped]
-        }
-      } catch (webError) {
-        console.error('Error fetching web conversations:', webError)
-        // Continue with WhatsApp conversations only
+      // Process Web Widget conversations
+      if (webResponse.status === 'fulfilled' && webResponse.value.success && webResponse.value.data) {
+        const webMapped = (webResponse.value.data as WebConversation[]).map((conv): Conversation => ({
+          id: `web_${conv.id}`,
+          name: conv.visitor_name || conv.visitor_email || `Visitor ${conv.visitor_id.slice(-6)}`,
+          phone: conv.visitor_email || '',
+          avatar: undefined,
+          lastMessage: conv.last_message_preview || '',
+          timestamp: conv.last_message_at || '',
+          unreadCount: conv.id === selectedConversationId?.replace('web_', '') ? 0 : (conv.unread_count || 0),
+          source: 'web',
+          needsAttention: conv.unread_count > 0,
+          isOnline: false,
+          chatbotEnabled: true,
+        }))
+        allConversations = [...allConversations, ...webMapped]
       }
 
       // Sort all conversations by timestamp

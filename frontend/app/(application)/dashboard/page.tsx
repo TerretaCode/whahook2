@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
@@ -12,7 +12,6 @@ import {
   MessageSquare, 
   Users, 
   Globe,
-  Activity,
   ArrowRight,
   Settings,
   Bot,
@@ -44,6 +43,23 @@ interface DashboardStats {
   totalAiActive: number
 }
 
+const DEFAULT_STATS: DashboardStats = {
+  totalConversations: 0,
+  whatsappConversations: 0,
+  webConversations: 0,
+  todayConversations: 0,
+  totalClients: 0,
+  whatsappSessions: 0,
+  webWidgets: 0,
+  needsAttention: 0,
+  whatsappNeedsAttention: 0,
+  webNeedsAttention: 0,
+  whatsappAiActive: 0,
+  webAiActive: 0,
+  clientsAiActive: false,
+  totalAiActive: 0
+}
+
 export default function DashboardPage() {
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
@@ -53,25 +69,12 @@ export default function DashboardPage() {
   const canViewMessages = isOwner || hasPermission('messages')
   const canViewClients = isOwner || hasPermission('clients')
   const canViewSettings = isOwner || hasPermission('settings')
-  const [stats, setStats] = useState<DashboardStats>({
-    totalConversations: 0,
-    whatsappConversations: 0,
-    webConversations: 0,
-    todayConversations: 0,
-    totalClients: 0,
-    whatsappSessions: 0,
-    webWidgets: 0,
-    needsAttention: 0,
-    whatsappNeedsAttention: 0,
-    webNeedsAttention: 0,
-    whatsappAiActive: 0,
-    webAiActive: 0,
-    clientsAiActive: false,
-    totalAiActive: 0
-  })
-  const [isLoading, setIsLoading] = useState(true)
+  
+  const [stats, setStats] = useState<DashboardStats>(DEFAULT_STATS)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [togglingAi, setTogglingAi] = useState<string | null>(null)
+  const lastWorkspaceId = useRef<string | null>(null)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -79,34 +82,52 @@ export default function DashboardPage() {
     }
   }, [user, authLoading, router])
 
-  useEffect(() => {
-    if (user && workspace) {
-      fetchStats()
-      // Auto-refresh every 30 seconds
-      const interval = setInterval(fetchStats, 30000)
-      return () => clearInterval(interval)
-    }
-  }, [user, workspace])
-
-  const fetchStats = async (showRefresh = false) => {
+  // Memoized fetch function to avoid recreating on every render
+  const fetchStats = useCallback(async (isManualRefresh = false) => {
+    if (!workspace?.id) return
+    
     try {
-      if (showRefresh) setIsRefreshing(true)
-      else setIsLoading(true)
+      if (isManualRefresh) {
+        setIsRefreshing(true)
+      }
       
-      const url = workspace?.id 
-        ? `/api/dashboard/stats?workspace_id=${workspace.id}`
-        : '/api/dashboard/stats'
-      const response = await ApiClient.request(url)
+      const response = await ApiClient.request(
+        `/api/dashboard/stats?workspace_id=${workspace.id}`
+      )
+      
       if (response.success && response.data) {
         setStats(response.data as DashboardStats)
       }
     } catch (error) {
       console.error('Failed to fetch stats:', error)
     } finally {
-      setIsLoading(false)
+      setIsInitialLoad(false)
       setIsRefreshing(false)
     }
-  }
+  }, [workspace?.id])
+
+  // Initial load and workspace change
+  useEffect(() => {
+    if (user && workspace?.id) {
+      // Only show loading state on workspace change
+      if (lastWorkspaceId.current !== workspace.id) {
+        setIsInitialLoad(true)
+        lastWorkspaceId.current = workspace.id
+      }
+      fetchStats()
+    }
+  }, [user, workspace?.id, fetchStats])
+
+  // Auto-refresh every 30 seconds (silent, no loading state)
+  useEffect(() => {
+    if (!user || !workspace?.id) return
+    
+    const interval = setInterval(() => {
+      fetchStats(false)
+    }, 30000)
+    
+    return () => clearInterval(interval)
+  }, [user, workspace?.id, fetchStats])
 
   const toggleAi = async (type: 'all' | 'whatsapp' | 'web' | 'clients', enable: boolean) => {
     try {
@@ -222,8 +243,8 @@ export default function DashboardPage() {
                   </span>
                 )}
               </div>
-              <p className={`text-3xl font-bold ${stats.needsAttention > 0 ? 'text-red-600' : 'text-gray-900'}`}>
-                {isLoading ? '-' : stats.needsAttention}
+              <p className={`text-3xl font-bold transition-opacity duration-200 ${stats.needsAttention > 0 ? 'text-red-600' : 'text-gray-900'} ${isInitialLoad ? 'opacity-50' : 'opacity-100'}`}>
+                {stats.needsAttention}
               </p>
               <p className="text-sm text-gray-500 mt-1">Requieren atención</p>
             </div>
@@ -242,8 +263,8 @@ export default function DashboardPage() {
                   HOY
                 </span>
               </div>
-              <p className="text-3xl font-bold text-gray-900">
-                {isLoading ? '-' : stats.todayConversations}
+              <p className={`text-3xl font-bold text-gray-900 transition-opacity duration-200 ${isInitialLoad ? 'opacity-50' : 'opacity-100'}`}>
+                {stats.todayConversations}
               </p>
               <p className="text-sm text-gray-500 mt-1">Conversaciones</p>
             </div>
@@ -259,8 +280,8 @@ export default function DashboardPage() {
                   <MessageSquare className="w-5 h-5 text-blue-600" />
                 </div>
               </div>
-              <p className="text-3xl font-bold text-gray-900">
-                {isLoading ? '-' : stats.totalConversations}
+              <p className={`text-3xl font-bold text-gray-900 transition-opacity duration-200 ${isInitialLoad ? 'opacity-50' : 'opacity-100'}`}>
+                {stats.totalConversations}
               </p>
               <p className="text-sm text-gray-500 mt-1">Total conversaciones</p>
               <div className="flex gap-3 mt-2 text-xs text-gray-400">
@@ -284,8 +305,8 @@ export default function DashboardPage() {
                   <Users className="w-5 h-5 text-purple-600" />
                 </div>
               </div>
-              <p className="text-3xl font-bold text-gray-900">
-                {isLoading ? '-' : stats.totalClients}
+              <p className={`text-3xl font-bold text-gray-900 transition-opacity duration-200 ${isInitialLoad ? 'opacity-50' : 'opacity-100'}`}>
+                {stats.totalClients}
               </p>
               <p className="text-sm text-gray-500 mt-1">Clientes</p>
             </div>

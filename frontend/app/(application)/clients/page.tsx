@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
@@ -46,8 +46,9 @@ export default function ClientsPage() {
   const [filteredClients, setFilteredClients] = useState<Client[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<'all' | 'customer' | 'prospect' | 'lead' | 'inactive'>('all')
-  const [isLoading, setIsLoading] = useState(true)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isSyncing, setIsSyncing] = useState(false)
+  const lastWorkspaceId = useRef<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [autoCapture, setAutoCapture] = useState(false)
@@ -59,12 +60,34 @@ export default function ClientsPage() {
     }
   }, [user, authLoading, router])
 
+  // Memoized fetch function
+  const fetchClients = useCallback(async () => {
+    if (!workspace?.id) return
+    try {
+      const response = await ApiClient.request<Client[]>(
+        `/api/clients?workspace_id=${workspace.id}`
+      )
+      if (response.success && response.data) {
+        setClients(response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching clients:', error)
+    } finally {
+      setIsInitialLoad(false)
+    }
+  }, [workspace?.id])
+
   useEffect(() => {
-    if (user && workspace) {
+    if (user && workspace?.id) {
+      // Only show loading on workspace change
+      if (lastWorkspaceId.current !== workspace.id) {
+        setIsInitialLoad(true)
+        lastWorkspaceId.current = workspace.id
+      }
       fetchClients()
       fetchSettings()
     }
-  }, [user, workspace])
+  }, [user, workspace?.id, fetchClients])
 
   const fetchSettings = async () => {
     try {
@@ -97,23 +120,7 @@ export default function ClientsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clients, searchQuery, statusFilter])
 
-  const fetchClients = async () => {
-    try {
-      setIsLoading(true)
-      const url = workspace?.id 
-        ? `/api/clients?workspace_id=${workspace.id}`
-        : '/api/clients'
-      const response = await ApiClient.request<Client[]>(url)
-      if (response.success && response.data) {
-        setClients(response.data)
-      }
-    } catch (error) {
-      console.error('Error fetching clients:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
+  
   const handleSync = async () => {
     try {
       setIsSyncing(true)
@@ -415,7 +422,7 @@ export default function ClientsPage() {
         {/* Table */}
         <ClientsTable
           clients={filteredClients}
-          isLoading={isLoading}
+          isLoading={isInitialLoad}
           onEdit={handleEditClient}
           onDelete={handleDeleteClient}
           onExtractInfo={handleExtractInfo}
