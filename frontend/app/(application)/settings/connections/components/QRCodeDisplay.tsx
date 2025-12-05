@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback, memo } from 'react'
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react'
 import { Button } from '@/components/ui/button'
 import { Download, Copy, Check } from 'lucide-react'
@@ -11,12 +11,12 @@ interface QRCodeDisplayProps {
   accountName?: string
 }
 
-export function QRCodeDisplay({ qrCode, size = 256, accountName = 'WhatsApp' }: QRCodeDisplayProps) {
+function QRCodeDisplayComponent({ qrCode, size = 256, accountName = 'WhatsApp' }: QRCodeDisplayProps) {
   const [copied, setCopied] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
 
   // Download QR as PNG
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     const canvas = canvasRef.current?.querySelector('canvas')
     if (!canvas) return
 
@@ -24,10 +24,10 @@ export function QRCodeDisplay({ qrCode, size = 256, accountName = 'WhatsApp' }: 
     link.download = `qr-${accountName.replace(/\s+/g, '-').toLowerCase()}.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
-  }
+  }, [accountName])
 
   // Copy QR to clipboard as image
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     const canvas = canvasRef.current?.querySelector('canvas')
     if (!canvas) return
 
@@ -56,7 +56,7 @@ export function QRCodeDisplay({ qrCode, size = 256, accountName = 'WhatsApp' }: 
       // Fallback to download
       handleDownload()
     }
-  }
+  }, [handleDownload])
 
   return (
     <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border-2 border-gray-200">
@@ -120,3 +120,5 @@ export function QRCodeDisplay({ qrCode, size = 256, accountName = 'WhatsApp' }: 
     </div>
   )
 }
+
+export const QRCodeDisplay = memo(QRCodeDisplayComponent)

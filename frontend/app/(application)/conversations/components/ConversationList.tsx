@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { Search, MessageSquare } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ConversationItem } from "./ConversationItem"
@@ -94,7 +94,7 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
   }, [conversations, activeFilter, searchQuery])
 
   // Marcar conversación como leída cuando se selecciona
-  const handleSelectConversation = async (id: string) => {
+  const handleSelectConversation = useCallback(async (id: string) => {
     // Actualizar el contador a 0 para la conversación seleccionada
     setConversations(prev => prev.map(conv => 
       conv.id === id ? { ...conv, unreadCount: 0 } : conv
@@ -107,9 +107,9 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
     } catch (error) {
       console.error('Error marking as read:', error)
     }
-  }
+  }, [onSelectConversation])
 
-  // Web conversation interface
+  // Web conversation interface - moved outside component for clarity
   interface WebConversation {
     id: string
     widget_id: string
@@ -207,12 +207,12 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
     setFilteredConversations(filtered)
   }
 
-  const filters = [
+  const filters = useMemo(() => [
     { id: 'all', label: 'All', count: conversations.length },
     { id: 'whatsapp', label: 'Phone', count: conversations.filter(c => c.source === 'whatsapp').length },
     { id: 'web', label: 'Web', count: conversations.filter(c => c.source === 'web').length },
     { id: 'attention', label: 'Attention', count: conversations.filter(c => c.needsAttention).length },
-  ]
+  ], [conversations])
 
   return (
     <div className="h-full flex flex-col bg-white">
