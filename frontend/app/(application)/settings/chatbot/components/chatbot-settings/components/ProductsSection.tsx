@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -34,6 +35,8 @@ export function ProductsSection({
   isOpen,
   onToggle
 }: ProductsSectionProps) {
+  const t = useTranslations('settings.chatbot.productsSection')
+  
   return (
     <Collapsible open={isOpen} onOpenChange={onToggle}>
       <Card>
@@ -45,8 +48,8 @@ export function ProductsSection({
                   <Package className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">Productos</h3>
-                  <p className="text-sm text-muted-foreground">Configura tu catálogo para que el bot pueda recomendar productos</p>
+                  <h3 className="font-semibold text-lg">{t('title')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
                 </div>
               </div>
               {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -58,13 +61,13 @@ export function ProductsSection({
             {/* Info box */}
             <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
               <p className="text-sm text-green-800 dark:text-green-200">
-                <strong>¿Para qué sirve esto?</strong> Si vendes productos, el bot puede recomendarlos cuando un cliente pregunte "busco algo para el pelo seco" o "qué me recomiendas para regalo".
+                <strong>{t('whyThisTitle')}</strong> {t('whyThisDesc')}
               </p>
             </div>
 
             {/* Recommend products toggle */}
             <div className="p-4 bg-muted/50 rounded-lg">
-              <Label className="font-medium mb-3 block">¿Quieres que el bot recomiende productos?</Label>
+              <Label className="font-medium mb-3 block">{t('recommendProducts')}</Label>
               <div className="flex gap-4 mt-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -74,7 +77,7 @@ export function ProductsSection({
                     onChange={() => updateField('recommend_products', true)}
                     className="w-4 h-4"
                   />
-                  <span>Sí, vendo productos o servicios</span>
+                  <span>{t('yesProducts')}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -84,18 +87,18 @@ export function ProductsSection({
                     onChange={() => updateField('recommend_products', false)}
                     className="w-4 h-4"
                   />
-                  <span>No, mi bot solo informa</span>
+                  <span>{t('noProducts')}</span>
                 </label>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">Si eliges "No", el bot solo responderá preguntas pero no recomendará productos.</p>
+              <p className="text-xs text-muted-foreground mt-2">{t('recommendHint')}</p>
             </div>
 
             {formData?.recommend_products && (
               <>
                 {/* Product sources */}
                 <div>
-                  <h4 className="font-medium mb-2">¿De dónde sacamos tus productos?</h4>
-                  <p className="text-sm text-muted-foreground mb-4">Puedes importar productos de tu tienda online, subir un Excel/CSV, o añadirlos uno a uno.</p>
+                  <h4 className="font-medium mb-2">{t('productSources')}</h4>
+                  <p className="text-sm text-muted-foreground mb-4">{t('productSourcesDesc')}</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* API Card */}
@@ -107,17 +110,17 @@ export function ProductsSection({
                     {ecommerceConnections.length > 0 ? (
                       <>
                         <p className="text-sm text-muted-foreground mb-2">
-                          {ecommerceConnections.length} conexión(es)
+                          {t('connections', { count: ecommerceConnections.length })}
                         </p>
                         <Button variant="outline" size="sm" className="w-full">
-                          <RefreshCw className="w-4 h-4 mr-2" /> Sincronizar
+                          <RefreshCw className="w-4 h-4 mr-2" /> {t('sync')}
                         </Button>
                       </>
                     ) : (
                       <>
-                        <p className="text-sm text-muted-foreground mb-2">Sin conexiones</p>
+                        <p className="text-sm text-muted-foreground mb-2">{t('noConnections')}</p>
                         <Button variant="outline" size="sm" className="w-full">
-                          Conectar API
+                          {t('connectApi')}
                         </Button>
                       </>
                     )}
@@ -129,9 +132,9 @@ export function ProductsSection({
                       <FileSpreadsheet className="w-5 h-5 text-green-500" />
                       <span className="font-medium">CSV</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">0 productos</p>
+                    <p className="text-sm text-muted-foreground mb-2">{t('zeroProducts')}</p>
                     <Button variant="outline" size="sm" className="w-full">
-                      Importar CSV
+                      {t('importCsv')}
                     </Button>
                   </Card>
 
@@ -141,16 +144,16 @@ export function ProductsSection({
                       <Edit3 className="w-5 h-5 text-green-600" />
                       <span className="font-medium">Manual</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">0 productos</p>
+                    <p className="text-sm text-muted-foreground mb-2">{t('zeroProducts')}</p>
                     <Button variant="outline" size="sm" className="w-full">
-                      <Plus className="w-4 h-4 mr-2" /> Añadir
+                      <Plus className="w-4 h-4 mr-2" /> {t('add')}
                     </Button>
                   </Card>
                 </div>
 
                 <div className="flex justify-end">
                   <Button variant="outline" size="sm">
-                    <Eye className="w-4 h-4 mr-2" /> Ver todos los productos
+                    <Eye className="w-4 h-4 mr-2" /> {t('viewAll')}
                   </Button>
                 </div>
 
@@ -158,12 +161,12 @@ export function ProductsSection({
 
                 {/* Categories placeholder */}
                 <div>
-                  <h4 className="font-medium mb-2">Categorías y preguntas de filtrado</h4>
+                  <h4 className="font-medium mb-2">{t('categories')}</h4>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Organiza tus productos en categorías (ej: "Champús", "Cremas", "Maquillaje"). El bot hará preguntas para entender qué busca el cliente antes de recomendar.
+                    {t('categoriesDesc')}
                   </p>
                   <Button variant="outline" size="sm" className="mt-3">
-                    <Plus className="w-4 h-4 mr-2" /> Nueva categoría
+                    <Plus className="w-4 h-4 mr-2" /> {t('newCategory')}
                   </Button>
                 </div>
 
@@ -171,8 +174,8 @@ export function ProductsSection({
 
                 {/* Recommendation format */}
                 <div>
-                  <h4 className="font-medium mb-2">Cuando el bot recomiende un producto, ¿qué información debe incluir?</h4>
-                  <p className="text-sm text-muted-foreground mb-3">Marca lo que quieres que aparezca en cada recomendación.</p>
+                  <h4 className="font-medium mb-2">{t('recommendationFormat')}</h4>
+                  <p className="text-sm text-muted-foreground mb-3">{t('recommendationFormatDesc')}</p>
                   <div className="flex flex-wrap gap-3">
                     {['Nombre', 'Precio', 'Beneficios', 'Link', 'Ingredientes', 'Modo de uso'].map((field) => (
                       <label key={field} className="flex items-center gap-2 cursor-pointer">
@@ -198,7 +201,7 @@ export function ProductsSection({
                 {/* Max products */}
                 <div>
                   <div className="flex items-center gap-4">
-                    <Label>Máximo de productos por respuesta:</Label>
+                    <Label>{t('maxProducts')}</Label>
                     <Input
                       type="number"
                       min={1}
@@ -208,18 +211,18 @@ export function ProductsSection({
                       className="w-20"
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">Si pones 3, el bot dirá "Te recomiendo estos 3 productos..." en lugar de mostrar 10 de golpe.</p>
+                  <p className="text-xs text-muted-foreground mt-2">{t('maxProductsHint')}</p>
                 </div>
 
                 {/* No results behavior */}
                 <div>
-                  <h4 className="font-medium mb-2">Si el bot no encuentra productos que encajen, ¿qué hace?</h4>
-                  <p className="text-sm text-muted-foreground mb-3">Puedes marcar varias opciones. El bot las combinará según la situación.</p>
+                  <h4 className="font-medium mb-2">{t('noResults')}</h4>
+                  <p className="text-sm text-muted-foreground mb-3">{t('noResultsDesc')}</p>
                   <div className="space-y-2">
                     {[
-                      { value: 'alternatives', label: 'Sugerir alternativas similares' },
-                      { value: 'ask_more', label: 'Pedir más información al cliente' },
-                      { value: 'offer_human', label: 'Ofrecer atención humana' }
+                      { value: 'alternatives', label: t('noResultsAlternatives') },
+                      { value: 'ask_more', label: t('noResultsAskMore') },
+                      { value: 'offer_human', label: t('noResultsHuman') }
                     ].map((option) => (
                       <label key={option.value} className="flex items-center gap-2 cursor-pointer">
                         <input

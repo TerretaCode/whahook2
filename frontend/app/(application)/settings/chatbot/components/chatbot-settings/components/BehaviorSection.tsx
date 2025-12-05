@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -32,6 +33,8 @@ export function BehaviorSection({
   isOpen,
   onToggle
 }: BehaviorSectionProps) {
+  const t = useTranslations('settings.chatbot.behaviorSection')
+  
   return (
     <Collapsible open={isOpen} onOpenChange={onToggle}>
       <Card>
@@ -43,8 +46,8 @@ export function BehaviorSection({
                   <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">Comportamiento del Bot</h3>
-                  <p className="text-sm text-muted-foreground">Define qué debe hacer y qué NO debe hacer tu bot</p>
+                  <h3 className="font-semibold text-lg">{t('title')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
                 </div>
               </div>
               {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -56,20 +59,20 @@ export function BehaviorSection({
             {/* Info box */}
             <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
               <p className="text-sm text-green-800 dark:text-green-200">
-                <strong>¿Para qué sirve esto?</strong> Aquí defines la "misión" de tu bot. ¿Su trabajo es vender? ¿Resolver dudas? ¿Captar emails? También puedes decirle qué cosas NO debe hacer nunca.
+                <strong>{t('whyThisTitle')}</strong> {t('whyThisDesc')}
               </p>
             </div>
 
             {/* Objectives - Multi-select */}
             <div>
-              <h4 className="font-medium mb-2">Objetivos del bot (puedes marcar varios):</h4>
-              <p className="text-sm text-muted-foreground mb-3">Esto ayuda al bot a priorizar. Si marcas "Vender", intentará recomendar productos. Si marcas "Captar leads", pedirá datos de contacto.</p>
+              <h4 className="font-medium mb-2">{t('objectives')}</h4>
+              <p className="text-sm text-muted-foreground mb-3">{t('objectivesDesc')}</p>
               <div className="space-y-2">
                 {[
-                  { value: 'sell', label: 'Vender / Recomendar productos' },
-                  { value: 'inform', label: 'Informar / Resolver dudas' },
-                  { value: 'leads', label: 'Captar leads / Recopilar datos' },
-                  { value: 'support', label: 'Soporte post-venta' }
+                  { value: 'sell', label: t('objectiveSell') },
+                  { value: 'inform', label: t('objectiveInform') },
+                  { value: 'leads', label: t('objectiveLeads') },
+                  { value: 'support', label: t('objectiveSupport') }
                 ].map((option) => (
                   <label key={option.value} className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -96,7 +99,7 @@ export function BehaviorSection({
                       value={objective}
                       onChange={(e) => updateArrayItem('custom_objectives', index, e.target.value)}
                       className="flex-1"
-                      placeholder="Objetivo personalizado"
+                      placeholder={t('customObjective')}
                     />
                     <Button variant="ghost" size="icon" onClick={() => removeFromArray('custom_objectives', index)}>
                       <X className="w-4 h-4" />
@@ -108,7 +111,7 @@ export function BehaviorSection({
                   size="sm"
                   onClick={() => addToArray('custom_objectives', '')}
                 >
-                  <Plus className="w-4 h-4 mr-2" /> Añadir objetivo personalizado
+                  <Plus className="w-4 h-4 mr-2" /> {t('addObjective')}
                 </Button>
               </div>
             </div>
@@ -117,9 +120,9 @@ export function BehaviorSection({
 
             {/* Restrictions */}
             <div>
-              <h4 className="font-medium mb-2">El bot NO debe:</h4>
+              <h4 className="font-medium mb-2">{t('restrictions')}</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                Añade cosas que el bot nunca debe hacer. Ej: "No dar precios de competidores", "No prometer plazos de entrega", "No hablar de política".
+                {t('restrictionsDesc')}
               </p>
               <div className="space-y-2">
                 {(formData?.restrictions || []).map((restriction: string, index: number) => (
@@ -139,7 +142,7 @@ export function BehaviorSection({
                   size="sm"
                   onClick={() => addToArray('restrictions', '')}
                 >
-                  <Plus className="w-4 h-4 mr-2" /> Añadir restricción
+                  <Plus className="w-4 h-4 mr-2" /> {t('addRestriction')}
                 </Button>
               </div>
             </div>
@@ -148,12 +151,12 @@ export function BehaviorSection({
 
             {/* Special instructions */}
             <div>
-              <h4 className="font-medium mb-2">Instrucciones especiales:</h4>
+              <h4 className="font-medium mb-2">{t('specialInstructions')}</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                Cualquier otra cosa que quieras que el bot tenga en cuenta. Esto es como darle "notas" adicionales.
+                {t('specialInstructionsDesc')}
               </p>
               <Textarea
-                placeholder="Ej: Siempre menciona que tenemos envío gratis a partir de 50€. Si preguntan por tallas, recomienda consultar la guía de tallas en la web. Cuando alguien pregunte por un producto agotado, ofrece apuntarle a la lista de espera."
+                placeholder={t('specialInstructionsPlaceholder')}
                 rows={4}
                 value={formData?.special_instructions || ''}
                 onChange={(e) => updateField('special_instructions', e.target.value)}
