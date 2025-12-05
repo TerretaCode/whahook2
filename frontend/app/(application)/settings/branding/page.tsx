@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from 'next-intl'
 import { useAuth } from "@/contexts/AuthContext"
 import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
@@ -75,6 +76,8 @@ const DEFAULT_SMTP: SmtpConfig = {
 
 export default function AgencyBrandingPage() {
   const router = useRouter()
+  const t = useTranslations('settings.branding')
+  const tCommon = useTranslations('common')
   const { user, isLoading: authLoading } = useAuth()
   
   const [branding, setBranding] = useState<AgencyBranding>(DEFAULT_BRANDING)
@@ -154,14 +157,14 @@ export default function AgencyBrandingPage() {
 
   const handleSaveSmtp = async () => {
     if (!isEnterprise) {
-      toast.error('Plan Enterprise requerido', 'Actualiza tu plan para usar SMTP personalizado')
+      toast.error(t('enterpriseRequired'), t('upgradeForSmtp'))
       return
     }
 
     // Validate required fields if SMTP is enabled
     if (smtpConfig.enabled) {
       if (!smtpConfig.host || !smtpConfig.auth_user || !smtpConfig.from_email) {
-        toast.error('Campos requeridos', 'Completa todos los campos obligatorios')
+        toast.error(t('requiredFields'), t('completeAllFields'))
         return
       }
     }
@@ -170,12 +173,12 @@ export default function AgencyBrandingPage() {
       setIsSavingSmtp(true)
       const response = await ApiClient.put('/api/smtp', smtpConfig)
       if (response.success) {
-        toast.success('Guardado', 'Configuración SMTP guardada correctamente')
+        toast.success(tCommon('success'), t('smtpSaved'))
         // Clear password field after save
         setSmtpConfig(prev => ({ ...prev, auth_pass: '' }))
       }
     } catch (error: any) {
-      toast.error('Error', error.message || 'No se pudo guardar la configuración SMTP')
+      toast.error(tCommon('error'), error.message || t('smtpSaveError'))
     } finally {
       setIsSavingSmtp(false)
     }
@@ -183,7 +186,7 @@ export default function AgencyBrandingPage() {
 
   const handleTestSmtp = async () => {
     if (!smtpConfig.host || !smtpConfig.auth_user || !smtpConfig.from_email) {
-      toast.error('Configuración incompleta', 'Completa la configuración SMTP antes de probar')
+      toast.error(t('incompleteConfig'), t('completeSmtpFirst'))
       return
     }
 
@@ -194,10 +197,10 @@ export default function AgencyBrandingPage() {
         test_email: user?.email
       })
       if (response.success) {
-        toast.success('Email enviado', `Se ha enviado un email de prueba a ${user?.email}`)
+        toast.success(t('emailSent'), t('testEmailSentTo', { email: user?.email || '' }))
       }
     } catch (error: any) {
-      toast.error('Error de conexión', error.message || 'No se pudo conectar al servidor SMTP')
+      toast.error(t('connectionError'), error.message || t('smtpConnectionError'))
     } finally {
       setIsTestingSmtp(false)
     }
@@ -205,12 +208,12 @@ export default function AgencyBrandingPage() {
 
   const handleSaveDomain = async () => {
     if (!isEnterprise) {
-      toast.error('Plan Enterprise requerido', 'Actualiza tu plan para usar dominio personalizado')
+      toast.error(t('enterpriseRequired'), t('upgradeForDomain'))
       return
     }
 
     if (!domainInput.trim()) {
-      toast.error('Error', 'Introduce un dominio válido')
+      toast.error(tCommon('error'), t('enterValidDomain'))
       return
     }
 
@@ -220,10 +223,10 @@ export default function AgencyBrandingPage() {
       if (response.success) {
         setCustomDomain(domainInput.trim())
         setDomainVerified(false)
-        toast.success('Dominio guardado', 'Ahora configura el DNS y verifica el dominio')
+        toast.success(t('domainSaved'), t('configureDnsNow'))
       }
     } catch (error: any) {
-      toast.error('Error', error.message || 'No se pudo guardar el dominio')
+      toast.error(tCommon('error'), error.message || t('domainSaveError'))
     } finally {
       setIsSavingDomain(false)
     }
@@ -235,17 +238,17 @@ export default function AgencyBrandingPage() {
       const response = await ApiClient.post('/api/domains/verify', {})
       if (response.success) {
         setDomainVerified(true)
-        toast.success('¡Dominio verificado!', 'Tu dominio personalizado está activo')
+        toast.success(t('domainVerified'), t('domainActive'))
       }
     } catch (error: any) {
-      toast.error('Verificación fallida', error.message || 'Asegúrate de haber configurado el DNS correctamente')
+      toast.error(t('verificationFailed'), error.message || t('checkDnsConfig'))
     } finally {
       setIsVerifyingDomain(false)
     }
   }
 
   const handleDeleteDomain = async () => {
-    if (!confirm('¿Estás seguro de que quieres eliminar el dominio personalizado?')) {
+    if (!confirm(t('confirmDeleteDomain'))) {
       return
     }
 
@@ -256,10 +259,10 @@ export default function AgencyBrandingPage() {
         setCustomDomain('')
         setDomainVerified(false)
         setDomainInput('')
-        toast.success('Dominio eliminado', 'El dominio personalizado ha sido eliminado')
+        toast.success(t('domainDeleted'), t('domainDeletedDesc'))
       }
     } catch (error: any) {
-      toast.error('Error', error.message || 'No se pudo eliminar el dominio')
+      toast.error(tCommon('error'), error.message || t('domainDeleteError'))
     } finally {
       setIsDeletingDomain(false)
     }
@@ -267,12 +270,12 @@ export default function AgencyBrandingPage() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    toast.success('Copiado', 'Texto copiado al portapapeles')
+    toast.success(tCommon('copied'), tCommon('copied'))
   }
 
   const handleSave = async () => {
     if (!isEnterprise) {
-      toast.error('Plan Enterprise requerido', 'Actualiza tu plan para usar branding personalizado')
+      toast.error(t('enterpriseRequired'), t('upgradeForBranding'))
       return
     }
 
@@ -280,10 +283,10 @@ export default function AgencyBrandingPage() {
       setIsSaving(true)
       const response = await ApiClient.put('/api/branding', branding)
       if (response.success) {
-        toast.success('Guardado', 'Branding actualizado correctamente')
+        toast.success(tCommon('success'), t('brandingSaved'))
       }
     } catch (error: any) {
-      toast.error('Error', error.message || 'No se pudo guardar el branding')
+      toast.error(tCommon('error'), error.message || t('brandingSaveError'))
     } finally {
       setIsSaving(false)
     }
@@ -294,7 +297,7 @@ export default function AgencyBrandingPage() {
     if (!file) return
 
     if (!isEnterprise) {
-      toast.error('Plan Enterprise requerido', 'Actualiza tu plan para subir logos')
+      toast.error(t('enterpriseRequired'), t('upgradeForLogos'))
       return
     }
 
@@ -310,12 +313,12 @@ export default function AgencyBrandingPage() {
           ...prev,
           logo_url: response.data!.url
         }))
-        toast.success('Logo subido', 'El logo se ha subido correctamente')
+        toast.success(t('logoUploaded'), t('logoUploadedDesc'))
         // Auto-save after upload
         await handleSave()
       }
     } catch (error: any) {
-      toast.error('Error', error.message || 'No se pudo subir el logo')
+      toast.error(tCommon('error'), error.message || t('logoUploadError'))
     } finally {
       setIsUploading(false)
     }
@@ -326,13 +329,13 @@ export default function AgencyBrandingPage() {
     if (!file) return
 
     if (!isEnterprise) {
-      toast.error('Plan Enterprise requerido', 'Actualiza tu plan para subir favicon')
+      toast.error(t('enterpriseRequired'), t('upgradeForFavicon'))
       return
     }
 
     // Validate file size (max 100KB for favicon)
     if (file.size > 100 * 1024) {
-      toast.error('Archivo muy grande', 'El favicon debe ser menor a 100KB')
+      toast.error(t('fileTooLarge'), t('faviconMaxSize'))
       return
     }
 
@@ -348,12 +351,12 @@ export default function AgencyBrandingPage() {
           ...prev,
           favicon_url: response.data!.url
         }))
-        toast.success('Favicon subido', 'El favicon se ha subido correctamente')
+        toast.success(t('faviconUploaded'), t('faviconUploadedDesc'))
         // Auto-save after upload
         await handleSave()
       }
     } catch (error: any) {
-      toast.error('Error', error.message || 'No se pudo subir el favicon')
+      toast.error(tCommon('error'), error.message || t('faviconUploadError'))
     } finally {
       setIsUploadingFavicon(false)
     }
@@ -376,9 +379,9 @@ export default function AgencyBrandingPage() {
             <Palette className="w-6 h-6 text-green-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Branding de Agencia</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
             <p className="text-gray-600">
-              Personaliza la apariencia de tu cuenta y widgets
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -387,12 +390,12 @@ export default function AgencyBrandingPage() {
             {isSaving ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Guardando...
+                {t('saving')}
               </>
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2" />
-                Guardar cambios
+                {t('saveChanges')}
               </>
             )}
           </Button>
@@ -408,16 +411,15 @@ export default function AgencyBrandingPage() {
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-green-900 mb-1">
-                Plan Enterprise requerido
+                {t('enterpriseRequired')}
               </h3>
               <p className="text-green-700 mb-4">
-                El branding personalizado está disponible exclusivamente para el plan Enterprise.
-                Personaliza tu logo, colores y elimina la marca "Powered by Whahook".
+                {t('enterpriseDescription')}
               </p>
               <Link href="/settings/billing">
                 <Button className="bg-green-600 hover:bg-green-700 text-white">
                   <Crown className="w-4 h-4 mr-2" />
-                  Actualizar a Enterprise
+                  {t('upgradeToEnterprise')}
                 </Button>
               </Link>
             </div>
@@ -429,9 +431,9 @@ export default function AgencyBrandingPage() {
       <div className={`space-y-6 ${!isEnterprise ? 'opacity-50 pointer-events-none' : ''}`}>
         {/* Logo Section */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Logo</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('logo')}</h2>
           <div>
-            <Label className="mb-2 block">Logo de la agencia</Label>
+            <Label className="mb-2 block">{t('agencyLogo')}</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors max-w-md">
               {branding.logo_url ? (
                 <div className="space-y-3">
@@ -445,14 +447,14 @@ export default function AgencyBrandingPage() {
                     size="sm"
                     onClick={() => setBranding(prev => ({ ...prev, logo_url: null }))}
                   >
-                    Eliminar
+                    {tCommon('delete')}
                   </Button>
                 </div>
               ) : (
                 <label className="cursor-pointer">
                   <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-600">Haz clic para subir</p>
-                  <p className="text-xs text-gray-400">PNG, JPG o SVG (max 2MB)</p>
+                  <p className="text-sm text-gray-600">{t('clickToUpload')}</p>
+                  <p className="text-xs text-gray-400">{t('logoFormats')}</p>
                   <input
                     type="file"
                     accept="image/*"
@@ -468,7 +470,7 @@ export default function AgencyBrandingPage() {
           {/* Favicon Section */}
           <div className="mt-6 pt-6 border-t border-gray-100">
             <Label className="mb-2 block">
-              Favicon <span className="text-gray-400 font-normal">(icono de pestaña)</span>
+              {t('favicon')} <span className="text-gray-400 font-normal">({t('tabIcon')})</span>
             </Label>
             <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center max-w-xs">
               {isUploadingFavicon ? (
@@ -485,14 +487,14 @@ export default function AgencyBrandingPage() {
                     size="sm"
                     onClick={() => setBranding(prev => ({ ...prev, favicon_url: null }))}
                   >
-                    Eliminar
+                    {tCommon('delete')}
                   </Button>
                 </div>
               ) : (
                 <label className="cursor-pointer">
                   <Upload className="w-6 h-6 mx-auto text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-600">Subir favicon</p>
-                  <p className="text-xs text-gray-400">ICO, PNG o SVG (max 100KB)</p>
+                  <p className="text-sm text-gray-600">{t('uploadFavicon')}</p>
+                  <p className="text-xs text-gray-400">{t('faviconFormats')}</p>
                   <input
                     type="file"
                     accept=".ico,.png,.svg,image/x-icon,image/png,image/svg+xml"
@@ -504,14 +506,14 @@ export default function AgencyBrandingPage() {
               )}
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              El favicon aparece en la pestaña del navegador. Recomendado: 32x32 o 16x16 píxeles.
+              {t('faviconHint')}
             </p>
           </div>
 
           {/* Tab Title */}
           <div className="mt-4">
             <Label htmlFor="tab_title" className="mb-2 block">
-              Título de pestaña
+              {t('tabTitle')}
             </Label>
             <Input
               id="tab_title"
