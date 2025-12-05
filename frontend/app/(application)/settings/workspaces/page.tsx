@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -116,7 +116,7 @@ export default function WorkspacesPage() {
     }
   }
 
-  const revalidateInBackground = async () => {
+  const revalidateInBackground = useCallback(async () => {
     try {
       const response = await ApiClient.request<WorkspacesData>('/api/workspaces')
       if (response.success && response.data) {
@@ -127,9 +127,9 @@ export default function WorkspacesPage() {
     } catch (error) {
       console.warn('Background revalidation failed:', error)
     }
-  }
+  }, [])
 
-  const handleCreate = async () => {
+  const handleCreate = useCallback(async () => {
     if (!newWorkspaceName.trim()) {
       toast.error('Workspace name is required')
       return
@@ -159,9 +159,9 @@ export default function WorkspacesPage() {
     } finally {
       setIsCreating(false)
     }
-  }
+  }, [newWorkspaceName, newWorkspaceDescription])
 
-  const handleUpdate = async (id: string) => {
+  const handleUpdate = useCallback(async (id: string) => {
     if (!editName.trim()) {
       toast.error('Workspace name is required')
       return
@@ -186,9 +186,9 @@ export default function WorkspacesPage() {
     } catch (error: any) {
       toast.error(error.message || 'Failed to update workspace')
     }
-  }
+  }, [editName, editDescription])
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     if (!confirm('Are you sure you want to delete this workspace? All associated data will be lost.')) {
       return
     }
@@ -210,7 +210,7 @@ export default function WorkspacesPage() {
     } finally {
       setDeletingId(null)
     }
-  }
+  }, [])
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useCallback, useMemo, memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { QRCodeDisplay } from './QRCodeDisplay'
 import { 
@@ -18,14 +18,14 @@ interface WhatsAppSessionCardProps {
   onDestroy: (sessionId: string) => Promise<void>
 }
 
-export function WhatsAppSessionCard({ 
+function WhatsAppSessionCardComponent({ 
   session, 
   accountName,
   onDestroy 
 }: WhatsAppSessionCardProps) {
   const [isDestroying, setIsDestroying] = useState(false)
 
-  const handleDestroy = async () => {
+  const handleDestroy = useCallback(async () => {
     if (!confirm('Are you sure you want to disconnect this WhatsApp session?')) {
       return
     }
@@ -38,9 +38,9 @@ export function WhatsAppSessionCard({
     } finally {
       setIsDestroying(false)
     }
-  }
+  }, [onDestroy, session.session_id])
 
-  const getStatusIcon = () => {
+  const statusIcon = useMemo(() => {
     switch (session.status) {
       case 'ready':
         return <CheckCircle2 className="w-5 h-5 text-green-600 status-indicator" />
@@ -52,9 +52,9 @@ export function WhatsAppSessionCard({
       default:
         return <Loader2 className="w-5 h-5 text-gray-600 animate-spin" />
     }
-  }
+  }, [session.status])
 
-  const getStatusText = () => {
+  const statusText = useMemo(() => {
     switch (session.status) {
       case 'ready':
         return 'Connected'
@@ -66,9 +66,9 @@ export function WhatsAppSessionCard({
       default:
         return 'Unknown'
     }
-  }
+  }, [session.status, session.qr_code, session.error_message])
 
-  const getStatusColor = () => {
+  const statusColor = useMemo(() => {
     switch (session.status) {
       case 'ready':
         return 'status-indicator bg-green-100 text-green-800 border-green-200'
@@ -80,7 +80,7 @@ export function WhatsAppSessionCard({
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200'
     }
-  }
+  }, [session.status, session.qr_code])
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
@@ -99,9 +99,9 @@ export function WhatsAppSessionCard({
         </div>
         
         {/* Status Badge */}
-        <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${getStatusColor()}`}>
-          {getStatusIcon()}
-          <span className="text-xs font-medium">{getStatusText()}</span>
+        <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${statusColor}`}>
+          {statusIcon}
+          <span className="text-xs font-medium">{statusText}</span>
         </div>
       </div>
 
@@ -188,3 +188,5 @@ export function WhatsAppSessionCard({
     </div>
   )
 }
+
+export const WhatsAppSessionCard = memo(WhatsAppSessionCardComponent)
