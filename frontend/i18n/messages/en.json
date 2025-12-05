@@ -457,6 +457,40 @@
         "viewer": "Viewer"
       }
     },
+    "members": {
+      "title": "Invitations",
+      "subtitle": "Manage who has access to this workspace",
+      "invite": "Invite",
+      "emailAddress": "Email Address",
+      "emailHint": "This email will also receive workspace notifications (WhatsApp connection/disconnection, etc.)",
+      "role": "Role",
+      "roles": {
+        "adminDesc": "Admin - Full access",
+        "clientDesc": "Client - Dashboard, Messages, Clients, Campaigns + Connections",
+        "agentDesc": "Agent - Dashboard, Messages, Clients, Campaigns",
+        "messagesDesc": "Messages - Dashboard, Messages only",
+        "marketingDesc": "Marketing - Dashboard, Clients & Campaigns"
+      },
+      "sendInvitation": "Send Invitation",
+      "pending": "Pending",
+      "noInvitations": "No invitations yet",
+      "inviteFirst": "Invite your first member to get started",
+      "aboutAccessLinks": "About access links",
+      "aboutAccessLinksDescription": "Each member receives a unique link to access this workspace. Guests can view and manage their data without needing a Whahook account. You can regenerate links at any time to revoke access.",
+      "loadError": "Error loading invitations",
+      "invited": "Invited!",
+      "invitationSent": "Invitation sent to {email}",
+      "inviteError": "Failed to invite member",
+      "confirmRemove": "Are you sure you want to remove this member?",
+      "removed": "Removed",
+      "memberRemoved": "Member has been removed",
+      "removeError": "Failed to remove member",
+      "regenerated": "Regenerated",
+      "linkRegenerated": "Access link has been regenerated",
+      "regenerateError": "Failed to regenerate token",
+      "copied": "Copied!",
+      "linkCopied": "Access link copied to clipboard"
+    },
     "workspaces": {
       "title": "Workspaces",
       "subtitle": "Manage your workspaces, connections, and client access",

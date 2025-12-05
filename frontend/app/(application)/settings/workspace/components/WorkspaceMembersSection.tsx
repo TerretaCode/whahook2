@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { 
@@ -63,6 +64,8 @@ const ROLE_COLORS: Record<string, string> = {
 }
 
 export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSectionProps) {
+  const t = useTranslations('settings.members')
+  const tCommon = useTranslations('common')
   const [members, setMembers] = useState<WorkspaceMember[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showInviteForm, setShowInviteForm] = useState(false)
@@ -81,7 +84,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
       setMembers(response.data || [])
     } catch (error) {
       console.error('Error fetching members:', error)
-      toast.error('Error', 'Error al cargar invitaciones')
+      toast.error(tCommon('error'), t('loadError'))
     } finally {
       setIsLoading(false)
     }
@@ -110,29 +113,29 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
         }
       )
 
-      toast.success('Invited!', `Invitation sent to ${inviteEmail}`)
+      toast.success(t('invited'), t('invitationSent', { email: inviteEmail }))
       setInviteEmail('')
       setShowInviteForm(false)
       fetchMembers()
     } catch (error: any) {
-      toast.error('Error', error.message || 'Failed to invite member')
+      toast.error(tCommon('error'), error.message || t('inviteError'))
     } finally {
       setIsInviting(false)
     }
   }
 
   const handleRemove = async (memberId: string) => {
-    if (!confirm('Are you sure you want to remove this member?')) return
+    if (!confirm(t('confirmRemove'))) return
 
     try {
       await ApiClient.request(
         `/api/workspaces/${workspaceId}/members/${memberId}`,
         { method: 'DELETE' }
       )
-      toast.success('Removed', 'Member has been removed')
+      toast.success(t('removed'), t('memberRemoved'))
       fetchMembers()
     } catch (error: any) {
-      toast.error('Error', error.message || 'Failed to remove member')
+      toast.error(tCommon('error'), error.message || t('removeError'))
     }
   }
 
@@ -142,10 +145,10 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
         `/api/workspaces/${workspaceId}/members/${memberId}/regenerate-token`,
         { method: 'POST' }
       )
-      toast.success('Regenerated', 'Access link has been regenerated')
+      toast.success(t('regenerated'), t('linkRegenerated'))
       fetchMembers()
     } catch (error: any) {
-      toast.error('Error', error.message || 'Failed to regenerate token')
+      toast.error(tCommon('error'), error.message || t('regenerateError'))
     }
   }
 
@@ -153,7 +156,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
     const link = `${window.location.origin}/w/${token}`
     navigator.clipboard.writeText(link)
     setCopiedToken(token)
-    toast.success('Copied!', 'Access link copied to clipboard')
+    toast.success(t('copied'), t('linkCopied'))
     setTimeout(() => setCopiedToken(null), 2000)
   }
 
@@ -174,9 +177,9 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
             <Users className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Invitaciones</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('title')}</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Gestiona quién tiene acceso a este workspace
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -185,7 +188,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
           className="bg-green-600 hover:bg-green-700 text-white"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Invitar
+          {t('invite')}
         </Button>
       </div>
 
@@ -196,7 +199,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email Address
+                  {t('emailAddress')}
                 </label>
                 <Input
                   type="email"
@@ -206,23 +209,23 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Este email también recibirá notificaciones del workspace (conexión/desconexión de WhatsApp, etc.)
+                  {t('emailHint')}
                 </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Role
+                  {t('role')}
                 </label>
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value as any)}
                   className="w-full h-10 px-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
                 >
-                  <option value="admin">Admin - Full access</option>
-                  <option value="client">Client - Dashboard, Messages, Clients, Campaigns + Connections</option>
-                  <option value="agent">Agente - Dashboard, Messages, Clients, Campaigns</option>
-                  <option value="messages">Mensajes - Dashboard, Messages only</option>
-                  <option value="marketing">Marketing - Dashboard, Clients & Campaigns</option>
+                  <option value="admin">{t('roles.adminDesc')}</option>
+                  <option value="client">{t('roles.clientDesc')}</option>
+                  <option value="agent">{t('roles.agentDesc')}</option>
+                  <option value="messages">{t('roles.messagesDesc')}</option>
+                  <option value="marketing">{t('roles.marketingDesc')}</option>
                 </select>
               </div>
             </div>
@@ -231,12 +234,12 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                 {isInviting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Inviting...
+                    {tCommon('loading')}
                   </>
                 ) : (
                   <>
                     <Mail className="w-4 h-4 mr-2" />
-                    Send Invitation
+                    {t('sendInvitation')}
                   </>
                 )}
               </Button>
@@ -245,7 +248,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                 variant="outline"
                 onClick={() => setShowInviteForm(false)}
               >
-                Cancel
+                {tCommon('cancel')}
               </Button>
             </div>
           </form>
@@ -271,7 +274,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                     </span>
                     {member.status === 'pending' && (
                       <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                        Pending
+                        {t('pending')}
                       </span>
                     )}
                   </div>
@@ -324,8 +327,8 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
           {members.length === 0 && (
             <div className="p-8 text-center text-gray-500">
               <Users className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>No hay invitaciones aún</p>
-              <p className="text-sm">Invita a tu primer miembro para comenzar</p>
+              <p>{t('noInvitations')}</p>
+              <p className="text-sm">{t('inviteFirst')}</p>
             </div>
           )}
         </div>
@@ -334,12 +337,10 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
       {/* Info Box */}
       <div className="bg-green-50 dark:bg-green-950 rounded-lg p-4 border border-green-200 dark:border-green-800">
         <h4 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">
-          💡 Sobre los enlaces de acceso
+          💡 {t('aboutAccessLinks')}
         </h4>
         <p className="text-sm text-green-700 dark:text-green-300">
-          Cada miembro recibe un enlace único para acceder a este workspace.
-          Los invitados pueden ver y gestionar sus datos sin necesitar una cuenta de Whahook.
-          Puedes regenerar los enlaces en cualquier momento para revocar el acceso.
+          {t('aboutAccessLinksDescription')}
         </p>
       </div>
     </div>
