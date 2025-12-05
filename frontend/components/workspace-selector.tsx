@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ApiClient } from "@/lib/api-client"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -42,11 +42,8 @@ export function WorkspaceSelector({
   const searchParams = useSearchParams()
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    loadWorkspaces()
-  }, [])
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const initialLoadDone = useRef(false)
 
   // Handle URL param for workspace
   useEffect(() => {
@@ -61,9 +58,8 @@ export function WorkspaceSelector({
     }
   }, [searchParams, workspaces, onWorkspaceChange])
 
-  const loadWorkspaces = async () => {
+  const loadWorkspaces = useCallback(async () => {
     try {
-      setIsLoading(true)
       const response = await ApiClient.request<{ workspaces: Workspace[] }>('/api/workspaces')
       console.log('WorkspaceSelector response:', response)
       
@@ -91,11 +87,18 @@ export function WorkspaceSelector({
     } catch (error) {
       console.error('Error loading workspaces:', error)
     } finally {
-      setIsLoading(false)
+      setIsInitialLoad(false)
     }
-  }
+  }, [searchParams, onWorkspaceChange])
 
-  const handleChange = (workspaceId: string) => {
+  useEffect(() => {
+    if (!initialLoadDone.current) {
+      initialLoadDone.current = true
+      loadWorkspaces()
+    }
+  }, [loadWorkspaces])
+
+  const handleChange = useCallback((workspaceId: string) => {
     setSelectedId(workspaceId)
     localStorage.setItem(STORAGE_KEY, workspaceId)
     
@@ -106,9 +109,9 @@ export function WorkspaceSelector({
     const url = new URL(window.location.href)
     url.searchParams.set('workspace', workspaceId)
     router.replace(url.pathname + url.search)
-  }
+  }, [workspaces, onWorkspaceChange, router])
 
-  if (isLoading) {
+  if (isInitialLoad) {
     return (
       <div className={`flex items-center gap-2 ${className}`}>
         <Loader2 className="w-4 h-4 animate-spin text-gray-400" />

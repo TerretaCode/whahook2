@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { ApiClient } from '@/lib/api-client'
 import { AlertCircle, TrendingUp, TrendingDown, Activity } from 'lucide-react'
@@ -22,19 +22,13 @@ interface FallbackStats {
 export function FallbackStats() {
   const { user } = useAuth()
   const [stats, setStats] = useState<FallbackStats | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [trend, setTrend] = useState<'up' | 'down' | 'stable'>('stable')
+  const initialLoadDone = useRef(false)
 
-  useEffect(() => {
+  const loadStats = useCallback(async () => {
     if (!user) return
-    loadStats()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
-
-  const loadStats = async () => {
-    if (!user) return
-
-    setLoading(true)
+    
     try {
       // Get fallback stats from backend
       const response = await ApiClient.get<FallbackStats>('/api/dashboard/fallback-stats')
@@ -56,11 +50,18 @@ export function FallbackStats() {
     } catch {
       // Silently fail
     } finally {
-      setLoading(false)
+      setIsInitialLoad(false)
     }
-  }
+  }, [user])
 
-  if (loading) {
+  useEffect(() => {
+    if (user && !initialLoadDone.current) {
+      initialLoadDone.current = true
+      loadStats()
+    }
+  }, [user, loadStats])
+
+  if (isInitialLoad) {
     return (
       <Card>
         <CardHeader>
@@ -90,23 +91,23 @@ export function FallbackStats() {
     )
   }
 
-  const getTrendIcon = () => {
+  const trendIcon = useMemo(() => {
     if (trend === 'up') return <TrendingUp className="w-4 h-4 text-red-500" />
     if (trend === 'down') return <TrendingDown className="w-4 h-4 text-green-500" />
     return <Activity className="w-4 h-4 text-gray-500" />
-  }
+  }, [trend])
 
-  const getTrendText = () => {
+  const trendText = useMemo(() => {
     if (trend === 'up') return 'Aumentando'
     if (trend === 'down') return 'Disminuyendo'
     return 'Estable'
-  }
+  }, [trend])
 
-  const getTrendColor = () => {
+  const trendColor = useMemo(() => {
     if (trend === 'up') return 'text-red-600'
     if (trend === 'down') return 'text-green-600'
     return 'text-gray-600'
-  }
+  }, [trend])
 
   return (
     <Card>
@@ -141,9 +142,9 @@ export function FallbackStats() {
             <p className="text-sm text-gray-500">Esta Semana</p>
             <p className="text-2xl font-bold text-blue-600">{stats.thisWeek}</p>
             <div className="flex items-center gap-1">
-              {getTrendIcon()}
-              <p className={`text-xs font-medium ${getTrendColor()}`}>
-                {getTrendText()}
+              {trendIcon}
+              <p className={`text-xs font-medium ${trendColor}`}>
+                {trendText}
               </p>
             </div>
           </div>

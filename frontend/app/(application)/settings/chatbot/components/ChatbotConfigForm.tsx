@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback, useMemo, memo } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
@@ -41,7 +41,7 @@ interface ChatbotConfigFormProps {
   aiConfig?: AIConfig | null // Pre-loaded AI config
 }
 
-export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
+function ChatbotConfigFormComponent(props: ChatbotConfigFormProps) {
   const _router = useRouter()
   const searchParams = useSearchParams()
   
@@ -64,7 +64,7 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
   const [activeTab, setActiveTab] = useState(getInitialTab())
   
   // Persist tab changes to localStorage and URL
-  const handleTabChange = (value: string) => {
+  const handleTabChange = useCallback((value: string) => {
     setActiveTab(value)
     
     // Save to localStorage
@@ -79,28 +79,28 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
     const url = new URL(window.location.href)
     url.searchParams.set('tab', value)
     window.history.replaceState({}, '', url.toString())
-  }
+  }, [props.sessionId, props.widgetId])
   
-  const updateField = (field: string, value: FormData[string]) => {
+  const updateField = useCallback((field: string, value: FormData[string]) => {
     props.onFormDataChange({ ...props.formData, [field]: value })
-  }
+  }, [props.formData, props.onFormDataChange])
 
-  const updateArrayField = (field: string, index: number, value: string) => {
+  const updateArrayField = useCallback((field: string, index: number, value: string) => {
     const array = props.formData[field] || []
     const newArray = [...array]
     newArray[index] = value
-    updateField(field, newArray)
-  }
+    props.onFormDataChange({ ...props.formData, [field]: newArray })
+  }, [props.formData, props.onFormDataChange])
 
-  const addArrayItem = (field: string) => {
+  const addArrayItem = useCallback((field: string) => {
     const array = props.formData[field] || []
-    updateField(field, [...array, ''])
-  }
+    props.onFormDataChange({ ...props.formData, [field]: [...array, ''] })
+  }, [props.formData, props.onFormDataChange])
 
-  const removeArrayItem = (field: string, index: number) => {
+  const removeArrayItem = useCallback((field: string, index: number) => {
     const array = props.formData[field] || []
-    updateField(field, array.filter((_: unknown, i: number) => i !== index))
-  }
+    props.onFormDataChange({ ...props.formData, [field]: array.filter((_: unknown, i: number) => i !== index) })
+  }, [props.formData, props.onFormDataChange])
 
   const tabProps = {
     ...props,
@@ -152,3 +152,5 @@ export function ChatbotConfigForm(props: ChatbotConfigFormProps) {
     </Tabs>
   )
 }
+
+export const ChatbotConfigForm = memo(ChatbotConfigFormComponent)
