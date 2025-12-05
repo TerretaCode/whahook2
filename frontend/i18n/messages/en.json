@@ -403,23 +403,44 @@
         "agent": "Agent",
         "client": "Client",
         "viewer": "Viewer"
-      },
-      "permissions": "Permissions",
-      "remove": "Remove member",
-      "resendInvite": "Resend invitation"
+      }
     },
     "profile": {
-      "title": "Profile",
-      "subtitle": "Manage your personal information",
+      "title": "My Profile",
+      "subtitle": "Manage your personal information and preferences",
+      "personalInfo": "Personal Information",
       "fullName": "Full name",
+      "yourName": "Your name",
       "email": "Email",
-      "phone": "Phone number",
-      "language": "Language",
-      "timezone": "Timezone",
+      "emailCannotChange": "Email cannot be changed",
+      "company": "Company (optional)",
+      "companyPlaceholder": "Your company name",
+      "phone": "Phone (optional)",
+      "saveChanges": "Save changes",
+      "profileUpdated": "Profile updated successfully",
+      "updateError": "Error updating profile",
+      "saveError": "Error saving profile",
+      "yourPlan": "Your Plan",
+      "memberSince": "Member since",
+      "viewPlans": "View plans",
+      "plans": {
+        "trial": "Free Trial",
+        "starter": "Starter Plan",
+        "professional": "Professional Plan",
+        "enterprise": "Enterprise Plan"
+      },
+      "security": "Security",
       "changePassword": "Change password",
-      "currentPassword": "Current password",
       "newPassword": "New password",
-      "confirmPassword": "Confirm password"
+      "confirmPassword": "Confirm password",
+      "minChars": "Minimum 6 characters",
+      "repeatPassword": "Repeat password",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "passwordMismatch": "Passwords do not match",
+      "passwordChanged": "Password changed successfully",
+      "passwordChangeError": "Error changing password",
+      "logout": "Log out",
+      "logoutDescription": "Log out from this device"
     }
   },
   "campaigns": {

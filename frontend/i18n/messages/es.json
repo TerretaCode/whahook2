@@ -409,17 +409,41 @@
       "resendInvite": "Reenviar invitación"
     },
     "profile": {
-      "title": "Perfil",
-      "subtitle": "Gestiona tu información personal",
+      "title": "Mi Perfil",
+      "subtitle": "Gestiona tu información personal y preferencias",
+      "personalInfo": "Información Personal",
       "fullName": "Nombre completo",
+      "yourName": "Tu nombre",
       "email": "Correo electrónico",
-      "phone": "Número de teléfono",
-      "language": "Idioma",
-      "timezone": "Zona horaria",
+      "emailCannotChange": "El email no se puede cambiar",
+      "company": "Empresa (opcional)",
+      "companyPlaceholder": "Nombre de tu empresa",
+      "phone": "Teléfono (opcional)",
+      "saveChanges": "Guardar cambios",
+      "profileUpdated": "Perfil actualizado correctamente",
+      "updateError": "Error al actualizar",
+      "saveError": "Error al guardar el perfil",
+      "yourPlan": "Tu Plan",
+      "memberSince": "Miembro desde",
+      "viewPlans": "Ver planes",
+      "plans": {
+        "trial": "Trial Gratuito",
+        "starter": "Plan Starter",
+        "professional": "Plan Professional",
+        "enterprise": "Plan Enterprise"
+      },
+      "security": "Seguridad",
       "changePassword": "Cambiar contraseña",
-      "currentPassword": "Contraseña actual",
       "newPassword": "Nueva contraseña",
-      "confirmPassword": "Confirmar contraseña"
+      "confirmPassword": "Confirmar contraseña",
+      "minChars": "Mínimo 6 caracteres",
+      "repeatPassword": "Repite la contraseña",
+      "passwordMinLength": "La contraseña debe tener al menos 6 caracteres",
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "passwordChanged": "Contraseña cambiada correctamente",
+      "passwordChangeError": "Error al cambiar la contraseña",
+      "logout": "Cerrar sesión",
+      "logoutDescription": "Cierra tu sesión en este dispositivo"
     }
   },
   "campaigns": {

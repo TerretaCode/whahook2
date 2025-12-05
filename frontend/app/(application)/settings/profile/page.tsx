@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from 'next-intl'
 import { useAuth } from "@/contexts/AuthContext"
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { Button } from "@/components/ui/button"
@@ -25,6 +26,8 @@ import { ProfileSkeleton } from "@/components/skeletons/SettingsSkeletons"
 
 export default function ProfilePage() {
   const router = useRouter()
+  const t = useTranslations('settings.profile')
+  const tCommon = useTranslations('common')
   const { user, logout, refreshUser, isLoading: authLoading } = useAuth()
   const { isOwner, workspace } = useWorkspaceContext()
   
@@ -61,13 +64,13 @@ export default function ProfilePage() {
       })
       
       if (response.success) {
-        toast.success('Perfil actualizado correctamente')
+        toast.success(t('profileUpdated'))
         await refreshUser()
       } else {
-        throw new Error(response.error || 'Error al actualizar')
+        throw new Error(response.error || t('updateError'))
       }
     } catch (error: any) {
-      toast.error(error.message || 'Error al guardar el perfil')
+      toast.error(error.message || t('saveError'))
     } finally {
       setIsSaving(false)
     }
@@ -75,11 +78,11 @@ export default function ProfilePage() {
 
   const handleChangePassword = useCallback(async () => {
     if (newPassword.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres')
+      toast.error(t('passwordMinLength'))
       return
     }
     if (newPassword !== confirmPassword) {
-      toast.error('Las contraseñas no coinciden')
+      toast.error(t('passwordMismatch'))
       return
     }
 
@@ -91,15 +94,15 @@ export default function ProfilePage() {
       })
       
       if (response.success) {
-        toast.success('Contraseña cambiada correctamente')
+        toast.success(t('passwordChanged'))
         setNewPassword('')
         setConfirmPassword('')
         setShowPasswordForm(false)
       } else {
-        throw new Error(response.error || 'Error al cambiar contraseña')
+        throw new Error(response.error || t('passwordChangeError'))
       }
     } catch (error: any) {
-      toast.error(error.message || 'Error al cambiar la contraseña')
+      toast.error(error.message || t('passwordChangeError'))
     } finally {
       setIsChangingPassword(false)
     }
@@ -117,11 +120,11 @@ export default function ProfilePage() {
 
   const getPlanName = useMemo(() => {
     switch (user?.profile?.subscription_tier) {
-      case 'trial': return 'Trial Gratuito'
-      case 'starter': return 'Plan Starter'
-      case 'professional': return 'Plan Professional'
-      case 'enterprise': return 'Plan Enterprise'
-      default: return 'Trial'
+      case 'trial': return t('plans.trial')
+      case 'starter': return t('plans.starter')
+      case 'professional': return t('plans.professional')
+      case 'enterprise': return t('plans.enterprise')
+      default: return t('plans.trial')
     }
   }, [user?.profile?.subscription_tier])
 
@@ -143,8 +146,8 @@ export default function ProfilePage() {
     <div className="space-y-6 pb-20 md:pb-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Mi Perfil</h1>
-        <p className="text-sm text-gray-500 mt-1">Gestiona tu información personal y preferencias</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+        <p className="text-sm text-gray-500 mt-1">{t('subtitle')}</p>
       </div>
 
       {/* Profile Info Card */}
@@ -152,7 +155,7 @@ export default function ProfilePage() {
         <div className="p-6 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <User className="w-5 h-5 text-green-600" />
-            Información Personal
+            {t('personalInfo')}
           </h2>
         </div>
         <div className="p-6 space-y-5">
@@ -167,19 +170,19 @@ export default function ProfilePage() {
               disabled 
               className="bg-gray-50 text-gray-600"
             />
-            <p className="text-xs text-gray-400 mt-1">El email no se puede cambiar</p>
+            <p className="text-xs text-gray-400 mt-1">{t('emailCannotChange')}</p>
           </div>
 
           {/* Full Name */}
           <div>
             <Label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
               <User className="w-4 h-4 text-gray-400" />
-              Nombre completo
+              {t('fullName')}
             </Label>
             <Input 
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="Tu nombre"
+              placeholder={t('yourName')}
             />
           </div>
 
@@ -187,12 +190,12 @@ export default function ProfilePage() {
           <div>
             <Label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
               <Building2 className="w-4 h-4 text-gray-400" />
-              Empresa (opcional)
+              {t('company')}
             </Label>
             <Input 
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
-              placeholder="Nombre de tu empresa"
+              placeholder={t('companyPlaceholder')}
             />
           </div>
 
@@ -200,7 +203,7 @@ export default function ProfilePage() {
           <div>
             <Label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
               <Phone className="w-4 h-4 text-gray-400" />
-              Teléfono (opcional)
+              {t('phone')}
             </Label>
             <Input 
               value={phone}
@@ -221,7 +224,7 @@ export default function ProfilePage() {
             ) : (
               <Save className="w-4 h-4 mr-2" />
             )}
-            Guardar cambios
+            {t('saveChanges')}
           </Button>
         </div>
       </div>
@@ -233,12 +236,12 @@ export default function ProfilePage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-5 h-5" />
-                <h2 className="text-lg font-semibold">Tu Plan</h2>
+                <h2 className="text-lg font-semibold">{t('yourPlan')}</h2>
               </div>
               <p className="text-2xl font-bold">{getPlanName}</p>
               <p className="text-green-100 text-sm mt-1 flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                Miembro desde {formatDate(user.profile?.created_at)}
+                {t('memberSince')} {formatDate(user.profile?.created_at)}
               </p>
             </div>
             <Button 
@@ -246,7 +249,7 @@ export default function ProfilePage() {
               className="bg-white text-green-600 hover:bg-gray-100"
               onClick={() => router.push('/pricing')}
             >
-              Ver planes
+              {t('viewPlans')}
             </Button>
           </div>
         </div>
@@ -257,7 +260,7 @@ export default function ProfilePage() {
         <div className="p-6 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <Key className="w-5 h-5 text-green-600" />
-            Seguridad
+            {t('security')}
           </h2>
         </div>
         <div className="p-6">
@@ -267,30 +270,30 @@ export default function ProfilePage() {
               onClick={() => setShowPasswordForm(true)}
             >
               <Key className="w-4 h-4 mr-2" />
-              Cambiar contraseña
+              {t('changePassword')}
             </Button>
           ) : (
             <div className="space-y-4 max-w-md">
               <div>
                 <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Nueva contraseña
+                  {t('newPassword')}
                 </Label>
                 <Input 
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder={t('minChars')}
                 />
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Confirmar contraseña
+                  {t('confirmPassword')}
                 </Label>
                 <Input 
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Repite la contraseña"
+                  placeholder={t('repeatPassword')}
                 />
               </div>
               <div className="flex gap-3">
@@ -304,7 +307,7 @@ export default function ProfilePage() {
                   ) : (
                     <Save className="w-4 h-4 mr-2" />
                   )}
-                  Guardar
+                  {tCommon('save')}
                 </Button>
                 <Button 
                   variant="outline"
@@ -314,7 +317,7 @@ export default function ProfilePage() {
                     setConfirmPassword('')
                   }}
                 >
-                  Cancelar
+                  {tCommon('cancel')}
                 </Button>
               </div>
             </div>
@@ -327,9 +330,9 @@ export default function ProfilePage() {
         <div className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Cerrar sesión</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t('logout')}</h2>
               <p className="text-sm text-gray-500 mt-1">
-                Cierra tu sesión en este dispositivo
+                {t('logoutDescription')}
               </p>
             </div>
             <Button 
@@ -342,7 +345,7 @@ export default function ProfilePage() {
               ) : (
                 <LogOut className="w-4 h-4 mr-2" />
               )}
-              Cerrar sesión
+              {t('logout')}
             </Button>
           </div>
         </div>
