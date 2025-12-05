@@ -405,6 +405,30 @@
         "viewer": "Viewer"
       }
     },
+    "billing": {
+      "title": "Billing",
+      "subtitle": "Manage your plan and payment method",
+      "currentSubscription": "Your Current Subscription",
+      "active": "Active",
+      "nextRenewal": "Next renewal: {date}",
+      "cancelsOn": "Cancels on {date}",
+      "willNotRenew": "Your subscription will not renew",
+      "manageSubscription": "Manage subscription",
+      "securePayments": "Secure payments processed by Stripe",
+      "subscriptionActivated": "Subscription activated successfully!",
+      "subscriptionCanceled": "Subscription canceled",
+      "planNotAvailable": "Plan not available at this time",
+      "checkoutError": "Error creating checkout session",
+      "paymentError": "Error processing payment",
+      "portalError": "Error opening billing portal",
+      "manageError": "Error managing subscription",
+      "plans": {
+        "trial": "Trial (7 days)",
+        "starter": "Starter",
+        "professional": "Professional",
+        "enterprise": "Enterprise"
+      }
+    },
     "profile": {
       "title": "My Profile",
       "subtitle": "Manage your personal information and preferences",

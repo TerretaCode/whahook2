@@ -408,6 +408,30 @@
       "remove": "Eliminar miembro",
       "resendInvite": "Reenviar invitación"
     },
+    "billing": {
+      "title": "Facturación",
+      "subtitle": "Gestiona tu plan y método de pago",
+      "currentSubscription": "Tu Suscripción Actual",
+      "active": "Activo",
+      "nextRenewal": "Próxima renovación: {date}",
+      "cancelsOn": "Se cancela el {date}",
+      "willNotRenew": "Tu suscripción no se renovará",
+      "manageSubscription": "Gestionar suscripción",
+      "securePayments": "Pagos seguros procesados por Stripe",
+      "subscriptionActivated": "¡Suscripción activada correctamente!",
+      "subscriptionCanceled": "Suscripción cancelada",
+      "planNotAvailable": "Plan no disponible en este momento",
+      "checkoutError": "Error al crear la sesión de pago",
+      "paymentError": "Error al procesar el pago",
+      "portalError": "Error al abrir el portal de facturación",
+      "manageError": "Error al gestionar la suscripción",
+      "plans": {
+        "trial": "Trial (7 días)",
+        "starter": "Starter",
+        "professional": "Professional",
+        "enterprise": "Enterprise"
+      }
+    },
     "profile": {
       "title": "Mi Perfil",
       "subtitle": "Gestiona tu información personal y preferencias",

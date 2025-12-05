@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense, useRef, useCallback, useMemo } from "react"
 import { useSearchParams } from "next/navigation"
+import { useTranslations } from 'next-intl'
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import { ApiClient } from "@/lib/api-client"
@@ -44,6 +45,7 @@ const CACHE_KEY = 'billing-data'
 
 // Component that uses searchParams
 function BillingPageContent() {
+  const t = useTranslations('settings.billing')
   const { refreshUser } = useAuth()
   const searchParams = useSearchParams()
   const initialLoadDone = useRef(false)
@@ -66,10 +68,10 @@ function BillingPageContent() {
     const canceled = searchParams.get('canceled')
     
     if (success === 'true') {
-      toast.success('Subscription activated successfully!')
+      toast.success(t('subscriptionActivated'))
       refreshUser()
     } else if (canceled === 'true') {
-      toast.error('Subscription canceled')
+      toast.error(t('subscriptionCanceled'))
     }
   }, [searchParams, refreshUser])
 
@@ -155,7 +157,7 @@ function BillingPageContent() {
       const priceId = priceIds[priceKey]
       
       if (!priceId) {
-        toast.error('Plan not available at this time')
+        toast.error(t('planNotAvailable'))
         return
       }
       
@@ -167,10 +169,10 @@ function BillingPageContent() {
       if (response.success && response.data?.url) {
         window.location.href = response.data.url
       } else {
-        throw new Error(response.error || 'Error creating checkout session')
+        throw new Error(response.error || t('checkoutError'))
       }
     } catch (error: any) {
-      toast.error(error.message || 'Error processing payment')
+      toast.error(error.message || t('paymentError'))
     } finally {
       setProcessingPlan(null)
     }
@@ -188,10 +190,10 @@ function BillingPageContent() {
       if (response.success && response.data?.url) {
         window.location.href = response.data.url
       } else {
-        throw new Error(response.error || 'Error opening billing portal')
+        throw new Error(response.error || t('portalError'))
       }
     } catch (error: any) {
-      toast.error(error.message || 'Error managing subscription')
+      toast.error(error.message || t('manageError'))
     } finally {
       setIsManaging(false)
     }
@@ -216,8 +218,8 @@ function BillingPageContent() {
     <div className="space-y-6 pb-20 md:pb-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Billing</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage your plan and payment method</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+        <p className="text-sm text-gray-500 mt-1">{t('subtitle')}</p>
       </div>
 
       {/* Current Subscription */}
@@ -226,7 +228,7 @@ function BillingPageContent() {
           <div className="p-6 border-b border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <Crown className="w-5 h-5 text-green-500" />
-              Your Current Subscription
+              {t('currentSubscription')}
             </h2>
           </div>
           <div className="p-6">
@@ -242,15 +244,15 @@ function BillingPageContent() {
                       ? 'bg-green-100 text-green-700'
                       : 'bg-gray-100 text-gray-700'
                   }`}>
-                    {subscription.plan === 'trial' ? 'Trial (7 days)' : 
-                     subscription.plan === 'starter' ? 'Starter' : 
-                     subscription.plan === 'professional' ? 'Professional' : 
-                     subscription.plan === 'enterprise' ? 'Enterprise' :
+                    {subscription.plan === 'trial' ? t('plans.trial') : 
+                     subscription.plan === 'starter' ? t('plans.starter') : 
+                     subscription.plan === 'professional' ? t('plans.professional') : 
+                     subscription.plan === 'enterprise' ? t('plans.enterprise') :
                      subscription.plan}
                   </span>
                   {subscription.status === 'active' && (
                     <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded">
-                      Active
+                      {t('active')}
                     </span>
                   )}
                 </div>
@@ -259,8 +261,8 @@ function BillingPageContent() {
                   <p className="text-sm text-gray-500 flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     {subscription.cancel_at_period_end 
-                      ? `Cancels on ${formatDate(subscription.current_period_end)}`
-                      : `Next renewal: ${formatDate(subscription.current_period_end)}`
+                      ? t('cancelsOn', { date: formatDate(subscription.current_period_end) })
+                      : t('nextRenewal', { date: formatDate(subscription.current_period_end) })
                     }
                   </p>
                 )}
@@ -268,7 +270,7 @@ function BillingPageContent() {
                 {subscription.cancel_at_period_end && (
                   <p className="text-sm text-green-600 flex items-center gap-1 mt-1">
                     <AlertCircle className="w-4 h-4" />
-                    Your subscription will not renew
+                    {t('willNotRenew')}
                   </p>
                 )}
               </div>
@@ -284,7 +286,7 @@ function BillingPageContent() {
                   ) : (
                     <ExternalLink className="w-4 h-4 mr-2" />
                   )}
-                  Manage subscription
+                  {t('manageSubscription')}
                 </Button>
               )}
             </div>
@@ -313,7 +315,7 @@ function BillingPageContent() {
       {/* Payment Methods Info */}
       <div className="bg-gray-50 rounded-xl p-6 text-center">
         <p className="text-sm text-gray-500 mb-2">
-          Secure payments processed by Stripe
+          {t('securePayments')}
         </p>
         <div className="flex items-center justify-center gap-4 opacity-50">
           <span className="text-xs font-medium text-gray-400">VISA</span>
