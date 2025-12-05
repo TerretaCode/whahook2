@@ -1,7 +1,5 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, Loader2 } from "lucide-react"
 import { PLANS, BillingToggle, type PlanData } from "@/components/pricing-card"

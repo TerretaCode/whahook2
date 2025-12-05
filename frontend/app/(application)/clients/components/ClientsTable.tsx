@@ -3,7 +3,7 @@
 import { Edit, Trash2, Mail, Phone, Building2, Users, Sparkles, Loader2, MessageSquare, Smile, Meh, Frown, Globe, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useState, useCallback, memo, useMemo } from "react"
+import { useState, useCallback, memo } from "react"
 import { useRouter } from "next/navigation"
 import type { Client } from "../page"
 

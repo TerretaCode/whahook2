@@ -26,7 +26,6 @@ import {
   Megaphone,
   Plus,
   Send,
-  Clock,
   CheckCircle2,
   XCircle,
   Loader2,
@@ -74,7 +73,7 @@ interface CampaignsSectionProps {
   onRefreshClients: () => void
 }
 
-export function CampaignsSection({ clients, onRefreshClients }: CampaignsSectionProps) {
+export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients }: CampaignsSectionProps) {
   const { workspace } = useWorkspaceContext()
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [isInitialLoad, setIsInitialLoad] = useState(true)

@@ -54,6 +54,24 @@ export function FallbackStats() {
     }
   }, [user])
 
+  const trendIcon = useMemo(() => {
+    if (trend === 'up') return <TrendingUp className="w-4 h-4 text-red-500" />
+    if (trend === 'down') return <TrendingDown className="w-4 h-4 text-green-500" />
+    return <Activity className="w-4 h-4 text-gray-500" />
+  }, [trend])
+
+  const trendText = useMemo(() => {
+    if (trend === 'up') return 'Aumentando'
+    if (trend === 'down') return 'Disminuyendo'
+    return 'Estable'
+  }, [trend])
+
+  const trendColor = useMemo(() => {
+    if (trend === 'up') return 'text-red-600'
+    if (trend === 'down') return 'text-green-600'
+    return 'text-gray-600'
+  }, [trend])
+
   useEffect(() => {
     if (user && !initialLoadDone.current) {
       initialLoadDone.current = true
@@ -90,24 +108,6 @@ export function FallbackStats() {
       </Card>
     )
   }
-
-  const trendIcon = useMemo(() => {
-    if (trend === 'up') return <TrendingUp className="w-4 h-4 text-red-500" />
-    if (trend === 'down') return <TrendingDown className="w-4 h-4 text-green-500" />
-    return <Activity className="w-4 h-4 text-gray-500" />
-  }, [trend])
-
-  const trendText = useMemo(() => {
-    if (trend === 'up') return 'Aumentando'
-    if (trend === 'down') return 'Disminuyendo'
-    return 'Estable'
-  }, [trend])
-
-  const trendColor = useMemo(() => {
-    if (trend === 'up') return 'text-red-600'
-    if (trend === 'down') return 'text-green-600'
-    return 'text-gray-600'
-  }, [trend])
 
   return (
     <Card>
