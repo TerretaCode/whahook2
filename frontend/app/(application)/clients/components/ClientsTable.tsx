@@ -3,7 +3,7 @@
 import { Edit, Trash2, Mail, Phone, Building2, Users, Sparkles, Loader2, MessageSquare, Smile, Meh, Frown, Globe, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useState } from "react"
+import { useState, useCallback, memo, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import type { Client } from "../page"
 
@@ -15,70 +15,68 @@ interface ClientsTableProps {
   onExtractInfo: (clientId: string) => Promise<void>
 }
 
-export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractInfo }: ClientsTableProps) {
+// Status badge styles - defined outside component to avoid recreation
+const STATUS_STYLES: Record<string, string> = {
+  customer: 'bg-green-100 text-green-800 border-green-200',
+  prospect: 'bg-blue-100 text-blue-800 border-blue-200',
+  lead: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  inactive: 'bg-gray-100 text-gray-800 border-gray-200'
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  customer: 'Customer',
+  prospect: 'Prospect',
+  lead: 'Lead',
+  inactive: 'Inactive'
+}
+
+const INTEREST_STYLES: Record<string, string> = {
+  product: 'bg-purple-100 text-purple-800',
+  service: 'bg-indigo-100 text-indigo-800',
+  support: 'bg-orange-100 text-orange-800',
+  information: 'bg-cyan-100 text-cyan-800',
+  complaint: 'bg-red-100 text-red-800',
+  other: 'bg-gray-100 text-gray-800'
+}
+
+const INTEREST_LABELS: Record<string, string> = {
+  product: 'Product',
+  service: 'Service',
+  support: 'Support',
+  information: 'Info',
+  complaint: 'Complaint',
+  other: 'Other'
+}
+
+function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtractInfo }: ClientsTableProps) {
   const router = useRouter()
   const [extractingId, setExtractingId] = useState<string | null>(null)
 
-  const handleExtract = async (clientId: string) => {
+  const handleExtract = useCallback(async (clientId: string) => {
     setExtractingId(clientId)
     try {
       await onExtractInfo(clientId)
     } finally {
       setExtractingId(null)
     }
-  }
+  }, [onExtractInfo])
 
-  const getStatusBadge = (status: Client['status']) => {
-    const styles: Record<string, string> = {
-      customer: 'bg-green-100 text-green-800 border-green-200',
-      prospect: 'bg-blue-100 text-blue-800 border-blue-200',
-      lead: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      inactive: 'bg-gray-100 text-gray-800 border-gray-200'
-    }
+  const getStatusBadge = useCallback((status: Client['status']) => (
+    <Badge variant="outline" className={STATUS_STYLES[status] || STATUS_STYLES.lead}>
+      {STATUS_LABELS[status] || 'Lead'}
+    </Badge>
+  ), [])
 
-    const labels: Record<string, string> = {
-      customer: 'Customer',
-      prospect: 'Prospect',
-      lead: 'Lead',
-      inactive: 'Inactive'
-    }
-
-    return (
-      <Badge variant="outline" className={styles[status] || styles.lead}>
-        {labels[status] || 'Lead'}
-      </Badge>
-    )
-  }
-
-  const getInterestBadge = (interest?: string) => {
+  const getInterestBadge = useCallback((interest?: string) => {
     if (!interest) return null
-    
-    const styles: Record<string, string> = {
-      product: 'bg-purple-100 text-purple-800',
-      service: 'bg-indigo-100 text-indigo-800',
-      support: 'bg-orange-100 text-orange-800',
-      information: 'bg-cyan-100 text-cyan-800',
-      complaint: 'bg-red-100 text-red-800',
-      other: 'bg-gray-100 text-gray-800'
-    }
-
-    const labels: Record<string, string> = {
-      product: 'Product',
-      service: 'Service',
-      support: 'Support',
-      information: 'Info',
-      complaint: 'Complaint',
-      other: 'Other'
-    }
-
     return (
-      <Badge variant="secondary" className={styles[interest] || styles.other}>
-        {labels[interest] || interest}
+      <Badge variant="secondary" className={INTEREST_STYLES[interest] || INTEREST_STYLES.other}>
+        {INTEREST_LABELS[interest] || interest}
       </Badge>
     )
-  }
+  }, [])
 
-  const getSatisfactionBadge = (satisfaction?: string) => {
+  const getSatisfactionBadge = useCallback((satisfaction?: string) => {
     if (!satisfaction || satisfaction === 'unknown') {
       return <span className="text-xs text-gray-400">-</span>
     }
@@ -98,12 +96,12 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
         {info.label}
       </span>
     )
-  }
+  }, [])
 
-  const goToConversation = (phone: string) => {
+  const goToConversation = useCallback((phone: string) => {
     // Navigate to conversations with the phone number as filter
     router.push(`/conversations?phone=${phone}`)
-  }
+  }, [router])
 
   if (isLoading) {
     return (
@@ -342,3 +340,6 @@ export function ClientsTable({ clients, isLoading, onEdit, onDelete, onExtractIn
     </div>
   )
 }
+
+// Memoize component to prevent unnecessary re-renders
+export const ClientsTable = memo(ClientsTableComponent)
