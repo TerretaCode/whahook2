@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
@@ -53,7 +53,8 @@ export default function InvitationsPage() {
   const { workspace, isOwner } = useWorkspaceContext()
   
   const [members, setMembers] = useState<TeamMember[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const initialLoadDone = useRef(false)
   const [showInviteForm, setShowInviteForm] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<'agent' | 'messages' | 'marketing'>('agent')
@@ -65,17 +66,10 @@ export default function InvitationsPage() {
     }
   }, [user, authLoading, router])
 
-  useEffect(() => {
-    if (workspace?.id) {
-      fetchMembers()
-    }
-  }, [workspace?.id])
-
-  const fetchMembers = async () => {
+  const fetchMembers = useCallback(async () => {
     if (!workspace?.id) return
     
     try {
-      setIsLoading(true)
       const response = await ApiClient.request<{ members: TeamMember[] }>(
         `/api/workspaces/${workspace.id}/members`
       )
@@ -89,11 +83,18 @@ export default function InvitationsPage() {
     } catch (error) {
       console.error('Error fetching team members:', error)
     } finally {
-      setIsLoading(false)
+      setIsInitialLoad(false)
     }
-  }
+  }, [workspace?.id])
 
-  const handleInvite = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (workspace?.id && !initialLoadDone.current) {
+      initialLoadDone.current = true
+      fetchMembers()
+    }
+  }, [workspace?.id, fetchMembers])
+
+  const handleInvite = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     if (!inviteEmail.trim() || !workspace?.id) return
 
@@ -123,9 +124,9 @@ export default function InvitationsPage() {
     } finally {
       setIsInviting(false)
     }
-  }
+  }, [workspace?.id, inviteEmail, inviteRole, fetchMembers])
 
-  const handleRemoveMember = async (memberId: string) => {
+  const handleRemoveMember = useCallback(async (memberId: string) => {
     if (!workspace?.id) return
     if (!confirm('¿Estás seguro de que quieres eliminar a este miembro del equipo?')) return
 
@@ -144,7 +145,7 @@ export default function InvitationsPage() {
     } catch (error: any) {
       toast.error('Error', error.message || 'No se pudo eliminar el miembro')
     }
-  }
+  }, [workspace?.id, fetchMembers])
 
   // Only clients can access this page - owners should use Workspaces section
   const isClient = workspace?.member_role === 'client'
@@ -167,7 +168,7 @@ export default function InvitationsPage() {
     )
   }
 
-  if (isLoading) {
+  if (isInitialLoad) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brand-primary, #22c55e)' }} />

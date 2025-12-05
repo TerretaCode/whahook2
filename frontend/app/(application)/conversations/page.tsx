@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, Suspense, useCallback, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { ApiClient } from "@/lib/api-client"
@@ -20,11 +20,15 @@ function ConversationsContent() {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
   const [initialPhoneProcessed, setInitialPhoneProcessed] = useState(false)
 
-  // Get initial filter from URL
-  const filterParam = searchParams.get('filter')
-  const initialFilter = (filterParam === 'attention' || filterParam === 'whatsapp' || filterParam === 'web') 
-    ? filterParam 
-    : 'all'
+  const handleBack = useCallback(() => setSelectedConversationId(null), [])
+
+  // Get initial filter from URL - memoized
+  const initialFilter = useMemo(() => {
+    const filterParam = searchParams.get('filter')
+    return (filterParam === 'attention' || filterParam === 'whatsapp' || filterParam === 'web') 
+      ? filterParam 
+      : 'all'
+  }, [searchParams])
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -85,7 +89,7 @@ function ConversationsContent() {
         {selectedConversationId ? (
           <ChatWindow 
             conversationId={selectedConversationId}
-            onBack={() => setSelectedConversationId(null)}
+            onBack={handleBack}
           />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 text-gray-400">
