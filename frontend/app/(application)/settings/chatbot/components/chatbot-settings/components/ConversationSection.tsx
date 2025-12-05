@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -32,6 +33,8 @@ export function ConversationSection({
   isOpen,
   onToggle
 }: ConversationSectionProps) {
+  const t = useTranslations('settings.chatbot.conversationSection')
+  
   return (
     <Collapsible open={isOpen} onOpenChange={onToggle}>
       <Card>
@@ -43,8 +46,8 @@ export function ConversationSection({
                   <MessageSquare className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">Conversación</h3>
-                  <p className="text-sm text-muted-foreground">Cómo saluda el bot y respuestas a preguntas frecuentes</p>
+                  <h3 className="font-semibold text-lg">{t('title')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
                 </div>
               </div>
               {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -56,16 +59,16 @@ export function ConversationSection({
             {/* Info box */}
             <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
               <p className="text-sm text-green-800 dark:text-green-200">
-                <strong>¿Para qué sirve esto?</strong> Configura cómo empieza la conversación y añade respuestas predefinidas a preguntas que te hacen siempre.
+                <strong>{t('whyThisTitle')}</strong> {t('whyThisDesc')}
               </p>
             </div>
 
             {/* Welcome message */}
             <div>
-              <h4 className="font-medium mb-2">Mensaje de bienvenida:</h4>
-              <p className="text-sm text-muted-foreground mb-3">Este es el primer mensaje que verá el cliente cuando empiece a chatear. Déjalo vacío si no quieres mensaje automático.</p>
+              <h4 className="font-medium mb-2">{t('welcomeMessage')}</h4>
+              <p className="text-sm text-muted-foreground mb-3">{t('welcomeMessageDesc')}</p>
               <Textarea
-                placeholder="Ej: ¡Hola! 👋 Soy Ana, la asistente virtual de Floristería María. ¿En qué puedo ayudarte hoy?"
+                placeholder={t('welcomeMessagePlaceholder')}
                 rows={2}
                 value={formData?.welcome_message || ''}
                 onChange={(e) => updateField('welcome_message', e.target.value)}
@@ -76,10 +79,10 @@ export function ConversationSection({
 
             {/* FAQs */}
             <div>
-              <h4 className="font-medium mb-2">Preguntas frecuentes (FAQs):</h4>
+              <h4 className="font-medium mb-2">{t('faqs')}</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                Añade preguntas que te hacen siempre con sus respuestas exactas. El bot las usará cuando detecte esas preguntas.
-                <br/><span className="text-xs">Ej: "¿Hacéis envíos a Canarias?" → "Sí, enviamos a Canarias. El envío tarda 5-7 días y cuesta 8€."</span>
+                {t('faqsDesc')}
+                <br/><span className="text-xs">{t('faqsExample')}</span>
               </p>
               <div className="space-y-3">
                 {(formData?.faqs || []).map((faq: { question?: string; answer?: string }, index: number) => (
@@ -87,7 +90,7 @@ export function ConversationSection({
                     <div className="space-y-2">
                       <div className="flex gap-2">
                         <Input
-                          placeholder="Pregunta"
+                          placeholder={t('question')}
                           value={faq.question || ''}
                           onChange={(e) => updateArrayItem('faqs', index, { ...faq, question: e.target.value })}
                           className="flex-1"
@@ -97,7 +100,7 @@ export function ConversationSection({
                         </Button>
                       </div>
                       <Textarea
-                        placeholder="Respuesta"
+                        placeholder={t('answer')}
                         rows={2}
                         value={faq.answer || ''}
                         onChange={(e) => updateArrayItem('faqs', index, { ...faq, answer: e.target.value })}
@@ -110,7 +113,7 @@ export function ConversationSection({
                   size="sm"
                   onClick={() => addToArray('faqs', { question: '', answer: '' })}
                 >
-                  <Plus className="w-4 h-4 mr-2" /> Añadir FAQ
+                  <Plus className="w-4 h-4 mr-2" /> {t('addFaq')}
                 </Button>
               </div>
             </div>
