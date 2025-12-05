@@ -2,6 +2,7 @@
 
 import { useState, useCallback, memo } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
+import { useTranslations } from 'next-intl'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   MessageSquare,
@@ -42,6 +43,7 @@ interface ChatbotConfigFormProps {
 }
 
 function ChatbotConfigFormComponent(props: ChatbotConfigFormProps) {
+  const t = useTranslations('settings.chatbot.form')
   const _router = useRouter()
   const searchParams = useSearchParams()
   
@@ -117,23 +119,23 @@ function ChatbotConfigFormComponent(props: ChatbotConfigFormProps) {
         <TabsList className="inline-flex w-auto min-w-full">
           <TabsTrigger value="apikeys" className="flex-shrink-0">
             <Key className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">API Keys</span>
+            <span className="hidden sm:inline">{t('apiKeys')}</span>
           </TabsTrigger>
           <TabsTrigger value="config" className="flex-shrink-0">
             <Bot className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Assistant</span>
+            <span className="hidden sm:inline">{t('assistant')}</span>
           </TabsTrigger>
           <TabsTrigger value="model" className="flex-shrink-0">
             <Zap className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Model</span>
+            <span className="hidden sm:inline">{t('model')}</span>
           </TabsTrigger>
           <TabsTrigger value="conversation" className="flex-shrink-0">
             <MessageSquare className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Chat</span>
+            <span className="hidden sm:inline">{t('chat')}</span>
           </TabsTrigger>
           <TabsTrigger value="advanced" className="flex-shrink-0">
             <Shield className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Advanced</span>
+            <span className="hidden sm:inline">{t('advanced')}</span>
           </TabsTrigger>
         </TabsList>
       </div>

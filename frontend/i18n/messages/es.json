@@ -453,7 +453,14 @@
       "addDocument": "Añadir documento",
       "testChat": "Probar chat",
       "responseDelay": "Retraso de respuesta",
-      "businessHours": "Solo horario laboral"
+      "businessHours": "Solo horario comercial",
+      "form": {
+        "apiKeys": "Claves API",
+        "assistant": "Asistente",
+        "model": "Modelo",
+        "chat": "Chat",
+        "advanced": "Avanzado"
+      }
     },
     "branding": {
       "title": "Branding de Agencia",
