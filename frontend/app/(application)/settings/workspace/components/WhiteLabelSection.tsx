@@ -94,7 +94,7 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
             Actualiza tu plan para personalizar el branding de cada workspace.
           </p>
           <Link href="/settings/billing">
-            <Button className="mt-3 bg-green-600 hover:bg-green-700">
+            <Button className="mt-3 bg-green-600 hover:bg-green-700 text-white">
               <Crown className="w-4 h-4 mr-2" />
               Actualizar a Enterprise
             </Button>
@@ -123,7 +123,7 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
           <Button
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 text-white"
           >
             {isSaving ? (
               <>

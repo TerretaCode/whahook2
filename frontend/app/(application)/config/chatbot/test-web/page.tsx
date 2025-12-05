@@ -93,7 +93,7 @@ function TestWebChatbotContent() {
           The chatbot widget could not be found
         </p>
         <Link href="/settings/chatbot">
-          <Button className="bg-green-600 hover:bg-green-700">
+          <Button className="bg-green-600 hover:bg-green-700 text-white">
             Back to Chatbot Settings
           </Button>
         </Link>

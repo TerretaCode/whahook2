@@ -77,7 +77,7 @@ function ChatbotSettingsContent() {
                 Create a workspace first to configure chatbot settings.
               </p>
               <Link href="/settings/workspaces">
-                <Button size="sm" className="mt-3 bg-green-600 hover:bg-green-700">
+                <Button size="sm" className="mt-3 bg-green-600 hover:bg-green-700 text-white">
                   <Plus className="w-4 h-4 mr-2" />
                   Create Workspace
                 </Button>
@@ -188,7 +188,7 @@ function ChatbotSettingsContent() {
                   Connect a WhatsApp account to this workspace first to configure the chatbot.
                 </p>
                 <Link href={`/settings/connections?workspace=${selectedWorkspace.id}`}>
-                  <Button className="bg-green-600 hover:bg-green-700">
+                  <Button className="bg-green-600 hover:bg-green-700 text-white">
                     <Smartphone className="w-4 h-4 mr-2" />
                     Connect WhatsApp
                   </Button>
@@ -217,7 +217,7 @@ function ChatbotSettingsContent() {
                   Create a Web Widget for this workspace first to configure the chatbot.
                 </p>
                 <Link href={`/settings/connections?workspace=${selectedWorkspace.id}&tab=web`}>
-                  <Button className="bg-green-600 hover:bg-green-700">
+                  <Button className="bg-green-600 hover:bg-green-700 text-white">
                     <Globe className="w-4 h-4 mr-2" />
                     Create Web Widget
                   </Button>
@@ -234,7 +234,7 @@ function ChatbotSettingsContent() {
             Choose a workspace above to configure its chatbot settings.
           </p>
           <Link href="/settings/workspaces">
-            <Button className="bg-green-600 hover:bg-green-700">
+            <Button className="bg-green-600 hover:bg-green-700 text-white">
               Manage Workspaces
             </Button>
           </Link>

@@ -214,7 +214,7 @@ export default function ProfilePage() {
           <Button 
             onClick={handleSaveProfile}
             disabled={isSaving}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 text-white"
           >
             {isSaving ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -297,7 +297,7 @@ export default function ProfilePage() {
                 <Button 
                   onClick={handleChangePassword}
                   disabled={isChangingPassword}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   {isChangingPassword ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />

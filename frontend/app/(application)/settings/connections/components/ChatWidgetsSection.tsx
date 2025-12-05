@@ -377,7 +377,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
           <Button
             onClick={() => { setShowForm(!showForm); if (showForm) resetForm() }}
             size="sm"
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
             Create Widget
@@ -545,7 +545,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
             </div>
 
             <div className="flex gap-2 pt-4 border-t">
-              <Button type="submit" className="bg-green-600 hover:bg-green-700">
+              <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
                 {editingWidget ? 'Save Changes' : 'Create Chatbot'}
               </Button>
               <Button type="button" variant="outline" onClick={() => { setShowForm(false); resetForm() }}>
@@ -564,7 +564,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
           <p className="text-sm text-gray-600 mb-4">
             Create your first AI chatbot to embed on your website
           </p>
-          <Button onClick={() => setShowForm(true)} className="bg-green-600 hover:bg-green-700">
+          <Button onClick={() => setShowForm(true)} className="bg-green-600 hover:bg-green-700 text-white">
             <Plus className="w-4 h-4 mr-2" />
             Create Your First Chatbot
           </Button>
@@ -601,7 +601,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                       <Link href={`/settings/chatbot?widget=${widget.id}`}>
                         <Button
                           size="sm"
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-green-600 hover:bg-green-700 text-white"
                           title="Configure AI Chatbot"
                         >
                           <Bot className="h-4 w-4 mr-1" />
@@ -701,7 +701,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                               <Button
                                 size="sm"
                                 onClick={() => copyToClipboard(embedCode)}
-                                className="bg-green-600 hover:bg-green-700 h-7"
+                                className="bg-green-600 hover:bg-green-700 text-white h-7"
                               >
                                 {copied ? (
                                   <>
@@ -783,7 +783,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                           </ul>
                         </div>
                         <Button
-                          className="w-full bg-green-600 hover:bg-green-700"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white"
                           onClick={() => {
                             setExpandedWidget(null)
                             toast.success('Setup Complete!', 'Your chat widget is ready. Remember to clear your website cache if you don\'t see it immediately.')

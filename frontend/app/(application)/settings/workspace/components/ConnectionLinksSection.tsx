@@ -153,7 +153,7 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
         <Button
           onClick={handleCreate}
           disabled={isCreating || hasExistingConnection}
-          className="bg-green-600 hover:bg-green-700"
+          className="bg-green-600 hover:bg-green-700 text-white"
         >
           {isCreating ? (
             <>

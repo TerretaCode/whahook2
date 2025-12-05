@@ -284,7 +284,7 @@ export default function WorkspacesPage() {
               <Button
                 onClick={handleCreate}
                 disabled={isCreating || !newWorkspaceName.trim()}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 text-white"
               >
                 {isCreating ? (
                   <>
@@ -315,7 +315,7 @@ export default function WorkspacesPage() {
         data?.limits.canCreate && (
           <Button
             onClick={() => setShowCreateForm(true)}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 text-white"
             size="lg"
           >
             <Plus className="w-5 h-5 mr-2" />
@@ -336,7 +336,7 @@ export default function WorkspacesPage() {
             {data?.limits.canCreate && (
               <Button
                 onClick={() => setShowCreateForm(true)}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 text-white"
                 size="lg"
               >
                 <Plus className="w-5 h-5 mr-2" />
@@ -374,7 +374,7 @@ export default function WorkspacesPage() {
                           <Button
                             size="sm"
                             onClick={() => handleUpdate(workspace.id)}
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-green-600 hover:bg-green-700 text-white"
                           >
                             <Check className="w-4 h-4 mr-1" />
                             Save

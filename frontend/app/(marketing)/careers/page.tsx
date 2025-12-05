@@ -34,7 +34,7 @@ export default function CareersPage() {
                     </div>
                   </div>
                   <Link href="/contact">
-                    <Button className="bg-green-600 hover:bg-green-700">Apply Now</Button>
+                    <Button className="bg-green-600 hover:bg-green-700 text-white">Apply Now</Button>
                   </Link>
                 </div>
               </div>

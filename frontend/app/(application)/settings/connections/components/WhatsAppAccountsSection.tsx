@@ -99,7 +99,7 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
             onClick={() => setShowNewAccountForm(!showNewAccountForm)}
             disabled={isCreating}
             size="sm"
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
             Connect WhatsApp
@@ -141,7 +141,7 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
               </p>
             </div>
             <div className="flex gap-2">
-              <Button type="submit" disabled={isCreating || !newAccountName.trim()} className="bg-green-600 hover:bg-green-700">
+              <Button type="submit" disabled={isCreating || !newAccountName.trim()} className="bg-green-600 hover:bg-green-700 text-white">
                 {isCreating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -183,7 +183,7 @@ export function WhatsAppAccountsSection({ workspaceId, hasExistingConnection = f
           <Button
             onClick={() => setShowNewAccountForm(true)}
             disabled={isCreating}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Your First Account

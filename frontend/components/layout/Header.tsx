@@ -168,7 +168,7 @@ export function Header() {
                   </Button>
                 </Link>
                 <Link href="/register">
-                  <Button className="bg-green-600 hover:bg-green-700">
+                  <Button className="bg-green-600 hover:bg-green-700 text-white">
                     Get Started
                   </Button>
                 </Link>
@@ -246,7 +246,7 @@ export function Header() {
                 </Button>
               </Link>
               <Link href="/register" className="block" onClick={() => setMobileMenuOpen(false)}>
-                <Button className="w-full bg-green-600 hover:bg-green-700">
+                <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
                   Get Started
                 </Button>
               </Link>

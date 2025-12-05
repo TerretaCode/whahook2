@@ -565,7 +565,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
           <p className="text-sm">No web chat widgets available</p>
           <p className="text-xs mt-1">Please create a widget first in the Connections section</p>
           <Link href="/settings/connections">
-            <Button className="mt-4 bg-green-600 hover:bg-green-700">
+            <Button className="mt-4 bg-green-600 hover:bg-green-700 text-white">
               Go to Connections
             </Button>
           </Link>
@@ -650,7 +650,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
                       <Button 
                         onClick={() => handleSave(widget.id)}
                         disabled={isLoading || !canSave}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-green-600 hover:bg-green-700 text-white"
                       >
                         {isLoading ? (
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />

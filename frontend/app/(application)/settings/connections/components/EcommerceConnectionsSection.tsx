@@ -336,7 +336,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
         </div>
         <Button 
           size="sm" 
-          className="bg-green-600 hover:bg-green-700"
+          className="bg-green-600 hover:bg-green-700 text-white"
           onClick={() => setShowForm(!showForm)}
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -647,7 +647,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
             </div>
 
             <div className="flex gap-2 pt-4 border-t">
-              <Button type="submit" className="bg-green-600 hover:bg-green-700">
+              <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 Connect Store
               </Button>
@@ -669,7 +669,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
           <p className="text-sm text-gray-600 mb-4">
             Connect your online store to sync products and orders
           </p>
-          <Button onClick={() => setShowForm(true)} className="bg-green-600 hover:bg-green-700">
+          <Button onClick={() => setShowForm(true)} className="bg-green-600 hover:bg-green-700 text-white">
             <Plus className="w-4 h-4 mr-2" />
             Connect Your First Store
           </Button>
@@ -868,7 +868,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                           <p className="text-sm font-medium text-green-900">Save webhooks in your store, then click below:</p>
                           <Button
                             size="sm"
-                            className="mt-2 bg-green-600 hover:bg-green-700"
+                            className="mt-2 bg-green-600 hover:bg-green-700 text-white"
                             onClick={() => handleSync(connection.id)}
                           >
                             <Check className="h-4 w-4 mr-2" />

@@ -131,7 +131,7 @@ export function WorkspaceSelector({
               Create a workspace first to configure connections and chatbots.
             </p>
             <Link href="/settings/workspaces">
-              <Button size="sm" className="mt-3 bg-green-600 hover:bg-green-700">
+              <Button size="sm" className="mt-3 bg-green-600 hover:bg-green-700 text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Workspace
               </Button>

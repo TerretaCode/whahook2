@@ -383,7 +383,7 @@ export default function AgencyBrandingPage() {
           </div>
         </div>
         {isEnterprise && (
-          <Button onClick={handleSave} disabled={isSaving} className="bg-green-600 hover:bg-green-700">
+          <Button onClick={handleSave} disabled={isSaving} className="bg-green-600 hover:bg-green-700 text-white">
             {isSaving ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -415,7 +415,7 @@ export default function AgencyBrandingPage() {
                 Personaliza tu logo, colores y elimina la marca "Powered by Whahook".
               </p>
               <Link href="/settings/billing">
-                <Button className="bg-green-600 hover:bg-green-700">
+                <Button className="bg-green-600 hover:bg-green-700 text-white">
                   <Crown className="w-4 h-4 mr-2" />
                   Actualizar a Enterprise
                 </Button>
@@ -689,7 +689,7 @@ export default function AgencyBrandingPage() {
                   <Button
                     onClick={handleVerifyDomain}
                     disabled={isVerifyingDomain}
-                    className="w-full bg-green-600 hover:bg-green-700"
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
                   >
                     {isVerifyingDomain ? (
                       <>
@@ -721,7 +721,7 @@ export default function AgencyBrandingPage() {
                   <Button
                     onClick={handleSaveDomain}
                     disabled={isSavingDomain || !domainInput.trim()}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-green-600 hover:bg-green-700 text-white"
                   >
                     {isSavingDomain ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Configurar'}
                   </Button>
@@ -890,7 +890,7 @@ export default function AgencyBrandingPage() {
                 <Button
                   onClick={handleSaveSmtp}
                   disabled={isSavingSmtp}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   {isSavingSmtp ? (
                     <>

@@ -294,7 +294,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
         </div>
         <Button 
           onClick={() => setIsCreateModalOpen(true)}
-          className="gap-2 bg-green-600 hover:bg-green-700"
+          className="gap-2 bg-green-600 hover:bg-green-700 text-white"
         >
           <Plus className="w-4 h-4" />
           Nueva Campaña
@@ -317,7 +317,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
           </p>
           <Button 
             onClick={() => setIsCreateModalOpen(true)}
-            className="gap-2 bg-green-600 hover:bg-green-700"
+            className="gap-2 bg-green-600 hover:bg-green-700 text-white"
           >
             <Plus className="w-4 h-4" />
             Crear Campaña
@@ -386,7 +386,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
                       </Button>
                       <Button
                         size="sm"
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-green-600 hover:bg-green-700 text-white"
                         onClick={() => handleSendCampaign(campaign.id)}
                         disabled={isSending}
                       >
@@ -679,7 +679,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
             <Button 
               onClick={handleCreateCampaign}
               disabled={isSaving || !formData.name || !formData.message_template || filteredRecipients.length === 0}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
               {isSaving ? (
                 <>

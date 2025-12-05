@@ -187,7 +187,7 @@ function ClientModalComponent({ isOpen, onClose, onSave, client }: ClientModalPr
             </Button>
             <Button
               type="submit"
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
               {client ? 'Guardar Cambios' : 'Crear Cliente'}
             </Button>

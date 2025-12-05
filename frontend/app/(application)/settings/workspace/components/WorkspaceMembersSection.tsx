@@ -182,7 +182,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
         </div>
         <Button
           onClick={() => setShowInviteForm(!showInviteForm)}
-          className="bg-green-600 hover:bg-green-700"
+          className="bg-green-600 hover:bg-green-700 text-white"
         >
           <Plus className="w-4 h-4 mr-2" />
           Invitar
@@ -227,7 +227,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
               </div>
             </div>
             <div className="flex gap-2">
-              <Button type="submit" disabled={isInviting} className="bg-green-600 hover:bg-green-700">
+              <Button type="submit" disabled={isInviting} className="bg-green-600 hover:bg-green-700 text-white">
                 {isInviting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />

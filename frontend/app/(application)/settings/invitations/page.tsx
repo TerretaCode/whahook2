@@ -189,7 +189,7 @@ export default function InvitationsPage() {
         {!showInviteForm && (
           <Button 
             onClick={() => setShowInviteForm(true)}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 text-white"
           >
             <UserPlus className="w-4 h-4 mr-2" />
             Invitar
@@ -234,7 +234,7 @@ export default function InvitationsPage() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button type="submit" disabled={isInviting} className="bg-green-600 hover:bg-green-700">
+              <Button type="submit" disabled={isInviting} className="bg-green-600 hover:bg-green-700 text-white">
                 {isInviting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />

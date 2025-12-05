@@ -357,7 +357,7 @@ export default function RegisterPage() {
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full bg-green-600 hover:bg-green-700"
+          className="w-full bg-green-600 hover:bg-green-700 text-white"
           size="lg"
           disabled={isLoading}
         >

@@ -24,7 +24,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Link href="/register" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-lg px-9 py-5 h-auto shadow-lg hover:shadow-xl transition-all group">
+                <Button size="lg" className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-lg px-9 py-5 h-auto shadow-lg hover:shadow-xl transition-all group">
                   Start Free Trial
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>

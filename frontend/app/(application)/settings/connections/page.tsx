@@ -96,7 +96,7 @@ function ConnectionsPageContent() {
                 Create a workspace first to configure connections and chatbots.
               </p>
               <Link href="/settings/workspaces">
-                <Button size="sm" className="mt-3 bg-green-600 hover:bg-green-700">
+                <Button size="sm" className="mt-3 bg-green-600 hover:bg-green-700 text-white">
                   <Plus className="w-4 h-4 mr-2" />
                   Create Workspace
                 </Button>
@@ -240,7 +240,7 @@ function ConnectionsPageContent() {
             Choose a workspace above to configure its connections.
           </p>
           <Link href="/settings/workspaces">
-            <Button className="bg-green-600 hover:bg-green-700">
+            <Button className="bg-green-600 hover:bg-green-700 text-white">
               Manage Workspaces
             </Button>
           </Link>

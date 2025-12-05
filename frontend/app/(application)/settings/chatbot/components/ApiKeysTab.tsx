@@ -361,7 +361,7 @@ export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabPr
         <Button 
           onClick={handleSave} 
           disabled={isLoading} 
-          className="w-full bg-green-600 hover:bg-green-700"
+          className="w-full bg-green-600 hover:bg-green-700 text-white"
         >
           {isLoading ? (
             <>
