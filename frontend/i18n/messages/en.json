@@ -67,7 +67,9 @@
     "branding": "Branding",
     "team": "Team",
     "billing": "Billing",
-    "help": "Help"
+    "help": "Help",
+    "notifications": "Notifications",
+    "noNotifications": "No new notifications"
   },
   "auth": {
     "login": {
@@ -324,6 +326,29 @@
       "title": "No campaigns yet",
       "subtitle": "Create your first marketing campaign"
     }
+  },
+  "footer": {
+    "description": "Automate your WhatsApp with AI-powered chatbot. Manage multiple accounts effortlessly.",
+    "product": "Product",
+    "features": "Features",
+    "pricing": "Pricing",
+    "integrations": "Integrations",
+    "changelog": "Changelog",
+    "resources": "Resources",
+    "documentation": "Documentation",
+    "apiReference": "API Reference",
+    "guides": "Guides",
+    "support": "Support",
+    "company": "Company",
+    "about": "About",
+    "blog": "Blog",
+    "careers": "Careers",
+    "contact": "Contact",
+    "allRightsReserved": "All rights reserved.",
+    "systemStatus": "System Status",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "cookiePolicy": "Cookie Policy"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

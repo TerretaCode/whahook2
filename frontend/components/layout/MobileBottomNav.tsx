@@ -4,11 +4,13 @@ import { memo, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, MessageSquare, Users, Settings } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { useWorkspaceContext } from '@/contexts/WorkspaceContext'
 
 export function MobileBottomNav({ className }: { className?: string }) {
   const pathname = usePathname()
+  const t = useTranslations('nav')
   const { hasPermission, isOwner, isLoading } = useWorkspaceContext()
   
   // Check permissions for navigation items
@@ -19,11 +21,11 @@ export function MobileBottomNav({ className }: { className?: string }) {
 
   // Build nav items based on permissions - memoized
   const navItems = useMemo(() => [
-    { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', active: pathname === '/dashboard', show: true },
-    { href: '/conversations', icon: MessageSquare, label: 'Mensajes', active: pathname === '/conversations', show: canViewMessages },
-    { href: '/clients', icon: Users, label: 'Clientes', active: pathname === '/clients', show: canViewClients },
-    { href: '/settings', icon: Settings, label: 'Ajustes', active: pathname?.startsWith('/settings'), show: canViewSettings },
-  ].filter(item => item.show), [pathname, canViewMessages, canViewClients, canViewSettings])
+    { href: '/dashboard', icon: LayoutDashboard, label: t('dashboard'), active: pathname === '/dashboard', show: true },
+    { href: '/conversations', icon: MessageSquare, label: t('conversations'), active: pathname === '/conversations', show: canViewMessages },
+    { href: '/clients', icon: Users, label: t('clients'), active: pathname === '/clients', show: canViewClients },
+    { href: '/settings', icon: Settings, label: t('settings'), active: pathname?.startsWith('/settings'), show: canViewSettings },
+  ].filter(item => item.show), [pathname, canViewMessages, canViewClients, canViewSettings, t])
 
   return (
     <nav className={cn(

@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import { Github, Twitter, Linkedin, Mail, Activity } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { LogoIcon } from '@/components/icons/LogoIcon'
 
-export function Footer() {
+export async function Footer() {
+  const t = await getTranslations('footer')
   const currentYear = new Date().getFullYear()
 
   return (
@@ -26,7 +28,7 @@ export function Footer() {
               </Link>
             </div>
             <p className="text-sm text-gray-600">
-              Automate your WhatsApp with AI-powered chatbot. Manage multiple accounts effortlessly.
+              {t('description')}
             </p>
             <div className="flex items-center gap-4">
               <a 
@@ -64,26 +66,26 @@ export function Footer() {
 
           {/* Product */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Product</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">{t('product')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link href="/features" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  Features
+                  {t('features')}
                 </Link>
               </li>
               <li>
                 <Link href="/pricing" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  Pricing
+                  {t('pricing')}
                 </Link>
               </li>
               <li>
                 <Link href="/integrations" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  Integrations
+                  {t('integrations')}
                 </Link>
               </li>
               <li>
                 <Link href="/changelog" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  Changelog
+                  {t('changelog')}
                 </Link>
               </li>
             </ul>
@@ -91,26 +93,26 @@ export function Footer() {
 
           {/* Resources */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Resources</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">{t('resources')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link href="/docs" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  Documentation
+                  {t('documentation')}
                 </Link>
               </li>
               <li>
                 <Link href="/api-reference" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  API Reference
+                  {t('apiReference')}
                 </Link>
               </li>
               <li>
                 <Link href="/guides" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  Guides
+                  {t('guides')}
                 </Link>
               </li>
               <li>
                 <Link href="/support" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  Support
+                  {t('support')}
                 </Link>
               </li>
             </ul>
@@ -118,26 +120,26 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Company</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">{t('company')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link href="/about" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  About
+                  {t('about')}
                 </Link>
               </li>
               <li>
                 <Link href="/blog" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  Blog
+                  {t('blog')}
                 </Link>
               </li>
               <li>
                 <Link href="/careers" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  Careers
+                  {t('careers')}
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  Contact
+                  {t('contact')}
                 </Link>
               </li>
             </ul>
@@ -149,7 +151,7 @@ export function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex flex-col md:flex-row items-center gap-4">
               <p className="text-sm text-gray-600">
-                © {currentYear} WhaHook. All rights reserved.
+                © {currentYear} WhaHook. {t('allRightsReserved')}
               </p>
               <a 
                 href="https://stats.uptimerobot.com/9INndKjW9t" 
@@ -158,18 +160,18 @@ export function Footer() {
                 className="flex items-center gap-1.5 text-sm text-green-600 hover:text-green-700 transition-colors font-medium"
               >
                 <Activity className="w-4 h-4" />
-                <span>System Status</span>
+                <span>{t('systemStatus')}</span>
               </a>
             </div>
             <div className="flex items-center gap-6">
               <Link href="/privacy" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                Privacy Policy
+                {t('privacyPolicy')}
               </Link>
               <Link href="/terms" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                Terms of Service
+                {t('termsOfService')}
               </Link>
               <Link href="/cookies" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                Cookie Policy
+                {t('cookiePolicy')}
               </Link>
             </div>
           </div>

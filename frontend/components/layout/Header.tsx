@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, memo } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Shield, Bell, Menu, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useScrollDirection } from '@/hooks/ui/useScrollDirection'
 import { useAuth } from '@/contexts/AuthContext'
 import { useNotifications } from '@/hooks/ui/useNotifications'
@@ -17,6 +18,9 @@ import { DEFAULT_BRANDING } from '@/lib/branding'
 
 export function Header() {
   const scrollDirection = useScrollDirection({ threshold: 15 })
+  const t = useTranslations('nav')
+  const tAuth = useTranslations('auth')
+  const tCommon = useTranslations('common')
   const { user } = useAuth()
   const { hasUnread } = useNotifications()
   const { hasPermission, isOwner, isLoading: isWorkspaceLoading } = useWorkspaceContext()
@@ -110,21 +114,21 @@ export function Header() {
             {user && (
               <nav className="hidden md:flex items-center gap-6">
                 <NavLink href="/dashboard">
-                  Dashboard
+                  {t('dashboard')}
                 </NavLink>
                 {canViewMessages && (
                   <NavLink href="/conversations">
-                    Messages
+                    {t('conversations')}
                   </NavLink>
                 )}
                 {canViewClients && (
                   <NavLink href="/clients">
-                    Clients
+                    {t('clients')}
                   </NavLink>
                 )}
                 {canViewSettings && (
                   <NavLink href="/settings">
-                    Settings
+                    {t('settings')}
                   </NavLink>
                 )}
                 {isAdmin && (
@@ -164,12 +168,12 @@ export function Header() {
               <div className="hidden md:flex items-center gap-3">
                 <Link href="/login">
                   <Button variant="ghost">
-                    Log In
+                    {tCommon('login')}
                   </Button>
                 </Link>
                 <Link href="/register">
                   <Button className="bg-green-600 hover:bg-green-700 text-white">
-                    Get Started
+                    {tCommon('register')}
                   </Button>
                 </Link>
               </div>
@@ -242,12 +246,12 @@ export function Header() {
             <div className="space-y-2">
               <Link href="/login" className="block" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="outline" className="w-full">
-                  Log In
+                  {tCommon('login')}
                 </Button>
               </Link>
               <Link href="/register" className="block" onClick={() => setMobileMenuOpen(false)}>
                 <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                  Get Started
+                  {tCommon('register')}
                 </Button>
               </Link>
             </div>
@@ -279,7 +283,7 @@ export function Header() {
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('notifications')}</h3>
               <button
                 onClick={() => setNotificationsOpen(false)}
                 className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -291,7 +295,7 @@ export function Header() {
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-4">
               <p className="text-sm text-gray-600 text-center py-8">
-                No new notifications
+                {t('noNotifications')}
               </p>
             </div>
           </motion.div>
