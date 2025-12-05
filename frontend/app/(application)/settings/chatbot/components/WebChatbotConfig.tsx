@@ -3,6 +3,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslations } from 'next-intl'
 import { useAuth } from "@/contexts/AuthContext"
 import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
@@ -55,6 +56,8 @@ interface WebChatbotConfigProps {
 }
 
 export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }: WebChatbotConfigProps) {
+  const t = useTranslations('settings.chatbot.web')
+  const tCommon = useTranslations('common')
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(!initialData)
@@ -438,7 +441,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
       })
       
       if (response.success) {
-        toast.success('Configuración guardada', 'Los cambios se han aplicado correctamente')
+        toast.success(t('configSaved'), t('configSavedDesc'))
         // Reload config to get updated data
         await loadConfig(widgetId)
       } else {
@@ -446,19 +449,19 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
       }
     } catch (error) {
       console.error('Error saving config:', error)
-      toast.error('Error', 'No se pudo guardar la configuración')
+      toast.error(tCommon('error'), t('configSaveError'))
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleDelete = async (widgetId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta configuración?')) return
+    if (!confirm(t('confirmDelete'))) return
     
     setIsLoading(true)
     try {
       await ApiClient.request(`/api/chatbot/web/${widgetId}`, { method: 'DELETE' })
-      toast.success('Configuración eliminada', 'La configuración ha sido eliminada')
+      toast.success(t('configDeleted'), t('configDeletedDesc'))
       setConfigs(prev => {
         const newConfigs = { ...prev }
         delete newConfigs[widgetId]
@@ -468,7 +471,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
       await loadConfig(widgetId)
     } catch (error) {
       console.error('Error deleting config:', error)
-      toast.error('Error', 'No se pudo eliminar la configuración')
+      toast.error(tCommon('error'), t('configDeleteError'))
     } finally {
       setIsLoading(false)
     }
@@ -503,13 +506,13 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
         ))
         
         toast.success(
-          newValue ? 'IA Activada' : 'IA Pausada',
-          newValue ? 'El chatbot responderá automáticamente' : 'El chatbot no responderá hasta que lo reactives'
+          newValue ? t('aiEnabled') : t('aiPaused'),
+          newValue ? t('aiEnabledDesc') : t('aiPausedDesc')
         )
       }
     } catch (error) {
       console.error('Error toggling auto_reply:', error)
-      toast.error('Error', 'No se pudo cambiar el estado')
+      toast.error(tCommon('error'), t('toggleError'))
     } finally {
       setIsLoading(false)
     }
@@ -525,9 +528,9 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
               <Globe className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Web Widget Chatbot</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
               <p className="text-sm text-gray-600 mt-0.5">
-                Configure AI for your web chat widgets
+                {t('subtitle')}
               </p>
             </div>
           </div>
@@ -536,7 +539,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
         <div className="flex flex-col items-center justify-center py-16 space-y-4">
           <Loader2 className="w-12 h-12 text-green-600 animate-spin" />
           <div className="text-center">
-            <p className="text-sm font-medium text-gray-900">Loading configuration...</p>
+            <p className="text-sm font-medium text-gray-900">{t('loadingConfig')}</p>
           </div>
         </div>
       </div>
@@ -551,9 +554,9 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
             <Globe className="w-5 h-5 text-green-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Web Widget Chatbot</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
             <p className="text-sm text-gray-600 mt-0.5">
-              Configure AI for your web chat widgets
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -562,11 +565,11 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
       {widgets.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <Globe className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-          <p className="text-sm">No web chat widgets available</p>
-          <p className="text-xs mt-1">Please create a widget first in the Connections section</p>
+          <p className="text-sm">{t('noWidgets')}</p>
+          <p className="text-xs mt-1">{t('createFirst')}</p>
           <Link href="/settings/connections">
             <Button className="mt-4 bg-green-600 hover:bg-green-700 text-white">
-              Go to Connections
+              {t('goToConnections')}
             </Button>
           </Link>
         </div>
@@ -604,7 +607,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
                       )}
                       {hasConfig && (
                         <p className="text-xs text-green-600 mt-0.5">
-                          ✓ Configurado con {configs[widget.id].provider}
+                          ✓ {t('configuredWith', { provider: configs[widget.id].provider })}
                         </p>
                       )}
                     </div>
@@ -613,7 +616,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
                     {hasConfig && (
                       <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                         <span className={`text-sm font-medium ${currentAutoReply !== false ? 'text-green-600' : 'text-gray-500'}`}>
-                          {currentAutoReply !== false ? 'IA Activa' : 'IA Pausada'}
+                          {currentAutoReply !== false ? t('aiActive') : t('aiPausedLabel')}
                         </span>
                         <Switch
                           checked={currentAutoReply !== false}
@@ -657,7 +660,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
                         ) : (
                           <Save className="w-4 h-4 mr-2" />
                         )}
-                        Guardar
+                        {tCommon('save')}
                       </Button>
                       
                       {hasConfig && (
@@ -669,7 +672,7 @@ export function WebChatbotConfig({ selectedWidgetId, workspaceId, initialData }:
                               className="text-green-600 hover:text-green-700 hover:bg-green-50"
                             >
                               <TestTube className="w-4 h-4 mr-2" />
-                              Probar Bot
+                              {t('testBot')}
                             </Button>
                           </Link>
                           
