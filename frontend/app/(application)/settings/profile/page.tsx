@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
@@ -52,7 +52,7 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isChangingPassword, setIsChangingPassword] = useState(false)
 
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = useCallback(async () => {
     try {
       setIsSaving(true)
       const response = await ApiClient.request('/api/auth/profile', {
@@ -71,9 +71,9 @@ export default function ProfilePage() {
     } finally {
       setIsSaving(false)
     }
-  }
+  }, [fullName, companyName, phone, refreshUser])
 
-  const handleChangePassword = async () => {
+  const handleChangePassword = useCallback(async () => {
     if (newPassword.length < 6) {
       toast.error('La contraseña debe tener al menos 6 caracteres')
       return
@@ -103,9 +103,9 @@ export default function ProfilePage() {
     } finally {
       setIsChangingPassword(false)
     }
-  }
+  }, [newPassword, confirmPassword])
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       setIsLoggingOut(true)
       await logout()
@@ -113,9 +113,9 @@ export default function ProfilePage() {
       console.error('Logout error:', error)
       router.push('/login')
     }
-  }
+  }, [logout, router])
 
-  const getPlanName = () => {
+  const getPlanName = useMemo(() => {
     switch (user?.profile?.subscription_tier) {
       case 'trial': return 'Trial Gratuito'
       case 'starter': return 'Plan Starter'
@@ -123,16 +123,16 @@ export default function ProfilePage() {
       case 'enterprise': return 'Plan Enterprise'
       default: return 'Trial'
     }
-  }
+  }, [user?.profile?.subscription_tier])
 
-  const formatDate = (dateString: string | undefined) => {
+  const formatDate = useCallback((dateString: string | undefined) => {
     if (!dateString) return '-'
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     })
-  }
+  }, [])
 
   // Show skeleton while loading
   if (authLoading || !user) {
@@ -235,7 +235,7 @@ export default function ProfilePage() {
                 <Sparkles className="w-5 h-5" />
                 <h2 className="text-lg font-semibold">Tu Plan</h2>
               </div>
-              <p className="text-2xl font-bold">{getPlanName()}</p>
+              <p className="text-2xl font-bold">{getPlanName}</p>
               <p className="text-green-100 text-sm mt-1 flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
                 Miembro desde {formatDate(user.profile?.created_at)}

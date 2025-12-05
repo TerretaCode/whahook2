@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense, useRef } from "react"
+import { useState, useEffect, Suspense, useRef, useCallback, useMemo } from "react"
 import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
@@ -147,7 +147,7 @@ function BillingPageContent() {
     }
   }
 
-  const handleSubscribe = async (planId: string) => {
+  const handleSubscribe = useCallback(async (planId: string) => {
     try {
       setProcessingPlan(planId)
       
@@ -174,9 +174,9 @@ function BillingPageContent() {
     } finally {
       setProcessingPlan(null)
     }
-  }
+  }, [billingPeriod, priceIds])
 
-  const handleManageSubscription = async () => {
+  const handleManageSubscription = useCallback(async () => {
     try {
       setIsManaging(true)
       
@@ -195,22 +195,22 @@ function BillingPageContent() {
     } finally {
       setIsManaging(false)
     }
-  }
+  }, [])
 
-  const formatDate = (dateString: string | null) => {
+  const formatDate = useCallback((dateString: string | null) => {
     if (!dateString) return '-'
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     })
-  }
+  }, [])
+
+  const plansList = useMemo(() => [PLANS.starter, PLANS.professional, PLANS.enterprise], [])
 
   if (isLoading) {
     return <BillingSkeleton />
   }
-
-  const plansList = [PLANS.starter, PLANS.professional, PLANS.enterprise]
 
   return (
     <div className="space-y-6 pb-20 md:pb-8">
