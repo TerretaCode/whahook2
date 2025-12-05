@@ -438,5 +438,105 @@
     "error": "An error occurred",
     "connectionLost": "Connection lost. Reconnecting...",
     "connectionRestored": "Connection restored"
+  },
+  "landing": {
+    "hero": {
+      "badge": "AI-Powered WhatsApp Automation",
+      "title1": "Transform Your",
+      "title2": "WhatsApp Business",
+      "title3": "with AI Automation",
+      "subtitle": "Connect your WhatsApp, automate responses with AI, and manage all conversations from one powerful platform. Save time, scale faster.",
+      "cta": "Start Free Trial",
+      "signIn": "Sign In",
+      "noCreditCard": "No credit card required",
+      "fiveMinSetup": "5-minute setup",
+      "cancelAnytime": "Cancel anytime"
+    },
+    "stats": {
+      "fasterResponse": "Faster Response",
+      "availability": "Availability",
+      "moreCapacity": "More Capacity",
+      "satisfaction": "Satisfaction"
+    },
+    "features": {
+      "title": "Everything You Need to Scale",
+      "subtitle": "Professional tools to automate and manage your WhatsApp Business communications",
+      "aiAssistant": {
+        "title": "AI Assistant",
+        "description": "Smart automated responses powered by Google Gemini. Bring your own API key and control your costs."
+      },
+      "unifiedInbox": {
+        "title": "Unified Inbox",
+        "description": "Manage all your WhatsApp conversations in one clean, professional interface."
+      },
+      "smartAutomation": {
+        "title": "Smart Automation",
+        "description": "Set up automatic responses, business hours, and custom conversation flows."
+      },
+      "security": {
+        "title": "Enterprise Security",
+        "description": "AES-256 encryption, secure storage, and full privacy compliance."
+      },
+      "analytics": {
+        "title": "Analytics & Insights",
+        "description": "Detailed statistics on conversations, response times, and performance metrics."
+      },
+      "aiToggle": {
+        "title": "AI/Manual Toggle",
+        "description": "Switch between automated AI responses and manual attention with one click."
+      }
+    },
+    "howItWorks": {
+      "title": "Get Started in 3 Simple Steps",
+      "subtitle": "Set up your account in minutes and start automating",
+      "step1": {
+        "title": "Create Account",
+        "description": "Sign up for free and access your dashboard"
+      },
+      "step2": {
+        "title": "Connect WhatsApp",
+        "description": "Scan QR code to link your WhatsApp Business account"
+      },
+      "step3": {
+        "title": "Configure AI",
+        "description": "Add your Gemini API key and customize automatic responses"
+      }
+    },
+    "benefits": {
+      "title": "Save Time, Scale Your Business",
+      "subtitle": "Automate repetitive responses while maintaining full control over important conversations.",
+      "item1": "Respond 24/7 without manual intervention",
+      "item2": "Reduce response times by up to 90%",
+      "item3": "Keep context across all conversations",
+      "item4": "Scale customer support without hiring",
+      "demo": {
+        "customer": "Customer",
+        "question": "What are your business hours?",
+        "aiAssistant": "AI Assistant",
+        "answer": "We're open Monday to Friday, 9 AM to 6 PM. How can I help you today?"
+      }
+    },
+    "useCases": {
+      "title": "Perfect for Every Business",
+      "subtitle": "From small businesses to enterprises",
+      "ecommerce": {
+        "title": "E-commerce",
+        "description": "Handle order inquiries, shipping updates, and customer support automatically."
+      },
+      "services": {
+        "title": "Service Businesses",
+        "description": "Manage appointments, answer FAQs, and qualify leads 24/7."
+      },
+      "agencies": {
+        "title": "Agencies",
+        "description": "Manage multiple client accounts from one centralized platform."
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Your Customer Service?",
+      "subtitle": "Join hundreds of businesses already automating their WhatsApp conversations with AI",
+      "button": "Start Free Trial Now",
+      "noCommitment": "No commitment"
+    }
   }
 }

@@ -438,5 +438,105 @@
     "error": "Ocurrió un error",
     "connectionLost": "Conexión perdida. Reconectando...",
     "connectionRestored": "Conexión restablecida"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Automatización de WhatsApp con IA",
+      "title1": "Transforma Tu",
+      "title2": "Negocio en WhatsApp",
+      "title3": "con Automatización IA",
+      "subtitle": "Conecta tu WhatsApp, automatiza respuestas con IA y gestiona todas las conversaciones desde una plataforma potente. Ahorra tiempo, escala más rápido.",
+      "cta": "Comenzar Prueba Gratis",
+      "signIn": "Iniciar Sesión",
+      "noCreditCard": "Sin tarjeta de crédito",
+      "fiveMinSetup": "Configuración en 5 minutos",
+      "cancelAnytime": "Cancela cuando quieras"
+    },
+    "stats": {
+      "fasterResponse": "Respuesta más rápida",
+      "availability": "Disponibilidad",
+      "moreCapacity": "Más capacidad",
+      "satisfaction": "Satisfacción"
+    },
+    "features": {
+      "title": "Todo lo que Necesitas para Escalar",
+      "subtitle": "Herramientas profesionales para automatizar y gestionar tus comunicaciones de WhatsApp Business",
+      "aiAssistant": {
+        "title": "Asistente IA",
+        "description": "Respuestas automáticas inteligentes con Google Gemini. Usa tu propia API key y controla tus costos."
+      },
+      "unifiedInbox": {
+        "title": "Bandeja Unificada",
+        "description": "Gestiona todas tus conversaciones de WhatsApp en una interfaz limpia y profesional."
+      },
+      "smartAutomation": {
+        "title": "Automatización Inteligente",
+        "description": "Configura respuestas automáticas, horarios comerciales y flujos de conversación personalizados."
+      },
+      "security": {
+        "title": "Seguridad Empresarial",
+        "description": "Encriptación AES-256, almacenamiento seguro y cumplimiento total de privacidad."
+      },
+      "analytics": {
+        "title": "Analíticas e Insights",
+        "description": "Estadísticas detalladas sobre conversaciones, tiempos de respuesta y métricas de rendimiento."
+      },
+      "aiToggle": {
+        "title": "Cambio IA/Manual",
+        "description": "Alterna entre respuestas automáticas de IA y atención manual con un solo clic."
+      }
+    },
+    "howItWorks": {
+      "title": "Comienza en 3 Simples Pasos",
+      "subtitle": "Configura tu cuenta en minutos y empieza a automatizar",
+      "step1": {
+        "title": "Crea tu Cuenta",
+        "description": "Regístrate gratis y accede a tu panel de control"
+      },
+      "step2": {
+        "title": "Conecta WhatsApp",
+        "description": "Escanea el código QR para vincular tu cuenta de WhatsApp Business"
+      },
+      "step3": {
+        "title": "Configura la IA",
+        "description": "Añade tu API key de Gemini y personaliza las respuestas automáticas"
+      }
+    },
+    "benefits": {
+      "title": "Ahorra Tiempo, Escala tu Negocio",
+      "subtitle": "Automatiza respuestas repetitivas mientras mantienes control total sobre conversaciones importantes.",
+      "item1": "Responde 24/7 sin intervención manual",
+      "item2": "Reduce tiempos de respuesta hasta un 90%",
+      "item3": "Mantén el contexto en todas las conversaciones",
+      "item4": "Escala el soporte al cliente sin contratar",
+      "demo": {
+        "customer": "Cliente",
+        "question": "¿Cuál es su horario de atención?",
+        "aiAssistant": "Asistente IA",
+        "answer": "Estamos abiertos de lunes a viernes, de 9 AM a 6 PM. ¿En qué puedo ayudarte hoy?"
+      }
+    },
+    "useCases": {
+      "title": "Perfecto para Cualquier Negocio",
+      "subtitle": "Desde pequeños negocios hasta empresas",
+      "ecommerce": {
+        "title": "E-commerce",
+        "description": "Gestiona consultas de pedidos, actualizaciones de envío y soporte al cliente automáticamente."
+      },
+      "services": {
+        "title": "Negocios de Servicios",
+        "description": "Gestiona citas, responde FAQs y califica leads 24/7."
+      },
+      "agencies": {
+        "title": "Agencias",
+        "description": "Gestiona múltiples cuentas de clientes desde una plataforma centralizada."
+      }
+    },
+    "cta": {
+      "title": "¿Listo para Transformar tu Atención al Cliente?",
+      "subtitle": "Únete a cientos de negocios que ya automatizan sus conversaciones de WhatsApp con IA",
+      "button": "Comenzar Prueba Gratis Ahora",
+      "noCommitment": "Sin compromiso"
+    }
   }
 }
