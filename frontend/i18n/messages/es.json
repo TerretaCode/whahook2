@@ -185,20 +185,23 @@
     }
   },
   "conversations": {
-    "title": "Mensajes",
-    "searchPlaceholder": "Buscar conversaciones...",
+    "title": "Chats",
+    "searchPlaceholder": "Buscar o iniciar nuevo chat",
     "filters": {
-      "all": "Todas",
-      "whatsapp": "WhatsApp",
+      "all": "Todos",
+      "whatsapp": "Teléfono",
       "web": "Web",
-      "attention": "Requieren atención"
+      "attention": "Atención"
     },
     "empty": {
       "title": "Sin conversaciones",
-      "subtitle": "Comienza a chatear con tus clientes"
+      "subtitle": "Inicia una nueva conversación"
     },
     "selectConversation": "Selecciona una conversación para comenzar",
+    "selectWorkspace": "Seleccionar workspace",
+    "sendReceiveMessages": "Envía y recibe mensajes sin mantener tu teléfono conectado.",
     "encrypted": "Cifrado de extremo a extremo",
+    "noResults": "No se encontraron resultados",
     "typing": "escribiendo...",
     "online": "En línea",
     "offline": "Desconectado",
@@ -219,36 +222,51 @@
   "clients": {
     "title": "Clientes",
     "subtitle": "Gestiona tu base de datos de clientes",
+    "searchPlaceholder": "Buscar por nombre, email, teléfono o empresa...",
     "addClient": "Añadir cliente",
-    "importClients": "Importar",
-    "exportClients": "Exportar",
-    "searchPlaceholder": "Buscar clientes...",
-    "columns": {
+    "editClient": "Editar cliente",
+    "deleteClient": "Eliminar cliente",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar este cliente?",
+    "sync": "Sincronizar",
+    "syncing": "Sincronizando...",
+    "export": "Exportar",
+    "autoCapture": {
+      "title": "Captura Automática con IA",
+      "description": "Extrae automáticamente email, empresa e intereses de las conversaciones",
+      "configNote": "Usa el modelo de IA configurado en",
+      "configLink": "Configuración → Chatbot → API Keys"
+    },
+    "filters": {
+      "all": "Todos",
+      "customers": "Clientes",
+      "prospects": "Prospectos",
+      "leads": "Leads",
+      "inactive": "Inactivos"
+    },
+    "stats": {
+      "totalContacts": "Total Contactos",
+      "customers": "Clientes",
+      "leads": "Leads",
+      "totalMessages": "Total Mensajes"
+    },
+    "table": {
       "name": "Nombre",
-      "phone": "Teléfono",
       "email": "Correo",
+      "phone": "Teléfono",
+      "company": "Empresa",
       "status": "Estado",
-      "tags": "Etiquetas",
-      "lastInteraction": "Última interacción",
-      "createdAt": "Creado"
+      "lastContact": "Último contacto",
+      "actions": "Acciones"
     },
     "status": {
-      "lead": "Lead",
-      "prospect": "Prospecto",
       "customer": "Cliente",
+      "prospect": "Prospecto",
+      "lead": "Lead",
       "inactive": "Inactivo"
     },
     "empty": {
       "title": "Sin clientes",
-      "subtitle": "Añade tu primer cliente o importa desde un archivo"
-    },
-    "details": {
-      "title": "Detalles del cliente",
-      "conversations": "Conversaciones",
-      "notes": "Notas",
-      "addNote": "Añadir nota",
-      "tags": "Etiquetas",
-      "addTag": "Añadir etiqueta"
+      "subtitle": "Añade tu primer cliente para comenzar"
     }
   },
   "settings": {

@@ -185,26 +185,29 @@
     }
   },
   "conversations": {
-    "title": "Messages",
-    "searchPlaceholder": "Search conversations...",
+    "title": "Chats",
+    "searchPlaceholder": "Search or start new chat",
     "filters": {
       "all": "All",
-      "whatsapp": "WhatsApp",
+      "whatsapp": "Phone",
       "web": "Web",
-      "attention": "Needs attention"
+      "attention": "Attention"
     },
     "empty": {
-      "title": "No conversations yet",
-      "subtitle": "Start chatting with your customers"
+      "title": "No conversations",
+      "subtitle": "Start a new conversation"
     },
     "selectConversation": "Select a conversation to start messaging",
+    "selectWorkspace": "Select workspace",
+    "sendReceiveMessages": "Send and receive messages without keeping your phone online.",
     "encrypted": "End-to-end encrypted",
+    "noResults": "No results found",
     "typing": "typing...",
     "online": "Online",
     "offline": "Offline",
     "lastSeen": "Last seen {time}",
     "unread": "{count} unread",
-    "sendMessage": "Send a message...",
+    "sendMessage": "Type a message...",
     "send": "Send",
     "attachFile": "Attach file",
     "emoji": "Emoji",
@@ -218,37 +221,52 @@
   },
   "clients": {
     "title": "Clients",
-    "subtitle": "Manage your customer database",
+    "subtitle": "Manage your client database",
+    "searchPlaceholder": "Search by name, email, phone or company...",
     "addClient": "Add client",
-    "importClients": "Import",
-    "exportClients": "Export",
-    "searchPlaceholder": "Search clients...",
-    "columns": {
+    "editClient": "Edit client",
+    "deleteClient": "Delete client",
+    "confirmDelete": "Are you sure you want to delete this client?",
+    "sync": "Sync",
+    "syncing": "Syncing...",
+    "export": "Export",
+    "autoCapture": {
+      "title": "AI Auto-Capture",
+      "description": "Automatically extract email, company & interests from conversations",
+      "configNote": "Uses the AI model configured in",
+      "configLink": "Settings → Chatbot → API Keys"
+    },
+    "filters": {
+      "all": "All",
+      "customers": "Customers",
+      "prospects": "Prospects",
+      "leads": "Leads",
+      "inactive": "Inactive"
+    },
+    "stats": {
+      "totalContacts": "Total Contacts",
+      "customers": "Customers",
+      "leads": "Leads",
+      "totalMessages": "Total Messages"
+    },
+    "table": {
       "name": "Name",
-      "phone": "Phone",
       "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
       "status": "Status",
-      "tags": "Tags",
-      "lastInteraction": "Last interaction",
-      "createdAt": "Created"
+      "lastContact": "Last Contact",
+      "actions": "Actions"
     },
     "status": {
-      "lead": "Lead",
-      "prospect": "Prospect",
       "customer": "Customer",
+      "prospect": "Prospect",
+      "lead": "Lead",
       "inactive": "Inactive"
     },
     "empty": {
       "title": "No clients yet",
-      "subtitle": "Add your first client or import from a file"
-    },
-    "details": {
-      "title": "Client details",
-      "conversations": "Conversations",
-      "notes": "Notes",
-      "addNote": "Add note",
-      "tags": "Tags",
-      "addTag": "Add tag"
+      "subtitle": "Add your first client to get started"
     }
   },
   "settings": {

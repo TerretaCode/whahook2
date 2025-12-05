@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense, useCallback, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useTranslations } from 'next-intl'
 import { useAuth } from "@/contexts/AuthContext"
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { ApiClient } from "@/lib/api-client"
@@ -18,6 +19,7 @@ interface Conversation {
 function ConversationsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const t = useTranslations('conversations')
   const { user, isLoading: authLoading } = useAuth()
   const { workspace, workspaces, setWorkspace, isOwner, isLoading: workspaceLoading } = useWorkspaceContext()
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
@@ -95,7 +97,7 @@ function ConversationsContent() {
             >
               <div className="flex items-center gap-2 truncate">
                 <Building2 className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                <span className="truncate">{workspace?.name || 'Select workspace'}</span>
+                <span className="truncate">{workspace?.name || t('selectWorkspace')}</span>
               </div>
               <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showWorkspaceSelector ? 'rotate-180' : ''}`} />
             </Button>
@@ -150,11 +152,11 @@ function ConversationsContent() {
               </div>
               <h2 className="text-3xl font-light text-gray-900 mb-4">WhaHook Web</h2>
               <p className="text-sm text-gray-600 mb-8">
-                Send and receive messages without keeping your phone online.
+                {t('sendReceiveMessages')}
               </p>
               <div className="space-y-2 text-xs text-gray-500">
-                <p>🔒 End-to-end encrypted</p>
-                <p>💬 Select a conversation to start messaging</p>
+                <p>🔒 {t('encrypted')}</p>
+                <p>💬 {t('selectConversation')}</p>
               </div>
             </div>
           </div>

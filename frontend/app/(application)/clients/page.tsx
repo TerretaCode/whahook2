@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from 'next-intl'
 import { useAuth } from "@/contexts/AuthContext"
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { ApiClient } from "@/lib/api-client"
@@ -40,6 +41,8 @@ export interface Client {
 
 export default function ClientsPage() {
   const router = useRouter()
+  const t = useTranslations('clients')
+  const tCommon = useTranslations('common')
   const { user, isLoading: authLoading } = useAuth()
   const { workspace } = useWorkspaceContext()
   const [clients, setClients] = useState<Client[]>([])
@@ -176,7 +179,7 @@ export default function ClientsPage() {
   }
 
   const handleDeleteClient = async (clientId: string) => {
-    if (!confirm('Are you sure you want to delete this client?')) return
+    if (!confirm(t('confirmDelete'))) return
 
     try {
       await ApiClient.request(`/api/clients/${clientId}`, { method: 'DELETE' })
@@ -222,10 +225,10 @@ export default function ClientsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              Clients
+              {t('title')}
             </h1>
             <p className="mt-1 text-sm text-gray-600">
-              Manage your client database
+              {t('subtitle')}
             </p>
           </div>
           <div className="flex gap-3">
@@ -237,7 +240,7 @@ export default function ClientsPage() {
               className="gap-2"
             >
               <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-              {isSyncing ? 'Syncing...' : 'Sync'}
+              {isSyncing ? t('syncing') : t('sync')}
             </Button>
             <Button
               variant="outline"
@@ -246,7 +249,7 @@ export default function ClientsPage() {
               className="gap-2"
             >
               <Download className="w-4 h-4" />
-              Export
+              {t('export')}
             </Button>
           </div>
         </div>
@@ -259,9 +262,9 @@ export default function ClientsPage() {
                 <Sparkles className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <h3 className="font-medium text-gray-900">AI Auto-Capture</h3>
+                <h3 className="font-medium text-gray-900">{t('autoCapture.title')}</h3>
                 <p className="text-sm text-gray-500">
-                  Automatically extract email, company & interests from conversations
+                  {t('autoCapture.description')}
                 </p>
               </div>
             </div>
@@ -271,7 +274,7 @@ export default function ClientsPage() {
               ) : (
                 <>
                   <span className={`text-sm font-medium ${autoCapture ? 'text-green-600' : 'text-gray-500'}`}>
-                    {autoCapture ? 'Active' : 'Inactive'}
+                    {autoCapture ? tCommon('active') : tCommon('inactive')}
                   </span>
                   <Switch
                     checked={autoCapture}
@@ -285,7 +288,7 @@ export default function ClientsPage() {
             <div className="mt-3 pt-3 border-t border-gray-100">
               <p className="text-xs text-gray-500 flex items-center gap-1">
                 <Settings2 className="w-3 h-3" />
-                Uses the AI model configured in <a href="/settings/chatbot?tab=apikeys" className="text-green-600 hover:underline">Settings → Chatbot → API Keys</a>
+                {t('autoCapture.configNote')} <a href="/settings/chatbot?tab=apikeys" className="text-green-600 hover:underline">{t('autoCapture.configLink')}</a>
               </p>
             </div>
           )}
@@ -300,7 +303,7 @@ export default function ClientsPage() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="Search by name, email, phone or company..."
+                  placeholder={t('searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -316,7 +319,7 @@ export default function ClientsPage() {
                 onClick={() => setStatusFilter('all')}
                 className={statusFilter === 'all' ? 'bg-green-600 hover:bg-green-700' : ''}
               >
-                All
+                {t('filters.all')}
               </Button>
               <Button
                 variant={statusFilter === 'customer' ? 'default' : 'outline'}
@@ -324,7 +327,7 @@ export default function ClientsPage() {
                 onClick={() => setStatusFilter('customer')}
                 className={statusFilter === 'customer' ? 'bg-green-600 hover:bg-green-700' : ''}
               >
-                Customers
+                {t('filters.customers')}
               </Button>
               <Button
                 variant={statusFilter === 'prospect' ? 'default' : 'outline'}
@@ -332,7 +335,7 @@ export default function ClientsPage() {
                 onClick={() => setStatusFilter('prospect')}
                 className={statusFilter === 'prospect' ? 'bg-green-600 hover:bg-green-700' : ''}
               >
-                Prospects
+                {t('filters.prospects')}
               </Button>
               <Button
                 variant={statusFilter === 'lead' ? 'default' : 'outline'}
@@ -340,7 +343,7 @@ export default function ClientsPage() {
                 onClick={() => setStatusFilter('lead')}
                 className={statusFilter === 'lead' ? 'bg-green-600 hover:bg-green-700' : ''}
               >
-                Leads
+                {t('filters.leads')}
               </Button>
               <Button
                 variant={statusFilter === 'inactive' ? 'default' : 'outline'}
@@ -348,7 +351,7 @@ export default function ClientsPage() {
                 onClick={() => setStatusFilter('inactive')}
                 className={statusFilter === 'inactive' ? 'bg-green-600 hover:bg-green-700' : ''}
               >
-                Inactive
+                {t('filters.inactive')}
               </Button>
             </div>
           </div>
@@ -359,7 +362,7 @@ export default function ClientsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Contacts</p>
+                <p className="text-sm text-gray-600">{t('stats.totalContacts')}</p>
                 <p className="text-2xl font-bold text-gray-900">{clients.length}</p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -371,7 +374,7 @@ export default function ClientsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Customers</p>
+                <p className="text-sm text-gray-600">{t('stats.customers')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {clients.filter(c => c.status === 'customer').length}
                 </p>
@@ -385,7 +388,7 @@ export default function ClientsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Leads</p>
+                <p className="text-sm text-gray-600">{t('stats.leads')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {clients.filter(c => c.status === 'lead').length}
                 </p>
@@ -399,7 +402,7 @@ export default function ClientsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Messages</p>
+                <p className="text-sm text-gray-600">{t('stats.totalMessages')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {clients.reduce((sum, c) => sum + (c.total_messages || 0), 0)}
                 </p>

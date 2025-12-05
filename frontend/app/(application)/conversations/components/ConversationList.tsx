@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { Search, MessageSquare } from "lucide-react"
+import { useTranslations } from 'next-intl'
 import { Input } from "@/components/ui/input"
 import { ConversationItem } from "./ConversationItem"
 import { ApiClient } from "@/lib/api-client"
@@ -45,6 +46,7 @@ interface ConversationListProps {
 }
 
 export function ConversationList({ selectedConversationId, onSelectConversation, initialFilter = 'all', workspaceId }: ConversationListProps) {
+  const t = useTranslations('conversations')
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -213,17 +215,17 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
   }
 
   const filters = useMemo(() => [
-    { id: 'all', label: 'All', count: conversations.length },
-    { id: 'whatsapp', label: 'Phone', count: conversations.filter(c => c.source === 'whatsapp').length },
-    { id: 'web', label: 'Web', count: conversations.filter(c => c.source === 'web').length },
-    { id: 'attention', label: 'Attention', count: conversations.filter(c => c.needsAttention).length },
-  ], [conversations])
+    { id: 'all', label: t('filters.all'), count: conversations.length },
+    { id: 'whatsapp', label: t('filters.whatsapp'), count: conversations.filter(c => c.source === 'whatsapp').length },
+    { id: 'web', label: t('filters.web'), count: conversations.filter(c => c.source === 'web').length },
+    { id: 'attention', label: t('filters.attention'), count: conversations.filter(c => c.needsAttention).length },
+  ], [conversations, t])
 
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Header */}
       <div className="px-4 py-4 bg-white border-b border-gray-200">
-        <h1 className="text-gray-900 text-xl font-semibold">Chats</h1>
+        <h1 className="text-gray-900 text-xl font-semibold">{t('title')}</h1>
       </div>
 
       {/* Search */}
@@ -232,7 +234,7 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
             type="text"
-            placeholder="Search or start new chat"
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 bg-gray-100 border-none text-gray-900 placeholder:text-gray-500 focus-visible:ring-0 rounded-lg"
@@ -266,9 +268,9 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
         ) : filteredConversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <MessageSquare className="w-16 h-16 text-gray-300 mb-4" />
-            <p className="text-gray-600 font-medium mb-1">No conversations</p>
+            <p className="text-gray-600 font-medium mb-1">{t('empty.title')}</p>
             <p className="text-sm text-gray-500">
-              {searchQuery ? 'No results found' : 'Start a new conversation'}
+              {searchQuery ? t('noResults') : t('empty.subtitle')}
             </p>
           </div>
         ) : (
