@@ -516,6 +516,31 @@
         "typingIndicatorDelay": "Delay del Indicador de Escritura (ms)",
         "fallbackSystem": "Sistema de Fallback V2",
         "fallbackSystemDesc": "Detección automática de incertidumbre y solicitudes de atención humana"
+      },
+      "advancedConfig": {
+        "title": "Configuración Avanzada",
+        "subtitle": "Funciones avanzadas y experimentales",
+        "conversationLogging": "Registro de Conversaciones",
+        "conversationLoggingDesc": "Guardar logs de interacciones",
+        "logLevel": "Nivel de Detalle del Log",
+        "logLevelBasic": "Básico - Solo mensajes",
+        "logLevelDetailed": "Detallado - Mensajes + Intent + Tokens",
+        "logLevelFull": "Completo - Todo + Metadata + Errores",
+        "logLevelDesc": "Nivel de información guardada en los logs",
+        "logUserMessages": "Registrar Mensajes de Usuario",
+        "logUserMessagesDesc": "Guardar lo que escribe el usuario",
+        "logBotResponses": "Registrar Respuestas del Bot",
+        "logBotResponsesDesc": "Guardar lo que responde el bot",
+        "dataRetention": "Retención de Datos",
+        "dataRetentionDesc": "Gestión automática de datos antiguos",
+        "retentionDays": "Días de Retención",
+        "retentionDaysDesc": "Tiempo que se mantienen los datos antes de eliminarse (30-365 días)",
+        "autoDelete": "Auto-Eliminación Activada",
+        "autoDeleteDesc": "Eliminar datos antiguos automáticamente",
+        "softDelete": "Eliminación Suave (Soft Delete)",
+        "softDeleteDesc": "Marcar como eliminado antes de borrar permanentemente",
+        "softDeleteLabel": "Soft Delete",
+        "softDeleteInfo": "Los datos se marcan como eliminados y se mantienen 30 días antes de borrarse permanentemente. Cumple con GDPR."
       }
     },
     "branding": {

@@ -516,6 +516,31 @@
         "typingIndicatorDelay": "Typing Indicator Delay (ms)",
         "fallbackSystem": "Fallback System V2",
         "fallbackSystemDesc": "Automatic detection of uncertainty and human assistance requests"
+      },
+      "advancedConfig": {
+        "title": "Advanced Configuration",
+        "subtitle": "Advanced and experimental features",
+        "conversationLogging": "Conversation Logging",
+        "conversationLoggingDesc": "Save interaction logs",
+        "logLevel": "Log Detail Level",
+        "logLevelBasic": "Basic - Messages only",
+        "logLevelDetailed": "Detailed - Messages + Intent + Tokens",
+        "logLevelFull": "Full - Everything + Metadata + Errors",
+        "logLevelDesc": "Level of information saved in logs",
+        "logUserMessages": "Log User Messages",
+        "logUserMessagesDesc": "Save what the user writes",
+        "logBotResponses": "Log Bot Responses",
+        "logBotResponsesDesc": "Save what the bot responds",
+        "dataRetention": "Data Retention",
+        "dataRetentionDesc": "Automatic management of old data",
+        "retentionDays": "Retention Days",
+        "retentionDaysDesc": "Time data is kept before deletion (30-365 days)",
+        "autoDelete": "Auto-Delete Enabled",
+        "autoDeleteDesc": "Automatically delete old data",
+        "softDelete": "Soft Delete",
+        "softDeleteDesc": "Mark as deleted before permanent removal",
+        "softDeleteLabel": "Soft Delete",
+        "softDeleteInfo": "Data is marked as deleted and kept for 30 days before permanent removal. GDPR compliant."
       }
     },
     "branding": {
