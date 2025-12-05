@@ -460,6 +460,25 @@
         "model": "Model",
         "chat": "Chat",
         "advanced": "Advanced"
+      },
+      "apiKeys": {
+        "title": "API Keys",
+        "subtitle": "Configure your AI provider API key",
+        "subtitleWorkspace": "Configure your AI provider API key for this workspace",
+        "loading": "Loading configuration...",
+        "configured": "AI configured with {provider} - {model}",
+        "notConfigured": "Configure your API key to enable AI features for this workspace",
+        "provider": "AI Provider",
+        "selectProvider": "Select a provider",
+        "recommended": "Recommended",
+        "modelLabel": "Model",
+        "selectModel": "Select a model",
+        "apiKeyLabel": "API Key",
+        "apiKeySecure": "Your API key is encrypted and stored securely",
+        "saving": "Saving...",
+        "saved": "Saved!",
+        "saveError": "Error saving",
+        "saveApiKey": "Save API Key"
       }
     },
     "branding": {

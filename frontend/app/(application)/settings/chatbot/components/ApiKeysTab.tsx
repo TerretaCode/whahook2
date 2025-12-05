@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslations } from 'next-intl'
 import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -100,6 +101,7 @@ interface ApiKeysTabProps {
 }
 
 export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabProps) {
+  const t = useTranslations('settings.chatbot.apiKeys')
   const [isLoading, setIsLoading] = useState(false)
   // Skip loading if parent already fetched data (hasInitialData=true)
   const [isInitialLoading, setIsInitialLoading] = useState(!hasInitialData)
@@ -196,13 +198,13 @@ export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabPr
             <Key className="w-5 h-5 text-green-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">API Keys</h3>
-            <p className="text-sm text-gray-600">Configure your AI provider API key</p>
+            <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
+            <p className="text-sm text-gray-600">{t('subtitle')}</p>
           </div>
         </div>
         <div className="flex flex-col items-center justify-center py-16">
           <Loader2 className="w-12 h-12 text-green-600 animate-spin" />
-          <p className="text-sm text-gray-500 mt-4">Loading configuration...</p>
+          <p className="text-sm text-gray-500 mt-4">{t('loading')}</p>
         </div>
       </div>
     )
@@ -215,8 +217,8 @@ export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabPr
           <Key className="w-5 h-5 text-green-600" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">API Keys</h3>
-          <p className="text-sm text-gray-600">Configure your AI provider API key for this workspace</p>
+          <h3 className="text-lg font-semibold text-gray-900">{t('title')}</h3>
+          <p className="text-sm text-gray-600">{t('subtitleWorkspace')}</p>
         </div>
       </div>
 
@@ -225,7 +227,7 @@ export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabPr
         <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
           <CheckCircle2 className="w-5 h-5 text-green-600" />
           <span className="text-sm text-green-700">
-            AI configured with <strong>{config.provider === 'google' ? 'Google Gemini' : config.provider === 'openai' ? 'OpenAI' : 'Anthropic'}</strong> - {config.model}
+            {t('configured', { provider: config.provider === 'google' ? 'Google Gemini' : config.provider === 'openai' ? 'OpenAI' : 'Anthropic', model: config.model })}
           </span>
         </div>
       )}
@@ -234,7 +236,7 @@ export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabPr
         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
           <AlertCircle className="w-5 h-5 text-yellow-600" />
           <span className="text-sm text-yellow-700">
-            Configure your API key to enable AI features for this workspace
+            {t('notConfigured')}
           </span>
         </div>
       )}
@@ -242,20 +244,20 @@ export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabPr
       <div className="space-y-6">
         {/* Provider */}
         <div className="space-y-2">
-          <Label>AI Provider</Label>
+          <Label>{t('provider')}</Label>
           <Select 
             value={formData.provider} 
             onValueChange={(v) => updateField('provider', v)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select a provider" />
+              <SelectValue placeholder={t('selectProvider')} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="google">
                 <div className="flex items-center gap-2">
                   <span>🔷</span>
                   <span>Google Gemini</span>
-                  <span className="text-xs text-green-600 ml-1">Recommended</span>
+                  <span className="text-xs text-green-600 ml-1">{t('recommended')}</span>
                 </div>
               </SelectItem>
               <SelectItem value="openai">
@@ -276,13 +278,13 @@ export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabPr
 
         {/* Model */}
         <div className="space-y-2">
-          <Label>Model</Label>
+          <Label>{t('modelLabel')}</Label>
           <Select 
             value={formData.model} 
             onValueChange={(v) => updateField('model', v)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select a model" />
+              <SelectValue placeholder={t('selectModel')} />
             </SelectTrigger>
             <SelectContent>
               {providerModels[formData.provider]?.map((m) => (
@@ -330,7 +332,7 @@ export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabPr
 
         {/* API Key */}
         <div className="space-y-2">
-          <Label>API Key</Label>
+          <Label>{t('apiKeyLabel')}</Label>
           <div className="flex gap-2">
             <Input
               type={showApiKey ? "text" : "password"}
@@ -353,7 +355,7 @@ export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabPr
             </Button>
           </div>
           <p className="text-xs text-gray-500">
-            Your API key is encrypted and stored securely
+            {t('apiKeySecure')}
           </p>
         </div>
 
@@ -366,22 +368,22 @@ export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabPr
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Saving...
+              {t('saving')}
             </>
           ) : saveStatus === 'success' ? (
             <>
               <CheckCircle2 className="w-4 h-4 mr-2" />
-              Saved!
+              {t('saved')}
             </>
           ) : saveStatus === 'error' ? (
             <>
               <AlertCircle className="w-4 h-4 mr-2" />
-              Error saving
+              {t('saveError')}
             </>
           ) : (
             <>
               <Save className="w-4 h-4 mr-2" />
-              Save API Key
+              {t('saveApiKey')}
             </>
           )}
         </Button>

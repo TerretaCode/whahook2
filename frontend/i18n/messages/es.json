@@ -460,6 +460,25 @@
         "model": "Modelo",
         "chat": "Chat",
         "advanced": "Avanzado"
+      },
+      "apiKeys": {
+        "title": "Claves API",
+        "subtitle": "Configura tu clave API del proveedor de IA",
+        "subtitleWorkspace": "Configura tu clave API del proveedor de IA para este workspace",
+        "loading": "Cargando configuración...",
+        "configured": "IA configurada con {provider} - {model}",
+        "notConfigured": "Configura tu clave API para habilitar las funciones de IA en este workspace",
+        "provider": "Proveedor de IA",
+        "selectProvider": "Selecciona un proveedor",
+        "recommended": "Recomendado",
+        "modelLabel": "Modelo",
+        "selectModel": "Selecciona un modelo",
+        "apiKeyLabel": "Clave API",
+        "apiKeySecure": "Tu clave API está encriptada y almacenada de forma segura",
+        "saving": "Guardando...",
+        "saved": "¡Guardado!",
+        "saveError": "Error al guardar",
+        "saveApiKey": "Guardar Clave API"
       }
     },
     "branding": {
