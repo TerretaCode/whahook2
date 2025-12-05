@@ -330,7 +330,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     }
   }, [conversationId, on, off, isNearBottom, scrollToBottomSmooth])
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = useCallback(async (content: string) => {
     if (isSending) return
     
     setIsSending(true)
@@ -382,9 +382,9 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
     } finally {
       setIsSending(false)
     }
-  }
+  }, [conversationId, isSending, scrollToBottomSmooth])
 
-  const handleToggleChatbot = async (enabled: boolean) => {
+  const handleToggleChatbot = useCallback(async (enabled: boolean) => {
     try {
       const response = await ApiClient.request(`/api/whatsapp/conversations/${conversationId}/chatbot`, {
         method: 'PUT',
@@ -402,7 +402,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
       console.error('Error toggling chatbot:', error)
       toast.error('Error', 'Failed to update chatbot status')
     }
-  }
+  }, [conversationId])
 
   return (
     <div className="h-full flex flex-col bg-[#E5DDD5]">
