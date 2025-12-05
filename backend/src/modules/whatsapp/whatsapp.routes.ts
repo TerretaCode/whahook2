@@ -396,17 +396,82 @@ router.post('/sessions/:sessionId/force-clean', async (req: Request, res: Respon
  * GET /api/whatsapp/conversations
  * Obtener todas las conversaciones del usuario
  * OPTIMIZADO: Campos específicos, caché, límite
+ * Soporta filtro por workspace_id
  */
 router.get('/conversations', async (req: Request, res: Response) => {
   try {
     const userId = await getUserIdFromToken(req)
-    const { limit = '100' } = req.query
+    const { limit = '100', workspace_id } = req.query
     
     if (!userId) {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    // Seleccionar solo campos necesarios para la lista
+    // If workspace_id provided, get conversations for that workspace only
+    if (workspace_id) {
+      // First verify user has access to this workspace (owner or member)
+      const { data: workspace } = await supabaseAdmin
+        .from('workspaces')
+        .select('id, user_id, whatsapp_session_id')
+        .eq('id', workspace_id)
+        .single()
+
+      if (!workspace) {
+        return res.status(404).json({ success: false, error: 'Workspace not found' })
+      }
+
+      // Check if user is owner or member
+      const isOwner = workspace.user_id === userId
+      if (!isOwner) {
+        const { data: membership } = await supabaseAdmin
+          .from('workspace_members')
+          .select('id, permissions')
+          .eq('workspace_id', workspace_id)
+          .eq('user_id', userId)
+          .single()
+
+        if (!membership) {
+          return res.status(403).json({ success: false, error: 'Access denied to this workspace' })
+        }
+
+        // Check if member has messages permission
+        const permissions = membership.permissions as { messages?: boolean } | null
+        if (!permissions?.messages) {
+          return res.status(403).json({ success: false, error: 'No permission to view messages' })
+        }
+      }
+
+      // Get WhatsApp account for this workspace
+      const { data: waAccount } = await supabaseAdmin
+        .from('whatsapp_accounts')
+        .select('id')
+        .eq('workspace_id', workspace_id)
+        .single()
+
+      if (!waAccount) {
+        // No WhatsApp account for this workspace, return empty
+        res.set('Cache-Control', 'private, max-age=3')
+        return res.json({ success: true, data: [] })
+      }
+
+      // Get conversations for this WhatsApp account
+      const { data: conversations, error } = await supabaseAdmin
+        .from('conversations')
+        .select('id, contact_phone, contact_name, contact_avatar, status, last_message_preview, last_message_at, unread_count, chatbot_enabled, is_online, needs_attention')
+        .eq('whatsapp_account_id', waAccount.id)
+        .order('last_message_at', { ascending: false, nullsFirst: false })
+        .limit(Math.min(parseInt(limit as string) || 100, 200))
+
+      if (error) {
+        console.error('Error fetching conversations:', error)
+        return res.status(500).json({ success: false, error: 'Error fetching conversations' })
+      }
+
+      res.set('Cache-Control', 'private, max-age=3')
+      return res.json({ success: true, data: conversations || [] })
+    }
+
+    // No workspace filter - get all conversations for user (owner view)
     const { data: conversations, error } = await supabaseAdmin
       .from('conversations')
       .select('id, contact_phone, contact_name, contact_avatar, status, last_message_preview, last_message_at, unread_count, chatbot_enabled, is_online, needs_attention')

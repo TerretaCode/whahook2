@@ -372,8 +372,9 @@ class ChatWidgetService {
 
   /**
    * Listar todas las conversaciones de todos los widgets del usuario
+   * Opcionalmente filtrado por workspace
    */
-  async listAllConversations(userId: string): Promise<{
+  async listAllConversations(userId: string, workspaceId?: string): Promise<{
     id: string
     widget_id: string
     widget_name: string
@@ -385,8 +386,8 @@ class ChatWidgetService {
     unread_count: number
     status: string
   }[]> {
-    // First get all widgets for this user
-    const widgets = await this.listWidgets(userId)
+    // First get all widgets for this user (optionally filtered by workspace)
+    const widgets = await this.listWidgets(userId, workspaceId)
     if (widgets.length === 0) return []
 
     const widgetIds = widgets.map(w => w.id)

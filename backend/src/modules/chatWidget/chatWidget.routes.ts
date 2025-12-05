@@ -50,6 +50,7 @@ router.get('/', async (req: Request, res: Response) => {
 /**
  * GET /api/chat-widgets/conversations/all
  * Listar todas las conversaciones de todos los widgets del usuario
+ * Soporta filtro por workspace_id
  * IMPORTANTE: Esta ruta debe estar ANTES de /:id para no ser capturada
  */
 router.get('/conversations/all', async (req: Request, res: Response) => {
@@ -59,7 +60,41 @@ router.get('/conversations/all', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    const conversations = await chatWidgetService.listAllConversations(userId)
+    const workspaceId = req.query.workspace_id as string | undefined
+
+    // If workspace_id provided, verify user has access
+    if (workspaceId) {
+      const { data: workspace } = await supabaseAdmin
+        .from('workspaces')
+        .select('id, user_id')
+        .eq('id', workspaceId)
+        .single()
+
+      if (!workspace) {
+        return res.status(404).json({ success: false, error: 'Workspace not found' })
+      }
+
+      const isOwner = workspace.user_id === userId
+      if (!isOwner) {
+        const { data: membership } = await supabaseAdmin
+          .from('workspace_members')
+          .select('id, permissions')
+          .eq('workspace_id', workspaceId)
+          .eq('user_id', userId)
+          .single()
+
+        if (!membership) {
+          return res.status(403).json({ success: false, error: 'Access denied to this workspace' })
+        }
+
+        const permissions = membership.permissions as { messages?: boolean } | null
+        if (!permissions?.messages) {
+          return res.status(403).json({ success: false, error: 'No permission to view messages' })
+        }
+      }
+    }
+
+    const conversations = await chatWidgetService.listAllConversations(userId, workspaceId)
     res.json({ success: true, data: conversations })
   } catch (error) {
     console.error('List all conversations error:', error)

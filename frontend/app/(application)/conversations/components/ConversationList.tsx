@@ -41,9 +41,10 @@ interface ConversationListProps {
   selectedConversationId?: string | null
   onSelectConversation: (id: string) => void
   initialFilter?: 'all' | 'whatsapp' | 'web' | 'attention'
+  workspaceId?: string
 }
 
-export function ConversationList({ selectedConversationId, onSelectConversation, initialFilter = 'all' }: ConversationListProps) {
+export function ConversationList({ selectedConversationId, onSelectConversation, initialFilter = 'all', workspaceId }: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -82,11 +83,12 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
   }, [])
 
   useEffect(() => {
+    setIsLoading(true)
     fetchConversations()
     startPolling()
     return () => { if (pollIntervalRef.current) clearTimeout(pollIntervalRef.current) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startPolling])
+  }, [startPolling, workspaceId])
 
   useEffect(() => {
     filterConversations()
@@ -125,10 +127,13 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
 
   const fetchConversations = async () => {
     try {
+      // Build query params with workspace filter
+      const workspaceParam = workspaceId ? `?workspace_id=${workspaceId}` : ''
+      
       // Fetch both WhatsApp and Web conversations in parallel for better performance
       const [whatsappResponse, webResponse] = await Promise.allSettled([
-        ApiClient.request('/api/whatsapp/conversations'),
-        ApiClient.request('/api/chat-widgets/conversations/all')
+        ApiClient.request(`/api/whatsapp/conversations${workspaceParam}`),
+        ApiClient.request(`/api/chat-widgets/conversations/all${workspaceParam}`)
       ])
       
       let allConversations: Conversation[] = []
