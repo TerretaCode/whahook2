@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import { useTranslations } from 'next-intl'
 import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -54,6 +55,8 @@ interface WorkspacesData {
 const CACHE_KEY = 'workspaces-data'
 
 export default function WorkspacesPage() {
+  const t = useTranslations('settings.workspaces')
+  const tCommon = useTranslations('common')
   const [data, setData] = useState<WorkspacesData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const initialLoadDone = useRef(false)
@@ -101,7 +104,7 @@ export default function WorkspacesPage() {
       }
     } catch (error) {
       console.error('Error loading workspaces:', error)
-      toast.error('Failed to load workspaces')
+      toast.error(t('loadError'))
       setData({
         workspaces: [],
         limits: { max: 1, used: 0, canCreate: true },
@@ -114,7 +117,7 @@ export default function WorkspacesPage() {
 
   const handleCreate = useCallback(async () => {
     if (!newWorkspaceName.trim()) {
-      toast.error('Workspace name is required')
+      toast.error(t('nameRequired'))
       return
     }
 
@@ -129,16 +132,16 @@ export default function WorkspacesPage() {
       })
 
       if (response.success) {
-        toast.success('Workspace created!')
+        toast.success(t('created'))
         setNewWorkspaceName("")
         setNewWorkspaceDescription("")
         setShowCreateForm(false)
         loadWorkspaces()
       } else {
-        toast.error(response.error || 'Failed to create workspace')
+        toast.error(response.error || t('createError'))
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create workspace')
+      toast.error(error.message || t('createError'))
     } finally {
       setIsCreating(false)
     }
@@ -146,7 +149,7 @@ export default function WorkspacesPage() {
 
   const handleUpdate = useCallback(async (id: string) => {
     if (!editName.trim()) {
-      toast.error('Workspace name is required')
+      toast.error(t('nameRequired'))
       return
     }
 
@@ -160,19 +163,19 @@ export default function WorkspacesPage() {
       })
 
       if (response.success) {
-        toast.success('Workspace updated!')
+        toast.success(t('updated'))
         setEditingId(null)
         loadWorkspaces()
       } else {
-        toast.error(response.error || 'Failed to update workspace')
+        toast.error(response.error || t('updateError'))
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to update workspace')
+      toast.error(error.message || t('updateError'))
     }
   }, [editName, editDescription])
 
   const handleDelete = useCallback(async (id: string) => {
-    if (!confirm('Are you sure you want to delete this workspace? All associated data will be lost.')) {
+    if (!confirm(t('confirmDelete'))) {
       return
     }
 
@@ -183,13 +186,13 @@ export default function WorkspacesPage() {
       })
 
       if (response.success) {
-        toast.success('Workspace deleted!')
+        toast.success(t('deleted'))
         loadWorkspaces()
       } else {
-        toast.error(response.error || 'Failed to delete workspace')
+        toast.error(response.error || t('deleteError'))
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete workspace')
+      toast.error(error.message || t('deleteError'))
     } finally {
       setDeletingId(null)
     }
@@ -211,9 +214,9 @@ export default function WorkspacesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Workspaces</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Manage your workspaces, connections, and client access
+            {t('subtitle')}
           </p>
         </div>
         
@@ -222,7 +225,7 @@ export default function WorkspacesPage() {
           <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-full">
             <Building2 className="w-4 h-4 text-gray-500" />
             <span className="text-sm font-medium text-gray-700">
-              {data.limits.used} / {data.limits.max} workspaces
+              {t('usage', { used: data.limits.used, max: data.limits.max })}
             </span>
           </div>
         )}
@@ -234,14 +237,14 @@ export default function WorkspacesPage() {
           <Crown className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-green-800">
-              Workspace limit reached
+              {t('limitReached')}
             </p>
             <p className="text-sm text-green-700 mt-1">
-              Your {data.plan} plan allows {data.limits.max} workspace{data.limits.max > 1 ? 's' : ''}.{' '}
+              {t('limitDescription', { plan: data.plan, max: data.limits.max })}{' '}
               <Link href="/settings/billing" className="underline font-medium">
-                Upgrade your plan
+                {t('upgradePlan')}
               </Link>{' '}
-              to create more.
+              {t('toCreateMore')}
             </p>
           </div>
         </div>
@@ -252,30 +255,30 @@ export default function WorkspacesPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Plus className="w-5 h-5 text-green-600" />
-            Create New Workspace
+            {t('createNew')}
           </h3>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">Workspace Name *</Label>
+              <Label htmlFor="name">{t('nameLabel')} *</Label>
               <Input
                 id="name"
                 value={newWorkspaceName}
                 onChange={(e) => setNewWorkspaceName(e.target.value)}
-                placeholder="e.g., My Business, Client Name, Restaurant ABC..."
+                placeholder={t('namePlaceholder')}
                 className="mt-1"
                 autoFocus
               />
               <p className="text-xs text-gray-500 mt-1">
-                This name will be visible to you and your team
+                {t('nameHint')}
               </p>
             </div>
             <div>
-              <Label htmlFor="description">Description (optional)</Label>
+              <Label htmlFor="description">{t('descriptionLabel')}</Label>
               <Textarea
                 id="description"
                 value={newWorkspaceDescription}
                 onChange={(e) => setNewWorkspaceDescription(e.target.value)}
-                placeholder="Brief description of this workspace, client details, notes..."
+                placeholder={t('descriptionPlaceholder')}
                 className="mt-1"
                 rows={2}
               />
@@ -289,12 +292,12 @@ export default function WorkspacesPage() {
                 {isCreating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating...
+                    {tCommon('loading')}
                   </>
                 ) : (
                   <>
                     <Plus className="w-4 h-4 mr-2" />
-                    Create Workspace
+                    {t('create')}
                   </>
                 )}
               </Button>
@@ -306,7 +309,7 @@ export default function WorkspacesPage() {
                   setNewWorkspaceDescription("")
                 }}
               >
-                Cancel
+                {tCommon('cancel')}
               </Button>
             </div>
           </div>
@@ -319,7 +322,7 @@ export default function WorkspacesPage() {
             size="lg"
           >
             <Plus className="w-5 h-5 mr-2" />
-            Create Workspace
+            {t('create')}
           </Button>
         )
       )}
@@ -329,9 +332,9 @@ export default function WorkspacesPage() {
         {data?.workspaces.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
             <Building2 className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No workspaces yet</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('noWorkspaces')}</h3>
             <p className="text-gray-500 mb-6 max-w-md mx-auto">
-              Create your first workspace to start connecting WhatsApp, configuring chatbots, and managing your clients.
+              {t('noWorkspacesDescription')}
             </p>
             {data?.limits.canCreate && (
               <Button
@@ -340,7 +343,7 @@ export default function WorkspacesPage() {
                 size="lg"
               >
                 <Plus className="w-5 h-5 mr-2" />
-                Create Your First Workspace
+                {t('createFirst')}
               </Button>
             )}
           </div>
@@ -360,14 +363,14 @@ export default function WorkspacesPage() {
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
                           className="max-w-md"
-                          placeholder="Workspace name"
+                          placeholder={t('nameLabel')}
                           autoFocus
                         />
                         <Textarea
                           value={editDescription}
                           onChange={(e) => setEditDescription(e.target.value)}
                           className="max-w-md"
-                          placeholder="Description (optional)"
+                          placeholder={t('descriptionLabel')}
                           rows={2}
                         />
                         <div className="flex gap-2">
@@ -377,7 +380,7 @@ export default function WorkspacesPage() {
                             className="bg-green-600 hover:bg-green-700 text-white"
                           >
                             <Check className="w-4 h-4 mr-1" />
-                            Save
+                            {tCommon('save')}
                           </Button>
                           <Button
                             size="sm"
@@ -385,7 +388,7 @@ export default function WorkspacesPage() {
                             onClick={() => setEditingId(null)}
                           >
                             <X className="w-4 h-4 mr-1" />
-                            Cancel
+                            {tCommon('cancel')}
                           </Button>
                         </div>
                       </div>
@@ -416,7 +419,7 @@ export default function WorkspacesPage() {
                           }`}>
                             <Smartphone className="w-4 h-4" />
                             <span>
-                              {workspace.whatsapp_session_id ? 'WhatsApp Connected' : 'No WhatsApp'}
+                              {workspace.whatsapp_session_id ? t('whatsappConnected') : t('noWhatsApp')}
                             </span>
                           </div>
                           <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm ${
@@ -426,7 +429,7 @@ export default function WorkspacesPage() {
                           }`}>
                             <Globe className="w-4 h-4" />
                             <span>
-                              {workspace.web_widget_id ? 'Web Widget Active' : 'No Web Widget'}
+                              {workspace.web_widget_id ? t('webWidgetActive') : t('noWebWidget')}
                             </span>
                           </div>
                         </div>
@@ -487,14 +490,14 @@ export default function WorkspacesPage() {
                     <Link href={`/settings/connections?workspace=${workspace.id}`}>
                       <Button size="sm" variant="outline" className="text-green-600 border-green-200 hover:bg-green-50">
                         <Smartphone className="w-4 h-4 mr-2" />
-                        Connect WhatsApp
+                        {t('connectWhatsApp')}
                       </Button>
                     </Link>
                   ) : (
                     <Link href={`/settings/chatbot?workspace=${workspace.id}`}>
                       <Button size="sm" variant="outline">
                         <Bot className="w-4 h-4 mr-2" />
-                        Configure Chatbot
+                        {t('configureChatbot')}
                       </Button>
                     </Link>
                   )}
@@ -503,14 +506,14 @@ export default function WorkspacesPage() {
                     <Link href={`/settings/connections?workspace=${workspace.id}&tab=web`}>
                       <Button size="sm" variant="outline" className="text-green-600 border-green-200 hover:bg-green-50">
                         <Globe className="w-4 h-4 mr-2" />
-                        Create Web Widget
+                        {t('createWebWidget')}
                       </Button>
                     </Link>
                   ) : (
                     <Link href={`/settings/chatbot?workspace=${workspace.id}&tab=web`}>
                       <Button size="sm" variant="outline">
                         <Globe className="w-4 h-4 mr-2" />
-                        Web Widget Settings
+                        {t('webWidgetSettings')}
                       </Button>
                     </Link>
                   )}
@@ -525,9 +528,9 @@ export default function WorkspacesPage() {
                       <Users className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Miembros e Invitaciones</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">{t('membersAndInvitations')}</h3>
                       <p className="text-sm text-gray-600">
-                        Gestiona los miembros y envía invitaciones para este workspace
+                        {t('membersDescription')}
                       </p>
                     </div>
                   </div>
@@ -544,15 +547,12 @@ export default function WorkspacesPage() {
         <div className="flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-green-800">
-            <p className="font-medium mb-1">About Workspaces</p>
+            <p className="font-medium mb-1">{t('aboutWorkspaces')}</p>
             <p>
-              Each workspace represents a separate business or client. It includes its own WhatsApp connection, 
-              Web Widget, chatbot configuration, and client database. Use workspaces to keep everything organized 
-              and isolated per project.
+              {t('aboutDescription')}
             </p>
             <p className="mt-2">
-              <strong>Tip:</strong> Click the expand button on any workspace to access advanced features like 
-              client access links, remote QR connection, and more.
+              <strong>{t('tip')}:</strong> {t('tipDescription')}
             </p>
           </div>
         </div>
