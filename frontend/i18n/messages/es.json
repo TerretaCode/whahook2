@@ -479,6 +479,43 @@
         "saved": "¡Guardado!",
         "saveError": "Error al guardar",
         "saveApiKey": "Guardar Clave API"
+      },
+      "modelConfig": {
+        "title": "Parámetros del Modelo IA",
+        "subtitle": "Ajusta el comportamiento y calidad de las respuestas",
+        "temperatureDesc": "0 = Determinista | 0.7 = Balanceado (recomendado) | 2 = Muy creativo",
+        "maxTokens": "Max Tokens (Longitud de Respuesta)",
+        "maxTokensDesc": "Máximo de tokens en la respuesta. Mayor = respuestas más largas pero más costo.",
+        "recommended": "Recomendado",
+        "minimum": "Mínimo",
+        "maxTokensWarning": "No se recomienda más de 4000 tokens (mayor latencia y costo)",
+        "topPDesc": "Alternativa a temperature. 1.0 = usar temperature",
+        "frequencyPenaltyDesc": "Reduce la repetición de palabras. 0 = sin penalización",
+        "presencePenaltyDesc": "Fomenta hablar de nuevos temas. 0 = sin penalización",
+        "advancedConfig": "Configuración Avanzada",
+        "intentClassifierTokens": "Max Tokens del Intent Classifier",
+        "intentClassifierDesc": "Tokens máximos para el análisis de intenciones (uso interno).",
+        "intentClassifierNote": "Solo modifica si experimentas errores de MAX_TOKENS en los logs."
+      },
+      "conversationConfig": {
+        "title": "Configuración de Conversación",
+        "subtitle": "Controla el flujo y comportamiento de las conversaciones",
+        "contextWindow": "Ventana de Contexto (mensajes)",
+        "contextWindowDesc": "Número de mensajes previos a incluir en el contexto",
+        "maxConversationLength": "Longitud Máxima de Conversación",
+        "maxConversationLengthDesc": "Máximo de mensajes antes de reiniciar la conversación",
+        "sessionMemory": "Memoria entre Sesiones",
+        "sessionMemoryDesc": "Recordar contexto entre conversaciones diferentes",
+        "typingIndicator": "Indicador de Escritura",
+        "typingIndicatorDesc": "Mostrar \"escribiendo...\" mientras espera agrupar mensajes",
+        "messageBatching": "Agrupación de Mensajes",
+        "messageBatchingDesc": "Agrupa mensajes rápidos del usuario para responder una sola vez con todo el contexto",
+        "debounceDelay": "Tiempo de Espera entre Mensajes (segundos)",
+        "maxBatchSize": "Máximo de Mensajes por Grupo",
+        "maxWaitTime": "Tiempo Máximo de Espera (segundos)",
+        "typingIndicatorDelay": "Delay del Indicador de Escritura (ms)",
+        "fallbackSystem": "Sistema de Fallback V2",
+        "fallbackSystemDesc": "Detección automática de incertidumbre y solicitudes de atención humana"
       }
     },
     "branding": {

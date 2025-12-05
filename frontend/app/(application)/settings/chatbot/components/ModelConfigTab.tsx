@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,11 +14,13 @@ interface ModelConfigTabProps {
 }
 
 export function ModelConfigTab({ formData, updateField }: ModelConfigTabProps) {
+  const t = useTranslations('settings.chatbot.modelConfig')
+  
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Parámetros del Modelo IA</CardTitle>
-        <CardDescription>Ajusta el comportamiento y calidad de las respuestas</CardDescription>
+        <CardTitle>{t('title')}</CardTitle>
+        <CardDescription>{t('subtitle')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
@@ -33,11 +36,11 @@ export function ModelConfigTab({ formData, updateField }: ModelConfigTabProps) {
             value={formData.temperature || 0.7}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('temperature', parseFloat(e.target.value))}
           />
-          <p className="text-xs text-muted-foreground">0 = Determinista | 0.7 = Balanceado (recomendado) | 2 = Muy creativo</p>
+          <p className="text-xs text-muted-foreground">{t('temperatureDesc')}</p>
         </div>
 
         <div className="space-y-2">
-          <Label>Max Tokens (Longitud de Respuesta)</Label>
+          <Label>{t('maxTokens')}</Label>
           <Input
             type="number"
             min="50"
@@ -45,11 +48,11 @@ export function ModelConfigTab({ formData, updateField }: ModelConfigTabProps) {
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('max_tokens', parseInt(e.target.value))}
           />
           <p className="text-xs text-muted-foreground">
-            Máximo de tokens en la respuesta. Mayor = respuestas más largas pero más costo.
+            {t('maxTokensDesc')}
             <br />
-            <strong>Recomendado: 1000-2000</strong> | Mínimo: 50
+            <strong>{t('recommended')}: 1000-2000</strong> | {t('minimum')}: 50
             <br />
-            ⚠️ <span className="text-yellow-600">No se recomienda más de 4000 tokens</span> (mayor latencia y costo)
+            ⚠️ <span className="text-yellow-600">{t('maxTokensWarning')}</span>
           </p>
         </div>
 
@@ -66,7 +69,7 @@ export function ModelConfigTab({ formData, updateField }: ModelConfigTabProps) {
             value={formData.top_p || 1.0}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('top_p', parseFloat(e.target.value))}
           />
-          <p className="text-xs text-muted-foreground">Alternativa a temperature. 1.0 = usar temperature</p>
+          <p className="text-xs text-muted-foreground">{t('topPDesc')}</p>
         </div>
 
         <div className="space-y-2">
@@ -82,7 +85,7 @@ export function ModelConfigTab({ formData, updateField }: ModelConfigTabProps) {
             value={formData.frequency_penalty || 0.0}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('frequency_penalty', parseFloat(e.target.value))}
           />
-          <p className="text-xs text-muted-foreground">Reduce la repetición de palabras. 0 = sin penalización</p>
+          <p className="text-xs text-muted-foreground">{t('frequencyPenaltyDesc')}</p>
         </div>
 
         <div className="space-y-2">
@@ -98,13 +101,13 @@ export function ModelConfigTab({ formData, updateField }: ModelConfigTabProps) {
             value={formData.presence_penalty || 0.0}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('presence_penalty', parseFloat(e.target.value))}
           />
-          <p className="text-xs text-muted-foreground">Fomenta hablar de nuevos temas. 0 = sin penalización</p>
+          <p className="text-xs text-muted-foreground">{t('presencePenaltyDesc')}</p>
         </div>
 
         <div className="space-y-2 pt-4 border-t">
-          <Label className="text-base font-semibold">Configuración Avanzada</Label>
+          <Label className="text-base font-semibold">{t('advancedConfig')}</Label>
           <div className="space-y-2 mt-4">
-            <Label>Max Tokens del Intent Classifier</Label>
+            <Label>{t('intentClassifierTokens')}</Label>
             <Input
               type="number"
               min="100"
@@ -112,13 +115,13 @@ export function ModelConfigTab({ formData, updateField }: ModelConfigTabProps) {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('intent_classifier_max_tokens', parseInt(e.target.value))}
             />
             <p className="text-xs text-muted-foreground">
-              Tokens máximos para el análisis de intenciones (uso interno). 
+              {t('intentClassifierDesc')}
               <br />
-              <strong>Recomendado: 1000-2000</strong> | Mínimo: 100
+              <strong>{t('recommended')}: 1000-2000</strong> | {t('minimum')}: 100
               <br />
-              ⚠️ <span className="text-yellow-600">No se recomienda más de 4000 tokens</span> (mayor latencia y costo)
+              ⚠️ <span className="text-yellow-600">{t('maxTokensWarning')}</span>
               <br />
-              Solo modifica si experimentas errores de MAX_TOKENS en los logs.
+              {t('intentClassifierNote')}
             </p>
           </div>
         </div>

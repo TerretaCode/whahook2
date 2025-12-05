@@ -479,6 +479,43 @@
         "saved": "Saved!",
         "saveError": "Error saving",
         "saveApiKey": "Save API Key"
+      },
+      "modelConfig": {
+        "title": "AI Model Parameters",
+        "subtitle": "Adjust the behavior and quality of responses",
+        "temperatureDesc": "0 = Deterministic | 0.7 = Balanced (recommended) | 2 = Very creative",
+        "maxTokens": "Max Tokens (Response Length)",
+        "maxTokensDesc": "Maximum tokens in the response. Higher = longer responses but more cost.",
+        "recommended": "Recommended",
+        "minimum": "Minimum",
+        "maxTokensWarning": "Not recommended more than 4000 tokens (higher latency and cost)",
+        "topPDesc": "Alternative to temperature. 1.0 = use temperature",
+        "frequencyPenaltyDesc": "Reduces word repetition. 0 = no penalty",
+        "presencePenaltyDesc": "Encourages talking about new topics. 0 = no penalty",
+        "advancedConfig": "Advanced Configuration",
+        "intentClassifierTokens": "Intent Classifier Max Tokens",
+        "intentClassifierDesc": "Maximum tokens for intent analysis (internal use).",
+        "intentClassifierNote": "Only modify if you experience MAX_TOKENS errors in the logs."
+      },
+      "conversationConfig": {
+        "title": "Conversation Configuration",
+        "subtitle": "Control the flow and behavior of conversations",
+        "contextWindow": "Context Window (messages)",
+        "contextWindowDesc": "Number of previous messages to include in context",
+        "maxConversationLength": "Maximum Conversation Length",
+        "maxConversationLengthDesc": "Maximum messages before resetting the conversation",
+        "sessionMemory": "Session Memory",
+        "sessionMemoryDesc": "Remember context between different conversations",
+        "typingIndicator": "Typing Indicator",
+        "typingIndicatorDesc": "Show \"typing...\" while waiting to batch messages",
+        "messageBatching": "Message Batching",
+        "messageBatchingDesc": "Groups quick user messages to respond once with all context",
+        "debounceDelay": "Wait Time Between Messages (seconds)",
+        "maxBatchSize": "Maximum Messages per Batch",
+        "maxWaitTime": "Maximum Wait Time (seconds)",
+        "typingIndicatorDelay": "Typing Indicator Delay (ms)",
+        "fallbackSystem": "Fallback System V2",
+        "fallbackSystemDesc": "Automatic detection of uncertainty and human assistance requests"
       }
     },
     "branding": {

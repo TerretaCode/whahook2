@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -14,15 +15,17 @@ interface ConversationConfigTabProps {
 }
 
 export function ConversationConfigTab({ formData, updateField }: ConversationConfigTabProps) {
+  const t = useTranslations('settings.chatbot.conversationConfig')
+  
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Configuración de Conversación</CardTitle>
-        <CardDescription>Controla el flujo y comportamiento de las conversaciones</CardDescription>
+        <CardTitle>{t('title')}</CardTitle>
+        <CardDescription>{t('subtitle')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label>Ventana de Contexto (mensajes)</Label>
+          <Label>{t('contextWindow')}</Label>
           <Input
             type="number"
             min="0"
@@ -30,11 +33,11 @@ export function ConversationConfigTab({ formData, updateField }: ConversationCon
             value={formData.context_window || 10}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('context_window', parseInt(e.target.value))}
           />
-          <p className="text-xs text-muted-foreground">Número de mensajes previos a incluir en el contexto</p>
+          <p className="text-xs text-muted-foreground">{t('contextWindowDesc')}</p>
         </div>
 
         <div className="space-y-2">
-          <Label>Longitud Máxima de Conversación</Label>
+          <Label>{t('maxConversationLength')}</Label>
           <Input
             type="number"
             min="1"
@@ -42,21 +45,21 @@ export function ConversationConfigTab({ formData, updateField }: ConversationCon
             value={formData.max_conversation_length || 20}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('max_conversation_length', parseInt(e.target.value))}
           />
-          <p className="text-xs text-muted-foreground">Máximo de mensajes antes de reiniciar la conversación</p>
+          <p className="text-xs text-muted-foreground">{t('maxConversationLengthDesc')}</p>
         </div>
 
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <Label>Memoria entre Sesiones</Label>
-            <p className="text-xs text-muted-foreground">Recordar contexto entre conversaciones diferentes</p>
+            <Label>{t('sessionMemory')}</Label>
+            <p className="text-xs text-muted-foreground">{t('sessionMemoryDesc')}</p>
           </div>
           <Switch checked={formData.enable_memory !== false} onCheckedChange={(c) => updateField('enable_memory', c)} />
         </div>
 
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <Label>Indicador de Escritura</Label>
-            <p className="text-xs text-muted-foreground">Mostrar "escribiendo..." mientras espera agrupar mensajes</p>
+            <Label>{t('typingIndicator')}</Label>
+            <p className="text-xs text-muted-foreground">{t('typingIndicatorDesc')}</p>
           </div>
           <Switch checked={formData.enable_typing_indicator !== false} onCheckedChange={(c) => updateField('enable_typing_indicator', c)} />
         </div>
@@ -64,14 +67,14 @@ export function ConversationConfigTab({ formData, updateField }: ConversationCon
         {/* Message Batching Configuration */}
         <div className="border-t pt-4 space-y-4">
           <div>
-            <h3 className="text-sm font-semibold mb-1">⚡ Agrupación de Mensajes</h3>
+            <h3 className="text-sm font-semibold mb-1">⚡ {t('messageBatching')}</h3>
             <p className="text-xs text-muted-foreground">
-              Agrupa mensajes rápidos del usuario para responder una sola vez con todo el contexto
+              {t('messageBatchingDesc')}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label>Tiempo de Espera entre Mensajes (segundos)</Label>
+            <Label>{t('debounceDelay')}</Label>
             <Input
               type="number"
               min="1"
@@ -87,7 +90,7 @@ export function ConversationConfigTab({ formData, updateField }: ConversationCon
           </div>
 
           <div className="space-y-2">
-            <Label>Máximo de Mensajes por Grupo</Label>
+            <Label>{t('maxBatchSize')}</Label>
             <Input
               type="number"
               min="1"
@@ -103,7 +106,7 @@ export function ConversationConfigTab({ formData, updateField }: ConversationCon
           </div>
 
           <div className="space-y-2">
-            <Label>Tiempo Máximo de Espera (segundos)</Label>
+            <Label>{t('maxWaitTime')}</Label>
             <Input
               type="number"
               min="10"
@@ -117,7 +120,7 @@ export function ConversationConfigTab({ formData, updateField }: ConversationCon
           </div>
 
           <div className="space-y-2">
-            <Label>Delay del Indicador de Escritura (ms)</Label>
+            <Label>{t('typingIndicatorDelay')}</Label>
             <Input
               type="number"
               min="0"
@@ -135,9 +138,9 @@ export function ConversationConfigTab({ formData, updateField }: ConversationCon
         {/* Fallback V2 Configuration */}
         <div className="border-t pt-4 space-y-4">
           <div>
-            <h3 className="text-sm font-semibold mb-1">🚨 Sistema de Fallback V2</h3>
+            <h3 className="text-sm font-semibold mb-1">🚨 {t('fallbackSystem')}</h3>
             <p className="text-xs text-muted-foreground">
-              Detección automática de incertidumbre y solicitudes de atención humana
+              {t('fallbackSystemDesc')}
             </p>
           </div>
 
