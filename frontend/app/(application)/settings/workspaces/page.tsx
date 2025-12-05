@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/lib/toast"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Loader2,
   Plus,
@@ -20,8 +19,6 @@ import {
   X,
   AlertCircle,
   Crown,
-  Key,
-  Palette,
   ChevronDown,
   ChevronUp,
   Users,
@@ -30,7 +27,6 @@ import {
 import Link from "next/link"
 import { WorkspacesSkeleton } from "@/components/skeletons/SettingsSkeletons"
 import { WorkspaceMembersSection } from "../workspace/components/WorkspaceMembersSection"
-import { WhiteLabelSection } from "../workspace/components/WhiteLabelSection"
 import { getCached, setCache, getFromSession, persistToSession } from "@/lib/cache"
 
 interface Workspace {
@@ -70,10 +66,6 @@ export default function WorkspacesPage() {
   const [editDescription, setEditDescription] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
-
-  // Plan features
-  const isProfessionalOrHigher = data?.plan === 'professional' || data?.plan === 'enterprise'
-  const isEnterprise = data?.plan === 'enterprise'
 
   useEffect(() => {
     if (!initialLoadDone.current) {
@@ -550,90 +542,21 @@ export default function WorkspacesPage() {
                 </div>
               </div>
 
-              {/* Expanded Settings with Tabs */}
+              {/* Expanded Settings - Members/Invitations */}
               {expandedId === workspace.id && (
-                <div className="border-t border-gray-200 bg-gray-50">
-                  <Tabs defaultValue="invitations" className="w-full">
-                    <div className="border-b border-gray-200 px-6 pt-4">
-                      <TabsList className="bg-transparent gap-4">
-                        <TabsTrigger 
-                          value="invitations" 
-                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4"
-                        >
-                          <Users className="w-4 h-4 mr-2" />
-                          Invitaciones
-                        </TabsTrigger>
-                        <TabsTrigger 
-                          value="branding"
-                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4"
-                        >
-                          <Palette className="w-4 h-4 mr-2" />
-                          Branding
-                        </TabsTrigger>
-                        <TabsTrigger 
-                          value="api"
-                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4"
-                        >
-                          <Key className="w-4 h-4 mr-2" />
-                          API Key
-                        </TabsTrigger>
-                      </TabsList>
+                <div className="border-t border-gray-200 bg-gray-50 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Users className="w-5 h-5 text-blue-600" />
                     </div>
-
-                    <div className="p-6">
-                      <TabsContent value="invitations" className="mt-0">
-                        <WorkspaceMembersSection workspaceId={workspace.id} />
-                      </TabsContent>
-
-                      <TabsContent value="branding" className="mt-0">
-                        <WhiteLabelSection 
-                          workspaceId={workspace.id}
-                          initialSettings={workspace.white_label as any}
-                          userPlan={data?.plan || 'trial'}
-                        />
-                      </TabsContent>
-
-                      <TabsContent value="api" className="mt-0">
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-orange-100 rounded-lg">
-                              <Key className="w-5 h-5 text-orange-600" />
-                            </div>
-                            <div>
-                              <h3 className="text-lg font-semibold text-gray-900">Workspace API Key</h3>
-                              <p className="text-sm text-gray-600">
-                                Configure a separate AI API key for this workspace
-                              </p>
-                            </div>
-                          </div>
-                          {isProfessionalOrHigher ? (
-                            <div className="bg-white rounded-lg border border-gray-200 p-4">
-                              <p className="text-sm text-gray-600 mb-3">
-                                Configure a separate Gemini API key for this workspace to track costs independently.
-                              </p>
-                              <Link href={`/settings/chatbot?workspace=${workspace.id}&tab=apikeys`}>
-                                <Button variant="outline">
-                                  <Key className="w-4 h-4 mr-2" />
-                                  Configure API Key
-                                </Button>
-                              </Link>
-                            </div>
-                          ) : (
-                            <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-                              <p className="text-sm text-amber-800">
-                                🔒 Workspace API keys are available on Professional and Enterprise plans.
-                              </p>
-                              <Link href="/settings/billing">
-                                <Button className="mt-3 bg-amber-600 hover:bg-amber-700">
-                                  Upgrade Plan
-                                </Button>
-                              </Link>
-                            </div>
-                          )}
-                        </div>
-                      </TabsContent>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Miembros e Invitaciones</h3>
+                      <p className="text-sm text-gray-600">
+                        Gestiona los miembros y envía invitaciones para este workspace
+                      </p>
                     </div>
-                  </Tabs>
+                  </div>
+                  <WorkspaceMembersSection workspaceId={workspace.id} />
                 </div>
               )}
             </div>
