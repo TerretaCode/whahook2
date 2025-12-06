@@ -1512,6 +1512,44 @@
       "benefits": "✓ No commitment  ✓ Cancel anytime  ✓ No credit card required"
     }
   },
+  "featuresPage": {
+    "title": "Powerful Features for Modern Businesses",
+    "subtitle": "Everything you need to automate and scale your WhatsApp customer service",
+    "features": {
+      "aiChatbot": { "title": "AI-Powered Chatbot", "desc": "Advanced AI that understands context and provides natural, human-like responses to your customers 24/7." },
+      "multiAccount": { "title": "Multi-Account Management", "desc": "Manage multiple WhatsApp accounts from a single dashboard. Perfect for teams and agencies." },
+      "scheduling": { "title": "Smart Scheduling", "desc": "Automated appointment booking and calendar management integrated with your existing systems." },
+      "crm": { "title": "CRM Integration", "desc": "Built-in CRM to manage contacts, track conversations, and maintain customer relationships." },
+      "analytics": { "title": "Advanced Analytics", "desc": "Detailed insights into conversation metrics, response times, and customer satisfaction." },
+      "instant": { "title": "Instant Responses", "desc": "Automated quick replies and message templates for common questions and scenarios." },
+      "security": { "title": "Enterprise Security", "desc": "Bank-level encryption, data privacy compliance, and secure message handling." },
+      "multiLang": { "title": "Multi-Language Support", "desc": "AI that understands and responds in multiple languages automatically." },
+      "availability": { "title": "24/7 Availability", "desc": "Never miss a customer message with round-the-clock automated responses." }
+    },
+    "detailed": {
+      "conversation": {
+        "title": "Intelligent Conversation Management",
+        "desc": "Our AI doesn't just respond—it understands context, remembers previous conversations, and provides personalized experiences for each customer.",
+        "f1": "Context-aware responses", "f2": "Conversation history tracking", "f3": "Sentiment analysis", "f4": "Automatic language detection", "f5": "Smart conversation routing"
+      },
+      "integrations": {
+        "title": "Seamless Integrations",
+        "desc": "Connect WhaHook with your existing tools and workflows. We integrate with popular CRMs, calendars, and business applications.",
+        "f1": "Google Calendar sync", "f2": "Zapier integration", "f3": "Custom API access", "f4": "Webhook support", "f5": "Third-party app connections"
+      },
+      "team": {
+        "title": "Team Collaboration",
+        "desc": "Built for teams with features that help your staff work together efficiently and provide better customer service.",
+        "f1": "Team inbox", "f2": "Internal notes", "f3": "Assignment rules", "f4": "Performance metrics", "f5": "Role-based permissions"
+      }
+    },
+    "cta": {
+      "title": "Ready to Experience These Features?",
+      "subtitle": "Start your free trial today and see how WhaHook can transform your customer service",
+      "button": "Start Free Trial",
+      "benefits": "✓ No credit card required  ✓ 14-day free trial  ✓ Cancel anytime"
+    }
+  },
   "footer": {
     "description": "Automate your WhatsApp with AI-powered chatbot. Manage multiple accounts effortlessly.",
     "product": "Product",

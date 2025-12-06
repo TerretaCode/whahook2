@@ -1,4 +1,7 @@
+"use client"
+
 import Link from "next/link"
+import { useTranslations } from 'next-intl'
 import { Button } from "@/components/ui/button"
 import { 
   MessageSquare, 
@@ -15,15 +18,16 @@ import {
 } from "lucide-react"
 
 export default function FeaturesPage() {
+  const t = useTranslations('featuresPage')
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-green-50 to-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl font-bold mb-4">Powerful Features for Modern Businesses</h1>
+            <h1 className="text-5xl font-bold mb-4">{t('title')}</h1>
             <p className="text-xl text-gray-600">
-              Everything you need to automate and scale your WhatsApp customer service
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -35,48 +39,48 @@ export default function FeaturesPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <FeatureCard
               icon={<Bot className="w-8 h-8 text-green-600" />}
-              title="AI-Powered Chatbot"
-              description="Advanced AI that understands context and provides natural, human-like responses to your customers 24/7."
+              title={t('features.aiChatbot.title')}
+              description={t('features.aiChatbot.desc')}
             />
             <FeatureCard
               icon={<MessageSquare className="w-8 h-8 text-green-600" />}
-              title="Multi-Account Management"
-              description="Manage multiple WhatsApp accounts from a single dashboard. Perfect for teams and agencies."
+              title={t('features.multiAccount.title')}
+              description={t('features.multiAccount.desc')}
             />
             <FeatureCard
               icon={<Calendar className="w-8 h-8 text-green-600" />}
-              title="Smart Scheduling"
-              description="Automated appointment booking and calendar management integrated with your existing systems."
+              title={t('features.scheduling.title')}
+              description={t('features.scheduling.desc')}
             />
             <FeatureCard
               icon={<Users className="w-8 h-8 text-green-600" />}
-              title="CRM Integration"
-              description="Built-in CRM to manage contacts, track conversations, and maintain customer relationships."
+              title={t('features.crm.title')}
+              description={t('features.crm.desc')}
             />
             <FeatureCard
               icon={<BarChart3 className="w-8 h-8 text-green-600" />}
-              title="Advanced Analytics"
-              description="Detailed insights into conversation metrics, response times, and customer satisfaction."
+              title={t('features.analytics.title')}
+              description={t('features.analytics.desc')}
             />
             <FeatureCard
               icon={<Zap className="w-8 h-8 text-green-600" />}
-              title="Instant Responses"
-              description="Automated quick replies and message templates for common questions and scenarios."
+              title={t('features.instant.title')}
+              description={t('features.instant.desc')}
             />
             <FeatureCard
               icon={<Shield className="w-8 h-8 text-green-600" />}
-              title="Enterprise Security"
-              description="Bank-level encryption, data privacy compliance, and secure message handling."
+              title={t('features.security.title')}
+              description={t('features.security.desc')}
             />
             <FeatureCard
               icon={<Globe className="w-8 h-8 text-green-600" />}
-              title="Multi-Language Support"
-              description="AI that understands and responds in multiple languages automatically."
+              title={t('features.multiLang.title')}
+              description={t('features.multiLang.desc')}
             />
             <FeatureCard
               icon={<Clock className="w-8 h-8 text-green-600" />}
-              title="24/7 Availability"
-              description="Never miss a customer message with round-the-clock automated responses."
+              title={t('features.availability.title')}
+              description={t('features.availability.desc')}
             />
           </div>
         </div>
@@ -87,38 +91,38 @@ export default function FeaturesPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto space-y-20">
             <DetailedFeature
-              title="Intelligent Conversation Management"
-              description="Our AI doesn't just respond—it understands context, remembers previous conversations, and provides personalized experiences for each customer."
+              title={t('detailed.conversation.title')}
+              description={t('detailed.conversation.desc')}
               features={[
-                "Context-aware responses",
-                "Conversation history tracking",
-                "Sentiment analysis",
-                "Automatic language detection",
-                "Smart conversation routing"
+                t('detailed.conversation.f1'),
+                t('detailed.conversation.f2'),
+                t('detailed.conversation.f3'),
+                t('detailed.conversation.f4'),
+                t('detailed.conversation.f5')
               ]}
               reverse={false}
             />
             <DetailedFeature
-              title="Seamless Integrations"
-              description="Connect WhaHook with your existing tools and workflows. We integrate with popular CRMs, calendars, and business applications."
+              title={t('detailed.integrations.title')}
+              description={t('detailed.integrations.desc')}
               features={[
-                "Google Calendar sync",
-                "Zapier integration",
-                "Custom API access",
-                "Webhook support",
-                "Third-party app connections"
+                t('detailed.integrations.f1'),
+                t('detailed.integrations.f2'),
+                t('detailed.integrations.f3'),
+                t('detailed.integrations.f4'),
+                t('detailed.integrations.f5')
               ]}
               reverse={true}
             />
             <DetailedFeature
-              title="Team Collaboration"
-              description="Built for teams with features that help your staff work together efficiently and provide better customer service."
+              title={t('detailed.team.title')}
+              description={t('detailed.team.desc')}
               features={[
-                "Team inbox",
-                "Internal notes",
-                "Assignment rules",
-                "Performance metrics",
-                "Role-based permissions"
+                t('detailed.team.f1'),
+                t('detailed.team.f2'),
+                t('detailed.team.f3'),
+                t('detailed.team.f4'),
+                t('detailed.team.f5')
               ]}
               reverse={false}
             />
@@ -130,19 +134,19 @@ export default function FeaturesPage() {
       <section className="py-20 bg-gradient-to-br from-green-600 to-green-700">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold text-white mb-4">
-            Ready to Experience These Features?
+            {t('cta.title')}
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Start your free trial today and see how WhaHook can transform your customer service
+            {t('cta.subtitle')}
           </p>
           <Link href="/register">
             <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100 text-lg px-10 py-5 h-auto">
-              Start Free Trial
+              {t('cta.button')}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </Link>
           <p className="text-green-100 mt-6">
-            ✓ No credit card required  ✓ 14-day free trial  ✓ Cancel anytime
+            {t('cta.benefits')}
           </p>
         </div>
       </section>

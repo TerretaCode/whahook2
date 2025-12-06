@@ -1515,6 +1515,44 @@
       "benefits": "✓ Sin compromiso  ✓ Cancela cuando quieras  ✓ Sin tarjeta de crédito"
     }
   },
+  "featuresPage": {
+    "title": "Funciones Potentes para Negocios Modernos",
+    "subtitle": "Todo lo que necesitas para automatizar y escalar tu atención al cliente en WhatsApp",
+    "features": {
+      "aiChatbot": { "title": "Chatbot con IA", "desc": "IA avanzada que entiende el contexto y proporciona respuestas naturales a tus clientes 24/7." },
+      "multiAccount": { "title": "Gestión Multi-Cuenta", "desc": "Gestiona múltiples cuentas de WhatsApp desde un solo panel. Perfecto para equipos y agencias." },
+      "scheduling": { "title": "Programación Inteligente", "desc": "Reserva automática de citas y gestión de calendario integrada con tus sistemas existentes." },
+      "crm": { "title": "Integración CRM", "desc": "CRM integrado para gestionar contactos, seguir conversaciones y mantener relaciones con clientes." },
+      "analytics": { "title": "Analíticas Avanzadas", "desc": "Información detallada sobre métricas de conversación, tiempos de respuesta y satisfacción del cliente." },
+      "instant": { "title": "Respuestas Instantáneas", "desc": "Respuestas rápidas automatizadas y plantillas de mensajes para preguntas y escenarios comunes." },
+      "security": { "title": "Seguridad Empresarial", "desc": "Cifrado de nivel bancario, cumplimiento de privacidad de datos y manejo seguro de mensajes." },
+      "multiLang": { "title": "Soporte Multi-Idioma", "desc": "IA que entiende y responde en múltiples idiomas automáticamente." },
+      "availability": { "title": "Disponibilidad 24/7", "desc": "Nunca pierdas un mensaje de cliente con respuestas automatizadas las 24 horas." }
+    },
+    "detailed": {
+      "conversation": {
+        "title": "Gestión Inteligente de Conversaciones",
+        "desc": "Nuestra IA no solo responde—entiende el contexto, recuerda conversaciones anteriores y proporciona experiencias personalizadas para cada cliente.",
+        "f1": "Respuestas conscientes del contexto", "f2": "Seguimiento del historial", "f3": "Análisis de sentimiento", "f4": "Detección automática de idioma", "f5": "Enrutamiento inteligente"
+      },
+      "integrations": {
+        "title": "Integraciones Sin Problemas",
+        "desc": "Conecta WhaHook con tus herramientas y flujos de trabajo existentes.",
+        "f1": "Sincronización con Google Calendar", "f2": "Integración con Zapier", "f3": "Acceso API personalizado", "f4": "Soporte de Webhooks", "f5": "Conexiones con apps de terceros"
+      },
+      "team": {
+        "title": "Colaboración en Equipo",
+        "desc": "Diseñado para equipos con funciones que ayudan a tu personal a trabajar juntos eficientemente.",
+        "f1": "Bandeja de entrada del equipo", "f2": "Notas internas", "f3": "Reglas de asignación", "f4": "Métricas de rendimiento", "f5": "Permisos basados en roles"
+      }
+    },
+    "cta": {
+      "title": "¿Listo para Experimentar Estas Funciones?",
+      "subtitle": "Comienza tu prueba gratis hoy y descubre cómo WhaHook puede transformar tu atención al cliente",
+      "button": "Comenzar Prueba Gratis",
+      "benefits": "✓ Sin tarjeta de crédito  ✓ 14 días de prueba gratis  ✓ Cancela cuando quieras"
+    }
+  },
   "footer": {
     "description": "Automatiza tu WhatsApp con chatbot impulsado por IA. Gestiona múltiples cuentas sin esfuerzo.",
     "product": "Producto",
