@@ -237,30 +237,48 @@ router.get('/sessions', async (req: Request, res: Response) => {
     let sessions: any[] = []
 
     if (workspaceId) {
-      // If workspace_id is provided, get sessions that belong to this workspace
-      // This includes sessions from the workspace owner
-      const { data: workspaceSessions, error: wsError } = await supabaseAdmin
-        .from('whatsapp_accounts')
-        .select('*')
-        .eq('workspace_id', workspaceId)
-        .order('created_at', { ascending: false })
+      // First, check if workspace has a whatsapp_session_id linked
+      const { data: workspace } = await supabaseAdmin
+        .from('workspaces')
+        .select('whatsapp_session_id, user_id')
+        .eq('id', workspaceId)
+        .single()
       
-      if (wsError) {
-        console.error('Error fetching workspace sessions:', wsError)
-      } else {
-        sessions = workspaceSessions || []
-      }
-
-      // If no sessions found by workspace_id, also check for user's sessions without workspace
-      // and sessions that might not have workspace_id set yet
-      if (sessions.length === 0) {
-        const { data: userSessions, error: userError } = await supabaseAdmin
+      if (workspace?.whatsapp_session_id) {
+        // Get the session linked to this workspace
+        const { data: linkedSession } = await supabaseAdmin
           .from('whatsapp_accounts')
           .select('*')
-          .eq('user_id', userId)
+          .eq('session_id', workspace.whatsapp_session_id)
+          .single()
+        
+        if (linkedSession) {
+          sessions = [linkedSession]
+        }
+      }
+      
+      // If no session found via workspace link, try by workspace_id column
+      if (sessions.length === 0) {
+        const { data: workspaceSessions } = await supabaseAdmin
+          .from('whatsapp_accounts')
+          .select('*')
+          .eq('workspace_id', workspaceId)
           .order('created_at', { ascending: false })
         
-        if (!userError && userSessions) {
+        if (workspaceSessions && workspaceSessions.length > 0) {
+          sessions = workspaceSessions
+        }
+      }
+
+      // If still no sessions, get user's sessions (fallback for migration)
+      if (sessions.length === 0 && workspace?.user_id) {
+        const { data: userSessions } = await supabaseAdmin
+          .from('whatsapp_accounts')
+          .select('*')
+          .eq('user_id', workspace.user_id)
+          .order('created_at', { ascending: false })
+        
+        if (userSessions) {
           sessions = userSessions
         }
       }
@@ -279,6 +297,7 @@ router.get('/sessions', async (req: Request, res: Response) => {
       sessions = userSessions || []
     }
 
+    console.log(`📱 [GET /sessions] workspace_id=${workspaceId}, found ${sessions.length} sessions`)
     res.json({ success: true, data: { sessions } })
   } catch (error: any) {
     console.error('Error in GET /sessions:', error)
