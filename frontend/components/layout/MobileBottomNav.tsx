@@ -3,7 +3,7 @@
 import { memo, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, MessageSquare, Users, Settings } from 'lucide-react'
+import { LayoutDashboard, MessageSquare, Users, Megaphone, Settings } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { useWorkspaceContext } from '@/contexts/WorkspaceContext'
@@ -17,6 +17,7 @@ export function MobileBottomNav({ className }: { className?: string }) {
   // While loading, only show Dashboard to avoid flash of all items
   const canViewMessages = !isLoading && (isOwner || hasPermission('messages'))
   const canViewClients = !isLoading && (isOwner || hasPermission('clients'))
+  const canViewCampaigns = !isLoading && (isOwner || hasPermission('campaigns'))
   const canViewSettings = !isLoading && (isOwner || hasPermission('settings'))
 
   // Build nav items based on permissions - memoized
@@ -24,8 +25,9 @@ export function MobileBottomNav({ className }: { className?: string }) {
     { href: '/dashboard', icon: LayoutDashboard, label: t('dashboard'), active: pathname === '/dashboard', show: true },
     { href: '/conversations', icon: MessageSquare, label: t('conversations'), active: pathname === '/conversations', show: canViewMessages },
     { href: '/clients', icon: Users, label: t('clients'), active: pathname === '/clients', show: canViewClients },
+    { href: '/campaigns', icon: Megaphone, label: t('campaigns'), active: pathname === '/campaigns', show: canViewCampaigns },
     { href: '/settings', icon: Settings, label: t('settings'), active: pathname?.startsWith('/settings'), show: canViewSettings },
-  ].filter(item => item.show), [pathname, canViewMessages, canViewClients, canViewSettings, t])
+  ].filter(item => item.show), [pathname, canViewMessages, canViewClients, canViewCampaigns, canViewSettings, t])
 
   return (
     <nav className={cn(
