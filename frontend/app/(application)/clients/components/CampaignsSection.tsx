@@ -350,22 +350,22 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
                     <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                       <span className="flex items-center gap-1">
                         <Users className="w-4 h-4" />
-                        {campaign.total_recipients} destinatarios
+                        {campaign.total_recipients} {t('recipients')}
                       </span>
                       {campaign.status !== 'draft' && (
                         <>
                           <span className="flex items-center gap-1">
                             <Send className="w-4 h-4" />
-                            {campaign.sent_count} enviados
+                            {campaign.sent_count} {t('sent')}
                           </span>
                           <span className="flex items-center gap-1">
                             <CheckCircle2 className="w-4 h-4 text-green-600" />
-                            {campaign.delivered_count} entregados
+                            {campaign.delivered_count} {t('delivered')}
                           </span>
                           {campaign.failed_count > 0 && (
                             <span className="flex items-center gap-1 text-red-600">
                               <XCircle className="w-4 h-4" />
-                              {campaign.failed_count} fallidos
+                              {campaign.failed_count} {t('failed')}
                             </span>
                           )}
                         </>
@@ -442,14 +442,14 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Megaphone className="w-5 h-5 text-green-600" />
-              Nueva Campaña
+              {t('modal.title')}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-6 py-4">
             {/* Campaign Type */}
             <div className="space-y-2">
-              <Label>Tipo de campaña</Label>
+              <Label>{t('modal.campaignType')}</Label>
               <div className="flex gap-4">
                 <button
                   type="button"
@@ -465,7 +465,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
                   }`} />
                   <p className="font-medium">WhatsApp</p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {clients.length} contactos disponibles
+                    {t('modal.contactsAvailable', { count: clients.length })}
                   </p>
                 </button>
                 <button
@@ -482,7 +482,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
                   }`} />
                   <p className="font-medium">Email</p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {clients.filter(c => c.email).length} con email
+                    {t('modal.withEmail', { count: clients.filter(c => c.email).length })}
                   </p>
                 </button>
               </div>
@@ -490,54 +490,54 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
 
             {/* Campaign Name */}
             <div className="space-y-2">
-              <Label htmlFor="name">Nombre de la campaña *</Label>
+              <Label htmlFor="name">{t('modal.campaignName')} *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Ej: Promoción Black Friday"
+                placeholder={t('modal.campaignNamePlaceholder')}
               />
             </div>
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">Descripción (opcional)</Label>
+              <Label htmlFor="description">{t('modal.description')}</Label>
               <Input
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Descripción interna de la campaña"
+                placeholder={t('modal.descriptionPlaceholder')}
               />
             </div>
 
             {/* Subject (only for email) */}
             {formData.type === 'email' && (
               <div className="space-y-2">
-                <Label htmlFor="subject">Asunto del email *</Label>
+                <Label htmlFor="subject">{t('modal.emailSubject')} *</Label>
                 <Input
                   id="subject"
                   value={formData.subject}
                   onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
-                  placeholder="Ej: ¡Oferta especial solo para ti!"
+                  placeholder={t('modal.emailSubjectPlaceholder')}
                 />
               </div>
             )}
 
             {/* Message Template */}
             <div className="space-y-2">
-              <Label htmlFor="message">Mensaje *</Label>
+              <Label htmlFor="message">{t('modal.message')} *</Label>
               <Textarea
                 id="message"
                 value={formData.message_template}
                 onChange={(e) => setFormData(prev => ({ ...prev, message_template: e.target.value }))}
                 placeholder={formData.type === 'whatsapp' 
-                  ? "Hola {{nombre}}, tenemos una oferta especial para ti..."
-                  : "Escribe el contenido del email..."
+                  ? t('modal.whatsappPlaceholder')
+                  : t('modal.emailPlaceholder')
                 }
                 rows={5}
               />
               <p className="text-xs text-gray-500">
-                Variables disponibles: {"{{nombre}}"}, {"{{empresa}}"}, {"{{telefono}}"}
+                {t('modal.variablesAvailable')}
               </p>
             </div>
 
@@ -545,12 +545,12 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
             <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-gray-600" />
-                <Label className="text-base font-medium">Segmentación</Label>
+                <Label className="text-base font-medium">{t('modal.segmentation')}</Label>
               </div>
 
               {/* Filter by Status */}
               <div className="space-y-2">
-                <Label className="text-sm">Filtrar por estado</Label>
+                <Label className="text-sm">{t('modal.filterByStatus')}</Label>
                 <div className="flex flex-wrap gap-2">
                   {['customer', 'prospect', 'lead', 'inactive'].map(status => (
                     <button
@@ -573,9 +573,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
                           : 'bg-white border border-gray-300 text-gray-700 hover:border-green-300'
                       }`}
                     >
-                      {status === 'customer' ? 'Clientes' :
-                       status === 'prospect' ? 'Prospectos' :
-                       status === 'lead' ? 'Leads' : 'Inactivos'}
+                      {t(`modal.status.${status}`)}
                     </button>
                   ))}
                 </div>
@@ -584,7 +582,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
               {/* Filter by Tags */}
               {allTags.length > 0 && (
                 <div className="space-y-2">
-                  <Label className="text-sm">Filtrar por etiquetas</Label>
+                  <Label className="text-sm">{t('modal.filterByTags')}</Label>
                   <div className="flex flex-wrap gap-2">
                     {allTags.map(tag => (
                       <button
@@ -616,7 +614,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
 
               {/* Filter by Last Interaction */}
               <div className="space-y-2">
-                <Label className="text-sm">Última interacción</Label>
+                <Label className="text-sm">{t('modal.lastInteraction')}</Label>
                 <Select
                   value={formData.filters.last_interaction_days.toString()}
                   onValueChange={(value) => setFormData(prev => ({
@@ -631,10 +629,10 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
                     <SelectValue placeholder="Cualquier momento" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0">Cualquier momento</SelectItem>
-                    <SelectItem value="7">Últimos 7 días</SelectItem>
-                    <SelectItem value="30">Últimos 30 días</SelectItem>
-                    <SelectItem value="90">Últimos 90 días</SelectItem>
+                    <SelectItem value="0">{t('modal.anytime')}</SelectItem>
+                    <SelectItem value="7">{t('modal.last7days')}</SelectItem>
+                    <SelectItem value="30">{t('modal.last30days')}</SelectItem>
+                    <SelectItem value="90">{t('modal.last90days')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -642,15 +640,15 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
               {/* Recipients Preview */}
               <div className="mt-4 p-3 bg-white rounded-lg border border-gray-200">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Destinatarios:</span>
+                  <span className="text-sm text-gray-600">{t('modal.recipientsLabel')}:</span>
                   <span className="font-semibold text-green-600">
-                    {filteredRecipients.length} contactos
+                    {filteredRecipients.length} {t('modal.contacts')}
                   </span>
                 </div>
                 {filteredRecipients.length === 0 && (
                   <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" />
-                    No hay contactos que coincidan con los filtros
+                    {t('modal.noMatchingContacts')}
                   </p>
                 )}
               </div>
@@ -660,7 +658,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
             <div className="space-y-2">
               <Label htmlFor="scheduled_at" className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                Programar envío (opcional)
+                {t('modal.scheduleOptional')}
               </Label>
               <Input
                 id="scheduled_at"
@@ -669,14 +667,14 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
                 onChange={(e) => setFormData(prev => ({ ...prev, scheduled_at: e.target.value }))}
               />
               <p className="text-xs text-gray-500">
-                Deja vacío para guardar como borrador
+                {t('modal.leaveEmptyDraft')}
               </p>
             </div>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
-              Cancelar
+              {t('modal.cancel')}
             </Button>
             <Button 
               onClick={handleCreateCampaign}
@@ -686,12 +684,12 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
               {isSaving ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Guardando...
+                  {t('modal.saving')}
                 </>
               ) : (
                 <>
                   <Plus className="w-4 h-4 mr-2" />
-                  Crear Campaña
+                  {t('modal.createCampaign')}
                 </>
               )}
             </Button>
@@ -707,12 +705,12 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
               {selectedCampaign?.status === 'completed' ? (
                 <>
                   <BarChart3 className="w-5 h-5 text-green-600" />
-                  Estadísticas de Campaña
+                  {t('modal.campaignStats')}
                 </>
               ) : (
                 <>
                   <Eye className="w-5 h-5 text-green-600" />
-                  Vista Previa
+                  {t('modal.preview')}
                 </>
               )}
             </DialogTitle>
@@ -737,33 +735,33 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-3 bg-green-50 rounded-lg text-center">
                     <p className="text-2xl font-bold text-green-600">{selectedCampaign.sent_count}</p>
-                    <p className="text-xs text-green-600">Enviados</p>
+                    <p className="text-xs text-green-600">{t('sent')}</p>
                   </div>
                   <div className="p-3 bg-green-50 rounded-lg text-center">
                     <p className="text-2xl font-bold text-green-600">{selectedCampaign.delivered_count}</p>
-                    <p className="text-xs text-green-600">Entregados</p>
+                    <p className="text-xs text-green-600">{t('delivered')}</p>
                   </div>
                   <div className="p-3 bg-green-50 rounded-lg text-center">
                     <p className="text-2xl font-bold text-green-600">{selectedCampaign.read_count}</p>
-                    <p className="text-xs text-green-600">Leídos</p>
+                    <p className="text-xs text-green-600">{t('read')}</p>
                   </div>
                   <div className="p-3 bg-red-50 rounded-lg text-center">
                     <p className="text-2xl font-bold text-red-600">{selectedCampaign.failed_count}</p>
-                    <p className="text-xs text-red-600">Fallidos</p>
+                    <p className="text-xs text-red-600">{t('failed')}</p>
                   </div>
                 </div>
               )}
 
               <div className="text-sm text-gray-500">
-                <p>Destinatarios: {selectedCampaign.total_recipients}</p>
-                <p>Creada: {new Date(selectedCampaign.created_at).toLocaleString()}</p>
+                <p>{t('modal.recipientsLabel')}: {selectedCampaign.total_recipients}</p>
+                <p>{t('modal.created')}: {new Date(selectedCampaign.created_at).toLocaleString()}</p>
               </div>
             </div>
           )}
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsPreviewModalOpen(false)}>
-              Cerrar
+              {t('modal.close')}
             </Button>
           </DialogFooter>
         </DialogContent>
