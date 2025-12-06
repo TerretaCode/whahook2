@@ -1,17 +1,21 @@
+"use client"
+
 import Link from "next/link"
+import { useTranslations } from 'next-intl'
 import { Button } from "@/components/ui/button"
 import { MessageSquare, Users, Zap, Shield } from "lucide-react"
 
 export default function AboutPage() {
+  const t = useTranslations('aboutPage')
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-green-50 to-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl font-bold mb-6">About WhaHook</h1>
+            <h1 className="text-5xl font-bold mb-6">{t('title')}</h1>
             <p className="text-xl text-gray-600 mb-8">
-              We're on a mission to revolutionize business communication through AI-powered WhatsApp automation.
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -21,21 +25,11 @@ export default function AboutPage() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold mb-6">Our Story</h2>
+            <h2 className="text-3xl font-bold mb-6">{t('story.title')}</h2>
             <div className="prose prose-lg text-gray-700">
-              <p className="mb-4">
-                Founded in 2024, WhaHook was born from a simple observation: businesses were struggling to keep up 
-                with the growing volume of WhatsApp messages from customers. Response times were slow, customer 
-                satisfaction was declining, and teams were overwhelmed.
-              </p>
-              <p className="mb-4">
-                We knew there had to be a better way. By combining the power of AI with the ubiquity of WhatsApp, 
-                we created a platform that helps businesses automate conversations while maintaining a personal touch.
-              </p>
-              <p>
-                Today, WhaHook serves hundreds of businesses worldwide, processing millions of messages and helping 
-                companies provide better customer service 24/7.
-              </p>
+              <p className="mb-4">{t('story.p1')}</p>
+              <p className="mb-4">{t('story.p2')}</p>
+              <p>{t('story.p3')}</p>
             </div>
           </div>
         </div>
@@ -45,15 +39,15 @@ export default function AboutPage() {
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Our Values</h2>
+            <h2 className="text-3xl font-bold text-center mb-12">{t('values.title')}</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <MessageSquare className="w-8 h-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Customer First</h3>
+                <h3 className="text-xl font-semibold mb-2">{t('values.customer.title')}</h3>
                 <p className="text-gray-600">
-                  Everything we do is focused on helping our customers succeed.
+                  {t('values.customer.desc')}
                 </p>
               </div>
 
@@ -61,9 +55,9 @@ export default function AboutPage() {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Zap className="w-8 h-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Innovation</h3>
+                <h3 className="text-xl font-semibold mb-2">{t('values.innovation.title')}</h3>
                 <p className="text-gray-600">
-                  We constantly push the boundaries of what's possible with AI.
+                  {t('values.innovation.desc')}
                 </p>
               </div>
 
@@ -71,9 +65,9 @@ export default function AboutPage() {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Shield className="w-8 h-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Security</h3>
+                <h3 className="text-xl font-semibold mb-2">{t('values.security.title')}</h3>
                 <p className="text-gray-600">
-                  Your data security and privacy are our top priorities.
+                  {t('values.security.desc')}
                 </p>
               </div>
 
@@ -81,9 +75,9 @@ export default function AboutPage() {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="w-8 h-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Transparency</h3>
+                <h3 className="text-xl font-semibold mb-2">{t('values.transparency.title')}</h3>
                 <p className="text-gray-600">
-                  We believe in honest, open communication with our users.
+                  {t('values.transparency.desc')}
                 </p>
               </div>
             </div>
@@ -98,19 +92,19 @@ export default function AboutPage() {
             <div className="grid md:grid-cols-4 gap-8 text-center">
               <div>
                 <div className="text-4xl font-bold text-green-600 mb-2">500+</div>
-                <div className="text-gray-600">Active Businesses</div>
+                <div className="text-gray-600">{t('stats.businesses')}</div>
               </div>
               <div>
                 <div className="text-4xl font-bold text-green-600 mb-2">10M+</div>
-                <div className="text-gray-600">Messages Processed</div>
+                <div className="text-gray-600">{t('stats.messages')}</div>
               </div>
               <div>
                 <div className="text-4xl font-bold text-green-600 mb-2">99.9%</div>
-                <div className="text-gray-600">Uptime</div>
+                <div className="text-gray-600">{t('stats.uptime')}</div>
               </div>
               <div>
                 <div className="text-4xl font-bold text-green-600 mb-2">24/7</div>
-                <div className="text-gray-600">Support</div>
+                <div className="text-gray-600">{t('stats.support')}</div>
               </div>
             </div>
           </div>
@@ -120,13 +114,13 @@ export default function AboutPage() {
       {/* CTA Section */}
       <section className="py-20 bg-green-600 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Business?</h2>
+          <h2 className="text-3xl font-bold mb-4">{t('cta.title')}</h2>
           <p className="text-xl mb-8 opacity-90">
-            Join hundreds of businesses already using WhaHook
+            {t('cta.subtitle')}
           </p>
           <Link href="/register">
             <Button size="lg" variant="outline" className="bg-white text-green-600 hover:bg-gray-100">
-              Get Started Free
+              {t('cta.button')}
             </Button>
           </Link>
         </div>

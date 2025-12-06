@@ -1553,6 +1553,34 @@
       "benefits": "✓ Sin tarjeta de crédito  ✓ 14 días de prueba gratis  ✓ Cancela cuando quieras"
     }
   },
+  "aboutPage": {
+    "title": "Sobre WhaHook",
+    "subtitle": "Nuestra misión es revolucionar la comunicación empresarial a través de la automatización de WhatsApp con IA.",
+    "story": {
+      "title": "Nuestra Historia",
+      "p1": "Fundada en 2024, WhaHook nació de una simple observación: las empresas luchaban por mantenerse al día con el creciente volumen de mensajes de WhatsApp de los clientes. Los tiempos de respuesta eran lentos, la satisfacción del cliente disminuía y los equipos estaban abrumados.",
+      "p2": "Sabíamos que tenía que haber una mejor manera. Combinando el poder de la IA con la ubicuidad de WhatsApp, creamos una plataforma que ayuda a las empresas a automatizar conversaciones manteniendo un toque personal.",
+      "p3": "Hoy, WhaHook sirve a cientos de empresas en todo el mundo, procesando millones de mensajes y ayudando a las compañías a proporcionar mejor servicio al cliente 24/7."
+    },
+    "values": {
+      "title": "Nuestros Valores",
+      "customer": { "title": "Cliente Primero", "desc": "Todo lo que hacemos está enfocado en ayudar a nuestros clientes a tener éxito." },
+      "innovation": { "title": "Innovación", "desc": "Constantemente empujamos los límites de lo posible con IA." },
+      "security": { "title": "Seguridad", "desc": "La seguridad de tus datos y tu privacidad son nuestras principales prioridades." },
+      "transparency": { "title": "Transparencia", "desc": "Creemos en la comunicación honesta y abierta con nuestros usuarios." }
+    },
+    "stats": {
+      "businesses": "Negocios Activos",
+      "messages": "Mensajes Procesados",
+      "uptime": "Disponibilidad",
+      "support": "Soporte"
+    },
+    "cta": {
+      "title": "¿Listo para Transformar tu Negocio?",
+      "subtitle": "Únete a cientos de empresas que ya usan WhaHook",
+      "button": "Comenzar Gratis"
+    }
+  },
   "footer": {
     "description": "Automatiza tu WhatsApp con chatbot impulsado por IA. Gestiona múltiples cuentas sin esfuerzo.",
     "product": "Producto",

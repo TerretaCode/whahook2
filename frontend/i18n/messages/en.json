@@ -1550,6 +1550,34 @@
       "benefits": "✓ No credit card required  ✓ 14-day free trial  ✓ Cancel anytime"
     }
   },
+  "aboutPage": {
+    "title": "About WhaHook",
+    "subtitle": "We're on a mission to revolutionize business communication through AI-powered WhatsApp automation.",
+    "story": {
+      "title": "Our Story",
+      "p1": "Founded in 2024, WhaHook was born from a simple observation: businesses were struggling to keep up with the growing volume of WhatsApp messages from customers. Response times were slow, customer satisfaction was declining, and teams were overwhelmed.",
+      "p2": "We knew there had to be a better way. By combining the power of AI with the ubiquity of WhatsApp, we created a platform that helps businesses automate conversations while maintaining a personal touch.",
+      "p3": "Today, WhaHook serves hundreds of businesses worldwide, processing millions of messages and helping companies provide better customer service 24/7."
+    },
+    "values": {
+      "title": "Our Values",
+      "customer": { "title": "Customer First", "desc": "Everything we do is focused on helping our customers succeed." },
+      "innovation": { "title": "Innovation", "desc": "We constantly push the boundaries of what's possible with AI." },
+      "security": { "title": "Security", "desc": "Your data security and privacy are our top priorities." },
+      "transparency": { "title": "Transparency", "desc": "We believe in honest, open communication with our users." }
+    },
+    "stats": {
+      "businesses": "Active Businesses",
+      "messages": "Messages Processed",
+      "uptime": "Uptime",
+      "support": "Support"
+    },
+    "cta": {
+      "title": "Ready to Transform Your Business?",
+      "subtitle": "Join hundreds of businesses already using WhaHook",
+      "button": "Get Started Free"
+    }
+  },
   "footer": {
     "description": "Automate your WhatsApp with AI-powered chatbot. Manage multiple accounts effortlessly.",
     "product": "Product",
