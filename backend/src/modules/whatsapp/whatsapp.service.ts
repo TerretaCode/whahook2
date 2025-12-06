@@ -258,6 +258,10 @@ class WhatsAppService {
 
     // Browser crash
     client.pupBrowser?.on('disconnected', () => {
+      const session = this.sessions.get(sessionId)
+      console.log(`💥 [BROWSER-CRASH] Browser disconnected for session: ${sessionId}`)
+      console.log(`💥 [BROWSER-CRASH] Phone: ${session?.phoneNumber || 'unknown'}`)
+      console.log(`💥 [BROWSER-CRASH] This will mark the session as error`)
       this.handleSessionError(sessionId, 'Browser crashed')
     })
 
@@ -330,13 +334,22 @@ class WhatsAppService {
   }
 
   private async handleSessionError(sessionId: string, errorMessage: string): Promise<void> {
+    console.log(`🚨 [SESSION-ERROR] handleSessionError called for session: ${sessionId}`)
+    console.log(`🚨 [SESSION-ERROR] Error message: ${errorMessage}`)
+    console.log(`🚨 [SESSION-ERROR] Stack trace:`, new Error().stack?.split('\n').slice(1, 6).join('\n'))
+    
     const session = this.sessions.get(sessionId)
+    const phoneNumber = session?.phoneNumber || 'unknown'
+    console.log(`🚨 [SESSION-ERROR] Phone number: ${phoneNumber}`)
+    
     if (session) session.status = 'error'
 
+    console.log(`🚨 [SESSION-ERROR] Updating database status to 'error' for ${phoneNumber}...`)
     await supabaseAdmin
       .from('whatsapp_accounts')
       .update({ status: 'error' as SessionStatus, error_message: errorMessage })
       .eq('session_id', sessionId)
+    console.log(`🚨 [SESSION-ERROR] Database updated for ${phoneNumber}`)
 
     if (session) {
       this.io?.to(`user:${session.userId}`).emit('whatsapp:error', { sessionId, error: errorMessage })
