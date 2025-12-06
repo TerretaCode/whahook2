@@ -43,14 +43,15 @@ interface WorkspaceMembersSectionProps {
   workspaceId: string
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  owner: 'Owner',
-  admin: 'Admin',
-  client: 'Client',
-  agent: 'Agente',
-  messages: 'Mensajes',
-  marketing: 'Marketing',
-  custom: 'Custom'
+// Role labels are now translation keys
+const ROLE_KEYS: Record<string, string> = {
+  owner: 'roles.owner',
+  admin: 'roles.admin',
+  client: 'roles.client',
+  agent: 'roles.agent',
+  messages: 'roles.messages',
+  marketing: 'roles.marketing',
+  custom: 'roles.custom'
 }
 
 const ROLE_COLORS: Record<string, string> = {
@@ -270,7 +271,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                       {member.user_name || member.user_email || member.invited_email || 'Unknown'}
                     </span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[member.role]}`}>
-                      {ROLE_LABELS[member.role]}
+                      {t(ROLE_KEYS[member.role])}
                     </span>
                     {member.status === 'pending' && (
                       <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
@@ -292,7 +293,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                         variant="ghost"
                         size="sm"
                         onClick={() => copyAccessLink(member.access_token!)}
-                        title="Copy access link"
+                        title={t('copyAccessLink')}
                       >
                         {copiedToken === member.access_token ? (
                           <Check className="w-4 h-4 text-green-600" />
@@ -304,7 +305,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRegenerateToken(member.id)}
-                        title="Regenerate access link"
+                        title={t('regenerateAccessLink')}
                       >
                         <RefreshCw className="w-4 h-4" />
                       </Button>
@@ -315,7 +316,7 @@ export function WorkspaceMembersSection({ workspaceId }: WorkspaceMembersSection
                     size="sm"
                     onClick={() => handleRemove(member.id)}
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    title="Remove member"
+                    title={t('removeMember')}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
