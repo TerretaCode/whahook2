@@ -35,7 +35,6 @@ export function Header() {
   // While loading, hide permission-based items to avoid flash
   const canViewMessages = !isWorkspaceLoading && (isOwner || hasPermission('messages'))
   const canViewClients = !isWorkspaceLoading && (isOwner || hasPermission('clients'))
-  const canViewCampaigns = !isWorkspaceLoading && (isOwner || hasPermission('campaigns'))
   const canViewSettings = !isWorkspaceLoading && (isOwner || hasPermission('settings'))
 
   const handleScroll = useCallback(() => {
@@ -125,11 +124,6 @@ export function Header() {
                 {canViewClients && (
                   <NavLink href="/clients">
                     {t('clients')}
-                  </NavLink>
-                )}
-                {canViewCampaigns && (
-                  <NavLink href="/campaigns">
-                    {t('campaigns')}
                   </NavLink>
                 )}
                 {canViewSettings && (

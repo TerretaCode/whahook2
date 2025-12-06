@@ -8,7 +8,7 @@ import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Download, Loader2, Users, UserCheck, Star, Smartphone, RefreshCw, Sparkles, Settings2 } from "lucide-react"
+import { Search, Download, Loader2, Users, UserCheck, Star, Smartphone, Globe, RefreshCw, Sparkles, Settings2 } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { ClientsTable } from "./components/ClientsTable"
 import { ClientModal } from "./components/ClientModal"
@@ -50,6 +50,7 @@ export default function ClientsPage() {
   const [filteredClients, setFilteredClients] = useState<Client[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<'all' | 'customer' | 'prospect' | 'lead' | 'inactive'>('all')
+  const [sourceFilter, setSourceFilter] = useState<'all' | 'whatsapp' | 'web'>('all')
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isSyncing, setIsSyncing] = useState(false)
   const lastWorkspaceId = useRef<string | null>(null)
@@ -131,7 +132,7 @@ export default function ClientsPage() {
   useEffect(() => {
     filterClients()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clients, searchQuery, statusFilter])
+  }, [clients, searchQuery, statusFilter, sourceFilter])
 
   
   const handleSync = async () => {
@@ -158,6 +159,11 @@ export default function ClientsPage() {
 
   const filterClients = () => {
     let filtered = clients
+
+    // Filter by source (WhatsApp vs Web)
+    if (sourceFilter !== 'all') {
+      filtered = filtered.filter(client => client.source === sourceFilter)
+    }
 
     // Filter by status
     if (statusFilter !== 'all') {
@@ -307,7 +313,7 @@ export default function ClientsPage() {
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-4">
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
@@ -319,6 +325,39 @@ export default function ClientsPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
+              </div>
+            </div>
+
+            {/* Source Filter (WhatsApp vs Web) */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex gap-2">
+                <Button
+                  variant={sourceFilter === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSourceFilter('all')}
+                  className={`gap-2 ${sourceFilter === 'all' ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                >
+                  <Users className="w-4 h-4" />
+                  {t('filters.allSources')} ({clients.length})
+                </Button>
+                <Button
+                  variant={sourceFilter === 'whatsapp' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSourceFilter('whatsapp')}
+                  className={`gap-2 ${sourceFilter === 'whatsapp' ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                >
+                  <Smartphone className="w-4 h-4" />
+                  WhatsApp ({clients.filter(c => c.source === 'whatsapp').length})
+                </Button>
+                <Button
+                  variant={sourceFilter === 'web' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSourceFilter('web')}
+                  className={`gap-2 ${sourceFilter === 'web' ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                >
+                  <Globe className="w-4 h-4" />
+                  Web ({clients.filter(c => c.source === 'web').length})
+                </Button>
               </div>
             </div>
 

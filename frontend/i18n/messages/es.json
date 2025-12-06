@@ -509,6 +509,7 @@
     },
     "filters": {
       "all": "Todos",
+      "allSources": "Todas las Fuentes",
       "customers": "Clientes",
       "prospects": "Prospectos",
       "leads": "Leads",
@@ -1858,6 +1859,7 @@
     "step2Title": "Compón tu Mensaje",
     "step3Title": "Configuración Anti-Ban",
     "filterBySource": "Filtrar por Origen",
+    "allSources": "Todas las Fuentes",
     "engagement": "Engagement",
     "intent": "Intención",
     "advanced": "Avanzado",

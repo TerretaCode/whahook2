@@ -40,7 +40,9 @@ import {
   BarChart3,
   Filter,
   Calendar,
-  AlertCircle
+  AlertCircle,
+  Smartphone,
+  Globe
 } from "lucide-react"
 import { Client } from "../page"
 
@@ -97,6 +99,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
     filters: {
       tags: [] as string[],
       status: [] as string[],
+      source: '' as '' | 'whatsapp' | 'web',
       last_interaction_days: 0
     }
   })
@@ -110,6 +113,11 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
   // Calculate recipients based on filters - memoized
   const filteredRecipients = useMemo(() => {
     let filtered = clients
+
+    // Filter by source (WhatsApp vs Web)
+    if (formData.filters.source) {
+      filtered = filtered.filter(c => c.source === formData.filters.source)
+    }
 
     // Filter by tags
     if (formData.filters.tags.length > 0) {
@@ -248,6 +256,7 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
       filters: {
         tags: [],
         status: [],
+        source: '',
         last_interaction_days: 0
       }
     })
@@ -546,6 +555,64 @@ export function CampaignsSection({ clients, onRefreshClients: _onRefreshClients 
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-gray-600" />
                 <Label className="text-base font-medium">{t('modal.segmentation')}</Label>
+              </div>
+
+              {/* Filter by Source (WhatsApp vs Web) */}
+              <div className="space-y-2">
+                <Label className="text-sm">{t('filterBySource')}</Label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({
+                      ...prev,
+                      filters: { ...prev.filters, source: '' }
+                    }))}
+                    className={`flex-1 p-3 rounded-lg border-2 transition-colors flex items-center justify-center gap-2 ${
+                      formData.filters.source === ''
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Users className={`w-4 h-4 ${formData.filters.source === '' ? 'text-green-600' : 'text-gray-400'}`} />
+                    <span className={formData.filters.source === '' ? 'text-green-700 font-medium' : 'text-gray-600'}>
+                      {t('allSources')} ({clients.length})
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({
+                      ...prev,
+                      filters: { ...prev.filters, source: 'whatsapp' }
+                    }))}
+                    className={`flex-1 p-3 rounded-lg border-2 transition-colors flex items-center justify-center gap-2 ${
+                      formData.filters.source === 'whatsapp'
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Smartphone className={`w-4 h-4 ${formData.filters.source === 'whatsapp' ? 'text-green-600' : 'text-gray-400'}`} />
+                    <span className={formData.filters.source === 'whatsapp' ? 'text-green-700 font-medium' : 'text-gray-600'}>
+                      WhatsApp ({clients.filter(c => c.source === 'whatsapp').length})
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({
+                      ...prev,
+                      filters: { ...prev.filters, source: 'web' }
+                    }))}
+                    className={`flex-1 p-3 rounded-lg border-2 transition-colors flex items-center justify-center gap-2 ${
+                      formData.filters.source === 'web'
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Globe className={`w-4 h-4 ${formData.filters.source === 'web' ? 'text-green-600' : 'text-gray-400'}`} />
+                    <span className={formData.filters.source === 'web' ? 'text-green-700 font-medium' : 'text-gray-600'}>
+                      Web ({clients.filter(c => c.source === 'web').length})
+                    </span>
+                  </button>
+                </div>
               </div>
 
               {/* Filter by Status */}
