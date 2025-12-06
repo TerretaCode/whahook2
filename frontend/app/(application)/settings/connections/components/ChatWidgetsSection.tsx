@@ -697,10 +697,10 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                           {platform === 'custom' || platform === 'shopify' ? '1' : '2'}
                         </span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-green-900">Copy this code:</p>
+                          <p className="text-sm font-medium text-green-900">{t('integration.copyThisCode')}</p>
                           <div className="mt-2 p-3 bg-gray-900 rounded-lg">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs text-gray-400">Embed Code</span>
+                              <span className="text-xs text-gray-400">{t('integration.embedCode')}</span>
                               <Button
                                 size="sm"
                                 onClick={() => copyToClipboard(embedCode)}
@@ -709,12 +709,12 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                                 {copied ? (
                                   <>
                                     <Check className="h-3 w-3 mr-1" />
-                                    Copied!
+                                    {t('integration.copied')}
                                   </>
                                 ) : (
                                   <>
                                     <Copy className="h-3 w-3 mr-1" />
-                                    Copy
+                                    {t('integration.copy')}
                                   </>
                                 )}
                               </Button>
@@ -732,7 +732,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                           {platform === 'custom' || platform === 'shopify' ? '2' : '3'}
                         </span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-green-900">Paste the code in your website:</p>
+                          <p className="text-sm font-medium text-green-900">{t('integration.pasteCode')}</p>
                           <div className="mt-2 bg-white border border-green-200 rounded-lg p-3 space-y-2">
                             {platformConfig.instructions.slice(1).map((instruction, idx) => (
                               <div key={idx} className="flex items-start gap-2 text-sm text-green-800">
@@ -749,7 +749,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                               onClick={() => window.open(getPluginSettingsUrl(widget.domain, platform), '_blank')}
                             >
                               <Settings className="h-4 w-4 mr-2" />
-                              Open {platformConfig.name} Settings
+                              {t('integration.openPlatformSettings', { platform: platformConfig.name })}
                               <ExternalLink className="w-3 h-3 ml-2" />
                             </Button>
                           )}
@@ -762,9 +762,9 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                           {platform === 'custom' || platform === 'shopify' ? '3' : '4'}
                         </span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-green-900">Save and you're done! 🎉</p>
+                          <p className="text-sm font-medium text-green-900">{t('integration.done')}</p>
                           <p className="text-sm text-green-800 mt-1">
-                            Visit your website to see the chat widget in the bottom-right corner.
+                            {t('integration.doneDesc')}
                           </p>
                         </div>
                       </div>
@@ -776,24 +776,23 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
-                            Don't see the widget?
+                            {t('integration.dontSeeWidget')}
                           </p>
                           <ul className="text-xs text-green-700 mt-2 space-y-1 ml-6">
-                            <li>• <strong>Clear your browser cache</strong> (Ctrl+Shift+R or Cmd+Shift+R)</li>
-                            <li>• <strong>Clear your website cache</strong> (LiteSpeed, WP Super Cache, etc.)</li>
-                            <li>• <strong>Wait 2-5 minutes</strong> for CDN cache to refresh</li>
-                            <li>• Check the browser console (F12) for errors</li>
+                            {t.raw('integration.troubleshooting').map((item: string, idx: number) => (
+                              <li key={idx}>• {item}</li>
+                            ))}
                           </ul>
                         </div>
                         <Button
                           className="w-full bg-green-600 hover:bg-green-700 text-white"
                           onClick={() => {
                             setExpandedWidget(null)
-                            toast.success('Setup Complete!', 'Your chat widget is ready. Remember to clear your website cache if you don\'t see it immediately.')
+                            toast.success(t('integration.setupComplete'), t('integration.setupCompleteDesc'))
                           }}
                         >
                           <Check className="w-4 h-4 mr-2" />
-                          Complete Setup
+                          {t('integration.completeSetup')}
                         </Button>
                       </div>
                     </div>

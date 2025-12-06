@@ -701,7 +701,87 @@
         "deleted": "Deleted",
         "deletedDesc": "Widget deleted successfully",
         "deleteError": "Failed to delete widget",
-        "codeCopied": "Embed code copied to clipboard"
+        "codeCopied": "Embed code copied to clipboard",
+        "integration": {
+          "title": "Add to Your Website",
+          "selectPlatform": "Select your platform:",
+          "step1": "Step 1: Install Plugin",
+          "step2": "Step 2: Open Settings",
+          "step3": "Step 3: Add Code",
+          "step4": "Step 4: Done!",
+          "installPlugin": "Install Plugin",
+          "openSettings": "Open Settings",
+          "copyCode": "Copy Code",
+          "embedCode": "Embed Code",
+          "wordpress": {
+            "name": "WordPress / WooCommerce",
+            "pluginName": "WPCode (Insert Headers and Footers)",
+            "instructions": [
+              "Install and activate the \"WPCode\" plugin",
+              "Go to Code Snippets → Header & Footer",
+              "Paste the code in the \"Footer\" section",
+              "Click \"Save Changes\""
+            ]
+          },
+          "shopify": {
+            "name": "Shopify",
+            "pluginName": "Theme Editor (built-in)",
+            "instructions": [
+              "Go to Online Store → Themes → Edit code",
+              "Open Layout → theme.liquid",
+              "Paste the code just before </body>",
+              "Click \"Save\""
+            ]
+          },
+          "prestashop": {
+            "name": "PrestaShop",
+            "pluginName": "Custom Code Module",
+            "instructions": [
+              "Install \"Custom Code\" module from Module Manager",
+              "Go to Modules → Module Manager → Custom Code",
+              "Paste the code in \"Footer\" section",
+              "Save changes"
+            ]
+          },
+          "magento": {
+            "name": "Magento 2",
+            "pluginName": "Admin Configuration",
+            "instructions": [
+              "Go to Content → Design → Configuration",
+              "Edit your store view",
+              "Expand \"HTML Head\" section",
+              "Paste code in \"Scripts and Style Sheets\"",
+              "Save Configuration"
+            ]
+          },
+          "custom": {
+            "name": "Custom / Other",
+            "pluginName": "Manual Integration",
+            "instructions": [
+              "Open your website's HTML file",
+              "Find the closing </body> tag",
+              "Paste the code just before </body>",
+              "Save and upload the file"
+            ]
+          },
+          "done": "Save and you're done! 🎉",
+          "doneDesc": "Visit your website to see the chat widget in the bottom-right corner.",
+          "copyThisCode": "Copy this code:",
+          "pasteCode": "Paste the code in your website:",
+          "copied": "Copied!",
+          "copy": "Copy",
+          "openPlatformSettings": "Open {platform} Settings",
+          "dontSeeWidget": "Don't see the widget?",
+          "troubleshooting": [
+            "Clear your browser cache (Ctrl+Shift+R or Cmd+Shift+R)",
+            "Clear your website cache (LiteSpeed, WP Super Cache, etc.)",
+            "Wait 2-5 minutes for CDN cache to refresh",
+            "Check the browser console (F12) for errors"
+          ],
+          "setupComplete": "Setup Complete!",
+          "setupCompleteDesc": "Your chat widget is ready. Remember to clear your website cache if you don't see it immediately.",
+          "completeSetup": "Complete Setup"
+        }
       },
       "ecommerce": {
         "title": "E-commerce Connections",
