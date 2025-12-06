@@ -1,6 +1,7 @@
 "use client"
 
 import { memo, useCallback } from "react"
+import { useTranslations } from 'next-intl'
 import { ArrowLeft, Bot, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -24,6 +25,7 @@ function ChatHeaderComponent({
   onToggleChatbot, 
   onBack 
 }: ChatHeaderProps) {
+  const t = useTranslations('conversations.chatHeader')
 
   const handleToggle = useCallback(() => {
     onToggleChatbot(!chatbotEnabled)
@@ -58,17 +60,17 @@ function ChatHeaderComponent({
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <h2 className="font-semibold text-gray-900 truncate">{name || 'Unknown'}</h2>
+        <h2 className="font-semibold text-gray-900 truncate">{name || t('unknown')}</h2>
         <div className="flex items-center gap-2">
           <p className="text-xs text-gray-600">
-            {isOnline ? 'Online' : 'Offline'}
+            {isOnline ? t('online') : t('offline')}
           </p>
           <span className={`text-xs px-1.5 py-0.5 rounded ${
             source === 'whatsapp' 
               ? 'bg-green-100 text-green-800' 
               : 'bg-green-100 text-green-800'
           }`}>
-            {source === 'whatsapp' ? 'Phone' : 'Web'}
+            {source === 'whatsapp' ? t('phone') : t('web')}
           </span>
         </div>
       </div>
@@ -83,17 +85,17 @@ function ChatHeaderComponent({
               ? 'bg-green-100 text-green-700 hover:bg-green-200'
               : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
           }`}
-          title={chatbotEnabled ? 'Click to disable chatbot' : 'Click to enable chatbot'}
+          title={chatbotEnabled ? t('clickToDisable') : t('clickToEnable')}
         >
           {chatbotEnabled ? (
             <>
               <Bot className="w-4 h-4" />
-              <span className="hidden sm:inline">AI On</span>
+              <span className="hidden sm:inline">{t('aiOn')}</span>
             </>
           ) : (
             <>
               <User className="w-4 h-4" />
-              <span className="hidden sm:inline">Manual</span>
+              <span className="hidden sm:inline">{t('manual')}</span>
             </>
           )}
         </button>

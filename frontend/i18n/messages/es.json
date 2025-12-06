@@ -217,7 +217,34 @@
     "markAsRead": "Marcar como leído",
     "markAsUnread": "Marcar como no leído",
     "archive": "Archivar",
-    "block": "Bloquear contacto"
+    "block": "Bloquear contacto",
+    "chatHeader": {
+      "unknown": "Desconocido",
+      "online": "En línea",
+      "offline": "Desconectado",
+      "phone": "Teléfono",
+      "web": "Web",
+      "clickToDisable": "Clic para desactivar chatbot",
+      "clickToEnable": "Clic para activar chatbot",
+      "aiOn": "IA On",
+      "manual": "Manual"
+    },
+    "chatInput": {
+      "placeholder": "Escribe un mensaje"
+    },
+    "humanAttention": {
+      "resumeError": "Error al reactivar la IA. Por favor, intenta de nuevo.",
+      "uncertaintyTitle": "🚨 Atención Manual Requerida",
+      "uncertaintyDesc": "El bot no pudo responder con certeza. Responde manualmente y luego reactiva la IA.",
+      "humanRequestTitle": "👤 Cliente Solicita Agente Humano",
+      "humanRequestDesc": "El cliente pidió hablar con una persona. Atiéndelo y luego reactiva la IA.",
+      "resuming": "Reactivando...",
+      "resumeAI": "Reactivar IA",
+      "close": "Cerrar"
+    },
+    "starters": {
+      "title": "Sugerencias para empezar:"
+    }
   },
   "clients": {
     "title": "Clientes",

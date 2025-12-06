@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { AlertCircle, CheckCircle, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ApiClient } from '@/lib/api-client'
@@ -17,6 +18,7 @@ export function HumanAttentionBanner({
   fallbackType,
   onResume 
 }: HumanAttentionBannerProps) {
+  const t = useTranslations('conversations.humanAttention')
   const [isResuming, setIsResuming] = useState(false)
   const [dismissed, setDismissed] = useState(false)
 
@@ -36,7 +38,7 @@ export function HumanAttentionBanner({
       setDismissed(true)
       if (onResume) onResume()
     } catch {
-      alert('Error al reactivar la IA. Por favor, intenta de nuevo.')
+      alert(t('resumeError'))
     } finally {
       setIsResuming(false)
     }
@@ -45,8 +47,8 @@ export function HumanAttentionBanner({
   const getMessage = () => {
     if (fallbackType === 'uncertainty') {
       return {
-        title: '🚨 Atención Manual Requerida',
-        description: 'El bot no pudo responder con certeza. Responde manualmente y luego reactiva la IA.',
+        title: t('uncertaintyTitle'),
+        description: t('uncertaintyDesc'),
         icon: <AlertCircle className="w-5 h-5 text-red-600" />,
         bgColor: 'bg-red-50',
         borderColor: 'border-red-200',
@@ -54,8 +56,8 @@ export function HumanAttentionBanner({
       }
     } else {
       return {
-        title: '👤 Cliente Solicita Agente Humano',
-        description: 'El cliente pidió hablar con una persona. Atiéndelo y luego reactiva la IA.',
+        title: t('humanRequestTitle'),
+        description: t('humanRequestDesc'),
         icon: <AlertCircle className="w-5 h-5 text-orange-600" />,
         bgColor: 'bg-orange-50',
         borderColor: 'border-orange-200',
@@ -97,12 +99,12 @@ export function HumanAttentionBanner({
               {isResuming ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Reactivando...
+                  {t('resuming')}
                 </>
               ) : (
                 <>
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  Reactivar IA
+                  {t('resumeAI')}
                 </>
               )}
             </Button>
@@ -114,7 +116,7 @@ export function HumanAttentionBanner({
               className={message.textColor}
             >
               <X className="w-4 h-4 mr-1" />
-              Cerrar
+              {t('close')}
             </Button>
           </div>
         </div>

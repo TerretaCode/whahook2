@@ -1,6 +1,7 @@
 "use client"
 
 import { memo, useCallback } from "react"
+import { useTranslations } from 'next-intl'
 import { MessageSquare } from "lucide-react"
 
 interface ConversationStartersProps {
@@ -9,6 +10,7 @@ interface ConversationStartersProps {
 }
 
 function ConversationStartersComponent({ starters, onSelect }: ConversationStartersProps) {
+  const t = useTranslations('conversations.starters')
   const handleClick = useCallback((starter: string) => {
     onSelect(starter)
   }, [onSelect])
@@ -21,7 +23,7 @@ function ConversationStartersComponent({ starters, onSelect }: ConversationStart
     <div className="p-4 space-y-3">
       <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
         <MessageSquare className="w-4 h-4" />
-        <span className="font-medium">Sugerencias para empezar:</span>
+        <span className="font-medium">{t('title')}</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         {starters.map((starter, index) => (

@@ -217,7 +217,34 @@
     "markAsRead": "Mark as read",
     "markAsUnread": "Mark as unread",
     "archive": "Archive",
-    "block": "Block contact"
+    "block": "Block contact",
+    "chatHeader": {
+      "unknown": "Unknown",
+      "online": "Online",
+      "offline": "Offline",
+      "phone": "Phone",
+      "web": "Web",
+      "clickToDisable": "Click to disable chatbot",
+      "clickToEnable": "Click to enable chatbot",
+      "aiOn": "AI On",
+      "manual": "Manual"
+    },
+    "chatInput": {
+      "placeholder": "Type a message"
+    },
+    "humanAttention": {
+      "resumeError": "Error reactivating AI. Please try again.",
+      "uncertaintyTitle": "🚨 Manual Attention Required",
+      "uncertaintyDesc": "The bot couldn't respond with certainty. Respond manually and then reactivate AI.",
+      "humanRequestTitle": "👤 Customer Requests Human Agent",
+      "humanRequestDesc": "The customer asked to speak with a person. Assist them and then reactivate AI.",
+      "resuming": "Reactivating...",
+      "resumeAI": "Reactivate AI",
+      "close": "Close"
+    },
+    "starters": {
+      "title": "Suggestions to start:"
+    }
   },
   "clients": {
     "title": "Clients",

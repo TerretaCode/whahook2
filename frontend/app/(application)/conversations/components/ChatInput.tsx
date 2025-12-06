@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, memo } from "react"
+import { useTranslations } from 'next-intl'
 import { Send, Paperclip, Smile } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -10,6 +11,7 @@ interface ChatInputProps {
 }
 
 function ChatInputComponent({ onSendMessage, disabled = false }: ChatInputProps) {
+  const t = useTranslations('conversations.chatInput')
   const [message, setMessage] = useState("")
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
@@ -59,7 +61,7 @@ function ChatInputComponent({ onSendMessage, disabled = false }: ChatInputProps)
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Type a message"
+            placeholder={t('placeholder')}
             rows={1}
             className="w-full px-4 py-2 bg-white rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-[#25D366] resize-none max-h-32"
             style={{
