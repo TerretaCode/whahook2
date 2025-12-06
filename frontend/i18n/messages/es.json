@@ -1478,6 +1478,43 @@
       "customDomain": "Soporte de dominio personalizado"
     }
   },
+  "pricingPage": {
+    "title": "Precios Simples y Transparentes",
+    "subtitle": "Elige el plan perfecto para tu negocio. Comienza con 7 días de prueba gratis.",
+    "faq": {
+      "title": "Preguntas Frecuentes",
+      "changePlans": {
+        "q": "¿Puedo cambiar de plan después?",
+        "a": "Sí, puedes subir o bajar de plan en cualquier momento. Los cambios se reflejarán en tu próximo ciclo de facturación."
+      },
+      "aiCosts": {
+        "q": "¿Qué pasa con los costos de IA?",
+        "a": "Los costos de IA no están incluidos en los planes. Usas tu propia API key de Google Gemini y pagas directamente a Google. Esto te da control total sobre tu gasto en IA."
+      },
+      "freeTrial": {
+        "q": "¿Hay prueba gratuita?",
+        "a": "¡Sí! Todos los planes incluyen 7 días de prueba gratis con todas las funciones del plan Starter. No se requiere tarjeta de crédito."
+      },
+      "workspaces": {
+        "q": "¿Qué son los Workspaces?",
+        "a": "Los Workspaces son entornos aislados para diferentes negocios o clientes. Perfecto para agencias que gestionan múltiples clientes - cada workspace tiene sus propias conexiones de WhatsApp, clientes y conversaciones."
+      },
+      "whiteLabel": {
+        "q": "¿Qué es Marca Blanca?",
+        "a": "Con el plan Enterprise, puedes ocultar la marca Whahook de tus clientes. El pie del widget y el panel de cliente mostrarán la marca de tu agencia."
+      },
+      "cancel": {
+        "q": "¿Puedo cancelar en cualquier momento?",
+        "a": "Sí, puedes cancelar tu suscripción en cualquier momento. Sin preguntas."
+      }
+    },
+    "cta": {
+      "title": "¿Listo para Transformar tu Atención al Cliente?",
+      "subtitle": "Únete a cientos de negocios que ya automatizan sus conversaciones de WhatsApp",
+      "button": "Comenzar Prueba Gratis",
+      "benefits": "✓ Sin compromiso  ✓ Cancela cuando quieras  ✓ Sin tarjeta de crédito"
+    }
+  },
   "footer": {
     "description": "Automatiza tu WhatsApp con chatbot impulsado por IA. Gestiona múltiples cuentas sin esfuerzo.",
     "product": "Producto",

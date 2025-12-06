@@ -1475,6 +1475,43 @@
       "customDomain": "Custom domain support"
     }
   },
+  "pricingPage": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Choose the perfect plan for your business. Start with a 7-day free trial.",
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "changePlans": {
+        "q": "Can I change plans later?",
+        "a": "Yes, you can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle."
+      },
+      "aiCosts": {
+        "q": "What about AI costs?",
+        "a": "AI costs are not included in the plans. You use your own Google Gemini API key and pay directly to Google. This gives you full control over your AI spending."
+      },
+      "freeTrial": {
+        "q": "Is there a free trial?",
+        "a": "Yes! All plans come with a 7-day free trial with full Starter plan features. No credit card required."
+      },
+      "workspaces": {
+        "q": "What are Workspaces?",
+        "a": "Workspaces are isolated environments for different businesses or clients. Perfect for agencies managing multiple clients - each workspace has its own WhatsApp connections, clients, and conversations."
+      },
+      "whiteLabel": {
+        "q": "What is White-label?",
+        "a": "With Enterprise plan, you can hide the Whahook brand from your clients. The widget footer and client panel will show your agency's brand instead."
+      },
+      "cancel": {
+        "q": "Can I cancel anytime?",
+        "a": "Yes, you can cancel your subscription at any time. No questions asked."
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Your Customer Service?",
+      "subtitle": "Join hundreds of businesses already automating their WhatsApp conversations",
+      "button": "Start Free Trial Now",
+      "benefits": "✓ No commitment  ✓ Cancel anytime  ✓ No credit card required"
+    }
+  },
   "footer": {
     "description": "Automate your WhatsApp with AI-powered chatbot. Manage multiple accounts effortlessly.",
     "product": "Product",
