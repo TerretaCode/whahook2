@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { 
   Loader2, 
@@ -40,6 +41,7 @@ interface WorkspaceAccess {
 }
 
 export default function WorkspaceAccessPage() {
+  const t = useTranslations('workspaceAccess')
   const params = useParams()
   const router = useRouter()
   const token = params.token as string
@@ -57,7 +59,7 @@ export default function WorkspaceAccessPage() {
         const result = await response.json()
 
         if (!response.ok) {
-          setError(result.error || 'Invalid access link')
+          setError(result.error || t('invalidLink'))
           return
         }
 
@@ -70,7 +72,7 @@ export default function WorkspaceAccessPage() {
         localStorage.setItem('workspace_permissions', JSON.stringify(result.data.permissions))
         
       } catch {
-        setError('Failed to verify access')
+        setError(t('verifyError'))
       } finally {
         setIsLoading(false)
       }
@@ -90,35 +92,35 @@ export default function WorkspaceAccessPage() {
   const navItems = [
     { 
       key: 'dashboard', 
-      label: 'Dashboard', 
+      label: t('nav.dashboard'), 
       icon: LayoutDashboard, 
       href: `/w/${token}/dashboard`,
       enabled: data?.permissions?.dashboard 
     },
     { 
       key: 'messages', 
-      label: 'Messages', 
+      label: t('nav.messages'), 
       icon: MessageSquare, 
       href: `/w/${token}/messages`,
       enabled: data?.permissions?.messages 
     },
     { 
       key: 'clients', 
-      label: 'Clients', 
+      label: t('nav.clients'), 
       icon: Users, 
       href: `/w/${token}/clients`,
       enabled: data?.permissions?.clients 
     },
     { 
       key: 'campaigns', 
-      label: 'Campaigns', 
+      label: t('nav.campaigns'), 
       icon: Megaphone, 
       href: `/w/${token}/campaigns`,
       enabled: data?.permissions?.campaigns 
     },
     { 
       key: 'ai_costs', 
-      label: 'AI Costs', 
+      label: t('nav.aiCosts'), 
       icon: DollarSign, 
       href: `/w/${token}/ai-costs`,
       enabled: data?.permissions?.ai_costs 
@@ -140,10 +142,10 @@ export default function WorkspaceAccessPage() {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <XCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">{t('accessDenied')}</h1>
           <p className="text-gray-600 mb-6">{error}</p>
           <p className="text-sm text-gray-500">
-            Please contact your administrator for a new access link.
+            {t('contactAdmin')}
           </p>
         </div>
       </div>
@@ -173,7 +175,7 @@ export default function WorkspaceAccessPage() {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500">
-                {data?.role === 'client' ? 'Client Access' : data?.role}
+                {data?.role === 'client' ? t('clientAccess') : data?.role}
               </span>
             </div>
           </div>
@@ -184,10 +186,10 @@ export default function WorkspaceAccessPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900">
-            Welcome to {data?.workspace?.name}
+            {t('welcomeTo', { name: data?.workspace?.name || '' })}
           </h2>
           <p className="text-gray-600 mt-1">
-            Select a section to get started
+            {t('selectSection')}
           </p>
         </div>
 
@@ -212,11 +214,11 @@ export default function WorkspaceAccessPage() {
                 {item.label}
               </h3>
               <p className="text-sm text-gray-500 mt-1">
-                {item.key === 'dashboard' && 'View statistics and overview'}
-                {item.key === 'messages' && 'View and respond to conversations'}
-                {item.key === 'clients' && 'Manage your customer database'}
-                {item.key === 'campaigns' && 'Create and manage campaigns'}
-                {item.key === 'ai_costs' && 'View AI usage and costs'}
+                {item.key === 'dashboard' && t('desc.dashboard')}
+                {item.key === 'messages' && t('desc.messages')}
+                {item.key === 'clients' && t('desc.clients')}
+                {item.key === 'campaigns' && t('desc.campaigns')}
+                {item.key === 'ai_costs' && t('desc.aiCosts')}
               </p>
             </button>
           ))}
@@ -225,7 +227,7 @@ export default function WorkspaceAccessPage() {
         {navItems.length === 0 && (
           <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
             <p className="text-gray-600">
-              No sections available. Please contact your administrator.
+              {t('noSections')}
             </p>
           </div>
         )}

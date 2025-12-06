@@ -250,6 +250,30 @@
     "alreadyHaveAccount": "¿Ya tienes una cuenta?",
     "loginHere": "Inicia sesión aquí"
   },
+  "workspaceAccess": {
+    "invalidLink": "Enlace de acceso inválido",
+    "verifyError": "Error al verificar acceso",
+    "accessDenied": "Acceso Denegado",
+    "contactAdmin": "Por favor contacta a tu administrador para un nuevo enlace de acceso.",
+    "clientAccess": "Acceso de Cliente",
+    "welcomeTo": "Bienvenido a {name}",
+    "selectSection": "Selecciona una sección para comenzar",
+    "noSections": "No hay secciones disponibles. Por favor contacta a tu administrador.",
+    "nav": {
+      "dashboard": "Panel",
+      "messages": "Mensajes",
+      "clients": "Clientes",
+      "campaigns": "Campañas",
+      "aiCosts": "Costos de IA"
+    },
+    "desc": {
+      "dashboard": "Ver estadísticas y resumen",
+      "messages": "Ver y responder conversaciones",
+      "clients": "Gestionar tu base de datos de clientes",
+      "campaigns": "Crear y gestionar campañas",
+      "aiCosts": "Ver uso y costos de IA"
+    }
+  },
   "dashboard": {
     "greeting": "¡Hola, {name}!",
     "summary": "Aquí tienes el resumen de tu actividad",

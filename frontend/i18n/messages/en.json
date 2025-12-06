@@ -250,6 +250,30 @@
     "alreadyHaveAccount": "Already have an account?",
     "loginHere": "Login here"
   },
+  "workspaceAccess": {
+    "invalidLink": "Invalid access link",
+    "verifyError": "Failed to verify access",
+    "accessDenied": "Access Denied",
+    "contactAdmin": "Please contact your administrator for a new access link.",
+    "clientAccess": "Client Access",
+    "welcomeTo": "Welcome to {name}",
+    "selectSection": "Select a section to get started",
+    "noSections": "No sections available. Please contact your administrator.",
+    "nav": {
+      "dashboard": "Dashboard",
+      "messages": "Messages",
+      "clients": "Clients",
+      "campaigns": "Campaigns",
+      "aiCosts": "AI Costs"
+    },
+    "desc": {
+      "dashboard": "View statistics and overview",
+      "messages": "View and respond to conversations",
+      "clients": "Manage your customer database",
+      "campaigns": "Create and manage campaigns",
+      "aiCosts": "View AI usage and costs"
+    }
+  },
   "dashboard": {
     "greeting": "Hello, {name}!",
     "summary": "Here's your activity summary",
