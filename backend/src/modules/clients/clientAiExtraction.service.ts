@@ -67,13 +67,44 @@ export async function extractClientDataFromConversation(
     console.log(`🤖 [AI-EXTRACT] Starting extraction for conversation ${conversationId}`)
 
     // Get workspace's AI configuration from chatbot_configs
-    const { data: chatbotConfig, error: configError } = await supabaseAdmin
+    // First try by workspace_id, then fallback to any config with API key for this workspace's user
+    let chatbotConfig: { provider: string; model: string; api_key_encrypted: string } | null = null
+    
+    // Try to find config by workspace_id
+    const { data: configByWorkspace } = await supabaseAdmin
       .from('chatbot_configs')
-      .select('ai_provider, ai_model, api_key_encrypted')
+      .select('provider, model, api_key_encrypted')
       .eq('workspace_id', workspaceId)
+      .not('api_key_encrypted', 'is', null)
+      .limit(1)
       .single()
+    
+    if (configByWorkspace?.api_key_encrypted) {
+      chatbotConfig = configByWorkspace
+    } else {
+      // Fallback: get any config from this workspace's owner that has an API key
+      const { data: workspace } = await supabaseAdmin
+        .from('workspaces')
+        .select('owner_id')
+        .eq('id', workspaceId)
+        .single()
+      
+      if (workspace?.owner_id) {
+        const { data: configByUser } = await supabaseAdmin
+          .from('chatbot_configs')
+          .select('provider, model, api_key_encrypted')
+          .eq('user_id', workspace.owner_id)
+          .not('api_key_encrypted', 'is', null)
+          .limit(1)
+          .single()
+        
+        if (configByUser?.api_key_encrypted) {
+          chatbotConfig = configByUser
+        }
+      }
+    }
 
-    if (configError || !chatbotConfig?.api_key_encrypted) {
+    if (!chatbotConfig?.api_key_encrypted) {
       console.log(`⚠️ [AI-EXTRACT] No AI config found for workspace ${workspaceId}`)
       return null
     }
@@ -126,8 +157,8 @@ export async function extractClientDataFromConversation(
     // Call AI to extract data
     const extractedData = await callAIForExtraction(
       conversationText,
-      chatbotConfig.ai_provider || 'google',
-      chatbotConfig.ai_model || 'gemini-1.5-flash',
+      chatbotConfig.provider || 'google',
+      chatbotConfig.model || 'gemini-1.5-flash',
       apiKey
     )
 

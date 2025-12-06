@@ -101,10 +101,19 @@ router.post('/whatsapp/:sessionId', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
+    // Get workspace_id from the WhatsApp account
+    const { data: waAccount } = await supabaseAdmin
+      .from('whatsapp_accounts')
+      .select('workspace_id')
+      .eq('session_id', sessionId)
+      .eq('user_id', userId)
+      .single()
+
     // Prepare data for upsert
     const configData: any = {
       user_id: userId,
       session_id: sessionId,
+      workspace_id: waAccount?.workspace_id || null,
       provider: body.provider || 'google',
       model: body.model || 'gemini-2.5-flash',
       bot_name: body.bot_name || 'Asistente',
