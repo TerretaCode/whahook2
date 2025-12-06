@@ -834,7 +834,21 @@
         "autoSync": {
           "title": "🚀 Auto-sync disponible después de conectar",
           "description": "Una vez conectado, obtendrás una URL de webhook única para configurar la sincronización automática de pedidos y productos."
-        }
+        },
+        "webhookSetupTitle": "Auto-sync (Configuración de Webhooks) - {platform}",
+        "createWebhooksTitle": "Crea estos webhooks (uno por evento):",
+        "webhookLabel": "Webhook {number}",
+        "configureWebhooks": "Configurar webhooks",
+        "openStore": "Abrir tienda",
+        "note": "Nota",
+        "webhookFields": {
+          "name": "Nombre",
+          "status": "Estado",
+          "topic": "Evento"
+        },
+        "tip": "Consejo: Empieza solo con \"Pedido creado\" si quieres probar primero.",
+        "completeSetupBtn": "Completar Configuración y Sincronizar",
+        "initialSyncNote": "Esto hará una sincronización inicial. Después, los nuevos pedidos y productos se sincronizarán automáticamente."
       },
       "webhooks": {
         "title": "Webhooks",

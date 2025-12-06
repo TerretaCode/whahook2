@@ -834,7 +834,21 @@
         "autoSync": {
           "title": "🚀 Auto-sync available after connecting",
           "description": "Once connected, you'll get a unique webhook URL to set up automatic sync for orders and products."
-        }
+        },
+        "webhookSetupTitle": "Auto-sync (Webhook Setup) - {platform}",
+        "createWebhooksTitle": "Create these webhooks (one per event):",
+        "webhookLabel": "Webhook {number}",
+        "configureWebhooks": "Configure webhooks",
+        "openStore": "Open store",
+        "note": "Note",
+        "webhookFields": {
+          "name": "Name",
+          "status": "Status",
+          "topic": "Topic"
+        },
+        "tip": "Tip: Start with just \"Order created\" if you want to test first.",
+        "completeSetupBtn": "Complete Setup & Sync Now",
+        "initialSyncNote": "This will do an initial sync. After that, new orders and products will sync automatically."
       },
       "webhooks": {
         "title": "Webhooks",

@@ -722,13 +722,13 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                         disabled={syncing === connection.id}
                       >
                         <RefreshCw className={`h-4 w-4 mr-2 ${syncing === connection.id ? 'animate-spin' : ''}`} />
-                        {syncing === connection.id ? 'Syncing...' : 'Sync'}
+                        {syncing === connection.id ? t('syncing') : t('sync')}
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => setExpandedConnection(isExpanded ? null : connection.id)}
-                        title="Configure webhooks"
+                        title={t('configureWebhooks')}
                       >
                         <Bell className="h-4 w-4 mr-1" />
                         {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -737,7 +737,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                         size="sm"
                         variant="outline"
                         onClick={() => window.open(connection.store_url, '_blank')}
-                        title="Open store"
+                        title={t('openStore')}
                       >
                         <ExternalLink className="h-4 w-4" />
                       </Button>
@@ -745,7 +745,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                         size="sm"
                         variant="ghost"
                         onClick={() => handleDelete(connection.id, connection.name)}
-                        title="Disconnect"
+                        title={t('disconnect')}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -759,7 +759,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                   <div className="border-t bg-gray-50 p-4 space-y-4">
                     <div className="flex items-center gap-2 text-lg font-medium text-gray-900">
                       <Webhook className="w-5 h-5 text-green-600" />
-                      Auto-sync (Webhook Setup) - {config.name}
+                      {t('webhookSetupTitle', { platform: config.name })}
                     </div>
                     
                     <div className="p-4 bg-green-50 border border-green-200 rounded-lg space-y-4">
@@ -767,7 +767,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                       {config.webhookNote && (
                         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                           <p className="text-sm text-yellow-800">
-                            <strong>⚠️ Note:</strong> {config.webhookNote}
+                            <strong>⚠️ {t('note')}:</strong> {config.webhookNote}
                           </p>
                         </div>
                       )}
@@ -784,7 +784,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                             onClick={() => window.open(getWebhookSettingsUrl(connection.store_url, connection.platform), '_blank')}
                           >
                             <ExternalLink className="h-4 w-4 mr-2" />
-                            Open {config.name} Webhook Settings
+                            {t('openWebhookSettingsBtn', { platform: config.name })}
                           </Button>
                         </div>
                       </div>
@@ -793,14 +793,14 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                       <div className="flex items-start gap-3">
                         <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center flex-shrink-0">2</span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-green-900 mb-3">Create these webhooks (one per event):</p>
+                          <p className="text-sm font-medium text-green-900 mb-3">{t('createWebhooksTitle')}</p>
                           
                           <div className="space-y-3">
                             {config.webhookTopics.map((topic, idx) => (
                               <div key={idx} className="bg-white border border-green-200 rounded-lg p-3">
                                 <div className="flex items-center gap-2 mb-2 pb-2 border-b border-green-100">
                                   <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded">
-                                    Webhook {idx + 1}
+                                    {t('webhookLabel', { number: idx + 1 })}
                                   </span>
                                   <span className="text-sm font-medium text-gray-900">{topic.description}</span>
                                 </div>
@@ -808,19 +808,19 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                                 <div className="space-y-2 text-sm">
                                   {/* Name */}
                                   <div className="flex items-center gap-2">
-                                    <span className="w-28 text-green-700 font-medium">Name:</span>
+                                    <span className="w-28 text-green-700 font-medium">{t('webhookFields.name')}:</span>
                                     <span className="text-gray-700">{topic.topic}</span>
                                   </div>
                                   
                                   {/* Status */}
                                   <div className="flex items-center gap-2">
-                                    <span className="w-28 text-green-700 font-medium">Status:</span>
-                                    <code className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">Active</code>
+                                    <span className="w-28 text-green-700 font-medium">{t('webhookFields.status')}:</span>
+                                    <code className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">{t('statusActive')}</code>
                                   </div>
                                   
                                   {/* Topic */}
                                   <div className="flex items-center gap-2">
-                                    <span className="w-28 text-green-700 font-medium">Topic:</span>
+                                    <span className="w-28 text-green-700 font-medium">{t('webhookFields.topic')}:</span>
                                     <code className="bg-green-100 px-2 py-0.5 rounded text-xs">{topic.topic}</code>
                                   </div>
                                   
@@ -859,7 +859,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                           </div>
                           
                           <p className="text-xs text-green-600 mt-2 italic">
-                            Tip: Start with just "Order created" if you want to test first.
+                            {t('tip')}
                           </p>
                         </div>
                       </div>
@@ -868,17 +868,17 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                       <div className="flex items-start gap-3">
                         <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center flex-shrink-0">3</span>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-green-900">Save webhooks in your store, then click below:</p>
+                          <p className="text-sm font-medium text-green-900">{t('saveWebhooks')}</p>
                           <Button
                             size="sm"
                             className="mt-2 bg-green-600 hover:bg-green-700 text-white"
                             onClick={() => handleSync(connection.id)}
                           >
                             <Check className="h-4 w-4 mr-2" />
-                            Complete Setup & Sync Now
+                            {t('completeSetupBtn')}
                           </Button>
                           <p className="text-xs text-green-600 mt-2">
-                            This will do an initial sync. After that, new orders and products will sync automatically.
+                            {t('initialSyncNote')}
                           </p>
                         </div>
                       </div>
