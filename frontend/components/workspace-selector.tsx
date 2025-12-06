@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useTranslations } from 'next-intl'
 import { ApiClient } from "@/lib/api-client"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -38,6 +39,7 @@ export function WorkspaceSelector({
   showCreateButton = true,
   className = ""
 }: WorkspaceSelectorProps) {
+  const t = useTranslations('components.workspaceSelector')
   const router = useRouter()
   const searchParams = useSearchParams()
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
@@ -115,7 +117,7 @@ export function WorkspaceSelector({
     return (
       <div className={`flex items-center gap-2 ${className}`}>
         <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-        <span className="text-sm text-gray-500">Loading workspaces...</span>
+        <span className="text-sm text-gray-500">{t('loading')}</span>
       </div>
     )
   }
@@ -126,14 +128,14 @@ export function WorkspaceSelector({
         <div className="flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-green-800">No workspaces found</p>
+            <p className="text-sm font-medium text-green-800">{t('noWorkspaces')}</p>
             <p className="text-sm text-green-700 mt-1">
-              Create a workspace first to configure connections and chatbots.
+              {t('noWorkspacesDesc')}
             </p>
             <Link href="/settings/workspaces">
               <Button size="sm" className="mt-3 bg-green-600 hover:bg-green-700 text-white">
                 <Plus className="w-4 h-4 mr-2" />
-                Create Workspace
+                {t('createWorkspace')}
               </Button>
             </Link>
           </div>
@@ -163,11 +165,11 @@ export function WorkspaceSelector({
     <div className={`flex items-center gap-3 ${className}`}>
       <div className="flex items-center gap-2 text-sm text-gray-600">
         <Building2 className="w-4 h-4" />
-        <span>Workspace:</span>
+        <span>{t('workspace')}:</span>
       </div>
       <Select value={selectedId || undefined} onValueChange={handleChange}>
         <SelectTrigger className="w-[250px]">
-          <SelectValue placeholder="Select workspace" />
+          <SelectValue placeholder={t('selectWorkspace')} />
         </SelectTrigger>
         <SelectContent>
           {workspaces.map((workspace) => (

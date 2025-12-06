@@ -1,4 +1,14 @@
 {
+  "components": {
+    "workspaceSelector": {
+      "loading": "Cargando workspaces...",
+      "noWorkspaces": "No se encontraron workspaces",
+      "noWorkspacesDesc": "Crea un workspace primero para configurar conexiones y chatbots.",
+      "createWorkspace": "Crear Workspace",
+      "workspace": "Workspace",
+      "selectWorkspace": "Seleccionar workspace"
+    }
+  },
   "common": {
     "loading": "Cargando...",
     "save": "Guardar",
