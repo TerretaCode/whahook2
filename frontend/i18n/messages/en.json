@@ -1342,6 +1342,8 @@
     "billedAnnually": "Billed annually (€{total}/year)",
     "currentPlan": "Current Plan",
     "processing": "Processing...",
+    "changePlan": "Change Plan",
+    "subscribe": "Subscribe",
     "viewFullDetails": "View Full Pricing Details",
     "plans": {
       "starter": {

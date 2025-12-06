@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Button } from "@/components/ui/button"
 import { CheckCircle, Loader2 } from "lucide-react"
 import { PLANS, BillingToggle, type PlanData } from "@/components/pricing-card"
@@ -21,6 +22,7 @@ export function BillingPricingCard({
   isProcessing,
   currentPlanId,
 }: BillingPricingCardProps) {
+  const t = useTranslations('pricing')
   const price = billingPeriod === 'monthly' ? plan.monthlyPrice : Math.round(plan.yearlyPrice / 12)
   const yearlyTotal = billingPeriod === 'yearly' ? plan.yearlyPrice : undefined
 
@@ -40,10 +42,10 @@ export function BillingPricingCard({
       </p>
       <div className="mb-6">
         <span className="text-5xl font-bold">€{price}</span>
-        <span className={`text-xl ${plan.highlighted ? 'text-green-100' : 'text-gray-600'}`}>/month</span>
+        <span className={`text-xl ${plan.highlighted ? 'text-green-100' : 'text-gray-600'}`}>/{t('month')}</span>
         {yearlyTotal && (
           <p className={`text-sm mt-1 ${plan.highlighted ? 'text-green-200' : 'text-gray-500'}`}>
-            Billed annually (€{yearlyTotal}/year)
+            {t('billedAnnually', { total: yearlyTotal })}
           </p>
         )}
       </div>
@@ -61,7 +63,7 @@ export function BillingPricingCard({
           className={`w-full py-6 text-lg ${plan.highlighted ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-gray-100 text-gray-500'}`}
           disabled
         >
-          Current Plan
+          {t('currentPlan')}
         </Button>
       ) : (
         <Button 
@@ -76,10 +78,10 @@ export function BillingPricingCard({
           {isProcessing ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Processing...
+              {t('processing')}
             </>
           ) : (
-            currentPlanId && currentPlanId !== 'trial' ? 'Change Plan' : 'Subscribe'
+            currentPlanId && currentPlanId !== 'trial' ? t('changePlan') : t('subscribe')
           )}
         </Button>
       )}
