@@ -283,7 +283,15 @@
       "company": "Company",
       "status": "Status",
       "lastContact": "Last Contact",
-      "actions": "Actions"
+      "actions": "Actions",
+      "summary": "Summary",
+      "satisfaction": "Satisfaction",
+      "messages": "Messages",
+      "noClients": "No clients yet",
+      "noClientsDesc": "Start by adding your first client",
+      "webVisitor": "Web visitor",
+      "noSummary": "No summary",
+      "extractAI": "Extract info with AI"
     },
     "status": {
       "customer": "Customer",
@@ -294,6 +302,32 @@
     "empty": {
       "title": "No clients yet",
       "subtitle": "Add your first client to get started"
+    },
+    "modal": {
+      "editTitle": "Edit Client",
+      "newTitle": "New Client",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
+      "status": "Status",
+      "statusLead": "Lead",
+      "statusProspect": "Prospect",
+      "statusCustomer": "Customer",
+      "statusInactive": "Inactive",
+      "interestType": "Interest Type",
+      "interestNone": "Not specified",
+      "interestProduct": "Product",
+      "interestService": "Service",
+      "interestSupport": "Support",
+      "interestInfo": "Information",
+      "interestComplaint": "Complaint",
+      "interestOther": "Other",
+      "notes": "Notes",
+      "notesPlaceholder": "Additional information about the client...",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "createClient": "Create Client"
     }
   },
   "settings": {

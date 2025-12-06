@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, memo } from "react"
+import { useTranslations } from 'next-intl'
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +17,7 @@ interface ClientModalProps {
 }
 
 function ClientModalComponent({ isOpen, onClose, onSave, client }: ClientModalProps) {
+  const t = useTranslations('clients.modal')
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -63,7 +65,7 @@ function ClientModalComponent({ isOpen, onClose, onSave, client }: ClientModalPr
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
-            {client ? 'Editar Cliente' : 'Nuevo Cliente'}
+            {client ? t('editTitle') : t('newTitle')}
           </h2>
           <button
             onClick={onClose}
@@ -77,7 +79,7 @@ function ClientModalComponent({ isOpen, onClose, onSave, client }: ClientModalPr
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Name */}
           <div>
-            <Label htmlFor="full_name">Nombre</Label>
+            <Label htmlFor="full_name">{t('name')}</Label>
             <Input
               id="full_name"
               type="text"
@@ -91,7 +93,7 @@ function ClientModalComponent({ isOpen, onClose, onSave, client }: ClientModalPr
           {/* Email & Phone */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -102,7 +104,7 @@ function ClientModalComponent({ isOpen, onClose, onSave, client }: ClientModalPr
               />
             </div>
             <div>
-              <Label htmlFor="phone">Teléfono</Label>
+              <Label htmlFor="phone">{t('phone')}</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -117,7 +119,7 @@ function ClientModalComponent({ isOpen, onClose, onSave, client }: ClientModalPr
 
           {/* Company */}
           <div>
-            <Label htmlFor="company">Empresa</Label>
+            <Label htmlFor="company">{t('company')}</Label>
             <Input
               id="company"
               type="text"
@@ -131,46 +133,46 @@ function ClientModalComponent({ isOpen, onClose, onSave, client }: ClientModalPr
           {/* Status & Interest */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="status">Estado</Label>
+              <Label htmlFor="status">{t('status')}</Label>
               <select
                 id="status"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as Client['status'] })}
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               >
-                <option value="lead">Lead</option>
-                <option value="prospect">Prospecto</option>
-                <option value="customer">Cliente</option>
-                <option value="inactive">Inactivo</option>
+                <option value="lead">{t('statusLead')}</option>
+                <option value="prospect">{t('statusProspect')}</option>
+                <option value="customer">{t('statusCustomer')}</option>
+                <option value="inactive">{t('statusInactive')}</option>
               </select>
             </div>
             <div>
-              <Label htmlFor="interest_type">Tipo de Interés</Label>
+              <Label htmlFor="interest_type">{t('interestType')}</Label>
               <select
                 id="interest_type"
                 value={formData.interest_type}
                 onChange={(e) => setFormData({ ...formData, interest_type: e.target.value })}
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               >
-                <option value="">Sin especificar</option>
-                <option value="product">Producto</option>
-                <option value="service">Servicio</option>
-                <option value="support">Soporte</option>
-                <option value="information">Información</option>
-                <option value="complaint">Queja</option>
-                <option value="other">Otro</option>
+                <option value="">{t('interestNone')}</option>
+                <option value="product">{t('interestProduct')}</option>
+                <option value="service">{t('interestService')}</option>
+                <option value="support">{t('interestSupport')}</option>
+                <option value="information">{t('interestInfo')}</option>
+                <option value="complaint">{t('interestComplaint')}</option>
+                <option value="other">{t('interestOther')}</option>
               </select>
             </div>
           </div>
 
           {/* Notes */}
           <div>
-            <Label htmlFor="notes">Notas</Label>
+            <Label htmlFor="notes">{t('notes')}</Label>
             <Textarea
               id="notes"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Información adicional sobre el cliente..."
+              placeholder={t('notesPlaceholder')}
               rows={4}
               className="mt-1"
             />
@@ -183,13 +185,13 @@ function ClientModalComponent({ isOpen, onClose, onSave, client }: ClientModalPr
               variant="outline"
               onClick={onClose}
             >
-              Cancelar
+              {t('cancel')}
             </Button>
             <Button
               type="submit"
               className="bg-green-600 hover:bg-green-700 text-white"
             >
-              {client ? 'Guardar Cambios' : 'Crear Cliente'}
+              {client ? t('saveChanges') : t('createClient')}
             </Button>
           </div>
         </form>

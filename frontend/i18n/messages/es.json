@@ -283,7 +283,15 @@
       "company": "Empresa",
       "status": "Estado",
       "lastContact": "Último contacto",
-      "actions": "Acciones"
+      "actions": "Acciones",
+      "summary": "Resumen",
+      "satisfaction": "Satisfacción",
+      "messages": "Mensajes",
+      "noClients": "Sin clientes",
+      "noClientsDesc": "Empieza añadiendo tu primer cliente",
+      "webVisitor": "Visitante web",
+      "noSummary": "Sin resumen",
+      "extractAI": "Extraer info con IA"
     },
     "status": {
       "customer": "Cliente",
@@ -294,6 +302,32 @@
     "empty": {
       "title": "Sin clientes",
       "subtitle": "Añade tu primer cliente para comenzar"
+    },
+    "modal": {
+      "editTitle": "Editar Cliente",
+      "newTitle": "Nuevo Cliente",
+      "name": "Nombre",
+      "email": "Email",
+      "phone": "Teléfono",
+      "company": "Empresa",
+      "status": "Estado",
+      "statusLead": "Lead",
+      "statusProspect": "Prospecto",
+      "statusCustomer": "Cliente",
+      "statusInactive": "Inactivo",
+      "interestType": "Tipo de Interés",
+      "interestNone": "Sin especificar",
+      "interestProduct": "Producto",
+      "interestService": "Servicio",
+      "interestSupport": "Soporte",
+      "interestInfo": "Información",
+      "interestComplaint": "Queja",
+      "interestOther": "Otro",
+      "notes": "Notas",
+      "notesPlaceholder": "Información adicional sobre el cliente...",
+      "cancel": "Cancelar",
+      "saveChanges": "Guardar Cambios",
+      "createClient": "Crear Cliente"
     }
   },
   "settings": {

@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Edit, Trash2, Mail, Phone, Building2, Users, Sparkles, Loader2, MessageSquare, Smile, Meh, Frown, Globe, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -49,6 +50,7 @@ const INTEREST_LABELS: Record<string, string> = {
 }
 
 function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtractInfo }: ClientsTableProps) {
+  const t = useTranslations('clients.table')
   const router = useRouter()
   const [extractingId, setExtractingId] = useState<string | null>(null)
 
@@ -121,10 +123,10 @@ function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtract
             <Users className="w-8 h-8 text-gray-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No clients yet
+            {t('noClients')}
           </h3>
           <p className="text-gray-600 mb-4">
-            Start by adding your first client
+            {t('noClientsDesc')}
           </p>
         </div>
       </div>
@@ -139,28 +141,28 @@ function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtract
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
+                {t('name')}
               </th>
               <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Phone
+                {t('phone')}
               </th>
               <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
+                {t('email')}
               </th>
               <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Summary
+                {t('summary')}
               </th>
               <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+                {t('status')}
               </th>
               <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Satisfaction
+                {t('satisfaction')}
               </th>
               <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Messages
+                {t('messages')}
               </th>
               <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
+                {t('actions')}
               </th>
             </tr>
           </thead>
@@ -200,7 +202,7 @@ function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtract
                       {client.phone}
                     </button>
                   ) : client.source === 'web' && client.visitor_id ? (
-                    <span className="text-xs text-gray-400">Web visitor</span>
+                    <span className="text-xs text-gray-400">{t('webVisitor')}</span>
                   ) : (
                     <span className="text-gray-400">-</span>
                   )}
@@ -227,7 +229,7 @@ function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtract
                       {client.interest_details}
                     </p>
                   ) : (
-                    <span className="text-gray-400 text-sm">No summary</span>
+                    <span className="text-gray-400 text-sm">{t('noSummary')}</span>
                   )}
                   {client.interest_type && getInterestBadge(client.interest_type)}
                 </td>
@@ -255,7 +257,7 @@ function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtract
                       onClick={() => handleExtract(client.id)}
                       disabled={extractingId === client.id}
                       className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                      title="Extract info with AI"
+                      title={t('extractAI')}
                     >
                       {extractingId === client.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -320,7 +322,7 @@ function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtract
             <div className="mt-3 flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <MessageSquare className="w-3 h-3" />
-                {client.total_messages || 0} messages
+                {client.total_messages || 0} {t('messages')}
               </div>
               <div className="flex items-center gap-1">
                 <Button variant="ghost" size="sm" onClick={() => handleExtract(client.id)} disabled={extractingId === client.id}>
