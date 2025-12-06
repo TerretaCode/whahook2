@@ -58,6 +58,12 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(!initialData) // Skip loading if we have initialData
+  
+  // Debug logs
+  console.log('🔧 WhatsAppChatbotConfig rendered')
+  console.log('🔧 workspaceId:', workspaceId)
+  console.log('🔧 user:', user?.id)
+  console.log('🔧 initialData:', initialData ? 'provided' : 'not provided')
   const [showApiKey, setShowApiKey] = useState(false)
   const [sessions, setSessions] = useState<WhatsAppSession[]>([])
   const [ecommerceConnections, setEcommerceConnections] = useState<EcommerceConnection[]>([])
@@ -110,13 +116,18 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
   const [originalData, setOriginalData] = useState<Record<string, any>>({})
 
   useEffect(() => {
+    console.log('🔧 useEffect triggered - user:', !!user, 'workspaceId:', workspaceId, 'initialData:', !!initialData)
     if (user && workspaceId) {
       // If we have initialData, use it instead of fetching
       if (initialData) {
+        console.log('🔧 Using initialData')
         processInitialData()
       } else {
+        console.log('🔧 Calling loadInitialData')
         loadInitialData()
       }
+    } else {
+      console.log('🔧 Skipping load - missing user or workspaceId')
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, workspaceId, initialData])
