@@ -566,6 +566,25 @@
   },
   "settings": {
     "title": "Configuración",
+    "subtitle": "Gestiona tu cuenta",
+    "menu": "Menú de Configuración",
+    "loading": "Cargando configuración...",
+    "nav": {
+      "branding": "Marca",
+      "brandingDesc": "Logo, colores y marca",
+      "workspaces": "Workspaces",
+      "workspacesDesc": "Gestionar workspaces",
+      "connections": "Conexiones",
+      "connectionsDesc": "WhatsApp y Web Widgets",
+      "invitations": "Invitaciones",
+      "invitationsDesc": "Invita a tu equipo",
+      "chatbot": "Chatbot",
+      "chatbotDesc": "IA y Claves API",
+      "billing": "Facturación",
+      "billingDesc": "Plan y pagos",
+      "profile": "Perfil",
+      "profileDesc": "Tu cuenta"
+    },
     "connections": {
       "title": "Conexiones",
       "subtitle": "Configura WhatsApp y Web Widget para tu workspace",

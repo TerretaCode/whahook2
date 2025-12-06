@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -26,66 +27,68 @@ interface SettingsLayoutProps {
 
 // Navigation items with permission requirements
 // allowedRoles: which member roles can see this (undefined = owner only, empty array = everyone)
+// Navigation items - names/descriptions are translation keys
 const settingsNavigation = [
   {
     id: 'branding',
-    name: 'Branding',
+    nameKey: 'nav.branding',
     href: '/settings/branding',
     icon: Palette,
-    description: 'Logo, colores y marca',
-    allowedRoles: [] as string[] // Only owners (Enterprise)
+    descKey: 'nav.brandingDesc',
+    allowedRoles: [] as string[]
   },
   {
     id: 'workspaces',
-    name: 'Workspaces',
+    nameKey: 'nav.workspaces',
     href: '/settings/workspaces',
     icon: Building2,
-    description: 'Manage workspaces & settings',
-    allowedRoles: [] as string[] // Only owners
+    descKey: 'nav.workspacesDesc',
+    allowedRoles: [] as string[]
   },
   {
     id: 'connections',
-    name: 'Connections',
+    nameKey: 'nav.connections',
     href: '/settings/connections',
     icon: Smartphone,
-    description: 'WhatsApp & Web Widgets',
-    allowedRoles: ['admin', 'client'] // Owners, admins, and clients (not agent/viewer)
+    descKey: 'nav.connectionsDesc',
+    allowedRoles: ['admin', 'client']
   },
   {
     id: 'invitations',
-    name: 'Invitaciones',
+    nameKey: 'nav.invitations',
     href: '/settings/invitations',
     icon: Users,
-    description: 'Invita a tu equipo',
-    allowedRoles: ['client'] // Only clients can invite agent/viewer
+    descKey: 'nav.invitationsDesc',
+    allowedRoles: ['client']
   },
   {
     id: 'chatbot',
-    name: 'Chatbot',
+    nameKey: 'nav.chatbot',
     href: '/settings/chatbot',
     icon: Bot,
-    description: 'AI & API Keys',
-    allowedRoles: [] as string[] // Only owners
+    descKey: 'nav.chatbotDesc',
+    allowedRoles: [] as string[]
   },
   {
     id: 'billing',
-    name: 'Billing',
+    nameKey: 'nav.billing',
     href: '/settings/billing',
     icon: CreditCard,
-    description: 'Plan & payments',
-    allowedRoles: [] as string[] // Only owners
+    descKey: 'nav.billingDesc',
+    allowedRoles: [] as string[]
   },
   {
     id: 'profile',
-    name: 'Profile',
+    nameKey: 'nav.profile',
     href: '/settings/profile',
     icon: User,
-    description: 'Your account',
-    allowedRoles: ['admin', 'client', 'agent', 'messages', 'marketing'] // Everyone
+    descKey: 'nav.profileDesc',
+    allowedRoles: ['admin', 'client', 'agent', 'messages', 'marketing']
   }
 ]
 
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
+  const t = useTranslations('settings')
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { isOwner, workspace, isLoading } = useWorkspaceContext()
@@ -121,7 +124,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-500">Cargando configuración...</p>
+          <p className="text-gray-500">{t('loading')}</p>
         </div>
       </div>
     )
@@ -137,8 +140,8 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
             <div className="sticky top-24">
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">Settings</h2>
-                  <p className="text-sm text-gray-500 mt-1">Manage your account</p>
+                  <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
+                  <p className="text-sm text-gray-500 mt-1">{t('subtitle')}</p>
                 </div>
                 <nav className="p-2">
                   {filteredNavigation.map((section) => {
@@ -164,10 +167,10 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
                             "text-sm font-medium",
                             isActive ? "text-green-700" : "text-gray-700"
                           )}>
-                            {section.name}
+                            {t(section.nameKey)}
                           </p>
                           <p className="text-xs text-gray-500 truncate">
-                            {section.description}
+                            {t(section.descKey)}
                           </p>
                         </div>
                         {isActive && (
@@ -190,7 +193,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
             >
               <span className="flex items-center gap-2">
                 <Menu className="w-4 h-4" />
-                Settings Menu
+                {t('menu')}
               </span>
               {mobileMenuOpen ? (
                 <X className="w-4 h-4" />
@@ -236,10 +239,10 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
                               "text-sm font-medium",
                               isActive ? "text-green-700" : "text-gray-700"
                             )}>
-                              {section.name}
+                              {t(section.nameKey)}
                             </p>
                             <p className="text-xs text-gray-500">
-                              {section.description}
+                              {t(section.descKey)}
                             </p>
                           </div>
                           {isActive && (
