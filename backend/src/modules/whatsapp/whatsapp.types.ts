@@ -32,6 +32,7 @@ export interface WhatsAppSession {
 export interface WhatsAppAccount {
   id: string
   user_id: string
+  workspace_id: string | null
   session_id: string
   phone_number: string | null
   status: SessionStatus
