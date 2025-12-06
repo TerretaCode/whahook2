@@ -1,60 +1,64 @@
+'use client'
+
+import { useTranslations } from 'next-intl'
+
 export default function CookiesPage() {
+  const t = useTranslations('cookiesPage')
+  
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
-        <h1 className="text-4xl font-bold mb-4">Cookie Policy</h1>
-        <p className="text-gray-600 mb-8">Last updated: November 24, 2025</p>
+        <h1 className="text-4xl font-bold mb-4">{t('title')}</h1>
+        <p className="text-gray-600 mb-8">{t('lastUpdated')}</p>
 
         <div className="prose prose-lg max-w-none">
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">What Are Cookies</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.what.title')}</h2>
             <p className="text-gray-700 mb-4">
-              Cookies are small text files that are placed on your device when you visit our website. 
-              They help us provide you with a better experience by remembering your preferences and understanding how you use our service.
+              {t('sections.what.content')}
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">How We Use Cookies</h2>
-            <p className="text-gray-700 mb-4">We use cookies for:</p>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.how.title')}</h2>
+            <p className="text-gray-700 mb-4">{t('sections.how.content')}</p>
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
-              <li>Authentication and security</li>
-              <li>Remembering your preferences</li>
-              <li>Analytics and performance monitoring</li>
-              <li>Improving user experience</li>
+              <li>{t('sections.how.items.0')}</li>
+              <li>{t('sections.how.items.1')}</li>
+              <li>{t('sections.how.items.2')}</li>
+              <li>{t('sections.how.items.3')}</li>
             </ul>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Types of Cookies We Use</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.types.title')}</h2>
             <div className="space-y-4">
               <div>
-                <h3 className="text-xl font-semibold mb-2">Essential Cookies</h3>
-                <p className="text-gray-700">Required for the website to function properly. Cannot be disabled.</p>
+                <h3 className="text-xl font-semibold mb-2">{t('sections.types.essential.title')}</h3>
+                <p className="text-gray-700">{t('sections.types.essential.desc')}</p>
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">Analytics Cookies</h3>
-                <p className="text-gray-700">Help us understand how visitors interact with our website.</p>
+                <h3 className="text-xl font-semibold mb-2">{t('sections.types.analytics.title')}</h3>
+                <p className="text-gray-700">{t('sections.types.analytics.desc')}</p>
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">Preference Cookies</h3>
-                <p className="text-gray-700">Remember your settings and preferences.</p>
+                <h3 className="text-xl font-semibold mb-2">{t('sections.types.preference.title')}</h3>
+                <p className="text-gray-700">{t('sections.types.preference.desc')}</p>
               </div>
             </div>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Managing Cookies</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.managing.title')}</h2>
             <p className="text-gray-700 mb-4">
-              You can control and manage cookies through your browser settings. 
-              Please note that removing or blocking cookies may impact your user experience.
+              {t('sections.managing.content')}
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.contact.title')}</h2>
             <p className="text-gray-700">
-              If you have questions about our Cookie Policy, contact us at: privacy@whahook.com
+              {t('sections.contact.content')}
             </p>
           </section>
         </div>

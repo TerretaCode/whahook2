@@ -2196,5 +2196,120 @@
         "address": "Address: [Your Company Address]"
       }
     }
+  },
+  "privacyPage": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: November 24, 2025",
+    "sections": {
+      "collect": {
+        "title": "1. Information We Collect",
+        "content": "We collect information you provide directly to us, including:",
+        "items": [
+          "Account information (name, email, company name)",
+          "WhatsApp conversation data",
+          "Usage data and analytics",
+          "Payment information (processed securely through Stripe)"
+        ]
+      },
+      "use": {
+        "title": "2. How We Use Your Information",
+        "content": "We use the information we collect to:",
+        "items": [
+          "Provide, maintain, and improve our services",
+          "Process your transactions",
+          "Send you technical notices and support messages",
+          "Respond to your comments and questions",
+          "Analyze usage patterns and trends"
+        ]
+      },
+      "security": {
+        "title": "3. Data Security",
+        "content": "We implement appropriate technical and organizational measures to protect your personal data:",
+        "items": [
+          "Encryption in transit and at rest (AES-256)",
+          "Regular security audits",
+          "Access controls and authentication",
+          "Secure data centers"
+        ]
+      },
+      "retention": {
+        "title": "4. Data Retention",
+        "content": "We retain your information for as long as your account is active or as needed to provide you services. You can request deletion of your data at any time."
+      },
+      "rights": {
+        "title": "5. Your Rights",
+        "content": "You have the right to:",
+        "items": [
+          "Access your personal data",
+          "Correct inaccurate data",
+          "Request deletion of your data",
+          "Export your data",
+          "Opt-out of marketing communications"
+        ]
+      },
+      "cookies": {
+        "title": "6. Cookies",
+        "content": "We use cookies and similar tracking technologies to track activity on our service and hold certain information. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent."
+      },
+      "thirdParty": {
+        "title": "7. Third-Party Services",
+        "content": "We use third-party services that may collect information:",
+        "items": [
+          "Supabase (database and authentication)",
+          "Google Gemini (AI processing)",
+          "Stripe (payment processing)",
+          "Vercel (hosting)"
+        ]
+      },
+      "contact": {
+        "title": "8. Contact Us",
+        "content": "If you have any questions about this Privacy Policy, please contact us:",
+        "email": "Email: privacy@whahook.com",
+        "address": "Address: [Your Company Address]"
+      }
+    }
+  },
+  "cookiesPage": {
+    "title": "Cookie Policy",
+    "lastUpdated": "Last updated: November 24, 2025",
+    "sections": {
+      "what": {
+        "title": "What Are Cookies",
+        "content": "Cookies are small text files that are placed on your device when you visit our website. They help us provide you with a better experience by remembering your preferences and understanding how you use our service."
+      },
+      "how": {
+        "title": "How We Use Cookies",
+        "content": "We use cookies for:",
+        "items": [
+          "Authentication and security",
+          "Remembering your preferences",
+          "Analytics and performance monitoring",
+          "Improving user experience"
+        ]
+      },
+      "types": {
+        "title": "Types of Cookies We Use",
+        "essential": {
+          "title": "Essential Cookies",
+          "desc": "Required for the website to function properly. Cannot be disabled."
+        },
+        "analytics": {
+          "title": "Analytics Cookies",
+          "desc": "Help us understand how visitors interact with our website."
+        },
+        "preference": {
+          "title": "Preference Cookies",
+          "desc": "Remember your settings and preferences."
+        }
+      },
+      "managing": {
+        "title": "Managing Cookies",
+        "content": "You can control and manage cookies through your browser settings. Please note that removing or blocking cookies may impact your user experience."
+      },
+      "contact": {
+        "title": "Contact Us",
+        "content": "If you have questions about our Cookie Policy, contact us at: privacy@whahook.com"
+      }
+    }
   }
 }

@@ -1,103 +1,107 @@
+'use client'
+
+import { useTranslations } from 'next-intl'
+
 export default function PrivacyPage() {
+  const t = useTranslations('privacyPage')
+  
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
 
-        <h1 className="text-4xl font-bold mb-4">Privacy Policy</h1>
-        <p className="text-gray-600 mb-8">Last updated: November 24, 2025</p>
+        <h1 className="text-4xl font-bold mb-4">{t('title')}</h1>
+        <p className="text-gray-600 mb-8">{t('lastUpdated')}</p>
 
         <div className="prose prose-lg max-w-none">
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">1. Information We Collect</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.collect.title')}</h2>
             <p className="text-gray-700 mb-4">
-              We collect information you provide directly to us, including:
+              {t('sections.collect.content')}
             </p>
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
-              <li>Account information (name, email, company name)</li>
-              <li>WhatsApp conversation data</li>
-              <li>Usage data and analytics</li>
-              <li>Payment information (processed securely through Stripe)</li>
+              <li>{t('sections.collect.items.0')}</li>
+              <li>{t('sections.collect.items.1')}</li>
+              <li>{t('sections.collect.items.2')}</li>
+              <li>{t('sections.collect.items.3')}</li>
             </ul>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">2. How We Use Your Information</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.use.title')}</h2>
             <p className="text-gray-700 mb-4">
-              We use the information we collect to:
+              {t('sections.use.content')}
             </p>
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
-              <li>Provide, maintain, and improve our services</li>
-              <li>Process your transactions</li>
-              <li>Send you technical notices and support messages</li>
-              <li>Respond to your comments and questions</li>
-              <li>Analyze usage patterns and trends</li>
+              <li>{t('sections.use.items.0')}</li>
+              <li>{t('sections.use.items.1')}</li>
+              <li>{t('sections.use.items.2')}</li>
+              <li>{t('sections.use.items.3')}</li>
+              <li>{t('sections.use.items.4')}</li>
             </ul>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">3. Data Security</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.security.title')}</h2>
             <p className="text-gray-700 mb-4">
-              We implement appropriate technical and organizational measures to protect your personal data:
+              {t('sections.security.content')}
             </p>
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
-              <li>Encryption in transit and at rest (AES-256)</li>
-              <li>Regular security audits</li>
-              <li>Access controls and authentication</li>
-              <li>Secure data centers</li>
+              <li>{t('sections.security.items.0')}</li>
+              <li>{t('sections.security.items.1')}</li>
+              <li>{t('sections.security.items.2')}</li>
+              <li>{t('sections.security.items.3')}</li>
             </ul>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">4. Data Retention</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.retention.title')}</h2>
             <p className="text-gray-700 mb-4">
-              We retain your information for as long as your account is active or as needed to provide you services. 
-              You can request deletion of your data at any time.
+              {t('sections.retention.content')}
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">5. Your Rights</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.rights.title')}</h2>
             <p className="text-gray-700 mb-4">
-              You have the right to:
+              {t('sections.rights.content')}
             </p>
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
-              <li>Access your personal data</li>
-              <li>Correct inaccurate data</li>
-              <li>Request deletion of your data</li>
-              <li>Export your data</li>
-              <li>Opt-out of marketing communications</li>
+              <li>{t('sections.rights.items.0')}</li>
+              <li>{t('sections.rights.items.1')}</li>
+              <li>{t('sections.rights.items.2')}</li>
+              <li>{t('sections.rights.items.3')}</li>
+              <li>{t('sections.rights.items.4')}</li>
             </ul>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">6. Cookies</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.cookies.title')}</h2>
             <p className="text-gray-700 mb-4">
-              We use cookies and similar tracking technologies to track activity on our service and hold certain information. 
-              You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent.
+              {t('sections.cookies.content')}
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">7. Third-Party Services</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.thirdParty.title')}</h2>
             <p className="text-gray-700 mb-4">
-              We use third-party services that may collect information:
+              {t('sections.thirdParty.content')}
             </p>
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
-              <li>Supabase (database and authentication)</li>
-              <li>Google Gemini (AI processing)</li>
-              <li>Stripe (payment processing)</li>
-              <li>Vercel (hosting)</li>
+              <li>{t('sections.thirdParty.items.0')}</li>
+              <li>{t('sections.thirdParty.items.1')}</li>
+              <li>{t('sections.thirdParty.items.2')}</li>
+              <li>{t('sections.thirdParty.items.3')}</li>
             </ul>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">8. Contact Us</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('sections.contact.title')}</h2>
             <p className="text-gray-700 mb-4">
-              If you have any questions about this Privacy Policy, please contact us:
+              {t('sections.contact.content')}
             </p>
             <ul className="list-none text-gray-700 space-y-2">
-              <li>Email: privacy@whahook.com</li>
-              <li>Address: [Your Company Address]</li>
+              <li>{t('sections.contact.email')}</li>
+              <li>{t('sections.contact.address')}</li>
             </ul>
           </section>
         </div>

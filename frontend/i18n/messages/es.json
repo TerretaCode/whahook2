@@ -2199,5 +2199,120 @@
         "address": "Dirección: [Dirección de la Empresa]"
       }
     }
+  },
+  "privacyPage": {
+    "title": "Política de Privacidad",
+    "lastUpdated": "Última actualización: 24 de noviembre de 2025",
+    "sections": {
+      "collect": {
+        "title": "1. Información que Recopilamos",
+        "content": "Recopilamos información que nos proporcionas directamente, incluyendo:",
+        "items": [
+          "Información de cuenta (nombre, email, nombre de empresa)",
+          "Datos de conversaciones de WhatsApp",
+          "Datos de uso y analíticas",
+          "Información de pago (procesada de forma segura a través de Stripe)"
+        ]
+      },
+      "use": {
+        "title": "2. Cómo Usamos tu Información",
+        "content": "Usamos la información que recopilamos para:",
+        "items": [
+          "Proporcionar, mantener y mejorar nuestros servicios",
+          "Procesar tus transacciones",
+          "Enviarte avisos técnicos y mensajes de soporte",
+          "Responder a tus comentarios y preguntas",
+          "Analizar patrones de uso y tendencias"
+        ]
+      },
+      "security": {
+        "title": "3. Seguridad de Datos",
+        "content": "Implementamos medidas técnicas y organizativas apropiadas para proteger tus datos personales:",
+        "items": [
+          "Encriptación en tránsito y en reposo (AES-256)",
+          "Auditorías de seguridad regulares",
+          "Controles de acceso y autenticación",
+          "Centros de datos seguros"
+        ]
+      },
+      "retention": {
+        "title": "4. Retención de Datos",
+        "content": "Retenemos tu información mientras tu cuenta esté activa o según sea necesario para proporcionarte servicios. Puedes solicitar la eliminación de tus datos en cualquier momento."
+      },
+      "rights": {
+        "title": "5. Tus Derechos",
+        "content": "Tienes derecho a:",
+        "items": [
+          "Acceder a tus datos personales",
+          "Corregir datos inexactos",
+          "Solicitar la eliminación de tus datos",
+          "Exportar tus datos",
+          "Darte de baja de comunicaciones de marketing"
+        ]
+      },
+      "cookies": {
+        "title": "6. Cookies",
+        "content": "Usamos cookies y tecnologías de seguimiento similares para rastrear la actividad en nuestro servicio y mantener cierta información. Puedes configurar tu navegador para rechazar todas las cookies o para indicar cuándo se envía una cookie."
+      },
+      "thirdParty": {
+        "title": "7. Servicios de Terceros",
+        "content": "Usamos servicios de terceros que pueden recopilar información:",
+        "items": [
+          "Supabase (base de datos y autenticación)",
+          "Google Gemini (procesamiento de IA)",
+          "Stripe (procesamiento de pagos)",
+          "Vercel (hosting)"
+        ]
+      },
+      "contact": {
+        "title": "8. Contáctanos",
+        "content": "Si tienes alguna pregunta sobre esta Política de Privacidad, contáctanos:",
+        "email": "Email: privacy@whahook.com",
+        "address": "Dirección: [Dirección de la Empresa]"
+      }
+    }
+  },
+  "cookiesPage": {
+    "title": "Política de Cookies",
+    "lastUpdated": "Última actualización: 24 de noviembre de 2025",
+    "sections": {
+      "what": {
+        "title": "Qué Son las Cookies",
+        "content": "Las cookies son pequeños archivos de texto que se colocan en tu dispositivo cuando visitas nuestro sitio web. Nos ayudan a proporcionarte una mejor experiencia recordando tus preferencias y entendiendo cómo usas nuestro servicio."
+      },
+      "how": {
+        "title": "Cómo Usamos las Cookies",
+        "content": "Usamos cookies para:",
+        "items": [
+          "Autenticación y seguridad",
+          "Recordar tus preferencias",
+          "Analíticas y monitoreo de rendimiento",
+          "Mejorar la experiencia del usuario"
+        ]
+      },
+      "types": {
+        "title": "Tipos de Cookies que Usamos",
+        "essential": {
+          "title": "Cookies Esenciales",
+          "desc": "Necesarias para que el sitio web funcione correctamente. No se pueden desactivar."
+        },
+        "analytics": {
+          "title": "Cookies de Analíticas",
+          "desc": "Nos ayudan a entender cómo los visitantes interactúan con nuestro sitio web."
+        },
+        "preference": {
+          "title": "Cookies de Preferencias",
+          "desc": "Recuerdan tu configuración y preferencias."
+        }
+      },
+      "managing": {
+        "title": "Gestión de Cookies",
+        "content": "Puedes controlar y gestionar las cookies a través de la configuración de tu navegador. Ten en cuenta que eliminar o bloquear cookies puede afectar tu experiencia de usuario."
+      },
+      "contact": {
+        "title": "Contáctanos",
+        "content": "Si tienes preguntas sobre nuestra Política de Cookies, contáctanos en: privacy@whahook.com"
+      }
+    }
   }
 }
