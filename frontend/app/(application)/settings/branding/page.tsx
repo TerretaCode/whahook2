@@ -523,16 +523,16 @@ export default function AgencyBrandingPage() {
               className="max-w-md"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Texto que aparece en la pestaña del navegador cuando acceden a tu dominio personalizado.
+              {t('tabTitleHint')}
             </p>
           </div>
         </div>
 
         {/* Colors Section */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Color de marca</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('brandColor')}</h2>
           <div>
-            <Label htmlFor="primary_color" className="mb-2 block">Color principal</Label>
+            <Label htmlFor="primary_color" className="mb-2 block">{t('primaryColor')}</Label>
             <div className="flex gap-3 max-w-md">
               <input
                 type="color"
@@ -549,18 +549,17 @@ export default function AgencyBrandingPage() {
               />
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Este color se aplicará a botones, iconos y elementos de acento en la aplicación.
-              Los textos mantienen colores neutros para garantizar la legibilidad.
+              {t('primaryColorHint')}
             </p>
           </div>
         </div>
 
         {/* Agency Info Section */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Información de la Agencia</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('agencyInfo')}</h2>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="agency_name" className="mb-2 block">Nombre de la agencia</Label>
+              <Label htmlFor="agency_name" className="mb-2 block">{t('agencyName')}</Label>
               <Input
                 id="agency_name"
                 value={branding.agency_name}
@@ -568,7 +567,7 @@ export default function AgencyBrandingPage() {
                 placeholder="Mi Agencia Digital"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Se mostrará en lugar de "Whahook" en los widgets
+                {t('agencyNameHint')}
               </p>
             </div>
           </div>
@@ -576,13 +575,13 @@ export default function AgencyBrandingPage() {
 
         {/* Powered By Section */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Badge "Powered by"</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('poweredByBadge')}</h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Label className="text-base">Mostrar badge "Powered by"</Label>
+                <Label className="text-base">{t('showPoweredBy')}</Label>
                 <p className="text-sm text-gray-500">
-                  Muestra un pequeño badge en la parte inferior del widget
+                  {t('showPoweredByHint')}
                 </p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -598,7 +597,7 @@ export default function AgencyBrandingPage() {
 
             {branding.show_powered_by && (
               <div>
-                <Label htmlFor="powered_by_text" className="mb-2 block">Texto personalizado</Label>
+                <Label htmlFor="powered_by_text" className="mb-2 block">{t('customText')}</Label>
                 <Input
                   id="powered_by_text"
                   value={branding.powered_by_text}
@@ -606,7 +605,7 @@ export default function AgencyBrandingPage() {
                   placeholder="Powered by Mi Agencia"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Deja vacío para ocultar completamente el badge
+                  {t('customTextHint')}
                 </p>
               </div>
             )}
@@ -617,12 +616,11 @@ export default function AgencyBrandingPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
             <Globe className="w-5 h-5 text-green-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Dominio Personalizado</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('customDomain')}</h2>
           </div>
           
           <p className="text-sm text-gray-600 mb-4">
-            Usa tu propio dominio para que tus clientes accedan al panel sin ver "whahook" en la URL.
-            Por ejemplo: <code className="bg-gray-100 px-1 rounded">panel.tuagencia.com</code>
+            {t('customDomainDesc')}
           </p>
 
           {customDomain ? (
@@ -639,7 +637,7 @@ export default function AgencyBrandingPage() {
                     <div>
                       <p className="font-medium text-gray-900">{customDomain}</p>
                       <p className={`text-sm ${domainVerified ? 'text-green-600' : 'text-green-600'}`}>
-                        {domainVerified ? 'Dominio activo y verificado' : 'Pendiente de verificación DNS'}
+                        {domainVerified ? t('domainActiveVerified') : t('pendingDnsVerification')}
                       </p>
                     </div>
                   </div>
@@ -658,9 +656,9 @@ export default function AgencyBrandingPage() {
               {/* DNS Instructions (if not verified) */}
               {!domainVerified && (
                 <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                  <h3 className="font-medium text-gray-900">Configura tu DNS</h3>
+                  <h3 className="font-medium text-gray-900">{t('configureDns')}</h3>
                   <p className="text-sm text-gray-600">
-                    Añade este registro CNAME en tu proveedor de DNS (GoDaddy, Cloudflare, etc.):
+                    {t('addCnameRecord')}
                   </p>
                   <div className="bg-white rounded border p-3 font-mono text-sm">
                     <div className="flex items-center justify-between">
@@ -686,7 +684,7 @@ export default function AgencyBrandingPage() {
                     </div>
                   </div>
                   <p className="text-xs text-gray-500">
-                    La propagación DNS puede tardar hasta 48 horas, aunque normalmente es más rápido.
+                    {t('dnsPropagation')}
                   </p>
                   <Button
                     onClick={handleVerifyDomain}
@@ -696,12 +694,12 @@ export default function AgencyBrandingPage() {
                     {isVerifyingDomain ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Verificando...
+                        {t('verifying')}
                       </>
                     ) : (
                       <>
                         <RefreshCw className="w-4 h-4 mr-2" />
-                        Verificar DNS
+                        {t('verifyDns')}
                       </>
                     )}
                   </Button>
@@ -711,7 +709,7 @@ export default function AgencyBrandingPage() {
           ) : (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="custom_domain" className="mb-2 block">Tu dominio</Label>
+                <Label htmlFor="custom_domain" className="mb-2 block">{t('yourDomain')}</Label>
                 <div className="flex gap-2">
                   <Input
                     id="custom_domain"
@@ -725,11 +723,11 @@ export default function AgencyBrandingPage() {
                     disabled={isSavingDomain || !domainInput.trim()}
                     className="bg-green-600 hover:bg-green-700 text-white"
                   >
-                    {isSavingDomain ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Configurar'}
+                    {isSavingDomain ? <Loader2 className="w-4 h-4 animate-spin" /> : t('configure')}
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  Introduce el subdominio completo que quieres usar (ej: panel.tuagencia.com)
+                  {t('enterSubdomain')}
                 </p>
               </div>
             </div>
@@ -741,7 +739,7 @@ export default function AgencyBrandingPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Mail className="w-5 h-5 text-green-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Servidor de Email (SMTP)</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t('smtpServer')}</h2>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -755,8 +753,7 @@ export default function AgencyBrandingPage() {
           </div>
           
           <p className="text-sm text-gray-600 mb-4">
-            Configura tu propio servidor SMTP para que los emails de notificación se envíen desde tu dominio.
-            Esto incluye invitaciones, alertas de conexión/desconexión de WhatsApp, etc.
+            {t('smtpDesc')}
           </p>
 
           {smtpConfig.enabled && (
@@ -765,7 +762,7 @@ export default function AgencyBrandingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="smtp_host" className="mb-2 block">
-                    Servidor SMTP <span className="text-red-500">*</span>
+                    {t('smtpHost')} <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="smtp_host"
@@ -776,7 +773,7 @@ export default function AgencyBrandingPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label htmlFor="smtp_port" className="mb-2 block">Puerto</Label>
+                    <Label htmlFor="smtp_port" className="mb-2 block">{t('port')}</Label>
                     <Input
                       id="smtp_port"
                       type="number"
@@ -807,7 +804,7 @@ export default function AgencyBrandingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="smtp_user" className="mb-2 block">
-                    Usuario SMTP <span className="text-red-500">*</span>
+                    {t('smtpUser')} <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="smtp_user"
@@ -818,7 +815,7 @@ export default function AgencyBrandingPage() {
                 </div>
                 <div>
                   <Label htmlFor="smtp_pass" className="mb-2 block">
-                    Contraseña SMTP
+                    {t('smtpPassword')}
                   </Label>
                   <div className="relative">
                     <Input
@@ -838,7 +835,7 @@ export default function AgencyBrandingPage() {
                     </button>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Deja vacío para mantener la contraseña actual
+                    {t('leaveEmptyPassword')}
                   </p>
                 </div>
               </div>
@@ -847,7 +844,7 @@ export default function AgencyBrandingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="smtp_from_email" className="mb-2 block">
-                    Email remitente <span className="text-red-500">*</span>
+                    {t('fromEmail')} <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="smtp_from_email"
@@ -859,7 +856,7 @@ export default function AgencyBrandingPage() {
                 </div>
                 <div>
                   <Label htmlFor="smtp_from_name" className="mb-2 block">
-                    Nombre remitente
+                    {t('fromName')}
                   </Label>
                   <Input
                     id="smtp_from_name"
@@ -883,7 +880,7 @@ export default function AgencyBrandingPage() {
                   className="max-w-md"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Email al que responderán los usuarios cuando contesten a tus notificaciones
+                  {t('replyToHint')}
                 </p>
               </div>
 
@@ -897,12 +894,12 @@ export default function AgencyBrandingPage() {
                   {isSavingSmtp ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Guardando...
+                      {t('saving')}
                     </>
                   ) : (
                     <>
                       <Save className="w-4 h-4 mr-2" />
-                      Guardar SMTP
+                      {t('saveSmtp')}
                     </>
                   )}
                 </Button>
@@ -914,12 +911,12 @@ export default function AgencyBrandingPage() {
                   {isTestingSmtp ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Enviando...
+                      {t('sending')}
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      Enviar email de prueba
+                      {t('sendTestEmail')}
                     </>
                   )}
                 </Button>
@@ -930,7 +927,7 @@ export default function AgencyBrandingPage() {
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-5 h-5 text-green-600 mt-0.5" />
                   <div className="text-sm text-green-800">
-                    <p className="font-medium mb-1">Proveedores SMTP populares:</p>
+                    <p className="font-medium mb-1">{t('popularSmtpProviders')}:</p>
                     <ul className="space-y-1 text-green-700">
                       <li>• <strong>Gmail:</strong> smtp.gmail.com, puerto 587 (requiere contraseña de aplicación)</li>
                       <li>• <strong>Outlook:</strong> smtp.office365.com, puerto 587</li>
@@ -946,7 +943,7 @@ export default function AgencyBrandingPage() {
           {!smtpConfig.enabled && (
             <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
               <Mail className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p>Los emails se enviarán desde el servidor de Whahook</p>
+              <p>{t('emailsFromWhahook')}</p>
             </div>
           )}
         </div>
@@ -958,11 +955,11 @@ export default function AgencyBrandingPage() {
         <div className="flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-green-600 mt-0.5" />
           <div>
-            <h3 className="font-medium text-green-900 mb-1">Sobre el branding</h3>
+            <h3 className="font-medium text-green-900 mb-1">{t('aboutBranding')}</h3>
             <ul className="text-sm text-green-800 space-y-1">
-              <li>• Este branding se aplica a todos tus workspaces por defecto</li>
-              <li>• Puedes personalizar el branding de cada workspace individualmente</li>
-              <li>• Si un workspace no tiene branding propio, usará este branding de agencia</li>
+              <li>• {t('brandingAppliesAll')}</li>
+              <li>• {t('brandingCustomizeEach')}</li>
+              <li>• {t('brandingFallback')}</li>
             </ul>
           </div>
         </div>
