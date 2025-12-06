@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from 'next-intl'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { AuthCard } from "../components/AuthCard"
@@ -11,6 +12,7 @@ import { ApiClient } from "@/lib/api-client"
 import { useAuth } from "@/contexts/AuthContext"
 
 function ChangePasswordContent() {
+  const t = useTranslations('auth.changePassword')
   const router = useRouter()
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
@@ -64,25 +66,25 @@ function ChangePasswordContent() {
     const newErrors: Record<string, string> = {}
 
     if (requiresCurrentPassword && !formData.currentPassword) {
-      newErrors.currentPassword = "Current password is required"
+      newErrors.currentPassword = t('currentRequired')
     }
 
     if (!formData.newPassword) {
-      newErrors.newPassword = "New password is required"
+      newErrors.newPassword = t('newRequired')
     } else if (formData.newPassword.length < 8) {
-      newErrors.newPassword = "Password must be at least 8 characters"
+      newErrors.newPassword = t('minLength')
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(formData.newPassword)) {
-      newErrors.newPassword = "Password must contain uppercase, lowercase, and number"
+      newErrors.newPassword = t('requirements')
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password"
+      newErrors.confirmPassword = t('confirmRequired')
     } else if (formData.newPassword !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match"
+      newErrors.confirmPassword = t('mismatch')
     }
 
     if (formData.currentPassword && formData.currentPassword === formData.newPassword) {
-      newErrors.newPassword = "New password must be different from current password"
+      newErrors.newPassword = t('mustBeDifferent')
     }
 
     setErrors(newErrors)
@@ -102,7 +104,7 @@ function ChangePasswordContent() {
       if (isPasswordReset) {
         // Check if we have the reset token
         if (!resetToken) {
-          toast.error("Error", "Reset token not found. Please request a new password reset link.")
+          toast.error(t('error'), t('tokenNotFound'))
           return
         }
 
@@ -118,11 +120,11 @@ function ChangePasswordContent() {
         })
 
         if (!response.success) {
-          toast.error("Error", response.error || "Failed to reset password")
+          toast.error(t('error'), response.error || t('resetFailed'))
           return
         }
 
-        toast.success("Success!", "Password reset successfully. Please log in.")
+        toast.success(t('success'), t('resetSuccess'))
         
         // Redirect to login
         setTimeout(() => {
@@ -138,11 +140,11 @@ function ChangePasswordContent() {
         })
 
         if (!response.success) {
-          toast.error("Error", response.error || "Failed to change password")
+          toast.error(t('error'), response.error || t('changeFailed'))
           return
         }
 
-        toast.success("Success!", "Password changed successfully")
+        toast.success(t('success'), t('changeSuccess'))
         
         // Redirect to dashboard
         setTimeout(() => {
@@ -151,7 +153,7 @@ function ChangePasswordContent() {
       }
 
     } catch {
-      toast.error("Error", "Something went wrong. Please try again.")
+      toast.error(t('error'), t('somethingWrong'))
     } finally {
       setIsLoading(false)
     }
@@ -172,15 +174,15 @@ function ChangePasswordContent() {
   }
 
   const getStrengthText = () => {
-    if (passwordStrength <= 1) return 'Weak'
-    if (passwordStrength <= 3) return 'Medium'
-    return 'Strong'
+    if (passwordStrength <= 1) return t('strength.weak')
+    if (passwordStrength <= 3) return t('strength.medium')
+    return t('strength.strong')
   }
 
   return (
     <AuthCard
-      title={isPasswordReset ? "Reset Your Password" : isFirstLogin ? "Set Your Password" : "Change Password"}
-      description={isPasswordReset ? "Enter your new password" : isFirstLogin ? "Please set a new password for your account" : "Update your account password"}
+      title={isPasswordReset ? t('titleReset') : isFirstLogin ? t('titleSet') : t('title')}
+      description={isPasswordReset ? t('subtitleReset') : isFirstLogin ? t('subtitleSet') : t('subtitle')}
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* First Login Warning */}
@@ -189,9 +191,9 @@ function ChangePasswordContent() {
             <div className="flex items-start gap-3">
               <Lock className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-yellow-800">
-                <p className="font-medium mb-1">Password Change Required</p>
+                <p className="font-medium mb-1">{t('changeRequired')}</p>
                 <p>
-                  For security reasons, you must change your password before continuing.
+                  {t('securityReason')}
                 </p>
               </div>
             </div>
@@ -202,7 +204,7 @@ function ChangePasswordContent() {
         {requiresCurrentPassword && (
           <div>
             <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
-              Current Password
+              {t('currentPassword')}
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -212,7 +214,7 @@ function ChangePasswordContent() {
                 type={showCurrentPassword ? "text" : "password"}
                 value={formData.currentPassword}
                 onChange={handleChange}
-                placeholder="Enter current password"
+                placeholder={t('enterCurrent')}
                 className={`pl-10 ${errors.currentPassword ? 'border-red-500' : ''}`}
               />
               <button
@@ -232,7 +234,7 @@ function ChangePasswordContent() {
         {/* New Password */}
         <div>
           <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-            New Password
+            {t('newPassword')}
           </label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -242,7 +244,7 @@ function ChangePasswordContent() {
               type={showNewPassword ? "text" : "password"}
               value={formData.newPassword}
               onChange={handleChange}
-              placeholder="Enter new password"
+              placeholder={t('enterNew')}
               className={`pl-10 ${errors.newPassword ? 'border-red-500' : ''}`}
             />
             <button
@@ -261,7 +263,7 @@ function ChangePasswordContent() {
           {formData.newPassword && (
             <div className="mt-2">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-600">Password Strength:</span>
+                <span className="text-xs text-gray-600">{t('passwordStrength')}:</span>
                 <span className={`text-xs font-medium ${
                   passwordStrength <= 1 ? 'text-red-600' : 
                   passwordStrength <= 3 ? 'text-yellow-600' : 
@@ -281,29 +283,29 @@ function ChangePasswordContent() {
 
           {/* Password Requirements */}
           <div className="mt-3 space-y-1">
-            <p className="text-xs text-gray-600">Password must contain:</p>
+            <p className="text-xs text-gray-600">{t('mustContain')}:</p>
             <div className="flex items-center gap-2 text-xs">
               <CheckCircle className={`w-3 h-3 ${formData.newPassword.length >= 8 ? 'text-green-600' : 'text-gray-300'}`} />
               <span className={formData.newPassword.length >= 8 ? 'text-green-600' : 'text-gray-500'}>
-                At least 8 characters
+                {t('req8chars')}
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <CheckCircle className={`w-3 h-3 ${/[A-Z]/.test(formData.newPassword) ? 'text-green-600' : 'text-gray-300'}`} />
               <span className={/[A-Z]/.test(formData.newPassword) ? 'text-green-600' : 'text-gray-500'}>
-                One uppercase letter
+                {t('reqUppercase')}
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <CheckCircle className={`w-3 h-3 ${/[a-z]/.test(formData.newPassword) ? 'text-green-600' : 'text-gray-300'}`} />
               <span className={/[a-z]/.test(formData.newPassword) ? 'text-green-600' : 'text-gray-500'}>
-                One lowercase letter
+                {t('reqLowercase')}
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <CheckCircle className={`w-3 h-3 ${/[0-9]/.test(formData.newPassword) ? 'text-green-600' : 'text-gray-300'}`} />
               <span className={/[0-9]/.test(formData.newPassword) ? 'text-green-600' : 'text-gray-500'}>
-                One number
+                {t('reqNumber')}
               </span>
             </div>
           </div>
@@ -312,7 +314,7 @@ function ChangePasswordContent() {
         {/* Confirm Password */}
         <div>
           <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-            Confirm New Password
+            {t('confirmPassword')}
           </label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -322,7 +324,7 @@ function ChangePasswordContent() {
               type={showConfirmPassword ? "text" : "password"}
               value={formData.confirmPassword}
               onChange={handleChange}
-              placeholder="Confirm new password"
+              placeholder={t('confirmNew')}
               className={`pl-10 ${errors.confirmPassword ? 'border-red-500' : ''}`}
             />
             <button
@@ -347,10 +349,10 @@ function ChangePasswordContent() {
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Changing Password...
+              {t('changing')}
             </>
           ) : (
-            "Change Password"
+            t('changeBtn')
           )}
         </Button>
 
@@ -362,7 +364,7 @@ function ChangePasswordContent() {
             onClick={() => router.push('/dashboard')}
             className="w-full"
           >
-            Cancel
+            {t('cancel')}
           </Button>
         )}
       </form>
