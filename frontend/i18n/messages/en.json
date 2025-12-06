@@ -772,7 +772,69 @@
         "never": "Never",
         "sync": "Sync",
         "syncing": "Syncing...",
-        "disconnect": "Disconnect"
+        "disconnect": "Disconnect",
+        "instructions": {
+          "howToGet": "How to get your {platform} API credentials:",
+          "openSettings": "Open your API settings:",
+          "openSettingsBtn": "Open {platform} API Settings",
+          "clickAddKey": "Click \"Add key\" and fill in:",
+          "woocommerce": {
+            "description": "Description",
+            "descriptionValue": "Whahook Sync",
+            "user": "User",
+            "userValue": "Select an admin user",
+            "permissions": "Permissions"
+          },
+          "shopify": {
+            "createApp": "Click \"Create an app\" → then \"Configure Admin API scopes\"",
+            "appName": "App name",
+            "appNameValue": "Whahook Sync",
+            "apiScopes": "API scopes",
+            "afterSaving": "After saving, click \"Install app\" → then \"Reveal token once\""
+          },
+          "prestashop": {
+            "enableFirst": "First enable Webservice: Configuration → General → Enable",
+            "key": "Key",
+            "keyValue": "(click Generate to create)",
+            "description": "Description",
+            "descriptionValue": "Whahook Sync",
+            "status": "Status",
+            "permissions": "Permissions",
+            "viewGet": "View (GET)"
+          },
+          "magento": {
+            "goTo": "Go to System → Extensions → Integrations → Add New",
+            "name": "Name",
+            "nameValue": "Whahook Sync",
+            "email": "Email",
+            "emailValue": "your@email.com",
+            "apiTab": "API tab",
+            "resourceAccess": "Resource Access",
+            "salesOrders": "Sales → Orders (Read)",
+            "catalogProducts": "Catalog → Products (Read)",
+            "afterSaving": "After saving, click \"Activate\" → copy the Access Token"
+          },
+          "generateCopy": "Click \"Generate API key\" and copy the keys below 👇",
+          "pasteHere": "Paste your credentials here:",
+          "enterUrlFirst": "👆 First enter your store URL above to see the instructions."
+        },
+        "fields": {
+          "consumerKey": "Consumer Key",
+          "consumerKeyHint": "Starts with \"ck_\"",
+          "consumerSecret": "Consumer Secret",
+          "consumerSecretHint": "Starts with \"cs_\"",
+          "shopName": "Shop Name",
+          "shopNameHint": "Just the name, without .myshopify.com",
+          "accessToken": "Access Token",
+          "accessTokenHint": "Starts with \"shpat_\"",
+          "apiKey": "API Key",
+          "apiKeyHint": "The key you generated in Webservice",
+          "magentoTokenHint": "The token from the Integration"
+        },
+        "autoSync": {
+          "title": "🚀 Auto-sync available after connecting",
+          "description": "Once connected, you'll get a unique webhook URL to set up automatic sync for orders and products."
+        }
       },
       "webhooks": {
         "title": "Webhooks",

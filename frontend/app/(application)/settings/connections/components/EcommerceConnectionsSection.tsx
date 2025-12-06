@@ -408,14 +408,14 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                     <Key className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 space-y-3">
                       <p className="text-sm font-medium text-green-900">
-                        How to get your {platformConfig[formData.platform].name} API credentials:
+                        {t('instructions.howToGet', { platform: platformConfig[formData.platform].name })}
                       </p>
                       
                       {/* Step 1: Open settings */}
                       <div className="flex items-start gap-2">
                         <span className="w-5 h-5 rounded-full bg-green-600 text-white text-xs flex items-center justify-center flex-shrink-0">1</span>
                         <div>
-                          <p className="text-sm text-green-800">Open your API settings:</p>
+                          <p className="text-sm text-green-800">{t('instructions.openSettings')}</p>
                           <Button
                             type="button"
                             size="sm"
@@ -424,7 +424,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                             onClick={() => window.open(getApiUrl(formData.store_url, formData.platform), '_blank')}
                           >
                             <ExternalLink className="w-3 h-3 mr-2" />
-                            Open {platformConfig[formData.platform].name} API Settings
+                            {t('instructions.openSettingsBtn', { platform: platformConfig[formData.platform].name })}
                           </Button>
                         </div>
                       </div>
@@ -433,20 +433,20 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                       <div className="flex items-start gap-2">
                         <span className="w-5 h-5 rounded-full bg-green-600 text-white text-xs flex items-center justify-center flex-shrink-0">2</span>
                         <div className="flex-1">
-                          <p className="text-sm text-green-800 mb-2">Click "Add key" and fill in:</p>
+                          <p className="text-sm text-green-800 mb-2">{t('instructions.clickAddKey')}</p>
                           
                           {formData.platform === 'woocommerce' && (
                             <div className="bg-white border border-green-200 rounded-lg p-3 space-y-2 text-sm">
                               <div className="flex items-center gap-2">
-                                <span className="w-24 text-green-700 font-medium">Description:</span>
-                                <span className="text-gray-700">Whahook Sync</span>
+                                <span className="w-24 text-green-700 font-medium">{t('instructions.woocommerce.description')}:</span>
+                                <span className="text-gray-700">{t('instructions.woocommerce.descriptionValue')}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="w-24 text-green-700 font-medium">User:</span>
-                                <span className="text-gray-700">Select an admin user</span>
+                                <span className="w-24 text-green-700 font-medium">{t('instructions.woocommerce.user')}:</span>
+                                <span className="text-gray-700">{t('instructions.woocommerce.userValue')}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="w-24 text-green-700 font-medium">Permissions:</span>
+                                <span className="w-24 text-green-700 font-medium">{t('instructions.woocommerce.permissions')}:</span>
                                 <code className="bg-green-100 px-2 py-0.5 rounded text-xs">Read</code>
                               </div>
                             </div>
@@ -454,43 +454,43 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                           
                           {formData.platform === 'shopify' && (
                             <div className="bg-white border border-green-200 rounded-lg p-3 space-y-2 text-sm">
-                              <p className="text-xs text-green-600 mb-2">Click "Create an app" → then "Configure Admin API scopes"</p>
+                              <p className="text-xs text-green-600 mb-2">{t('instructions.shopify.createApp')}</p>
                               <div className="flex items-center gap-2">
-                                <span className="w-28 text-green-700 font-medium">App name:</span>
-                                <span className="text-gray-700">Whahook Sync</span>
+                                <span className="w-28 text-green-700 font-medium">{t('instructions.shopify.appName')}:</span>
+                                <span className="text-gray-700">{t('instructions.shopify.appNameValue')}</span>
                               </div>
                               <div className="flex items-start gap-2">
-                                <span className="w-28 text-green-700 font-medium flex-shrink-0">API scopes:</span>
+                                <span className="w-28 text-green-700 font-medium flex-shrink-0">{t('instructions.shopify.apiScopes')}:</span>
                                 <div className="text-gray-700 text-xs space-y-1">
                                   <div>✓ <code className="bg-green-100 px-1 rounded">read_orders</code></div>
                                   <div>✓ <code className="bg-green-100 px-1 rounded">read_products</code></div>
                                 </div>
                               </div>
-                              <p className="text-xs text-green-600 mt-2">After saving, click "Install app" → then "Reveal token once"</p>
+                              <p className="text-xs text-green-600 mt-2">{t('instructions.shopify.afterSaving')}</p>
                             </div>
                           )}
                           
                           {formData.platform === 'prestashop' && (
                             <div className="bg-white border border-green-200 rounded-lg p-3 space-y-2 text-sm">
-                              <p className="text-xs text-green-600 mb-2">First enable Webservice: Configuration → General → Enable</p>
+                              <p className="text-xs text-green-600 mb-2">{t('instructions.prestashop.enableFirst')}</p>
                               <div className="flex items-center gap-2">
-                                <span className="w-28 text-green-700 font-medium">Key:</span>
-                                <span className="text-gray-700">(click Generate to create)</span>
+                                <span className="w-28 text-green-700 font-medium">{t('instructions.prestashop.key')}:</span>
+                                <span className="text-gray-700">{t('instructions.prestashop.keyValue')}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="w-28 text-green-700 font-medium">Description:</span>
-                                <span className="text-gray-700">Whahook Sync</span>
+                                <span className="w-28 text-green-700 font-medium">{t('instructions.prestashop.description')}:</span>
+                                <span className="text-gray-700">{t('instructions.prestashop.descriptionValue')}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="w-28 text-green-700 font-medium">Status:</span>
+                                <span className="w-28 text-green-700 font-medium">{t('instructions.prestashop.status')}:</span>
                                 <code className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">Yes</code>
                               </div>
                               <div className="flex items-start gap-2">
-                                <span className="w-28 text-green-700 font-medium flex-shrink-0">Permissions:</span>
+                                <span className="w-28 text-green-700 font-medium flex-shrink-0">{t('instructions.prestashop.permissions')}:</span>
                                 <div className="text-gray-700 text-xs space-y-1">
-                                  <div>✓ <code className="bg-green-100 px-1 rounded">orders</code> → View (GET)</div>
-                                  <div>✓ <code className="bg-green-100 px-1 rounded">products</code> → View (GET)</div>
-                                  <div>✓ <code className="bg-green-100 px-1 rounded">customers</code> → View (GET)</div>
+                                  <div>✓ <code className="bg-green-100 px-1 rounded">orders</code> → {t('instructions.prestashop.viewGet')}</div>
+                                  <div>✓ <code className="bg-green-100 px-1 rounded">products</code> → {t('instructions.prestashop.viewGet')}</div>
+                                  <div>✓ <code className="bg-green-100 px-1 rounded">customers</code> → {t('instructions.prestashop.viewGet')}</div>
                                 </div>
                               </div>
                             </div>
@@ -498,24 +498,24 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                           
                           {formData.platform === 'magento' && (
                             <div className="bg-white border border-green-200 rounded-lg p-3 space-y-2 text-sm">
-                              <p className="text-xs text-green-600 mb-2">Go to System → Extensions → Integrations → Add New</p>
+                              <p className="text-xs text-green-600 mb-2">{t('instructions.magento.goTo')}</p>
                               <div className="flex items-center gap-2">
-                                <span className="w-28 text-green-700 font-medium">Name:</span>
-                                <span className="text-gray-700">Whahook Sync</span>
+                                <span className="w-28 text-green-700 font-medium">{t('instructions.magento.name')}:</span>
+                                <span className="text-gray-700">{t('instructions.magento.nameValue')}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="w-28 text-green-700 font-medium">Email:</span>
-                                <span className="text-gray-700">your@email.com</span>
+                                <span className="w-28 text-green-700 font-medium">{t('instructions.magento.email')}:</span>
+                                <span className="text-gray-700">{t('instructions.magento.emailValue')}</span>
                               </div>
                               <div className="flex items-start gap-2">
-                                <span className="w-28 text-green-700 font-medium flex-shrink-0">API tab:</span>
+                                <span className="w-28 text-green-700 font-medium flex-shrink-0">{t('instructions.magento.apiTab')}:</span>
                                 <div className="text-gray-700 text-xs space-y-1">
-                                  <div>Resource Access: <code className="bg-green-100 px-1 rounded">Custom</code></div>
-                                  <div>✓ <code className="bg-green-100 px-1 rounded">Sales</code> → Orders (Read)</div>
-                                  <div>✓ <code className="bg-green-100 px-1 rounded">Catalog</code> → Products (Read)</div>
+                                  <div>{t('instructions.magento.resourceAccess')}: <code className="bg-green-100 px-1 rounded">Custom</code></div>
+                                  <div>✓ <code className="bg-green-100 px-1 rounded">Sales</code> → {t('instructions.magento.salesOrders')}</div>
+                                  <div>✓ <code className="bg-green-100 px-1 rounded">Catalog</code> → {t('instructions.magento.catalogProducts')}</div>
                                 </div>
                               </div>
-                              <p className="text-xs text-green-600 mt-2">After saving, click "Activate" → copy the Access Token</p>
+                              <p className="text-xs text-green-600 mt-2">{t('instructions.magento.afterSaving')}</p>
                             </div>
                           )}
                         </div>
@@ -525,7 +525,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                       <div className="flex items-start gap-2">
                         <span className="w-5 h-5 rounded-full bg-green-600 text-white text-xs flex items-center justify-center flex-shrink-0">3</span>
                         <p className="text-sm text-green-800">
-                          Click "Generate API key" and copy the keys below 👇
+                          {t('instructions.generateCopy')}
                         </p>
                       </div>
                     </div>
@@ -536,7 +536,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
               {!formData.store_url && (
                 <div className="ml-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-sm text-yellow-800">
-                    👆 First enter your store URL above to see the instructions.
+                    {t('instructions.enterUrlFirst')}
                   </p>
                 </div>
               )}
@@ -546,17 +546,17 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                 {formData.platform === 'woocommerce' && (
                   <>
                     <div>
-                      <Label>Consumer Key</Label>
+                      <Label>{t('fields.consumerKey')}</Label>
                       <Input
                         value={formData.consumer_key}
                         onChange={(e) => setFormData({ ...formData, consumer_key: e.target.value })}
                         placeholder="ck_xxxxxxxxxxxxxxxxxxxxxxxx"
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">Starts with "ck_"</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('fields.consumerKeyHint')}</p>
                     </div>
                     <div>
-                      <Label>Consumer Secret</Label>
+                      <Label>{t('fields.consumerSecret')}</Label>
                       <Input
                         type="password"
                         value={formData.consumer_secret}
@@ -564,7 +564,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                         placeholder="cs_xxxxxxxxxxxxxxxxxxxxxxxx"
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">Starts with "cs_"</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('fields.consumerSecretHint')}</p>
                     </div>
                   </>
                 )}
@@ -573,7 +573,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                 {formData.platform === 'shopify' && (
                   <>
                     <div>
-                      <Label>Shop Name</Label>
+                      <Label>{t('fields.shopName')}</Label>
                       <div className="flex">
                         <Input
                           value={formData.shop_name}
@@ -586,10 +586,10 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                           .myshopify.com
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">Just the name, without .myshopify.com</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('fields.shopNameHint')}</p>
                     </div>
                     <div>
-                      <Label>Access Token</Label>
+                      <Label>{t('fields.accessToken')}</Label>
                       <Input
                         type="password"
                         value={formData.access_token}
@@ -597,7 +597,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                         placeholder="shpat_xxxxxxxxxxxxxxxxxxxxxxxx"
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">Starts with "shpat_"</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('fields.accessTokenHint')}</p>
                     </div>
                   </>
                 )}
@@ -605,7 +605,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                 {/* PrestaShop fields */}
                 {formData.platform === 'prestashop' && (
                   <div className="md:col-span-2">
-                    <Label>API Key</Label>
+                    <Label>{t('fields.apiKey')}</Label>
                     <Input
                       type="password"
                       value={formData.api_key}
@@ -613,14 +613,14 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                       placeholder="Your PrestaShop API key"
                       required
                     />
-                    <p className="text-xs text-gray-500 mt-1">The key you generated in Webservice</p>
+                    <p className="text-xs text-gray-500 mt-1">{t('fields.apiKeyHint')}</p>
                   </div>
                 )}
 
                 {/* Magento fields */}
                 {formData.platform === 'magento' && (
                   <div className="md:col-span-2">
-                    <Label>Access Token</Label>
+                    <Label>{t('fields.accessToken')}</Label>
                     <Input
                       type="password"
                       value={formData.access_token}
@@ -628,7 +628,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                       placeholder="Your Magento access token"
                       required
                     />
-                    <p className="text-xs text-gray-500 mt-1">The integration token you generated</p>
+                    <p className="text-xs text-gray-500 mt-1">{t('fields.magentoTokenHint')}</p>
                   </div>
                 )}
               </div>
@@ -640,10 +640,10 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                 <Webhook className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-green-900">
-                    🚀 Auto-sync available after connecting
+                    {t('autoSync.title')}
                   </p>
                   <p className="text-sm text-green-800 mt-1">
-                    Once connected, you'll get a unique webhook URL to set up automatic sync for orders and products.
+                    {t('autoSync.description')}
                   </p>
                 </div>
               </div>
@@ -652,10 +652,10 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
             <div className="flex gap-2 pt-4 border-t">
               <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
                 <ShoppingCart className="w-4 h-4 mr-2" />
-                Connect Store
+                {t('connect')}
               </Button>
               <Button type="button" variant="outline" onClick={() => { setShowForm(false); resetForm() }}>
-                Cancel
+                {t('cancel')}
               </Button>
             </div>
           </form>
@@ -706,7 +706,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                         </p>
                         {connection.last_sync_at && (
                           <p className="text-xs text-gray-500">
-                            Last sync: {new Date(connection.last_sync_at).toLocaleString()}
+                            {t('lastSync')}: {new Date(connection.last_sync_at).toLocaleString()}
                           </p>
                         )}
                         {connection.last_error && (

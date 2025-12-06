@@ -772,7 +772,69 @@
         "never": "Nunca",
         "sync": "Sincronizar",
         "syncing": "Sincronizando...",
-        "disconnect": "Desconectar"
+        "disconnect": "Desconectar",
+        "instructions": {
+          "howToGet": "Cómo obtener tus credenciales API de {platform}:",
+          "openSettings": "Abre la configuración de API:",
+          "openSettingsBtn": "Abrir Configuración API de {platform}",
+          "clickAddKey": "Haz clic en \"Añadir clave\" y completa:",
+          "woocommerce": {
+            "description": "Descripción",
+            "descriptionValue": "Whahook Sync",
+            "user": "Usuario",
+            "userValue": "Selecciona un usuario administrador",
+            "permissions": "Permisos"
+          },
+          "shopify": {
+            "createApp": "Haz clic en \"Crear una app\" → luego \"Configurar permisos de Admin API\"",
+            "appName": "Nombre de la app",
+            "appNameValue": "Whahook Sync",
+            "apiScopes": "Permisos de API",
+            "afterSaving": "Después de guardar, haz clic en \"Instalar app\" → luego \"Revelar token una vez\""
+          },
+          "prestashop": {
+            "enableFirst": "Primero habilita Webservice: Configuración → General → Habilitar",
+            "key": "Clave",
+            "keyValue": "(haz clic en Generar para crear)",
+            "description": "Descripción",
+            "descriptionValue": "Whahook Sync",
+            "status": "Estado",
+            "permissions": "Permisos",
+            "viewGet": "Ver (GET)"
+          },
+          "magento": {
+            "goTo": "Ve a Sistema → Extensiones → Integraciones → Añadir Nueva",
+            "name": "Nombre",
+            "nameValue": "Whahook Sync",
+            "email": "Email",
+            "emailValue": "tu@email.com",
+            "apiTab": "Pestaña API",
+            "resourceAccess": "Acceso a Recursos",
+            "salesOrders": "Ventas → Pedidos (Lectura)",
+            "catalogProducts": "Catálogo → Productos (Lectura)",
+            "afterSaving": "Después de guardar, haz clic en \"Activar\" → copia el Token de Acceso"
+          },
+          "generateCopy": "Haz clic en \"Generar clave API\" y copia las claves abajo 👇",
+          "pasteHere": "Pega tus credenciales aquí:",
+          "enterUrlFirst": "👆 Primero ingresa la URL de tu tienda arriba para ver las instrucciones."
+        },
+        "fields": {
+          "consumerKey": "Consumer Key",
+          "consumerKeyHint": "Empieza con \"ck_\"",
+          "consumerSecret": "Consumer Secret",
+          "consumerSecretHint": "Empieza con \"cs_\"",
+          "shopName": "Nombre de la Tienda",
+          "shopNameHint": "Solo el nombre, sin .myshopify.com",
+          "accessToken": "Token de Acceso",
+          "accessTokenHint": "Empieza con \"shpat_\"",
+          "apiKey": "Clave API",
+          "apiKeyHint": "La clave que generaste en Webservice",
+          "magentoTokenHint": "El token de la Integración"
+        },
+        "autoSync": {
+          "title": "🚀 Auto-sync disponible después de conectar",
+          "description": "Una vez conectado, obtendrás una URL de webhook única para configurar la sincronización automática de pedidos y productos."
+        }
       },
       "webhooks": {
         "title": "Webhooks",
