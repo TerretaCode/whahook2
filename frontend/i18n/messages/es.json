@@ -1260,7 +1260,10 @@
         "fromEmail": "noreply@tudominio.com",
         "fromName": "Mi Agencia",
         "replyTo": "soporte@tudominio.com"
-      }
+      },
+      "port465": "Puerto 465",
+      "optional": "(opcional)",
+      "replyToLabel": "Reply-To"
     },
     "team": {
       "title": "Equipo",

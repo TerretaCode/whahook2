@@ -1260,7 +1260,10 @@
         "fromEmail": "noreply@yourdomain.com",
         "fromName": "My Agency",
         "replyTo": "support@yourdomain.com"
-      }
+      },
+      "port465": "Port 465",
+      "optional": "(optional)",
+      "replyToLabel": "Reply-To"
     },
     "team": {
       "title": "Team",
