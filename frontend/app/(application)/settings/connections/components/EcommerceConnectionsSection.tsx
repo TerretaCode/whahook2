@@ -309,11 +309,11 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <span className="flex items-center gap-1 text-green-600 text-xs"><Check className="w-3 h-3" /> Active</span>
+        return <span className="flex items-center gap-1 text-green-600 text-xs"><Check className="w-3 h-3" /> {t('statusActive')}</span>
       case 'error':
-        return <span className="flex items-center gap-1 text-red-600 text-xs"><AlertCircle className="w-3 h-3" /> Error</span>
+        return <span className="flex items-center gap-1 text-red-600 text-xs"><AlertCircle className="w-3 h-3" /> {t('statusError')}</span>
       case 'pending':
-        return <span className="flex items-center gap-1 text-yellow-600 text-xs"><Loader2 className="w-3 h-3 animate-spin" /> Pending</span>
+        return <span className="flex items-center gap-1 text-yellow-600 text-xs"><Loader2 className="w-3 h-3 animate-spin" /> {t('statusPending')}</span>
       default:
         return <span className="text-gray-500 text-xs">{status}</span>
     }
@@ -355,22 +355,22 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-lg font-medium">
                 <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center">1</span>
-                Basic Information
+                {t('basicInfo')}
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
                 <div>
-                  <Label>Connection Name</Label>
+                  <Label>{t('connectionName')}</Label>
                   <Input
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. My Online Store"
+                    placeholder={t('connectionNamePlaceholder')}
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">A name to identify this store</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('connectionNameHint')}</p>
                 </div>
                 <div>
-                  <Label>Platform</Label>
+                  <Label>{t('platform')}</Label>
                   <select
                     className="w-full p-2 border rounded-md bg-white"
                     value={formData.platform}
@@ -382,14 +382,14 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
                   </select>
                 </div>
                 <div className="md:col-span-2">
-                  <Label>Store URL</Label>
+                  <Label>{t('storeUrl')}</Label>
                   <Input
                     value={formData.store_url}
                     onChange={(e) => setFormData({ ...formData, store_url: e.target.value })}
-                    placeholder="https://mystore.com"
+                    placeholder={t('storeUrlPlaceholder')}
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">Your store's web address (without /admin or anything else)</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('storeUrlHint')}</p>
                 </div>
               </div>
             </div>
@@ -398,7 +398,7 @@ export function EcommerceConnectionsSection({ workspaceId, initialData }: Ecomme
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-lg font-medium">
                 <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center">2</span>
-                API Credentials
+                {t('apiCredentials')}
               </div>
 
               {/* Help box with detailed instructions */}
