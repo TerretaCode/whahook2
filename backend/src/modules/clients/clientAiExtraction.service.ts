@@ -1,8 +1,12 @@
 /**
  * Client AI Extraction Service
  * 
- * Automatically extracts client data from conversations using AI.
- * Only processes NEW conversations to avoid overloading the AI.
+ * Intelligent extraction system with:
+ * - Cumulative summaries (builds on previous analysis)
+ * - Session detection (gaps >4h = new session)
+ * - Rate limiting (max 1 analysis/hour unless high-priority event)
+ * - Context-aware analysis (passes previous summary to AI)
+ * - Smart triggering (message count, keywords, inactivity)
  */
 
 import { supabaseAdmin } from '../../config/supabase'
@@ -10,6 +14,21 @@ import crypto from 'crypto'
 
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-key-change-in-production-32'
 const ALGORITHM = 'aes-256-cbc'
+
+// Configuration
+const CONFIG = {
+  MIN_MESSAGES_FOR_ANALYSIS: 3,           // Minimum messages needed
+  MAX_MESSAGES_TO_ANALYZE: 100,           // Max messages to send to AI
+  MIN_INTERVAL_BETWEEN_ANALYSIS_MS: 60 * 60 * 1000, // 1 hour minimum between analyses
+  INACTIVITY_TRIGGER_MS: 3 * 60 * 1000,   // 3 minutes of inactivity triggers analysis
+  SESSION_GAP_MS: 4 * 60 * 60 * 1000,     // 4 hours gap = new session
+  MESSAGE_COUNT_TRIGGER: 10,               // Analyze every N new messages
+  HIGH_PRIORITY_KEYWORDS: [
+    'comprar', 'precio', 'presupuesto', 'contratar', 'pagar',
+    'buy', 'price', 'budget', 'hire', 'pay',
+    'urgente', 'urgent', 'ahora', 'now', 'hoy', 'today'
+  ]
+}
 
 function decrypt(text: string): string {
   try {
@@ -46,6 +65,11 @@ interface ExtractedClientData {
   engagement_level?: 'cold' | 'low' | 'medium' | 'high' | 'hot'
   lifecycle_stage?: 'new' | 'engaged' | 'qualified' | 'opportunity' | 'customer' | 'churned'
   preferred_contact_time?: 'morning' | 'afternoon' | 'evening'
+  // New fields for cumulative tracking
+  conversation_topics?: string[]
+  key_questions?: string[]
+  objections?: string[]
+  next_steps?: string
 }
 
 interface ConversationMessage {
@@ -54,69 +78,135 @@ interface ConversationMessage {
   timestamp: string
 }
 
+interface ClientContext {
+  id: string
+  previous_summary?: string
+  previous_tags?: string[]
+  previous_interests?: string[]
+  ai_analysis_count: number
+  last_ai_analysis_at: string | null
+  messages_since_last_analysis: number
+}
+
+/**
+ * Check if a message contains high-priority keywords
+ */
+function containsHighPriorityKeywords(text: string): boolean {
+  const lowerText = text.toLowerCase()
+  return CONFIG.HIGH_PRIORITY_KEYWORDS.some(keyword => lowerText.includes(keyword))
+}
+
+/**
+ * Detect conversation sessions based on time gaps
+ * Returns messages grouped by session with session metadata
+ */
+function detectSessions(messages: ConversationMessage[]): { 
+  sessions: ConversationMessage[][]
+  currentSessionStart: string
+  isNewSession: boolean 
+} {
+  if (messages.length === 0) {
+    return { sessions: [], currentSessionStart: new Date().toISOString(), isNewSession: true }
+  }
+
+  const sessions: ConversationMessage[][] = []
+  let currentSession: ConversationMessage[] = []
+  let lastTimestamp = new Date(messages[0].timestamp).getTime()
+
+  for (const msg of messages) {
+    const msgTime = new Date(msg.timestamp).getTime()
+    const gap = msgTime - lastTimestamp
+
+    if (gap > CONFIG.SESSION_GAP_MS && currentSession.length > 0) {
+      sessions.push(currentSession)
+      currentSession = []
+    }
+
+    currentSession.push(msg)
+    lastTimestamp = msgTime
+  }
+
+  if (currentSession.length > 0) {
+    sessions.push(currentSession)
+  }
+
+  const currentSessionStart = currentSession.length > 0 
+    ? currentSession[0].timestamp 
+    : new Date().toISOString()
+
+  // Check if this is a new session (last message was >4h ago)
+  const lastMsgTime = new Date(messages[messages.length - 1].timestamp).getTime()
+  const isNewSession = Date.now() - lastMsgTime > CONFIG.SESSION_GAP_MS
+
+  return { sessions, currentSessionStart, isNewSession }
+}
+
+/**
+ * Get AI configuration for a workspace
+ */
+async function getAIConfig(workspaceId: string): Promise<{ provider: string; model: string; apiKey: string } | null> {
+  // Try to find config by workspace_id
+  const { data: configByWorkspace } = await supabaseAdmin
+    .from('chatbot_configs')
+    .select('provider, model, api_key_encrypted')
+    .eq('workspace_id', workspaceId)
+    .not('api_key_encrypted', 'is', null)
+    .limit(1)
+    .single()
+  
+  if (configByWorkspace?.api_key_encrypted) {
+    const apiKey = decrypt(configByWorkspace.api_key_encrypted)
+    if (apiKey) {
+      return { provider: configByWorkspace.provider, model: configByWorkspace.model, apiKey }
+    }
+  }
+
+  // Fallback: get from ai_config table (global user config)
+  const { data: workspace } = await supabaseAdmin
+    .from('workspaces')
+    .select('user_id')
+    .eq('id', workspaceId)
+    .single()
+  
+  if (workspace?.user_id) {
+    const { data: aiConfig } = await supabaseAdmin
+      .from('ai_config')
+      .select('provider, model, api_key_encrypted')
+      .eq('user_id', workspace.user_id)
+      .single()
+    
+    if (aiConfig?.api_key_encrypted) {
+      const apiKey = decrypt(aiConfig.api_key_encrypted)
+      if (apiKey) {
+        return { provider: aiConfig.provider, model: aiConfig.model, apiKey }
+      }
+    }
+  }
+
+  return null
+}
+
 /**
  * Extract client data from a conversation using AI
- * Called when a conversation ends or reaches a certain message count
+ * Now with context-aware cumulative analysis
  */
 export async function extractClientDataFromConversation(
   conversationId: string,
   workspaceId: string,
-  source: 'whatsapp' | 'web'
+  source: 'whatsapp' | 'web',
+  clientContext?: ClientContext
 ): Promise<ExtractedClientData | null> {
   try {
     console.log(`🤖 [AI-EXTRACT] Starting extraction for conversation ${conversationId}`)
 
-    // Get workspace's AI configuration from chatbot_configs
-    // First try by workspace_id, then fallback to any config with API key for this workspace's user
-    let chatbotConfig: { provider: string; model: string; api_key_encrypted: string } | null = null
-    
-    // Try to find config by workspace_id
-    const { data: configByWorkspace } = await supabaseAdmin
-      .from('chatbot_configs')
-      .select('provider, model, api_key_encrypted')
-      .eq('workspace_id', workspaceId)
-      .not('api_key_encrypted', 'is', null)
-      .limit(1)
-      .single()
-    
-    if (configByWorkspace?.api_key_encrypted) {
-      chatbotConfig = configByWorkspace
-    } else {
-      // Fallback: get any config from this workspace's owner that has an API key
-      const { data: workspace } = await supabaseAdmin
-        .from('workspaces')
-        .select('user_id')
-        .eq('id', workspaceId)
-        .single()
-      
-      if (workspace?.user_id) {
-        const { data: configByUser } = await supabaseAdmin
-          .from('chatbot_configs')
-          .select('provider, model, api_key_encrypted')
-          .eq('user_id', workspace.user_id)
-          .not('api_key_encrypted', 'is', null)
-          .limit(1)
-          .single()
-        
-        if (configByUser?.api_key_encrypted) {
-          chatbotConfig = configByUser
-        }
-      }
-    }
-
-    if (!chatbotConfig?.api_key_encrypted) {
+    // Get AI configuration
+    const aiConfig = await getAIConfig(workspaceId)
+    if (!aiConfig) {
       console.log(`⚠️ [AI-EXTRACT] No AI config found for workspace ${workspaceId}`)
       return null
     }
 
-    // Decrypt API key
-    const apiKey = decrypt(chatbotConfig.api_key_encrypted)
-    if (!apiKey) {
-      console.error(`❌ [AI-EXTRACT] Failed to decrypt API key for workspace ${workspaceId}`)
-      return null
-    }
-
-    // Get conversation messages (limit to last 50 for efficiency)
+    // Get conversation messages
     let messages: ConversationMessage[] = []
 
     if (source === 'whatsapp') {
@@ -125,17 +215,16 @@ export async function extractClientDataFromConversation(
         .select('content, direction, timestamp')
         .eq('conversation_id', conversationId)
         .order('timestamp', { ascending: true })
-        .limit(50)
+        .limit(CONFIG.MAX_MESSAGES_TO_ANALYZE)
 
       messages = waMessages || []
     } else {
-      // Web widget messages
       const { data: webMessages } = await supabaseAdmin
         .from('chat_widget_messages')
         .select('content, sender, created_at')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true })
-        .limit(50)
+        .limit(CONFIG.MAX_MESSAGES_TO_ANALYZE)
 
       messages = (webMessages || []).map(m => ({
         content: m.content,
@@ -144,22 +233,33 @@ export async function extractClientDataFromConversation(
       }))
     }
 
-    if (messages.length < 3) {
+    if (messages.length < CONFIG.MIN_MESSAGES_FOR_ANALYSIS) {
       console.log(`⚠️ [AI-EXTRACT] Not enough messages (${messages.length}) for extraction`)
       return null
     }
 
-    // Format conversation for AI
-    const conversationText = messages.map(m => 
-      `${m.direction === 'incoming' ? 'Cliente' : 'Asistente'}: ${m.content}`
-    ).join('\n')
+    // Detect sessions and analyze conversation structure
+    const { sessions, isNewSession } = detectSessions(messages)
+    const totalSessions = sessions.length
+    const hasHighPriorityContent = messages.some(m => 
+      m.direction === 'incoming' && containsHighPriorityKeywords(m.content)
+    )
 
-    // Call AI to extract data
+    console.log(`📊 [AI-EXTRACT] Conversation analysis: ${messages.length} messages, ${totalSessions} sessions, high-priority: ${hasHighPriorityContent}`)
+
+    // Format conversation for AI with timestamps for context
+    const conversationText = messages.map(m => {
+      const time = new Date(m.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+      return `[${time}] ${m.direction === 'incoming' ? 'Cliente' : 'Asistente'}: ${m.content}`
+    }).join('\n')
+
+    // Call AI to extract data with context
     const extractedData = await callAIForExtraction(
       conversationText,
-      chatbotConfig.provider || 'google',
-      chatbotConfig.model || 'gemini-1.5-flash',
-      apiKey
+      aiConfig.provider || 'google',
+      aiConfig.model || 'gemini-1.5-flash',
+      aiConfig.apiKey,
+      clientContext
     )
 
     console.log(`✅ [AI-EXTRACT] Extraction completed for conversation ${conversationId}`)
@@ -172,17 +272,27 @@ export async function extractClientDataFromConversation(
 }
 
 /**
- * Call AI provider to extract client data
+ * Build the AI prompt with optional previous context
  */
-async function callAIForExtraction(
-  conversationText: string,
-  provider: string,
-  model: string,
-  apiKey: string
-): Promise<ExtractedClientData> {
-  const prompt = `Analiza esta conversación y extrae información del cliente para segmentación de marketing profesional.
+function buildExtractionPrompt(conversationText: string, clientContext?: ClientContext): string {
+  // Build context section if we have previous data
+  let contextSection = ''
+  if (clientContext?.previous_summary || clientContext?.previous_tags?.length || clientContext?.previous_interests?.length) {
+    contextSection = `
+CONTEXTO PREVIO DEL CLIENTE (de análisis anteriores):
+${clientContext.previous_summary ? `- Resumen anterior: ${clientContext.previous_summary}` : ''}
+${clientContext.previous_tags?.length ? `- Tags existentes: ${clientContext.previous_tags.join(', ')}` : ''}
+${clientContext.previous_interests?.length ? `- Intereses conocidos: ${clientContext.previous_interests.join(', ')}` : ''}
+${clientContext.ai_analysis_count > 0 ? `- Este es el análisis #${clientContext.ai_analysis_count + 1} de este cliente` : '- Este es el primer análisis de este cliente'}
 
-CONVERSACIÓN:
+INSTRUCCIÓN ESPECIAL: Combina la información nueva con el contexto previo. Actualiza el resumen para que sea ACUMULATIVO, no lo reemplaces completamente. Mantén los tags e intereses anteriores si siguen siendo relevantes y añade nuevos.
+
+`
+  }
+
+  return `Eres un analista de CRM experto. Analiza esta conversación y extrae información del cliente para segmentación de marketing profesional.
+${contextSection}
+CONVERSACIÓN ACTUAL:
 ${conversationText}
 
 Extrae la siguiente información en formato JSON. Solo incluye campos que puedas identificar con certeza:
@@ -192,21 +302,25 @@ Extrae la siguiente información en formato JSON. Solo incluye campos que puedas
   "email": "email si se menciona",
   "company": "empresa o negocio si se menciona",
   "interest_type": "product|service|support|information|complaint|other",
-  "interest_details": "descripción breve del interés principal",
-  "ai_summary": "resumen de 2-3 frases de la conversación y necesidades del cliente",
+  "interest_details": "descripción breve del interés principal actual",
+  "ai_summary": "resumen ACUMULATIVO de 3-5 frases: quién es el cliente, qué necesita, historial de interacciones, estado actual",
   "satisfaction": "happy|neutral|unhappy|unknown",
   "language": "es|en|ca|pt|fr|de|it",
   "location": "ciudad/región/país si se menciona",
   "purchase_intent": 0-100,
   "budget_range": "low|medium|high|premium",
   "urgency": "low|normal|high|immediate",
-  "tags": ["tag1", "tag2"],
+  "tags": ["tag1", "tag2", "..."],
   "interests": ["tema1", "tema2"],
   "product_interests": ["producto1", "servicio1"],
   "sentiment_score": -100 a 100,
   "engagement_level": "cold|low|medium|high|hot",
   "lifecycle_stage": "new|engaged|qualified|opportunity|customer",
-  "preferred_contact_time": "morning|afternoon|evening"
+  "preferred_contact_time": "morning|afternoon|evening",
+  "conversation_topics": ["tema discutido 1", "tema discutido 2"],
+  "key_questions": ["pregunta importante 1", "pregunta importante 2"],
+  "objections": ["objeción o duda 1", "objeción o duda 2"],
+  "next_steps": "siguiente acción recomendada basada en la conversación"
 }
 
 GUÍA DE VALORES:
@@ -239,17 +353,28 @@ lifecycle_stage:
 - opportunity: Listo para propuesta/oferta
 - customer: Ya ha comprado
 
-interests: Temas generales de interés (ej: "tecnología", "ahorro", "calidad")
-product_interests: Productos/servicios específicos mencionados
-
-preferred_contact_time: Basado en hora del mensaje o si lo menciona
-
 IMPORTANTE:
-- Solo incluye campos que puedas determinar con confianza
-- Los tags deben ser útiles para campañas (ej: "precio-sensible", "urgente", "b2b", "premium")
-- interests y product_interests son arrays de strings cortos
+- El ai_summary debe ser ACUMULATIVO: si hay contexto previo, intégralo con la nueva información
+- Los tags deben ser útiles para campañas de marketing (ej: "precio-sensible", "urgente", "b2b", "premium", "repetidor")
+- conversation_topics: temas específicos discutidos en ESTA conversación
+- key_questions: preguntas importantes que hizo el cliente
+- objections: dudas, objeciones o preocupaciones expresadas
+- next_steps: acción recomendada (ej: "enviar presupuesto", "hacer seguimiento en 3 días", "cerrar venta")
 
-Responde SOLO con el JSON válido, sin explicaciones.`
+Responde SOLO con el JSON válido, sin explicaciones ni markdown.`
+}
+
+/**
+ * Call AI provider to extract client data
+ */
+async function callAIForExtraction(
+  conversationText: string,
+  provider: string,
+  model: string,
+  apiKey: string,
+  clientContext?: ClientContext
+): Promise<ExtractedClientData> {
+  const prompt = buildExtractionPrompt(conversationText, clientContext)
 
   try {
     let response: Response
@@ -360,8 +485,44 @@ export async function updateClientWithExtractedData(
 }
 
 /**
+ * Check if we should run AI analysis based on rate limiting and priority
+ */
+function shouldRunAnalysis(
+  lastAnalysisAt: string | null,
+  messagesSinceLastAnalysis: number,
+  hasHighPriorityContent: boolean
+): { shouldRun: boolean; reason: string } {
+  const now = Date.now()
+  const lastAnalysisTime = lastAnalysisAt ? new Date(lastAnalysisAt).getTime() : 0
+  const timeSinceLastAnalysis = now - lastAnalysisTime
+
+  // First analysis - always run
+  if (!lastAnalysisAt) {
+    return { shouldRun: true, reason: 'first_analysis' }
+  }
+
+  // High priority content bypasses rate limit (but still needs 10 min minimum)
+  if (hasHighPriorityContent && timeSinceLastAnalysis > 10 * 60 * 1000) {
+    return { shouldRun: true, reason: 'high_priority_content' }
+  }
+
+  // Rate limit: minimum 1 hour between analyses
+  if (timeSinceLastAnalysis < CONFIG.MIN_INTERVAL_BETWEEN_ANALYSIS_MS) {
+    return { shouldRun: false, reason: 'rate_limited' }
+  }
+
+  // Message count trigger
+  if (messagesSinceLastAnalysis >= CONFIG.MESSAGE_COUNT_TRIGGER) {
+    return { shouldRun: true, reason: 'message_count_trigger' }
+  }
+
+  // Default: run after inactivity period
+  return { shouldRun: true, reason: 'inactivity_trigger' }
+}
+
+/**
  * Process a new conversation for AI extraction
- * Called when a conversation is marked as ended or after X messages
+ * Includes rate limiting, context passing, and smart triggering
  */
 export async function processConversationForClient(
   conversationId: string,
@@ -369,15 +530,16 @@ export async function processConversationForClient(
   userId: string,
   contactPhone: string,
   contactName: string | null,
-  source: 'whatsapp' | 'web'
+  source: 'whatsapp' | 'web',
+  forceAnalysis: boolean = false
 ): Promise<void> {
   try {
     console.log(`🔄 [AI-EXTRACT] Processing conversation for client: ${contactPhone}`)
 
-    // Check if client exists
+    // Get or create client with full context
     let { data: client } = await supabaseAdmin
       .from('clients')
-      .select('id, ai_analysis_count, last_ai_analysis_at')
+      .select('id, ai_analysis_count, last_ai_analysis_at, ai_summary, tags, interests, messages_since_last_analysis')
       .eq('workspace_id', workspaceId)
       .eq('phone', contactPhone)
       .single()
@@ -395,37 +557,78 @@ export async function processConversationForClient(
           status: 'lead',
           first_contact_at: new Date().toISOString(),
           last_contact_at: new Date().toISOString(),
-          ai_extraction_status: 'processing',
-          conversation_id: conversationId
+          ai_extraction_status: 'pending',
+          conversation_id: conversationId,
+          messages_since_last_analysis: 1
         })
-        .select('id')
+        .select('id, ai_analysis_count, last_ai_analysis_at, ai_summary, tags, interests, messages_since_last_analysis')
         .single()
 
       if (createError || !newClient) {
         console.error(`❌ [AI-EXTRACT] Error creating client:`, createError)
         return
       }
-      client = { id: newClient.id, ai_analysis_count: 0, last_ai_analysis_at: null }
+      client = newClient
     } else {
-      // Update last contact
+      // Increment message count and update last contact
+      const newMessageCount = (client.messages_since_last_analysis || 0) + 1
       await supabaseAdmin
         .from('clients')
         .update({ 
           last_contact_at: new Date().toISOString(),
-          ai_extraction_status: 'processing'
+          messages_since_last_analysis: newMessageCount
         })
         .eq('id', client.id)
+      
+      client.messages_since_last_analysis = newMessageCount
     }
 
-    // Extract data using AI
+    // Check if we should run analysis (rate limiting)
+    const { shouldRun, reason } = shouldRunAnalysis(
+      client.last_ai_analysis_at,
+      client.messages_since_last_analysis || 0,
+      false // We'll check high priority in the extraction
+    )
+
+    if (!shouldRun && !forceAnalysis) {
+      console.log(`⏳ [AI-EXTRACT] Skipping analysis for ${contactPhone}: ${reason}`)
+      return
+    }
+
+    console.log(`🚀 [AI-EXTRACT] Running analysis for ${contactPhone}: ${reason}`)
+
+    // Mark as processing
+    await supabaseAdmin
+      .from('clients')
+      .update({ ai_extraction_status: 'processing' })
+      .eq('id', client.id)
+
+    // Build client context for cumulative analysis
+    const clientContext: ClientContext = {
+      id: client.id,
+      previous_summary: client.ai_summary || undefined,
+      previous_tags: client.tags || undefined,
+      previous_interests: client.interests || undefined,
+      ai_analysis_count: client.ai_analysis_count || 0,
+      last_ai_analysis_at: client.last_ai_analysis_at,
+      messages_since_last_analysis: client.messages_since_last_analysis || 0
+    }
+
+    // Extract data using AI with context
     const extractedData = await extractClientDataFromConversation(
       conversationId,
       workspaceId,
-      source
+      source,
+      clientContext
     )
 
     if (extractedData) {
+      // Reset message counter after successful analysis
       await updateClientWithExtractedData(client.id, extractedData)
+      await supabaseAdmin
+        .from('clients')
+        .update({ messages_since_last_analysis: 0 })
+        .eq('id', client.id)
     } else {
       // Mark as completed even if no data extracted
       await supabaseAdmin
