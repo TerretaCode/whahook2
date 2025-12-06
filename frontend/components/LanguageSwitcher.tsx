@@ -1,6 +1,7 @@
 'use client'
 
 import { useLocale } from '@/hooks/useLocale'
+import { useTranslations } from 'next-intl'
 import { Globe } from 'lucide-react'
 import { useState } from 'react'
 
@@ -20,6 +21,7 @@ interface LanguageSwitcherProps {
 }
 
 export function LanguageSwitcher({ variant = 'dropdown', className = '' }: LanguageSwitcherProps) {
+  const t = useTranslations('common')
   const { locale, setLocale, locales } = useLocale()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -48,7 +50,7 @@ export function LanguageSwitcher({ variant = 'dropdown', className = '' }: Langu
       <button
         onClick={() => setLocale(locale === 'en' ? 'es' : 'en')}
         className={`flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors ${className}`}
-        title={locale === 'en' ? 'Cambiar a Español' : 'Switch to English'}
+        title={t('switchLanguage')}
       >
         <Globe className="w-4 h-4" />
         <span>{languageFlags[locale === 'en' ? 'es' : 'en']}</span>
