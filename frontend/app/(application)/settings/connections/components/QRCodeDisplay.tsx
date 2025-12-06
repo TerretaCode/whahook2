@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useCallback, memo } from 'react'
+import { useTranslations } from 'next-intl'
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react'
 import { Button } from '@/components/ui/button'
 import { Download, Copy, Check } from 'lucide-react'
@@ -12,6 +13,7 @@ interface QRCodeDisplayProps {
 }
 
 function QRCodeDisplayComponent({ qrCode, size = 256, accountName = 'WhatsApp' }: QRCodeDisplayProps) {
+  const t = useTranslations('settings.connections.qrCode')
   const [copied, setCopied] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
 
@@ -89,7 +91,7 @@ function QRCodeDisplayComponent({ qrCode, size = 256, accountName = 'WhatsApp' }
           className="flex items-center gap-2"
         >
           <Download className="w-4 h-4" />
-          Download
+          {t('download')}
         </Button>
         <Button
           variant="outline"
@@ -100,22 +102,22 @@ function QRCodeDisplayComponent({ qrCode, size = 256, accountName = 'WhatsApp' }
           {copied ? (
             <>
               <Check className="w-4 h-4 text-green-600" />
-              Copied!
+              {t('copied')}
             </>
           ) : (
             <>
               <Copy className="w-4 h-4" />
-              Copy
+              {t('copy')}
             </>
           )}
         </Button>
       </div>
 
       <p className="mt-4 text-sm text-gray-600 text-center max-w-xs">
-        Scan this QR code with WhatsApp on your phone
+        {t('scanInstruction')}
       </p>
       <p className="mt-2 text-xs text-gray-500 text-center">
-        Open WhatsApp → Settings → Linked Devices → Link a Device
+        {t('howToScan')}
       </p>
     </div>
   )

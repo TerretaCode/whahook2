@@ -410,6 +410,29 @@
         "step5": "Escanea el código QR que aparece aquí",
         "step6": "¡Tu WhatsApp estará conectado!"
       },
+      "qrCode": {
+        "download": "Descargar",
+        "copy": "Copiar",
+        "copied": "¡Copiado!",
+        "scanInstruction": "Escanea este código QR con WhatsApp en tu teléfono",
+        "howToScan": "Abre WhatsApp → Ajustes → Dispositivos vinculados → Vincular un dispositivo"
+      },
+      "whatsappSession": {
+        "confirmDisconnect": "¿Estás seguro de que quieres desconectar esta sesión de WhatsApp?",
+        "connected": "Conectado",
+        "scanQr": "Escanear código QR",
+        "initializing": "Inicializando...",
+        "authFailed": "Autenticación fallida",
+        "unknown": "Desconocido",
+        "initializingSession": "Inicializando sesión de WhatsApp...",
+        "connectedReady": "WhatsApp está conectado y listo",
+        "connectedAs": "Conectado como",
+        "authFailedRetry": "Autenticación fallida. Por favor, inténtalo de nuevo.",
+        "disconnecting": "Desconectando...",
+        "disconnect": "Desconectar",
+        "sessionId": "ID de Sesión",
+        "created": "Creado"
+      },
       "widgets": {
         "title": "Widgets Web",
         "create": "Crear widget",

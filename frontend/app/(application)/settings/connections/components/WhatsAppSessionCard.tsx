@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useMemo, memo } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { QRCodeDisplay } from './QRCodeDisplay'
 import { 
@@ -23,10 +24,11 @@ function WhatsAppSessionCardComponent({
   accountName,
   onDestroy 
 }: WhatsAppSessionCardProps) {
+  const t = useTranslations('settings.connections.whatsappSession')
   const [isDestroying, setIsDestroying] = useState(false)
 
   const handleDestroy = useCallback(async () => {
-    if (!confirm('Are you sure you want to disconnect this WhatsApp session?')) {
+    if (!confirm(t('confirmDisconnect'))) {
       return
     }
 
@@ -57,14 +59,14 @@ function WhatsAppSessionCardComponent({
   const statusText = useMemo(() => {
     switch (session.status) {
       case 'ready':
-        return 'Connected'
+        return t('connected')
       case 'initializing':
       case 'qr_pending':
-        return session.qr_code ? 'Scan QR Code' : 'Initializing...'
+        return session.qr_code ? t('scanQr') : t('initializing')
       case 'error':
-        return session.error_message || 'Authentication failed'
+        return session.error_message || t('authFailed')
       default:
-        return 'Unknown'
+        return t('unknown')
     }
   }, [session.status, session.qr_code, session.error_message])
 
@@ -118,7 +120,7 @@ function WhatsAppSessionCardComponent({
       {(session.status === 'initializing' || session.status === 'qr_pending') && !session.qr_code && (
         <div className="mb-4 p-4 bg-gray-50 rounded-lg text-center">
           <Loader2 className="w-8 h-8 text-gray-600 animate-spin mx-auto mb-2" />
-          <p className="text-sm text-gray-600">Initializing WhatsApp session...</p>
+          <p className="text-sm text-gray-600">{t('initializingSession')}</p>
         </div>
       )}
 
@@ -127,11 +129,11 @@ function WhatsAppSessionCardComponent({
         <div className="status-indicator mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
           <div className="flex items-center gap-2 text-green-800">
             <CheckCircle2 className="w-5 h-5 text-green-600 status-indicator" />
-            <p className="text-sm font-medium text-green-800">WhatsApp is connected and ready</p>
+            <p className="text-sm font-medium text-green-800">{t('connectedReady')}</p>
           </div>
           {session.phone_number && (
             <p className="text-xs text-green-700 mt-1">
-              Connected as: {session.phone_number}
+              {t('connectedAs')}: {session.phone_number}
             </p>
           )}
         </div>
@@ -143,7 +145,7 @@ function WhatsAppSessionCardComponent({
           <div className="flex items-center gap-2 text-red-800">
             <AlertCircle className="w-5 h-5 text-red-600 status-indicator" />
             <p className="text-sm font-medium text-red-800">
-              {session.error_message || 'Authentication failed. Please try again.'}
+              {session.error_message || t('authFailedRetry')}
             </p>
           </div>
         </div>
@@ -161,12 +163,12 @@ function WhatsAppSessionCardComponent({
           {isDestroying ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Disconnecting...
+              {t('disconnecting')}
             </>
           ) : (
             <>
               <Trash2 className="w-4 h-4 mr-2" />
-              Disconnect
+              {t('disconnect')}
             </>
           )}
         </Button>
@@ -176,11 +178,11 @@ function WhatsAppSessionCardComponent({
       <div className="mt-4 pt-4 border-t border-gray-200">
         <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
           <div>
-            <span className="font-medium">Session ID:</span>
+            <span className="font-medium">{t('sessionId')}:</span>
             <p className="truncate">{session.session_id}</p>
           </div>
           <div>
-            <span className="font-medium">Created:</span>
+            <span className="font-medium">{t('created')}:</span>
             <p>{new Date(session.created_at).toLocaleDateString()}</p>
           </div>
         </div>
