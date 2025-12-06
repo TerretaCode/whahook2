@@ -177,6 +177,9 @@
     "pauseAll": "Pausar todas",
     "whatsapp": "WhatsApp",
     "web": "Web",
+    "aiActivated": "IA activada correctamente",
+    "aiDeactivated": "IA desactivada correctamente",
+    "aiToggleError": "Error al cambiar estado de IA",
     "plan": {
       "trial": "Prueba Gratuita",
       "starter": "Plan Starter",

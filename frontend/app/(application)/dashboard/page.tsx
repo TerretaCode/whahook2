@@ -140,12 +140,12 @@ export default function DashboardPage() {
         body: JSON.stringify({ type, enabled: enable })
       })
       if (response.success) {
-        toast.success(`IA ${enable ? 'activada' : 'desactivada'} correctamente`)
+        toast.success(enable ? t('aiActivated') : t('aiDeactivated'))
         fetchStats()
       }
     } catch (error) {
       console.error('Failed to toggle AI:', error)
-      toast.error('Error al cambiar estado de IA')
+      toast.error(t('aiToggleError'))
     } finally {
       setTogglingAi(null)
     }
