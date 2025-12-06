@@ -297,31 +297,44 @@ export function WhatsAppChatbotConfig({ workspaceId, initialData }: WhatsAppChat
   const loadSessions = async () => {
     setLoadingStates(prev => ({ ...prev, sessions: true }))
     try {
+      console.log('🔍 Loading sessions for workspace:', workspaceId)
       const response = await ApiClient.request<any>(`/api/whatsapp/sessions?workspace_id=${workspaceId}`)
-      console.log('WhatsApp sessions full response:', response)
-      console.log('Response data:', response.data)
+      console.log('📱 WhatsApp sessions full response:', response)
+      console.log('📱 Response success:', response.success)
+      console.log('📱 Response data:', response.data)
+      console.log('📱 Response data type:', typeof response.data)
+      console.log('📱 Response data keys:', response.data ? Object.keys(response.data) : 'null')
       
       // Intentar diferentes estructuras de respuesta
       let sessionsData: any = null
       
-      // Caso 1: response.data.sessions (estructura actual)
+      // Caso 1: response.data.sessions (estructura actual del backend)
       if (response.data?.sessions) {
+        console.log('📱 Found sessions in response.data.sessions')
         sessionsData = response.data.sessions
       }
-      // Caso 2: response.data.data.sessions
+      // Caso 2: response.data.data.sessions (doble wrapping)
       else if (response.data?.data?.sessions) {
+        console.log('📱 Found sessions in response.data.data.sessions')
         sessionsData = response.data.data.sessions
       }
-      // Caso 3: response.sessions
+      // Caso 3: response.sessions (directo)
       else if ((response as any).sessions) {
+        console.log('📱 Found sessions in response.sessions')
         sessionsData = (response as any).sessions
       }
       // Caso 4: response.data es array directamente
       else if (Array.isArray(response.data)) {
+        console.log('📱 Found sessions as array in response.data')
         sessionsData = response.data
       }
+      // Caso 5: response.data es el objeto de sesión directamente (single session)
+      else if (response.data && typeof response.data === 'object' && response.data.session_id) {
+        console.log('📱 Found single session object in response.data')
+        sessionsData = [response.data]
+      }
       
-      console.log('Sessions data extracted:', sessionsData)
+      console.log('📱 Sessions data extracted:', sessionsData)
       
       if (sessionsData && Array.isArray(sessionsData)) {
         const sessions = sessionsData.map((s: any) => ({
