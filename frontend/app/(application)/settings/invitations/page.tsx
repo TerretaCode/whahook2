@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from 'next-intl'
 import { useAuth } from "@/contexts/AuthContext"
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { ApiClient } from "@/lib/api-client"
@@ -29,25 +30,15 @@ interface TeamMember {
   created_at: string
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  agent: 'Agente',
-  messages: 'Mensajes',
-  marketing: 'Marketing'
-}
-
 const ROLE_COLORS: Record<string, string> = {
   agent: 'bg-green-100 text-green-800',
   messages: 'bg-green-100 text-green-800',
   marketing: 'bg-green-100 text-green-800'
 }
 
-const ROLE_DESCRIPTIONS: Record<string, string> = {
-  agent: 'Acceso a Dashboard, Mensajes, Clientes y Campañas',
-  messages: 'Acceso a Dashboard y Mensajes',
-  marketing: 'Acceso a Dashboard, Clientes y Campañas'
-}
-
 export default function InvitationsPage() {
+  const t = useTranslations('settings.invitations')
+  const tCommon = useTranslations('common')
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
   const { workspace, isOwner } = useWorkspaceContext()
@@ -112,15 +103,15 @@ export default function InvitationsPage() {
       )
 
       if (response.success) {
-        toast.success('¡Invitación enviada!', `Se ha enviado una invitación a ${inviteEmail}`)
+        toast.success(t('invitationSent'), t('invitationSentDesc', { email: inviteEmail }))
         setInviteEmail('')
         setShowInviteForm(false)
         fetchMembers()
       } else {
-        throw new Error(response.error || 'Error al enviar invitación')
+        throw new Error(response.error || t('inviteError'))
       }
     } catch (error: any) {
-      toast.error('Error', error.message || 'No se pudo enviar la invitación')
+      toast.error(tCommon('error'), error.message || t('inviteError'))
     } finally {
       setIsInviting(false)
     }
@@ -128,7 +119,7 @@ export default function InvitationsPage() {
 
   const handleRemoveMember = useCallback(async (memberId: string) => {
     if (!workspace?.id) return
-    if (!confirm('¿Estás seguro de que quieres eliminar a este miembro del equipo?')) return
+    if (!confirm(t('confirmRemove'))) return
 
     try {
       const response = await ApiClient.request(
@@ -137,13 +128,13 @@ export default function InvitationsPage() {
       )
 
       if (response.success) {
-        toast.success('Miembro eliminado')
+        toast.success(t('memberRemoved'))
         fetchMembers()
       } else {
-        throw new Error(response.error || 'Error al eliminar miembro')
+        throw new Error(response.error || t('removeError'))
       }
     } catch (error: any) {
-      toast.error('Error', error.message || 'No se pudo eliminar el miembro')
+      toast.error(tCommon('error'), error.message || t('removeError'))
     }
   }, [workspace?.id, fetchMembers])
 
@@ -161,8 +152,8 @@ export default function InvitationsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Acceso denegado</h2>
-          <p className="text-gray-600">Solo los clientes pueden invitar miembros a su equipo.</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('accessDenied')}</h2>
+          <p className="text-gray-600">{t('clientsOnly')}</p>
         </div>
       </div>
     )
@@ -181,9 +172,9 @@ export default function InvitationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mi Equipo</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Invita a miembros de tu equipo para ayudarte a gestionar mensajes o marketing
+            {t('subtitle')}
           </p>
         </div>
         {!showInviteForm && (
@@ -192,7 +183,7 @@ export default function InvitationsPage() {
             className="bg-green-600 hover:bg-green-700 text-white"
           >
             <UserPlus className="w-4 h-4 mr-2" />
-            Invitar
+            {t('invite')}
           </Button>
         )}
       </div>
@@ -200,36 +191,36 @@ export default function InvitationsPage() {
       {/* Invite Form */}
       {showInviteForm && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Invitar miembro</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('inviteMember')}</h2>
           <form onSubmit={handleInvite} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
+                  {tCommon('email')}
                 </label>
                 <Input
                   type="email"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="miembro@empresa.com"
+                  placeholder={t('emailPlaceholder')}
                   required
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Rol
+                  {t('role')}
                 </label>
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value as 'agent' | 'messages' | 'marketing')}
                   className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white"
                 >
-                  <option value="agent">Agente - Mensajes, Clientes y Campañas</option>
-                  <option value="messages">Mensajes - Solo mensajes</option>
-                  <option value="marketing">Marketing - Clientes y campañas</option>
+                  <option value="agent">{t('roles.agent.label')}</option>
+                  <option value="messages">{t('roles.messages.label')}</option>
+                  <option value="marketing">{t('roles.marketing.label')}</option>
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
-                  {ROLE_DESCRIPTIONS[inviteRole]}
+                  {t(`roles.${inviteRole}.description`)}
                 </p>
               </div>
             </div>
@@ -238,12 +229,12 @@ export default function InvitationsPage() {
                 {isInviting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Enviando...
+                    {t('sending')}
                   </>
                 ) : (
                   <>
                     <Mail className="w-4 h-4 mr-2" />
-                    Enviar invitación
+                    {t('sendInvitation')}
                   </>
                 )}
               </Button>
@@ -252,7 +243,7 @@ export default function InvitationsPage() {
                 variant="outline"
                 onClick={() => setShowInviteForm(false)}
               >
-                Cancelar
+                {tCommon('cancel')}
               </Button>
             </div>
           </form>
@@ -264,23 +255,23 @@ export default function InvitationsPage() {
         <div className="p-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <Users className="w-5 h-5 text-green-600" />
-            Miembros del equipo
+            {t('teamMembers')}
           </h2>
         </div>
         
         {members.length === 0 ? (
           <div className="p-8 text-center">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Sin miembros</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('noMembers')}</h3>
             <p className="text-gray-500 mb-4">
-              Aún no has invitado a ningún miembro de tu equipo.
+              {t('noMembersDesc')}
             </p>
             <Button 
               onClick={() => setShowInviteForm(true)}
               variant="outline"
             >
               <UserPlus className="w-4 h-4 mr-2" />
-              Invitar primer miembro
+              {t('inviteFirst')}
             </Button>
           </div>
         ) : (
@@ -297,11 +288,11 @@ export default function InvitationsPage() {
                         {member.user_name || member.user_email || member.invited_email}
                       </span>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[member.role]}`}>
-                        {ROLE_LABELS[member.role]}
+                        {t(`roles.${member.role}.name`)}
                       </span>
                       {member.status === 'pending' && (
                         <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          Pendiente
+                          {t('pending')}
                         </span>
                       )}
                     </div>
@@ -327,11 +318,11 @@ export default function InvitationsPage() {
 
       {/* Info Box */}
       <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-        <h3 className="font-medium text-green-900 mb-2">ℹ️ Sobre los roles</h3>
+        <h3 className="font-medium text-green-900 mb-2">ℹ️ {t('aboutRoles')}</h3>
         <ul className="text-sm text-green-800 space-y-1">
-          <li><strong>Agente:</strong> Puede ver el dashboard, gestionar mensajes, clientes y campañas.</li>
-          <li><strong>Mensajes:</strong> Puede ver el dashboard y gestionar mensajes de WhatsApp y Web.</li>
-          <li><strong>Marketing:</strong> Puede ver el dashboard, clientes y campañas de marketing.</li>
+          <li><strong>{t('roles.agent.name')}:</strong> {t('roles.agent.fullDescription')}</li>
+          <li><strong>{t('roles.messages.name')}:</strong> {t('roles.messages.fullDescription')}</li>
+          <li><strong>{t('roles.marketing.name')}:</strong> {t('roles.marketing.fullDescription')}</li>
         </ul>
       </div>
     </div>

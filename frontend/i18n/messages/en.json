@@ -1021,6 +1021,50 @@
         "viewer": "Viewer"
       }
     },
+    "invitations": {
+      "title": "My Team",
+      "subtitle": "Invite team members to help you manage messages or marketing",
+      "invite": "Invite",
+      "inviteMember": "Invite member",
+      "emailPlaceholder": "member@company.com",
+      "role": "Role",
+      "sending": "Sending...",
+      "sendInvitation": "Send invitation",
+      "teamMembers": "Team members",
+      "noMembers": "No members",
+      "noMembersDesc": "You haven't invited any team members yet.",
+      "inviteFirst": "Invite first member",
+      "pending": "Pending",
+      "aboutRoles": "About roles",
+      "accessDenied": "Access denied",
+      "clientsOnly": "Only clients can invite members to their team.",
+      "invitationSent": "Invitation sent!",
+      "invitationSentDesc": "An invitation has been sent to {email}",
+      "inviteError": "Failed to send invitation",
+      "confirmRemove": "Are you sure you want to remove this team member?",
+      "memberRemoved": "Member removed",
+      "removeError": "Failed to remove member",
+      "roles": {
+        "agent": {
+          "name": "Agent",
+          "label": "Agent - Messages, Clients and Campaigns",
+          "description": "Access to Dashboard, Messages, Clients and Campaigns",
+          "fullDescription": "Can view dashboard, manage messages, clients and campaigns."
+        },
+        "messages": {
+          "name": "Messages",
+          "label": "Messages - Messages only",
+          "description": "Access to Dashboard and Messages",
+          "fullDescription": "Can view dashboard and manage WhatsApp and Web messages."
+        },
+        "marketing": {
+          "name": "Marketing",
+          "label": "Marketing - Clients and campaigns",
+          "description": "Access to Dashboard, Clients and Campaigns",
+          "fullDescription": "Can view dashboard, clients and marketing campaigns."
+        }
+      }
+    },
     "members": {
       "title": "Invitations",
       "subtitle": "Manage who has access to this workspace",

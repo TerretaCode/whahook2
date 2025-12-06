@@ -1024,6 +1024,50 @@
       "remove": "Eliminar miembro",
       "resendInvite": "Reenviar invitación"
     },
+    "invitations": {
+      "title": "Mi Equipo",
+      "subtitle": "Invita a miembros de tu equipo para ayudarte a gestionar mensajes o marketing",
+      "invite": "Invitar",
+      "inviteMember": "Invitar miembro",
+      "emailPlaceholder": "miembro@empresa.com",
+      "role": "Rol",
+      "sending": "Enviando...",
+      "sendInvitation": "Enviar invitación",
+      "teamMembers": "Miembros del equipo",
+      "noMembers": "Sin miembros",
+      "noMembersDesc": "Aún no has invitado a ningún miembro de tu equipo.",
+      "inviteFirst": "Invitar primer miembro",
+      "pending": "Pendiente",
+      "aboutRoles": "Sobre los roles",
+      "accessDenied": "Acceso denegado",
+      "clientsOnly": "Solo los clientes pueden invitar miembros a su equipo.",
+      "invitationSent": "¡Invitación enviada!",
+      "invitationSentDesc": "Se ha enviado una invitación a {email}",
+      "inviteError": "Error al enviar invitación",
+      "confirmRemove": "¿Estás seguro de que quieres eliminar a este miembro del equipo?",
+      "memberRemoved": "Miembro eliminado",
+      "removeError": "Error al eliminar miembro",
+      "roles": {
+        "agent": {
+          "name": "Agente",
+          "label": "Agente - Mensajes, Clientes y Campañas",
+          "description": "Acceso a Dashboard, Mensajes, Clientes y Campañas",
+          "fullDescription": "Puede ver el dashboard, gestionar mensajes, clientes y campañas."
+        },
+        "messages": {
+          "name": "Mensajes",
+          "label": "Mensajes - Solo mensajes",
+          "description": "Acceso a Dashboard y Mensajes",
+          "fullDescription": "Puede ver el dashboard y gestionar mensajes de WhatsApp y Web."
+        },
+        "marketing": {
+          "name": "Marketing",
+          "label": "Marketing - Clientes y campañas",
+          "description": "Acceso a Dashboard, Clientes y Campañas",
+          "fullDescription": "Puede ver el dashboard, clientes y campañas de marketing."
+        }
+      }
+    },
     "members": {
       "title": "Invitaciones",
       "subtitle": "Gestiona quién tiene acceso a este workspace",
