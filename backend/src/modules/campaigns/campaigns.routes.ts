@@ -470,4 +470,431 @@ router.post('/:id/preview', async (req: Request, res: Response) => {
   }
 })
 
+// ============================================
+// SEGMENT ENDPOINTS
+// ============================================
+
+// Get predefined segments with counts
+router.get('/segments/predefined', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const workspaceId = req.query.workspace_id as string
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    if (!workspaceId) {
+      return res.status(400).json({ error: 'workspace_id is required' })
+    }
+
+    const stats = await campaignService.getSegmentStats(workspaceId)
+
+    const segments = [
+      {
+        id: 'hot_leads',
+        name: 'Hot Leads',
+        description: 'High engagement and purchase intent',
+        icon: '🔥',
+        count: stats['hot_leads'] || 0,
+        filters: { engagement_level: ['hot', 'high'], purchase_intent_min: 70 }
+      },
+      {
+        id: 'whatsapp_clients',
+        name: 'WhatsApp Clients',
+        description: 'All clients from WhatsApp',
+        icon: '📱',
+        count: stats['whatsapp_clients'] || 0,
+        filters: { source: ['whatsapp'] }
+      },
+      {
+        id: 'web_clients',
+        name: 'Web Visitors',
+        description: 'All clients from web chat',
+        icon: '🌐',
+        count: stats['web_clients'] || 0,
+        filters: { source: ['web'] }
+      },
+      {
+        id: 'inactive_30_days',
+        name: 'Inactive 30+ Days',
+        description: 'No contact in 30 days',
+        icon: '😴',
+        count: stats['inactive_30_days'] || 0,
+        filters: { no_contact_days: 30 }
+      },
+      {
+        id: 'new_this_week',
+        name: 'New This Week',
+        description: 'First contact this week',
+        icon: '✨',
+        count: stats['new_this_week'] || 0,
+        filters: { last_contact_days: 7, lifecycle_stage: ['new'] }
+      },
+      {
+        id: 'high_value',
+        name: 'High Value',
+        description: 'High budget, positive sentiment',
+        icon: '💎',
+        count: stats['high_value'] || 0,
+        filters: { budget_range: ['high', 'premium'], sentiment_min: 50 }
+      },
+      {
+        id: 'ready_to_buy',
+        name: 'Ready to Buy',
+        description: 'High intent and urgency',
+        icon: '🛒',
+        count: stats['ready_to_buy'] || 0,
+        filters: { purchase_intent_min: 80, urgency: ['high', 'immediate'] }
+      },
+      {
+        id: 'needs_followup',
+        name: 'Needs Follow-up',
+        description: 'Engaged but not contacted recently',
+        icon: '📞',
+        count: stats['needs_followup'] || 0,
+        filters: { engagement_level: ['medium', 'high'], no_contact_days: 7 }
+      },
+      {
+        id: 'at_risk',
+        name: 'At Risk',
+        description: 'Previously engaged, going cold',
+        icon: '⚠️',
+        count: stats['at_risk'] || 0,
+        filters: { lifecycle_stage: ['engaged', 'qualified'], no_contact_days: 14 }
+      },
+      {
+        id: 'promoters',
+        name: 'Promoters',
+        description: 'Happy customers who might refer',
+        icon: '⭐',
+        count: stats['promoters'] || 0,
+        filters: { satisfaction: ['happy'], sentiment_min: 70, lifecycle_stage: ['customer'] }
+      }
+    ]
+
+    return res.json({ 
+      success: true, 
+      data: {
+        segments,
+        total: stats['total'] || 0
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching segments:', error)
+    return res.status(500).json({ error: 'Failed to fetch segments' })
+  }
+})
+
+// Get clients for a specific segment
+router.get('/segments/:segmentId/clients', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { segmentId } = req.params
+    const workspaceId = req.query.workspace_id as string
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    if (!workspaceId) {
+      return res.status(400).json({ error: 'workspace_id is required' })
+    }
+
+    const clients = await campaignService.getPredefinedSegment(workspaceId, segmentId)
+
+    return res.json({ 
+      success: true, 
+      data: {
+        segment_id: segmentId,
+        count: clients.length,
+        clients: clients.slice(0, 100).map(c => ({
+          id: c.id,
+          name: c.full_name || c.whatsapp_name,
+          phone: c.phone,
+          email: c.email,
+          source: c.source,
+          status: c.status,
+          engagement_level: c.engagement_level,
+          lead_score: c.lead_score,
+          last_contact_at: c.last_contact_at
+        }))
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching segment clients:', error)
+    return res.status(500).json({ error: 'Failed to fetch segment clients' })
+  }
+})
+
+// Preview custom filter results
+router.post('/segments/preview', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { workspace_id, filters } = req.body
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    if (!workspace_id) {
+      return res.status(400).json({ error: 'workspace_id is required' })
+    }
+
+    const clients = await campaignService.getMatchingClients(workspace_id, filters || {})
+
+    // Group by source for stats
+    const bySource = {
+      whatsapp: clients.filter(c => c.source === 'whatsapp').length,
+      web: clients.filter(c => c.source === 'web').length
+    }
+
+    // Group by engagement
+    const byEngagement = {
+      hot: clients.filter(c => c.engagement_level === 'hot').length,
+      high: clients.filter(c => c.engagement_level === 'high').length,
+      medium: clients.filter(c => c.engagement_level === 'medium').length,
+      low: clients.filter(c => c.engagement_level === 'low').length,
+      cold: clients.filter(c => c.engagement_level === 'cold').length
+    }
+
+    return res.json({ 
+      success: true, 
+      data: {
+        total: clients.length,
+        by_source: bySource,
+        by_engagement: byEngagement,
+        preview: clients.slice(0, 20).map(c => ({
+          id: c.id,
+          name: c.full_name || c.whatsapp_name,
+          phone: c.phone,
+          source: c.source,
+          engagement_level: c.engagement_level,
+          lead_score: c.lead_score
+        }))
+      }
+    })
+  } catch (error) {
+    console.error('Error previewing segment:', error)
+    return res.status(500).json({ error: 'Failed to preview segment' })
+  }
+})
+
+// Save custom segment
+router.post('/segments', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { workspace_id, name, description, filters } = req.body
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    if (!workspace_id || !name || !filters) {
+      return res.status(400).json({ error: 'Missing required fields' })
+    }
+
+    // Get estimated count
+    const clients = await campaignService.getMatchingClients(workspace_id, filters)
+
+    const { data: segment, error } = await supabaseAdmin
+      .from('audience_segments')
+      .insert({
+        workspace_id,
+        user_id: userId,
+        name,
+        description,
+        filters,
+        estimated_count: clients.length,
+        last_count_at: new Date().toISOString()
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return res.status(201).json({ success: true, data: segment })
+  } catch (error) {
+    console.error('Error creating segment:', error)
+    return res.status(500).json({ error: 'Failed to create segment' })
+  }
+})
+
+// Get saved segments
+router.get('/segments', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const workspaceId = req.query.workspace_id as string
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    if (!workspaceId) {
+      return res.status(400).json({ error: 'workspace_id is required' })
+    }
+
+    const { data: segments, error } = await supabaseAdmin
+      .from('audience_segments')
+      .select('*')
+      .eq('workspace_id', workspaceId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    return res.json({ success: true, data: segments || [] })
+  } catch (error) {
+    console.error('Error fetching segments:', error)
+    return res.status(500).json({ error: 'Failed to fetch segments' })
+  }
+})
+
+// Delete a saved segment
+router.delete('/segments/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { id } = req.params
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const { error } = await supabaseAdmin
+      .from('audience_segments')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+
+    return res.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting segment:', error)
+    return res.status(500).json({ error: 'Failed to delete segment' })
+  }
+})
+
+// ============================================
+// MESSAGE TEMPLATES ENDPOINTS
+// ============================================
+
+// Get message templates
+router.get('/templates', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const workspaceId = req.query.workspace_id as string
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    if (!workspaceId) {
+      return res.status(400).json({ error: 'workspace_id is required' })
+    }
+
+    const { data: templates, error } = await supabaseAdmin
+      .from('message_templates')
+      .select('*')
+      .eq('workspace_id', workspaceId)
+      .order('times_used', { ascending: false })
+
+    if (error) throw error
+
+    return res.json({ success: true, data: templates || [] })
+  } catch (error) {
+    console.error('Error fetching templates:', error)
+    return res.status(500).json({ error: 'Failed to fetch templates' })
+  }
+})
+
+// Create message template
+router.post('/templates', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { workspace_id, name, category, content, variations, variables } = req.body
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    if (!workspace_id || !name || !content) {
+      return res.status(400).json({ error: 'Missing required fields' })
+    }
+
+    const { data: template, error } = await supabaseAdmin
+      .from('message_templates')
+      .insert({
+        workspace_id,
+        user_id: userId,
+        name,
+        category: category || 'general',
+        content,
+        variations: variations || [],
+        variables: variables || ['name', 'company']
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return res.status(201).json({ success: true, data: template })
+  } catch (error) {
+    console.error('Error creating template:', error)
+    return res.status(500).json({ error: 'Failed to create template' })
+  }
+})
+
+// Update message template
+router.put('/templates/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { id } = req.params
+    const updates = req.body
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const { data: template, error } = await supabaseAdmin
+      .from('message_templates')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return res.json({ success: true, data: template })
+  } catch (error) {
+    console.error('Error updating template:', error)
+    return res.status(500).json({ error: 'Failed to update template' })
+  }
+})
+
+// Delete message template
+router.delete('/templates/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const { id } = req.params
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const { error } = await supabaseAdmin
+      .from('message_templates')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+
+    return res.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting template:', error)
+    return res.status(500).json({ error: 'Failed to delete template' })
+  }
+})
+
 export default router

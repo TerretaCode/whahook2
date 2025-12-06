@@ -56,6 +56,24 @@ interface Client {
   purchase_intent: number | null
   satisfaction: string | null
   language: string | null
+  // Advanced segmentation fields
+  interests: string[]
+  product_interests: string[]
+  sentiment_score: number | null
+  engagement_level: string
+  total_messages: number
+  lifecycle_stage: string
+  lead_score: number
+  budget_range: string | null
+  urgency: string
+  location: string | null
+  device_type: string | null
+  referral_source: string | null
+  preferred_contact_time: string | null
+  campaign_opt_out: boolean
+  last_campaign_at: string | null
+  first_contact_at: string | null
+  last_contact_at: string | null
 }
 
 interface QueueItem {
@@ -612,7 +630,7 @@ class CampaignService {
   }
 
   /**
-   * Get clients matching campaign filters
+   * Get clients matching campaign filters (Advanced Segmentation)
    */
   async getMatchingClients(
     workspaceId: string,
@@ -623,44 +641,163 @@ class CampaignService {
       .select('*')
       .eq('workspace_id', workspaceId)
       .not('phone', 'is', null)
+      .eq('campaign_opt_out', false) // Respect opt-out
 
-    // Apply filters
-    if (filters.status?.length) {
-      query = query.in('status', filters.status)
-    }
-
+    // ============================================
+    // SOURCE FILTERS (WhatsApp vs Web)
+    // ============================================
     if (filters.source?.length) {
       query = query.in('source', filters.source)
+    }
+
+    // ============================================
+    // BASIC FILTERS
+    // ============================================
+    if (filters.status?.length) {
+      query = query.in('status', filters.status)
     }
 
     if (filters.tags?.length) {
       query = query.overlaps('tags', filters.tags)
     }
 
-    if (filters.satisfaction?.length) {
-      query = query.in('satisfaction', filters.satisfaction)
-    }
-
     if (filters.language?.length) {
       query = query.in('language', filters.language)
     }
 
-    if (filters.purchase_intent_min) {
-      query = query.gte('purchase_intent', filters.purchase_intent_min)
+    if (filters.satisfaction?.length) {
+      query = query.in('satisfaction', filters.satisfaction)
     }
 
-    if (filters.purchase_intent_max) {
+    // ============================================
+    // ENGAGEMENT & LIFECYCLE FILTERS
+    // ============================================
+    if (filters.engagement_level?.length) {
+      query = query.in('engagement_level', filters.engagement_level)
+    }
+
+    if (filters.lifecycle_stage?.length) {
+      query = query.in('lifecycle_stage', filters.lifecycle_stage)
+    }
+
+    // ============================================
+    // SCORE FILTERS
+    // ============================================
+    if (filters.purchase_intent_min !== undefined) {
+      query = query.gte('purchase_intent', filters.purchase_intent_min)
+    }
+    if (filters.purchase_intent_max !== undefined) {
       query = query.lte('purchase_intent', filters.purchase_intent_max)
     }
 
+    if (filters.lead_score_min !== undefined) {
+      query = query.gte('lead_score', filters.lead_score_min)
+    }
+    if (filters.lead_score_max !== undefined) {
+      query = query.lte('lead_score', filters.lead_score_max)
+    }
+
+    if (filters.sentiment_min !== undefined) {
+      query = query.gte('sentiment_score', filters.sentiment_min)
+    }
+    if (filters.sentiment_max !== undefined) {
+      query = query.lte('sentiment_score', filters.sentiment_max)
+    }
+
+    // ============================================
+    // INTEREST FILTERS
+    // ============================================
+    if (filters.interests?.length) {
+      query = query.overlaps('interests', filters.interests)
+    }
+
+    if (filters.product_interests?.length) {
+      query = query.overlaps('product_interests', filters.product_interests)
+    }
+
+    // ============================================
+    // BUDGET & URGENCY FILTERS
+    // ============================================
+    if (filters.budget_range?.length) {
+      query = query.in('budget_range', filters.budget_range)
+    }
+
+    if (filters.urgency?.length) {
+      query = query.in('urgency', filters.urgency)
+    }
+
+    // ============================================
+    // DATE FILTERS
+    // ============================================
     if (filters.last_contact_days) {
       const cutoffDate = new Date()
       cutoffDate.setDate(cutoffDate.getDate() - filters.last_contact_days)
       query = query.gte('last_contact_at', cutoffDate.toISOString())
     }
 
+    if (filters.no_contact_days) {
+      const cutoffDate = new Date()
+      cutoffDate.setDate(cutoffDate.getDate() - filters.no_contact_days)
+      query = query.or(`last_contact_at.is.null,last_contact_at.lt.${cutoffDate.toISOString()}`)
+    }
+
+    if (filters.not_campaigned_days) {
+      const cutoffDate = new Date()
+      cutoffDate.setDate(cutoffDate.getDate() - filters.not_campaigned_days)
+      query = query.or(`last_campaign_at.is.null,last_campaign_at.lt.${cutoffDate.toISOString()}`)
+    }
+
+    if (filters.first_contact_after) {
+      query = query.gte('first_contact_at', filters.first_contact_after)
+    }
+    if (filters.first_contact_before) {
+      query = query.lte('first_contact_at', filters.first_contact_before)
+    }
+
+    // ============================================
+    // CONTACT INFO FILTERS
+    // ============================================
     if (filters.has_email) {
-      query = query.not('email', 'is', null)
+      query = query.not('email', 'is', null).neq('email', '')
+    }
+
+    if (filters.has_phone) {
+      query = query.not('phone', 'is', null).neq('phone', '')
+    }
+
+    // ============================================
+    // DEVICE & SOURCE FILTERS
+    // ============================================
+    if (filters.device_type?.length) {
+      query = query.in('device_type', filters.device_type)
+    }
+
+    if (filters.referral_source?.length) {
+      query = query.in('referral_source', filters.referral_source)
+    }
+
+    // ============================================
+    // LOCATION FILTERS
+    // ============================================
+    if (filters.location?.length) {
+      query = query.in('location', filters.location)
+    }
+
+    // ============================================
+    // PREFERRED CONTACT TIME
+    // ============================================
+    if (filters.preferred_contact_time?.length) {
+      query = query.in('preferred_contact_time', filters.preferred_contact_time)
+    }
+
+    // ============================================
+    // MESSAGE COUNT FILTERS
+    // ============================================
+    if (filters.min_messages !== undefined) {
+      query = query.gte('total_messages', filters.min_messages)
+    }
+    if (filters.max_messages !== undefined) {
+      query = query.lte('total_messages', filters.max_messages)
     }
 
     const { data, error } = await query
@@ -671,6 +808,92 @@ class CampaignService {
     }
 
     return data || []
+  }
+
+  /**
+   * Get predefined segment clients
+   */
+  async getPredefinedSegment(
+    workspaceId: string,
+    segmentId: string
+  ): Promise<Client[]> {
+    const predefinedFilters: Record<string, Record<string, any>> = {
+      'hot_leads': {
+        engagement_level: ['hot', 'high'],
+        purchase_intent_min: 70
+      },
+      'whatsapp_clients': {
+        source: ['whatsapp']
+      },
+      'web_clients': {
+        source: ['web']
+      },
+      'inactive_30_days': {
+        no_contact_days: 30
+      },
+      'new_this_week': {
+        last_contact_days: 7,
+        lifecycle_stage: ['new']
+      },
+      'high_value': {
+        budget_range: ['high', 'premium'],
+        sentiment_min: 50
+      },
+      'ready_to_buy': {
+        purchase_intent_min: 80,
+        urgency: ['high', 'immediate']
+      },
+      'needs_followup': {
+        engagement_level: ['medium', 'high'],
+        no_contact_days: 7
+      },
+      'at_risk': {
+        lifecycle_stage: ['engaged', 'qualified'],
+        no_contact_days: 14
+      },
+      'promoters': {
+        satisfaction: ['happy'],
+        sentiment_min: 70,
+        lifecycle_stage: ['customer']
+      }
+    }
+
+    const filters = predefinedFilters[segmentId]
+    if (!filters) {
+      console.error(`❌ [CAMPAIGNS] Unknown segment: ${segmentId}`)
+      return []
+    }
+
+    return this.getMatchingClients(workspaceId, filters)
+  }
+
+  /**
+   * Get segment statistics
+   */
+  async getSegmentStats(workspaceId: string): Promise<Record<string, number>> {
+    const segments = [
+      'hot_leads', 'whatsapp_clients', 'web_clients', 'inactive_30_days',
+      'new_this_week', 'high_value', 'ready_to_buy', 'needs_followup',
+      'at_risk', 'promoters'
+    ]
+
+    const stats: Record<string, number> = {}
+
+    for (const segment of segments) {
+      const clients = await this.getPredefinedSegment(workspaceId, segment)
+      stats[segment] = clients.length
+    }
+
+    // Also get total count
+    const { count } = await supabaseAdmin
+      .from('clients')
+      .select('*', { count: 'exact', head: true })
+      .eq('workspace_id', workspaceId)
+      .eq('campaign_opt_out', false)
+
+    stats['total'] = count || 0
+
+    return stats
   }
 
   /**

@@ -39,6 +39,13 @@ interface ExtractedClientData {
   budget_range?: string
   urgency?: string
   tags?: string[]
+  // Advanced segmentation fields
+  interests?: string[]
+  product_interests?: string[]
+  sentiment_score?: number
+  engagement_level?: 'cold' | 'low' | 'medium' | 'high' | 'hot'
+  lifecycle_stage?: 'new' | 'engaged' | 'qualified' | 'opportunity' | 'customer' | 'churned'
+  preferred_contact_time?: 'morning' | 'afternoon' | 'evening'
 }
 
 interface ConversationMessage {
@@ -142,7 +149,7 @@ async function callAIForExtraction(
   model: string,
   apiKey: string
 ): Promise<ExtractedClientData> {
-  const prompt = `Analiza esta conversación y extrae información del cliente para segmentación de marketing.
+  const prompt = `Analiza esta conversación y extrae información del cliente para segmentación de marketing profesional.
 
 CONVERSACIÓN:
 ${conversationText}
@@ -156,21 +163,62 @@ Extrae la siguiente información en formato JSON. Solo incluye campos que puedas
   "interest_type": "product|service|support|information|complaint|other",
   "interest_details": "descripción breve del interés principal",
   "ai_summary": "resumen de 2-3 frases de la conversación y necesidades del cliente",
-  "satisfaction": "happy|neutral|unhappy|unknown - basado en el tono",
-  "language": "es|en|ca|etc - idioma detectado",
-  "location": "ciudad/región si se menciona",
-  "purchase_intent": 0-100 (probabilidad de compra basada en la conversación),
-  "budget_range": "low|medium|high|premium - si se puede inferir",
-  "urgency": "low|normal|high|immediate - urgencia del cliente",
-  "tags": ["tag1", "tag2"] - etiquetas relevantes para segmentación
+  "satisfaction": "happy|neutral|unhappy|unknown",
+  "language": "es|en|ca|pt|fr|de|it",
+  "location": "ciudad/región/país si se menciona",
+  "purchase_intent": 0-100,
+  "budget_range": "low|medium|high|premium",
+  "urgency": "low|normal|high|immediate",
+  "tags": ["tag1", "tag2"],
+  "interests": ["tema1", "tema2"],
+  "product_interests": ["producto1", "servicio1"],
+  "sentiment_score": -100 a 100,
+  "engagement_level": "cold|low|medium|high|hot",
+  "lifecycle_stage": "new|engaged|qualified|opportunity|customer",
+  "preferred_contact_time": "morning|afternoon|evening"
 }
 
-IMPORTANTE:
-- purchase_intent: 0-30 = solo curiosidad, 30-60 = interés moderado, 60-80 = interés alto, 80-100 = muy probable compra
-- Solo incluye campos que puedas determinar con confianza
-- Los tags deben ser útiles para campañas de marketing (ej: "interesado-producto-x", "precio-sensible", "urgente")
+GUÍA DE VALORES:
 
-Responde SOLO con el JSON, sin explicaciones adicionales.`
+purchase_intent (0-100):
+- 0-20: Solo curiosidad, sin intención real
+- 20-40: Interés leve, explorando opciones
+- 40-60: Interés moderado, comparando
+- 60-80: Interés alto, cerca de decidir
+- 80-100: Muy probable compra, listo para comprar
+
+sentiment_score (-100 a 100):
+- -100 a -50: Muy negativo, frustrado, enojado
+- -50 a -20: Negativo, insatisfecho
+- -20 a 20: Neutral
+- 20 a 50: Positivo, satisfecho
+- 50 a 100: Muy positivo, entusiasmado
+
+engagement_level:
+- cold: Sin respuesta o muy poco interés
+- low: Respuestas cortas, poco engagement
+- medium: Conversación normal, hace preguntas
+- high: Muy interesado, muchas preguntas
+- hot: Extremadamente interesado, urgente
+
+lifecycle_stage:
+- new: Primer contacto
+- engaged: Ha mostrado interés, interactúa
+- qualified: Tiene necesidad real y presupuesto
+- opportunity: Listo para propuesta/oferta
+- customer: Ya ha comprado
+
+interests: Temas generales de interés (ej: "tecnología", "ahorro", "calidad")
+product_interests: Productos/servicios específicos mencionados
+
+preferred_contact_time: Basado en hora del mensaje o si lo menciona
+
+IMPORTANTE:
+- Solo incluye campos que puedas determinar con confianza
+- Los tags deben ser útiles para campañas (ej: "precio-sensible", "urgente", "b2b", "premium")
+- interests y product_interests son arrays de strings cortos
+
+Responde SOLO con el JSON válido, sin explicaciones.`
 
   try {
     let response: Response
