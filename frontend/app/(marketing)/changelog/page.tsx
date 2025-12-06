@@ -1,16 +1,22 @@
+'use client'
+
+import { useTranslations } from 'next-intl'
+
 export default function ChangelogPage() {
+  const t = useTranslations('changelogPage')
+  
   const updates = [
-    { version: "2.1.0", date: "Nov 20, 2025", changes: ["New AI model with better accuracy", "Improved dashboard UI", "Bug fixes and performance improvements"] },
-    { version: "2.0.0", date: "Nov 1, 2025", changes: ["Multi-language support", "Advanced analytics", "New CRM features"] },
-    { version: "1.5.0", date: "Oct 15, 2025", changes: ["Appointment scheduling", "Calendar integration", "Team collaboration tools"] }
+    { version: "2.1.0", date: "Nov 20, 2025", changesKeys: ['v210.change1', 'v210.change2', 'v210.change3'] },
+    { version: "2.0.0", date: "Nov 1, 2025", changesKeys: ['v200.change1', 'v200.change2', 'v200.change3'] },
+    { version: "1.5.0", date: "Oct 15, 2025", changesKeys: ['v150.change1', 'v150.change2', 'v150.change3'] }
   ]
 
   return (
     <div className="min-h-screen bg-white">
       <section className="bg-gradient-to-b from-green-50 to-white py-20">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl font-bold mb-4">Changelog</h1>
-          <p className="text-xl text-gray-600">Latest updates and improvements</p>
+          <h1 className="text-5xl font-bold mb-4">{t('title')}</h1>
+          <p className="text-xl text-gray-600">{t('subtitle')}</p>
         </div>
       </section>
 
@@ -24,8 +30,8 @@ export default function ChangelogPage() {
                   <span className="text-gray-600">{update.date}</span>
                 </div>
                 <ul className="space-y-2">
-                  {update.changes.map((change, i) => (
-                    <li key={i} className="text-gray-700">• {change}</li>
+                  {update.changesKeys.map((key, i) => (
+                    <li key={i} className="text-gray-700">• {t(key)}</li>
                   ))}
                 </ul>
               </div>

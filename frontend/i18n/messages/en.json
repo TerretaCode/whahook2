@@ -1999,5 +1999,133 @@
       "success": "Message Sent!",
       "successDesc": "We'll get back to you within 24 hours"
     }
+  },
+  "blogPage": {
+    "title": "Blog",
+    "subtitle": "Insights, tips, and news from WhaHook",
+    "categories": {
+      "tips": "Tips",
+      "industry": "Industry",
+      "caseStudy": "Case Study",
+      "bestPractices": "Best Practices"
+    },
+    "post1": { "title": "10 Ways to Improve Customer Service with AI" },
+    "post2": { "title": "The Future of WhatsApp Business Automation" },
+    "post3": { "title": "Case Study: How Company X Increased Sales by 300%" },
+    "post4": { "title": "Best Practices for Chatbot Conversations" }
+  },
+  "careersPage": {
+    "title": "Careers",
+    "subtitle": "Join our team and help shape the future of customer service",
+    "openPositions": "Open Positions",
+    "applyNow": "Apply Now",
+    "positions": {
+      "fullstack": "Senior Full Stack Developer",
+      "designer": "Product Designer",
+      "csm": "Customer Success Manager",
+      "devops": "DevOps Engineer"
+    },
+    "locations": {
+      "remote": "Remote",
+      "hybrid": "Hybrid"
+    },
+    "types": {
+      "fullTime": "Full-time"
+    }
+  },
+  "statusPage": {
+    "title": "System Status",
+    "allOperational": "All Systems Operational",
+    "uptime": "Uptime",
+    "lastUpdated": "Last updated",
+    "operational": "Operational",
+    "services": {
+      "api": "API",
+      "whatsapp": "WhatsApp Integration",
+      "dashboard": "Dashboard",
+      "database": "Database"
+    }
+  },
+  "supportPage": {
+    "title": "Support Center",
+    "subtitle": "We're here to help you succeed",
+    "documentation": {
+      "title": "Documentation",
+      "desc": "Browse our docs"
+    },
+    "guides": {
+      "title": "Guides",
+      "desc": "Step-by-step tutorials"
+    },
+    "emailSupport": {
+      "title": "Email Support",
+      "desc": "Get help via email"
+    },
+    "liveChat": {
+      "title": "Live Chat",
+      "desc": "Chat with our team"
+    }
+  },
+  "integrationsPage": {
+    "title": "Integrations",
+    "subtitle": "Connect WhaHook with your favorite tools",
+    "integrations": {
+      "calendar": { "name": "Google Calendar", "desc": "Sync appointments automatically" },
+      "zapier": { "name": "Zapier", "desc": "Connect with 5000+ apps" },
+      "crm": { "name": "CRM Systems", "desc": "Salesforce, HubSpot, and more" },
+      "email": { "name": "Email Marketing", "desc": "Mailchimp, SendGrid integration" },
+      "ecommerce": { "name": "E-commerce", "desc": "Shopify, WooCommerce support" },
+      "api": { "name": "Custom API", "desc": "Build your own integrations" }
+    },
+    "cta": {
+      "title": "Need a Custom Integration?",
+      "subtitle": "Our API makes it easy to build custom integrations",
+      "button": "View API Docs"
+    }
+  },
+  "guidesPage": {
+    "title": "Guides",
+    "subtitle": "Step-by-step tutorials to master WhaHook",
+    "readTime": "read",
+    "categories": {
+      "beginner": "Beginner",
+      "advanced": "Advanced",
+      "integration": "Integration",
+      "bestPractices": "Best Practices"
+    },
+    "guides": {
+      "gettingStarted": "Getting Started with WhaHook",
+      "firstChatbot": "Setting Up Your First Chatbot",
+      "advancedAI": "Advanced AI Configuration",
+      "crmIntegration": "Integrating with Your CRM",
+      "conversationDesign": "Best Practices for Conversation Design",
+      "scalingOperations": "Scaling Your WhatsApp Operations"
+    }
+  },
+  "apiReferencePage": {
+    "title": "API Reference",
+    "subtitle": "Complete API documentation for developers",
+    "authentication": "Authentication",
+    "sendMessage": "Send Message",
+    "getConversations": "Get Conversations"
+  },
+  "changelogPage": {
+    "title": "Changelog",
+    "subtitle": "Latest updates and improvements",
+    "v210": {
+      "change1": "New AI model with better accuracy",
+      "change2": "Improved dashboard UI",
+      "change3": "Bug fixes and performance improvements"
+    },
+    "v200": {
+      "change1": "Multi-language support",
+      "change2": "Advanced analytics",
+      "change3": "New CRM features"
+    },
+    "v150": {
+      "change1": "Appointment scheduling",
+      "change2": "Calendar integration",
+      "change3": "Team collaboration tools"
+    }
   }
 }
