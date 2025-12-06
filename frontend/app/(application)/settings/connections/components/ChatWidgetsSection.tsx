@@ -552,7 +552,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                 {editingWidget ? t('form.saveChanges') : t('form.createChatbot')}
               </Button>
               <Button type="button" variant="outline" onClick={() => { setShowForm(false); resetForm() }}>
-                Cancel
+                {tCommon('cancel')}
               </Button>
             </div>
           </form>
