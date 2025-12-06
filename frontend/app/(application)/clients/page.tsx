@@ -8,8 +8,9 @@ import { useWorkspaceContext } from "@/contexts/WorkspaceContext"
 import { ApiClient } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Download, Loader2, Users, UserCheck, Star, Smartphone, RefreshCw, Sparkles, Settings2 } from "lucide-react"
+import { Search, Download, Loader2, Users, UserCheck, Star, Smartphone, RefreshCw, Sparkles, Settings2, Building2 } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ClientsTable } from "./components/ClientsTable"
 import { ClientModal } from "./components/ClientModal"
 import { CampaignsSection } from "./components/CampaignsSection"
@@ -44,7 +45,7 @@ export default function ClientsPage() {
   const t = useTranslations('clients')
   const tCommon = useTranslations('common')
   const { user, isLoading: authLoading } = useAuth()
-  const { workspace } = useWorkspaceContext()
+  const { workspace, workspaces, setWorkspace, isOwner } = useWorkspaceContext()
   const [clients, setClients] = useState<Client[]>([])
   const [filteredClients, setFilteredClients] = useState<Client[]>([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -231,7 +232,38 @@ export default function ClientsPage() {
               {t('subtitle')}
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
+            {/* Workspace Selector - Only show if owner has multiple workspaces */}
+            {isOwner && workspaces.length > 1 && (
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-gray-500" />
+                <Select 
+                  value={workspace?.id} 
+                  onValueChange={(id) => {
+                    const ws = workspaces.find(w => w.id === id)
+                    if (ws) setWorkspace(ws)
+                  }}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder={t('selectWorkspace')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workspaces.filter(w => w.is_owner).map((ws) => (
+                      <SelectItem key={ws.id} value={ws.id}>
+                        {ws.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {/* Show current workspace name for members */}
+            {!isOwner && workspace && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
+                <Building2 className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-medium text-gray-700">{workspace.name}</span>
+              </div>
+            )}
             <Button
               variant="outline"
               size="sm"

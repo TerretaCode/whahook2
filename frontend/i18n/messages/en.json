@@ -486,6 +486,7 @@
   "clients": {
     "title": "Clients",
     "subtitle": "Manage your client database",
+    "selectWorkspace": "Select workspace",
     "searchPlaceholder": "Search by name, email, phone or company...",
     "addClient": "Add client",
     "editClient": "Edit client",
