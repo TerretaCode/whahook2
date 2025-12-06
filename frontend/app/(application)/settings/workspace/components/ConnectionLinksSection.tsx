@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { 
   Plus, 
@@ -41,6 +42,7 @@ const STATUS_CONFIG: Record<string, { icon: any; color: string; label: string }>
 }
 
 export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: ConnectionLinksSectionProps) {
+  const t = useTranslations('settings.workspaces.connectionLinks')
   const [links, setLinks] = useState<ConnectionLink[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
@@ -144,9 +146,9 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
             <QrCode className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Remote QR Connection</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('title')}</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Generate links to connect WhatsApp remotely
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -158,12 +160,12 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
           {isCreating ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Creating...
+              {t('creating')}
             </>
           ) : (
             <>
               <Plus className="w-4 h-4 mr-2" />
-              Create Link
+              {t('createLink')}
             </>
           )}
         </Button>
@@ -172,8 +174,7 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
       {hasExistingConnection && (
         <div className="bg-yellow-50 dark:bg-yellow-950 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
           <p className="text-sm text-yellow-800 dark:text-yellow-200">
-            ⚠️ This workspace already has a WhatsApp connection. 
-            Delete the existing connection first to create a new one.
+            ⚠️ {t('alreadyConnected')}
           </p>
         </div>
       )}
@@ -196,7 +197,7 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-gray-900 dark:text-white">
-                            Connection Link
+                            {t('connectionLink')}
                           </span>
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig.color}`}>
                             {statusConfig.label}
@@ -204,7 +205,7 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
                         </div>
                         <p className="text-sm text-gray-500">
                           {link.status === 'connected' 
-                            ? `Connected: ${link.connected_phone}`
+                            ? `${t('connected')}: ${link.connected_phone}`
                             : formatTimeLeft(link.expires_at)
                           }
                         </p>
@@ -218,7 +219,7 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
                             variant="ghost"
                             size="sm"
                             onClick={() => copyLink(link.token)}
-                            title="Copy link"
+                            title={t('copyLink')}
                           >
                             {copiedToken === link.token ? (
                               <Check className="w-4 h-4 text-green-600" />
@@ -230,7 +231,7 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
                             variant="ghost"
                             size="sm"
                             onClick={() => openLink(link.token)}
-                            title="Open link"
+                            title={t('openLink')}
                           >
                             <ExternalLink className="w-4 h-4" />
                           </Button>
@@ -241,7 +242,7 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
                         size="sm"
                         onClick={() => handleDelete(link.id)}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        title="Delete link"
+                        title={t('deleteLink')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -251,7 +252,7 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
                   {/* Show link URL for pending/connecting */}
                   {(link.status === 'pending' || link.status === 'connecting') && (
                     <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-1">Share this link with your client:</p>
+                      <p className="text-xs text-gray-500 mb-1">{t('shareLink')}</p>
                       <code className="text-sm text-gray-700 dark:text-gray-300 break-all">
                         {window.location.origin}/connect/{link.token}
                       </code>
@@ -265,9 +266,9 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
           <QrCode className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-          <p className="text-gray-500">No connection links yet</p>
+          <p className="text-gray-500">{t('noLinksYet')}</p>
           <p className="text-sm text-gray-400 mt-1">
-            Create a link to connect WhatsApp remotely
+            {t('noLinksDesc')}
           </p>
         </div>
       )}
@@ -275,14 +276,12 @@ export function ConnectionLinksSection({ workspaceId, hasExistingConnection }: C
       {/* Info Box */}
       <div className="bg-green-50 dark:bg-green-950 rounded-lg p-4 border border-green-200 dark:border-green-800">
         <h4 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">
-          💡 How Remote QR Works
+          {t('howItWorks')}
         </h4>
         <ol className="text-sm text-green-700 dark:text-green-300 space-y-1 list-decimal list-inside">
-          <li>Create a connection link</li>
-          <li>Send the link to your client via email or message</li>
-          <li>Client opens the link on their phone</li>
-          <li>Client scans the QR code with their WhatsApp</li>
-          <li>WhatsApp is connected to this workspace!</li>
+          {t.raw('steps').map((step: string, idx: number) => (
+            <li key={idx}>{step}</li>
+          ))}
         </ol>
       </div>
     </div>

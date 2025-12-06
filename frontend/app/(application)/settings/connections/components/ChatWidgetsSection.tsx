@@ -399,11 +399,11 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-md font-medium">
                 <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center">1</span>
-                Basic Information
+                {t('form.basicInfo')}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
                 <div>
-                  <Label>Widget Name *</Label>
+                  <Label>{t('form.widgetName')} *</Label>
                   <Input
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -411,7 +411,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                   />
                 </div>
                 <div>
-                  <Label>Website Platform</Label>
+                  <Label>{t('form.websitePlatform')}</Label>
                   <select
                     className="w-full p-2 border rounded-md bg-white"
                     value={formData.platform}
@@ -421,16 +421,16 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                       <option key={key} value={key}>{config.name}</option>
                     ))}
                   </select>
-                  <p className="text-xs text-gray-500 mt-1">We'll show you how to install the widget</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('form.platformHint')}</p>
                 </div>
                 <div>
-                  <Label>Website URL</Label>
+                  <Label>{t('form.websiteUrl')}</Label>
                   <Input
                     value={formData.domain}
                     onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
                     placeholder="https://mystore.com"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Your website address (optional)</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('form.websiteUrlHint')}</p>
                 </div>
               </div>
             </div>
@@ -439,11 +439,11 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-md font-medium">
                 <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center">2</span>
-                Appearance
+                {t('form.appearance')}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
                 <div>
-                  <Label>Primary Color</Label>
+                  <Label>{t('form.primaryColor')}</Label>
                   <div className="flex gap-2">
                     <Input
                       type="color"
@@ -460,7 +460,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                   </div>
                 </div>
                 <div>
-                  <Label>Header Text</Label>
+                  <Label>{t('form.headerText')}</Label>
                   <Input
                     value={formData.header_text}
                     onChange={(e) => setFormData({ ...formData, header_text: e.target.value })}
@@ -469,7 +469,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <Label>Logo URL (optional)</Label>
+                  <Label>{t('form.logoUrl')}</Label>
                   <Input
                     value={formData.header_logo_url}
                     onChange={(e) => setFormData({ ...formData, header_logo_url: e.target.value })}
@@ -477,7 +477,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <Label>Welcome Message</Label>
+                  <Label>{t('form.welcomeMessage')}</Label>
                   <textarea
                     className="w-full p-2 border rounded-md min-h-[80px]"
                     value={formData.welcome_message}
@@ -493,45 +493,45 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-md font-medium">
                 <span className="w-6 h-6 rounded-full bg-green-600 text-white text-sm flex items-center justify-center">3</span>
-                Advanced Settings
+                {t('form.advancedSettings')}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-8">
                 <div>
-                  <Label>Position</Label>
+                  <Label>{t('form.position')}</Label>
                   <select
                     className="w-full p-2 border rounded-md bg-white"
                     value={formData.position}
                     onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                   >
-                    <option value="bottom-right">Bottom Right</option>
-                    <option value="bottom-left">Bottom Left</option>
+                    <option value="bottom-right">{t('form.bottomRight')}</option>
+                    <option value="bottom-left">{t('form.bottomLeft')}</option>
                   </select>
                 </div>
                 <div>
-                  <Label>Launcher Animation</Label>
+                  <Label>{t('form.launcherAnimation')}</Label>
                   <select
                     className="w-full p-2 border rounded-md bg-white"
                     value={formData.launcher_animation}
                     onChange={(e) => setFormData({ ...formData, launcher_animation: e.target.value })}
                   >
-                    <option value="pulse">Pulse (Recommended)</option>
-                    <option value="bounce">Bounce</option>
-                    <option value="none">None</option>
+                    <option value="pulse">{t('form.animationPulse')}</option>
+                    <option value="bounce">{t('form.animationBounce')}</option>
+                    <option value="none">{t('form.animationNone')}</option>
                   </select>
                 </div>
                 <div>
-                  <Label>Layer Priority (z-index)</Label>
+                  <Label>{t('form.zIndex')}</Label>
                   <select
                     className="w-full p-2 border rounded-md bg-white"
                     value={formData.z_index}
                     onChange={(e) => setFormData({ ...formData, z_index: parseInt(e.target.value) })}
                   >
-                    <option value={9999}>Normal (9999) - Above most elements</option>
-                    <option value={99999}>High (99999) - Above cookie banners</option>
-                    <option value={999999}>Maximum (999999) - Always on top</option>
-                    <option value={999}>Low (999) - Behind some popups</option>
+                    <option value={9999}>{t('form.zIndexNormal')}</option>
+                    <option value={99999}>{t('form.zIndexHigh')}</option>
+                    <option value={999999}>{t('form.zIndexMax')}</option>
+                    <option value={999}>{t('form.zIndexLow')}</option>
                   </select>
-                  <p className="text-xs text-gray-500 mt-1">If the widget appears behind other elements, try a higher value</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('form.zIndexHint')}</p>
                 </div>
                 <div className="md:col-span-2">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -541,7 +541,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                       onChange={(e) => setFormData({ ...formData, sound_enabled: e.target.checked })}
                       className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
                     />
-                    <span className="text-sm text-gray-700">Enable notification sound for new messages</span>
+                    <span className="text-sm text-gray-700">{t('form.soundEnabled')}</span>
                   </label>
                 </div>
               </div>
@@ -549,7 +549,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
 
             <div className="flex gap-2 pt-4 border-t">
               <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
-                {editingWidget ? 'Save Changes' : 'Create Chatbot'}
+                {editingWidget ? t('form.saveChanges') : t('form.createChatbot')}
               </Button>
               <Button type="button" variant="outline" onClick={() => { setShowForm(false); resetForm() }}>
                 Cancel
@@ -646,12 +646,12 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                   <div className="border-t bg-gray-50 p-4 space-y-4">
                     <div className="flex items-center gap-2 text-lg font-medium text-gray-900">
                       <Puzzle className="w-5 h-5 text-green-600" />
-                      How to Add This Widget to Your Website
+                      {t('form.howToAdd')}
                     </div>
 
                     {/* Platform Selector */}
                     <div className="flex items-center gap-2">
-                      <Label className="text-sm">Your platform:</Label>
+                      <Label className="text-sm">{t('form.yourPlatform')}</Label>
                       <select
                         className="p-2 border rounded-md bg-white text-sm"
                         value={selectedPlatform}
