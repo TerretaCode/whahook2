@@ -25,6 +25,17 @@ export function WorkspaceSelectorHeader({ namespace = 'common' }: WorkspaceSelec
   const ownerWorkspaces = workspaces.filter(w => w.is_owner)
   const showSelector = isOwner && isPaidPlan && ownerWorkspaces.length > 1
 
+  // Debug log - remove after testing
+  console.log('[WorkspaceSelector]', {
+    currentWorkspace: workspace?.name,
+    workspaceId: workspace?.id,
+    isOwner,
+    subscriptionTier,
+    isPaidPlan,
+    ownerWorkspacesCount: ownerWorkspaces.length,
+    showSelector
+  })
+
   // Owner with Pro/Enterprise and multiple workspaces - show selector
   if (showSelector) {
     return (
