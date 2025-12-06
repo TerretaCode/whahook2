@@ -1,7 +1,21 @@
 import { Router, Request, Response } from 'express'
 import { supabaseAdmin } from '../../config/supabase'
+import { campaignService } from './campaigns.service'
 
 const router = Router()
+
+// Default send settings for anti-ban
+const DEFAULT_SEND_SETTINGS = {
+  min_delay_seconds: 30,
+  max_delay_seconds: 120,
+  batch_size: 10,
+  batch_pause_minutes: 5,
+  randomize_message: true,
+  daily_limit: 100,
+  respect_quiet_hours: true,
+  quiet_hours_start: '22:00',
+  quiet_hours_end: '08:00'
+}
 
 // Helper to get user ID from token
 async function getUserIdFromToken(req: Request): Promise<string | null> {
@@ -271,7 +285,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   }
 })
 
-// Send a campaign
+// Send/Start a campaign (uses queue system with anti-ban features)
 router.post('/:id/send', async (req: Request, res: Response) => {
   try {
     const userId = await getUserIdFromToken(req)
@@ -284,16 +298,12 @@ router.post('/:id/send', async (req: Request, res: Response) => {
     // Get campaign
     const { data: campaign, error: campaignError } = await supabaseAdmin
       .from('campaigns')
-      .select('*')
+      .select('workspace_id, status')
       .eq('id', campaignId)
       .single()
 
     if (campaignError || !campaign) {
       return res.status(404).json({ error: 'Campaign not found' })
-    }
-
-    if (campaign.status !== 'draft' && campaign.status !== 'scheduled') {
-      return res.status(400).json({ error: 'Campaign cannot be sent' })
     }
 
     // Verify user has access to workspace
@@ -308,71 +318,17 @@ router.post('/:id/send', async (req: Request, res: Response) => {
       return res.status(403).json({ error: 'Access denied' })
     }
 
-    // Get clients based on filters
-    let clientsQuery = supabaseAdmin
-      .from('clients')
-      .select('id, phone, email, full_name, whatsapp_name, company, tags, status, last_contact_at')
-      .eq('workspace_id', campaign.workspace_id)
+    // Start campaign using the service (handles queue, delays, randomization)
+    const result = await campaignService.startCampaign(campaignId)
 
-    // Apply filters
-    const filters = campaign.filters || {}
-    
-    if (filters.status && filters.status.length > 0) {
-      clientsQuery = clientsQuery.in('status', filters.status)
+    if (!result.success) {
+      return res.status(400).json({ error: result.error })
     }
-
-    if (filters.tags && filters.tags.length > 0) {
-      clientsQuery = clientsQuery.overlaps('tags', filters.tags)
-    }
-
-    if (filters.last_interaction_days && filters.last_interaction_days > 0) {
-      const cutoffDate = new Date()
-      cutoffDate.setDate(cutoffDate.getDate() - filters.last_interaction_days)
-      clientsQuery = clientsQuery.gte('last_contact_at', cutoffDate.toISOString())
-    }
-
-    const { data: clients, error: clientsError } = await clientsQuery
-
-    if (clientsError) throw clientsError
-
-    // Filter for email campaigns - only clients with email
-    let recipients = clients || []
-    if (campaign.type === 'email') {
-      recipients = recipients.filter(c => c.email)
-    }
-
-    if (recipients.length === 0) {
-      return res.status(400).json({ error: 'No recipients match the campaign filters' })
-    }
-
-    // Update campaign status to sending
-    await supabaseAdmin
-      .from('campaigns')
-      .update({
-        status: 'sending',
-        started_at: new Date().toISOString(),
-        total_recipients: recipients.length
-      })
-      .eq('id', campaignId)
-
-    // Create campaign recipients
-    const recipientRecords = recipients.map(client => ({
-      campaign_id: campaignId,
-      client_id: client.id,
-      status: 'pending'
-    }))
-
-    await supabaseAdmin
-      .from('campaign_recipients')
-      .insert(recipientRecords)
-
-    // Start sending in background (simplified - in production use a queue)
-    sendCampaignMessages(campaign, recipients).catch(console.error)
 
     return res.json({ 
       success: true, 
-      message: 'Campaign sending started',
-      total_recipients: recipients.length
+      message: 'Campaign queued for sending with anti-ban protection',
+      total_recipients: result.queued
     })
   } catch (error) {
     console.error('Error sending campaign:', error)
@@ -380,113 +336,138 @@ router.post('/:id/send', async (req: Request, res: Response) => {
   }
 })
 
-// Helper function to send campaign messages
-async function sendCampaignMessages(
-  campaign: {
-    id: string
-    type: string
-    message_template: string
-    subject?: string
-    workspace_id: string
-  },
-  recipients: Array<{
-    id: string
-    phone: string
-    email?: string
-    full_name?: string
-    whatsapp_name?: string
-    company?: string
-  }>
-) {
-  // Get WhatsApp session for the workspace if it's a WhatsApp campaign
-  let whatsappSession = null
-  if (campaign.type === 'whatsapp') {
-    const { data: session } = await supabaseAdmin
-      .from('whatsapp_accounts')
-      .select('session_id')
-      .eq('workspace_id', campaign.workspace_id)
-      .eq('status', 'connected')
-      .single()
-    
-    whatsappSession = session?.session_id
-  }
+// Pause a campaign
+router.post('/:id/pause', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const campaignId = req.params.id
 
-  let sentCount = 0
-  let failedCount = 0
-
-  for (const recipient of recipients) {
-    try {
-      // Replace template variables
-      const name = recipient.full_name || recipient.whatsapp_name || 'Cliente'
-      const message = campaign.message_template
-        .replace(/\{\{nombre\}\}/gi, name)
-        .replace(/\{\{empresa\}\}/gi, recipient.company || '')
-        .replace(/\{\{telefono\}\}/gi, recipient.phone || '')
-
-      if (campaign.type === 'whatsapp' && whatsappSession) {
-        // Send WhatsApp message via the WhatsApp service
-        // This would integrate with your existing WhatsApp sending logic
-        // For now, we'll just mark as sent
-        
-        // TODO: Integrate with actual WhatsApp sending
-        // await sendWhatsAppMessage(whatsappSession, recipient.phone, message)
-        
-        await supabaseAdmin
-          .from('campaign_recipients')
-          .update({ 
-            status: 'sent',
-            sent_at: new Date().toISOString()
-          })
-          .eq('campaign_id', campaign.id)
-          .eq('client_id', recipient.id)
-
-        sentCount++
-      } else if (campaign.type === 'email' && recipient.email) {
-        // Send email
-        // TODO: Integrate with email sending service
-        
-        await supabaseAdmin
-          .from('campaign_recipients')
-          .update({ 
-            status: 'sent',
-            sent_at: new Date().toISOString()
-          })
-          .eq('campaign_id', campaign.id)
-          .eq('client_id', recipient.id)
-
-        sentCount++
-      } else {
-        throw new Error('No valid channel for recipient')
-      }
-
-      // Small delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100))
-    } catch (error) {
-      console.error(`Failed to send to ${recipient.id}:`, error)
-      
-      await supabaseAdmin
-        .from('campaign_recipients')
-        .update({ 
-          status: 'failed',
-          error_message: error instanceof Error ? error.message : 'Unknown error'
-        })
-        .eq('campaign_id', campaign.id)
-        .eq('client_id', recipient.id)
-
-      failedCount++
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
     }
-  }
 
-  // Update campaign as completed
-  await supabaseAdmin
-    .from('campaigns')
-    .update({
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      sent_count: sentCount,
-      failed_count: failedCount
+    const success = await campaignService.pauseCampaign(campaignId)
+    
+    if (!success) {
+      return res.status(400).json({ error: 'Failed to pause campaign' })
+    }
+
+    return res.json({ success: true, message: 'Campaign paused' })
+  } catch (error) {
+    console.error('Error pausing campaign:', error)
+    return res.status(500).json({ error: 'Failed to pause campaign' })
+  }
+})
+
+// Resume a paused campaign
+router.post('/:id/resume', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const campaignId = req.params.id
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const success = await campaignService.resumeCampaign(campaignId)
+    
+    if (!success) {
+      return res.status(400).json({ error: 'Failed to resume campaign' })
+    }
+
+    return res.json({ success: true, message: 'Campaign resumed' })
+  } catch (error) {
+    console.error('Error resuming campaign:', error)
+    return res.status(500).json({ error: 'Failed to resume campaign' })
+  }
+})
+
+// Cancel a campaign
+router.post('/:id/cancel', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const campaignId = req.params.id
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const success = await campaignService.cancelCampaign(campaignId)
+    
+    if (!success) {
+      return res.status(400).json({ error: 'Failed to cancel campaign' })
+    }
+
+    return res.json({ success: true, message: 'Campaign cancelled' })
+  } catch (error) {
+    console.error('Error cancelling campaign:', error)
+    return res.status(500).json({ error: 'Failed to cancel campaign' })
+  }
+})
+
+// Get campaign statistics
+router.get('/:id/stats', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const campaignId = req.params.id
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const stats = await campaignService.getCampaignStats(campaignId)
+    
+    return res.json({ success: true, data: stats })
+  } catch (error) {
+    console.error('Error fetching campaign stats:', error)
+    return res.status(500).json({ error: 'Failed to fetch stats' })
+  }
+})
+
+// Preview recipients for a campaign (before sending)
+router.post('/:id/preview', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserIdFromToken(req)
+    const campaignId = req.params.id
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    // Get campaign
+    const { data: campaign } = await supabaseAdmin
+      .from('campaigns')
+      .select('workspace_id, filters')
+      .eq('id', campaignId)
+      .single()
+
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' })
+    }
+
+    // Get matching clients
+    const clients = await campaignService.getMatchingClients(
+      campaign.workspace_id,
+      campaign.filters || {}
+    )
+
+    return res.json({ 
+      success: true, 
+      data: {
+        count: clients.length,
+        preview: clients.slice(0, 10).map(c => ({
+          id: c.id,
+          name: c.full_name || c.whatsapp_name,
+          phone: c.phone,
+          status: c.status,
+          source: c.source
+        }))
+      }
     })
-    .eq('id', campaign.id)
-}
+  } catch (error) {
+    console.error('Error previewing campaign:', error)
+    return res.status(500).json({ error: 'Failed to preview campaign' })
+  }
+})
 
 export default router
