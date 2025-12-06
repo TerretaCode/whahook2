@@ -45,7 +45,7 @@ export default function ClientsPage() {
   const t = useTranslations('clients')
   const tCommon = useTranslations('common')
   const { user, isLoading: authLoading } = useAuth()
-  const { workspace } = useWorkspaceContext()
+  const { workspace, hasPermission, isOwner, isLoading: workspaceLoading } = useWorkspaceContext()
   const [clients, setClients] = useState<Client[]>([])
   const [filteredClients, setFilteredClients] = useState<Client[]>([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -58,11 +58,18 @@ export default function ClientsPage() {
   const [autoCapture, setAutoCapture] = useState(false)
   const [isLoadingSettings, setIsLoadingSettings] = useState(true)
 
+  // Check permission to access clients
+  const canAccessClients = isOwner || hasPermission('clients')
+
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login')
     }
-  }, [user, authLoading, router])
+    // Redirect if no permission
+    if (!authLoading && !workspaceLoading && user && !canAccessClients) {
+      router.push('/dashboard')
+    }
+  }, [user, authLoading, workspaceLoading, canAccessClients, router])
 
   // Memoized fetch function
   const fetchClients = useCallback(async () => {

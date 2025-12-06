@@ -21,7 +21,10 @@ function ConversationsContent() {
   const searchParams = useSearchParams()
   const t = useTranslations('conversations')
   const { user, isLoading: authLoading, effectivePlan } = useAuth()
-  const { workspace, workspaces, setWorkspace, isOwner, isLoading: workspaceLoading } = useWorkspaceContext()
+  const { workspace, workspaces, setWorkspace, isOwner, isLoading: workspaceLoading, hasPermission } = useWorkspaceContext()
+  
+  // Check permission to access messages
+  const canAccessMessages = isOwner || hasPermission('messages')
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
   const [initialPhoneProcessed, setInitialPhoneProcessed] = useState(false)
   const [showWorkspaceSelector, setShowWorkspaceSelector] = useState(false)
@@ -40,7 +43,11 @@ function ConversationsContent() {
     if (!authLoading && !user) {
       router.push('/login')
     }
-  }, [user, authLoading, router])
+    // Redirect if no permission
+    if (!authLoading && !workspaceLoading && user && !canAccessMessages) {
+      router.push('/dashboard')
+    }
+  }, [user, authLoading, workspaceLoading, canAccessMessages, router])
 
   // Handle phone parameter from URL to auto-select conversation
   useEffect(() => {
