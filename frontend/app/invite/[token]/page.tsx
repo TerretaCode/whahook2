@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -56,6 +57,7 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 export default function AcceptInvitationPage() {
+  const t = useTranslations('invite')
   const params = useParams()
   const router = useRouter()
   const token = params?.token as string | undefined
@@ -82,7 +84,7 @@ export default function AcceptInvitationPage() {
         const result = await response.json()
 
         if (!response.ok || !result.success) {
-          setError(result.error || 'Invalid or expired invitation')
+          setError(result.error || t('invalidInvitation'))
           return
         }
 
@@ -93,7 +95,7 @@ export default function AcceptInvitationPage() {
         }
 
         if (result.data.status === 'expired') {
-          setError('This invitation has expired')
+          setError(t('expiredInvitation'))
           return
         }
 
@@ -110,7 +112,7 @@ export default function AcceptInvitationPage() {
 
         setData(result.data)
       } catch {
-        setError('Failed to load invitation')
+        setError(t('loadError'))
       } finally {
         setIsLoading(false)
       }
@@ -123,12 +125,12 @@ export default function AcceptInvitationPage() {
     e.preventDefault()
     
     if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+      setError(t('passwordMinLength'))
       return
     }
     
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('passwordsNoMatch'))
       return
     }
 
@@ -151,7 +153,7 @@ export default function AcceptInvitationPage() {
       if (authError) {
         // Check if user already exists
         if (authError.message.includes('already registered')) {
-          setError('This email already has an account. Please login instead.')
+          setError(t('emailExists'))
           return
         }
         throw authError
@@ -210,7 +212,7 @@ export default function AcceptInvitationPage() {
       >
         <Card className="w-full max-w-md p-8 shadow-xl text-center">
           <Loader2 className="w-12 h-12 animate-spin mx-auto" style={{ color: primaryColor }} />
-          <p className="mt-4 text-gray-600">Cargando invitación...</p>
+          <p className="mt-4 text-gray-600">{t('loading')}</p>
         </Card>
       </div>
     )
@@ -224,10 +226,10 @@ export default function AcceptInvitationPage() {
       >
         <Card className="w-full max-w-md p-8 shadow-xl text-center">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Invitación inválida</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('invalidTitle')}</h1>
           <p className="text-gray-600 mb-6">{error}</p>
           <Button onClick={() => router.push('/login')} variant="outline">
-            Ir al Login
+            {t('goToLogin')}
           </Button>
         </Card>
       </div>
@@ -249,23 +251,23 @@ export default function AcceptInvitationPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Verifica tu correo</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('verifyEmail')}</h1>
           <p className="text-gray-600 mb-4">
-            Hemos enviado un enlace de verificación a <strong>{data?.email}</strong>
+            {t('verificationSent')} <strong>{data?.email}</strong>
           </p>
           <div 
             className="rounded-lg p-4 mb-6"
             style={{ backgroundColor: `${primaryColor}10`, borderColor: `${primaryColor}30`, borderWidth: 1 }}
           >
             <p className="text-sm" style={{ color: primaryColor }}>
-              📧 Revisa tu bandeja de entrada (y spam) y haz clic en el enlace para activar tu cuenta.
+              📧 {t('checkInbox')}
             </p>
           </div>
           <p className="text-sm text-gray-500 mb-4">
-            Una vez verificado, podrás iniciar sesión y acceder a <strong>{data?.workspace_name}</strong>.
+            {t('onceVerified')} <strong>{data?.workspace_name}</strong>.
           </p>
           <Button onClick={() => router.push('/login')} variant="outline">
-            Ir al Login
+            {t('goToLogin')}
           </Button>
         </Card>
       </div>
@@ -280,11 +282,11 @@ export default function AcceptInvitationPage() {
       >
         <Card className="w-full max-w-md p-8 shadow-xl text-center">
           <CheckCircle2 className="w-16 h-16 mx-auto mb-4" style={{ color: primaryColor }} />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">¡Cuenta creada!</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('accountCreated')}</h1>
           <p className="text-gray-600 mb-4">
-            Tu cuenta ha sido creada y ahora tienes acceso a <strong>{data?.workspace_name}</strong>.
+            {t('accountCreatedDesc')} <strong>{data?.workspace_name}</strong>.
           </p>
-          <p className="text-sm text-gray-500">Redirigiendo al login...</p>
+          <p className="text-sm text-gray-500">{t('redirecting')}</p>
         </Card>
       </div>
     )
@@ -326,19 +328,19 @@ export default function AcceptInvitationPage() {
             </div>
           )}
           
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">¡Estás invitado!</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('youAreInvited')}</h1>
           <p className="text-gray-600">
             {data?.inviter_name ? (
-              <><strong>{data.inviter_name}</strong> te ha invitado a unirte a</>
+              <>{t('invitedBy', { name: data.inviter_name })}</>
             ) : (
-              <>Has sido invitado a unirte a</>
+              <>{t('invitedToJoin')}</>
             )}
           </p>
           <p className="text-lg font-semibold mt-1" style={{ color: primaryColor }}>
             {data?.workspace_name}
           </p>
           <span className="inline-block mt-2 px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
-            Rol: {ROLE_LABELS[data?.role || ''] || data?.role}
+            {t('role')}: {t(`roles.${data?.role}`) || data?.role}
           </span>
         </div>
 
@@ -355,13 +357,13 @@ export default function AcceptInvitationPage() {
               className="bg-gray-100 cursor-not-allowed"
             />
             <p className="text-xs text-gray-500 mt-1">
-              This is the email you were invited with
+              {t('emailNote')}
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Create Password
+              {t('createPassword')}
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -369,7 +371,7 @@ export default function AcceptInvitationPage() {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="At least 6 characters"
+                placeholder={t('passwordPlaceholder')}
                 className="pl-10 pr-10"
                 required
                 minLength={6}
@@ -386,7 +388,7 @@ export default function AcceptInvitationPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Confirm Password
+              {t('confirmPassword')}
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -394,7 +396,7 @@ export default function AcceptInvitationPage() {
                 type={showPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Repeat your password"
+                placeholder={t('confirmPlaceholder')}
                 className="pl-10"
                 required
               />
@@ -416,19 +418,19 @@ export default function AcceptInvitationPage() {
             {isCreating ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creando cuenta...
+                {t('creating')}
               </>
             ) : (
-              'Crear cuenta y unirme'
+              t('createAndJoin')
             )}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
-            ¿Ya tienes una cuenta?{' '}
+            {t('alreadyHaveAccount')}{' '}
             <a href="/login" className="hover:underline font-medium" style={{ color: primaryColor }}>
-              Inicia sesión aquí
+              {t('loginHere')}
             </a>
           </p>
         </div>
