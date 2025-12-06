@@ -483,10 +483,12 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
       const { data: configs } = await supabaseAdmin
         .from('chatbot_configs')
         .select('*')
-        .in('whatsapp_session_id', sessionIds)
+        .in('session_id', sessionIds)
       
       chatbotConfigs = configs || []
     }
+    
+    console.log(`📱 [GET /workspaces/${id}/chatbot] Found ${chatbotConfigs.length} chatbot configs for sessions:`, sessionIds)
 
     // Fetch web chatbot configs for all widgets
     const widgetIds = widgets.map(w => w.id)
@@ -504,7 +506,7 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
     // Map configs by session_id for easy lookup
     const configsBySession: Record<string, any> = {}
     for (const config of chatbotConfigs) {
-      configsBySession[config.whatsapp_session_id] = config
+      configsBySession[config.session_id] = config
     }
 
     // Map web configs by widget_id for easy lookup

@@ -56,12 +56,14 @@ router.get('/whatsapp/:sessionId', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
+    // Get config by session_id only (not by user_id, as workspace members need access)
     const { data: config, error } = await supabaseAdmin
       .from('chatbot_configs')
       .select('*')
-      .eq('user_id', userId)
       .eq('session_id', sessionId)
       .single()
+
+    console.log(`📱 [GET /chatbot/whatsapp/${sessionId}] config found:`, !!config, 'has_api_key:', !!config?.api_key_encrypted)
 
     if (error && error.code !== 'PGRST116') {
       console.error('Error fetching chatbot config:', error)
@@ -101,13 +103,14 @@ router.post('/whatsapp/:sessionId', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    // Get workspace_id from the WhatsApp account
+    // Get workspace_id from the WhatsApp account (don't filter by user_id)
     const { data: waAccount } = await supabaseAdmin
       .from('whatsapp_accounts')
-      .select('workspace_id')
+      .select('workspace_id, user_id')
       .eq('session_id', sessionId)
-      .eq('user_id', userId)
       .single()
+    
+    console.log(`📱 [POST /chatbot/whatsapp/${sessionId}] waAccount:`, waAccount)
 
     // Prepare data for upsert
     const configData: any = {
@@ -154,15 +157,17 @@ router.post('/whatsapp/:sessionId', async (req: Request, res: Response) => {
       configData.has_api_key = true
     }
 
-    // Upsert config
+    // Upsert config - use session_id as the unique key (not user_id)
     const { data: config, error } = await supabaseAdmin
       .from('chatbot_configs')
       .upsert(configData, { 
-        onConflict: 'user_id,session_id',
+        onConflict: 'session_id',
         ignoreDuplicates: false 
       })
       .select()
       .single()
+    
+    console.log(`📱 [POST /chatbot/whatsapp/${sessionId}] Saved config:`, !!config, 'error:', error?.message)
 
     if (error) {
       console.error('Error saving chatbot config:', error)
@@ -220,10 +225,10 @@ router.get('/whatsapp/:sessionId/api-key', async (req: Request, res: Response) =
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
+    // Get by session_id only (not by user_id)
     const { data: config, error } = await supabaseAdmin
       .from('chatbot_configs')
       .select('api_key_encrypted')
-      .eq('user_id', userId)
       .eq('session_id', sessionId)
       .single()
 
