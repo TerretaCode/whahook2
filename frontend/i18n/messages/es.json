@@ -154,6 +154,29 @@
       "passwordChanged": "Contraseña cambiada exitosamente"
     }
   },
+  "config": {
+    "testWebChatbot": {
+      "title": "Probar Chatbot Web",
+      "back": "Volver",
+      "testing": "Probando",
+      "widgetNotFound": "Widget no encontrado",
+      "widgetNotFoundDesc": "No se pudo encontrar el widget del chatbot",
+      "backToSettings": "Volver a Configuración de Chatbot",
+      "testYourChatbot": "Prueba tu chatbot",
+      "testInstructions": "Haz clic en la burbuja de chat en la esquina inferior derecha para abrir el chat y probar tu bot. Así es exactamente como aparecerá en tu sitio web.",
+      "previewArea": "Área de vista previa - El widget de chat aparecerá en la esquina",
+      "widgetLoaded": "✓ Widget cargado",
+      "loadingWidget": "Cargando widget...",
+      "sampleContent": "Contenido de Ejemplo",
+      "sampleContentDesc": "Esta es un área de vista previa que simula tu sitio web. El widget de chat aparecerá en la esquina igual que lo haría en tu sitio real.",
+      "testFollowing": "Prueba lo siguiente:",
+      "testStep1": "Haz clic en la burbuja de chat para abrir el chat",
+      "testStep2": "Envía un mensaje para probar la respuesta de la IA",
+      "testStep3": "Verifica el indicador de escritura",
+      "testStep4": "Prueba el selector de emojis",
+      "testStep5": "Verifica el logo del encabezado y los colores"
+    }
+  },
   "dashboard": {
     "greeting": "¡Hola, {name}!",
     "summary": "Aquí tienes el resumen de tu actividad",
