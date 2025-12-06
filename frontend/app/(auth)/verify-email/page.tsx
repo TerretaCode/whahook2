@@ -3,12 +3,14 @@
 import { useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { useTranslations } from 'next-intl'
 import { AuthCard } from "../components/AuthCard"
 import { Button } from "@/components/ui/button"
 import { Mail, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 import { useServerBranding } from "@/contexts/ServerBrandingContext"
 
 function VerifyEmailContent() {
+  const t = useTranslations('auth.verifyEmail')
   const searchParams = useSearchParams()
   const email = searchParams.get('email')
   const [isResending, setIsResending] = useState(false)
@@ -32,8 +34,8 @@ function VerifyEmailContent() {
 
   return (
     <AuthCard
-      title="Verify Your Email"
-      description="We've sent a verification link to your email"
+      title={t('title')}
+      description={t('subtitle')}
     >
       <div className="space-y-6">
         {/* Email Icon */}
@@ -49,7 +51,7 @@ function VerifyEmailContent() {
         {/* Email Address */}
         {email && (
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-1">Verification email sent to:</p>
+            <p className="text-sm text-gray-600 mb-1">{t('sentTo')}</p>
             <p className="text-base font-semibold text-gray-900">{email}</p>
           </div>
         )}
@@ -59,9 +61,9 @@ function VerifyEmailContent() {
           <div className="flex items-start gap-3">
             <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-green-900">
-              <p className="font-medium mb-1">Check your inbox</p>
+              <p className="font-medium mb-1">{t('checkInbox')}</p>
               <p className="text-green-700">
-                Click the verification link in the email we sent you to activate your account.
+                {t('clickLink')}
               </p>
             </div>
           </div>
@@ -69,9 +71,9 @@ function VerifyEmailContent() {
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-green-900">
-              <p className="font-medium mb-1">Can&apos;t find the email?</p>
+              <p className="font-medium mb-1">{t('cantFind')}</p>
               <p className="text-green-700">
-                Check your spam or junk folder. The email should arrive within a few minutes.
+                {t('checkSpam')}
               </p>
             </div>
           </div>
@@ -82,7 +84,7 @@ function VerifyEmailContent() {
           {resendSuccess && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
               <p className="text-sm text-green-700 font-medium">
-                ✓ Verification email sent successfully!
+                ✓ {t('sentSuccess')}
               </p>
             </div>
           )}
@@ -96,15 +98,15 @@ function VerifyEmailContent() {
             {isResending ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Sending...
+                {t('sending')}
               </>
             ) : resendSuccess ? (
               <>
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Email Sent!
+                {t('emailSent')}
               </>
             ) : (
-              "Resend Verification Email"
+              t('resend')
             )}
           </Button>
         </div>
@@ -112,13 +114,13 @@ function VerifyEmailContent() {
         {/* Back to Login */}
         <div className="text-center">
           <p className="text-sm text-gray-600">
-            Already verified?{" "}
+            {t('alreadyVerified')}{" "}
             <Link 
               href="/login" 
               className="font-medium hover:underline"
               style={{ color: primaryColor }}
             >
-              Sign in
+              {t('signIn')}
             </Link>
           </p>
         </div>
@@ -126,13 +128,13 @@ function VerifyEmailContent() {
         {/* Help */}
         <div className="pt-4 border-t border-gray-200">
           <p className="text-xs text-center text-gray-500">
-            Need help?{" "}
+            {t('needHelp')}{" "}
             <a 
               href="mailto:support@whahook.com" 
               className="hover:underline"
               style={{ color: primaryColor }}
             >
-              Contact support
+              {t('contactSupport')}
             </a>
           </p>
         </div>

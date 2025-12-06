@@ -217,6 +217,23 @@
       "changeFailed": "Failed to change password",
       "changeSuccess": "Password changed successfully",
       "somethingWrong": "Something went wrong. Please try again."
+    },
+    "verifyEmail": {
+      "title": "Verify Your Email",
+      "subtitle": "We've sent a verification link to your email",
+      "sentTo": "Verification email sent to:",
+      "checkInbox": "Check your inbox",
+      "clickLink": "Click the verification link in the email we sent you to activate your account.",
+      "cantFind": "Can't find the email?",
+      "checkSpam": "Check your spam or junk folder. The email should arrive within a few minutes.",
+      "sentSuccess": "Verification email sent successfully!",
+      "sending": "Sending...",
+      "emailSent": "Email Sent!",
+      "resend": "Resend Verification Email",
+      "alreadyVerified": "Already verified?",
+      "signIn": "Sign in",
+      "needHelp": "Need help?",
+      "contactSupport": "Contact support"
     }
   },
   "config": {

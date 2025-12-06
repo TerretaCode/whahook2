@@ -217,6 +217,23 @@
       "changeFailed": "Error al cambiar contraseña",
       "changeSuccess": "Contraseña cambiada exitosamente",
       "somethingWrong": "Algo salió mal. Por favor intenta de nuevo."
+    },
+    "verifyEmail": {
+      "title": "Verifica tu Correo",
+      "subtitle": "Hemos enviado un enlace de verificación a tu correo",
+      "sentTo": "Correo de verificación enviado a:",
+      "checkInbox": "Revisa tu bandeja de entrada",
+      "clickLink": "Haz clic en el enlace de verificación del correo que te enviamos para activar tu cuenta.",
+      "cantFind": "¿No encuentras el correo?",
+      "checkSpam": "Revisa tu carpeta de spam o correo no deseado. El correo debería llegar en unos minutos.",
+      "sentSuccess": "¡Correo de verificación enviado exitosamente!",
+      "sending": "Enviando...",
+      "emailSent": "¡Correo Enviado!",
+      "resend": "Reenviar Correo de Verificación",
+      "alreadyVerified": "¿Ya verificaste?",
+      "signIn": "Iniciar sesión",
+      "needHelp": "¿Necesitas ayuda?",
+      "contactSupport": "Contactar soporte"
     }
   },
   "config": {
