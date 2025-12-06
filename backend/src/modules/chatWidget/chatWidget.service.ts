@@ -249,22 +249,23 @@ class ChatWidgetService {
     data: { name?: string; email?: string; phone?: string }
   ): Promise<void> {
     try {
-      // Get widget to find user_id
+      // Get widget to find user_id and workspace_id
       const { data: widget } = await supabaseAdmin
         .from('chat_widgets')
-        .select('user_id')
+        .select('user_id, workspace_id')
         .eq('id', widgetId)
         .single()
 
       if (!widget) return
 
-      // Check if client already exists for this visitor
+      // Check if client already exists for this visitor in this workspace
       const { data: existingClient } = await supabaseAdmin
         .from('clients')
         .select('id')
         .eq('user_id', widget.user_id)
         .eq('visitor_id', visitorId)
         .eq('source', 'web')
+        .eq('workspace_id', widget.workspace_id)
         .single()
 
       if (existingClient) {
@@ -282,11 +283,12 @@ class ChatWidgetService {
           .update(updateData)
           .eq('id', existingClient.id)
       } else {
-        // Create new client
+        // Create new client with workspace_id
         await supabaseAdmin
           .from('clients')
           .insert({
             user_id: widget.user_id,
+            workspace_id: widget.workspace_id,
             visitor_id: visitorId,
             widget_id: widgetId,
             source: 'web',

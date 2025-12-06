@@ -593,6 +593,7 @@ async function callAnthropic(prompt: string, model: string, apiKey: string): Pro
 /**
  * POST /api/clients/sync
  * Sync clients from existing conversations
+ * Supports workspace_id filter
  */
 router.post('/sync', async (req: Request, res: Response) => {
   try {
@@ -601,11 +602,20 @@ router.post('/sync', async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
 
-    // Get all conversations for user
-    const { data: conversations, error: convError } = await supabaseAdmin
+    const { workspace_id } = req.body
+
+    // Build query for conversations
+    let convQuery = supabaseAdmin
       .from('conversations')
-      .select('contact_phone, contact_name, created_at, last_message_at')
+      .select('contact_phone, contact_name, created_at, last_message_at, workspace_id')
       .eq('user_id', userId)
+
+    // Filter by workspace if provided
+    if (workspace_id) {
+      convQuery = convQuery.eq('workspace_id', workspace_id)
+    }
+
+    const { data: conversations, error: convError } = await convQuery
 
     if (convError) {
       return res.status(500).json({ success: false, error: 'Error fetching conversations' })
@@ -623,12 +633,15 @@ router.post('/sync', async (req: Request, res: Response) => {
         .from('clients')
         .upsert({
           user_id: userId,
+          workspace_id: conv.workspace_id || workspace_id || null,
           phone: conv.contact_phone,
           whatsapp_name: conv.contact_name,
+          source: 'whatsapp',
           first_contact_at: conv.created_at,
           last_contact_at: conv.last_message_at,
           total_messages: count || 0,
-          total_conversations: 1
+          total_conversations: 1,
+          status: 'lead'
         }, {
           onConflict: 'user_id,phone',
           ignoreDuplicates: false

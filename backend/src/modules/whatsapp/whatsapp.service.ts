@@ -558,10 +558,10 @@ class WhatsAppService {
 
     // Log solo si es mensaje nuevo (no del sync inicial)
 
-    // Obtener whatsapp_account_id
+    // Obtener whatsapp_account_id y workspace_id
     const { data: waAccount } = await supabaseAdmin
       .from('whatsapp_accounts')
-      .select('id')
+      .select('id, workspace_id')
       .eq('session_id', sessionId)
       .single()
 
@@ -580,11 +580,12 @@ class WhatsAppService {
       .single()
 
     if (!conversation) {
-      // Crear nueva conversación
+      // Crear nueva conversación con workspace_id
       const { data: newConv, error: convError } = await supabaseAdmin
         .from('conversations')
         .insert({
           user_id: userId,
+          workspace_id: waAccount.workspace_id,
           whatsapp_account_id: waAccount.id,
           contact_phone: contactPhone,
           contact_name: contactName,
@@ -760,10 +761,10 @@ class WhatsAppService {
       // Esperar a que WhatsApp cargue los chats
       await new Promise(resolve => setTimeout(resolve, 3000))
 
-      // Obtener whatsapp_account_id
+      // Obtener whatsapp_account_id y workspace_id
       const { data: waAccount, error: waError } = await supabaseAdmin
         .from('whatsapp_accounts')
-        .select('id')
+        .select('id, workspace_id')
         .eq('session_id', sessionId)
         .single()
 
@@ -831,11 +832,12 @@ class WhatsAppService {
                 })
                 .eq('id', existingConvId)
             } else {
-              // Crear nueva conversación
+              // Crear nueva conversación con workspace_id
               const { data: newConv, error: convError } = await supabaseAdmin
                 .from('conversations')
                 .insert({
                   user_id: userId,
+                  workspace_id: waAccount.workspace_id,
                   session_id: sessionId,
                   whatsapp_account_id: waAccount.id,
                   contact_phone: contactPhone,
