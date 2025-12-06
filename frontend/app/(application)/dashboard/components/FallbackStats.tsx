@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/contexts/AuthContext'
 import { ApiClient } from '@/lib/api-client'
 import { AlertCircle, TrendingUp, TrendingDown, Activity } from 'lucide-react'
@@ -20,6 +21,7 @@ interface FallbackStats {
 }
 
 export function FallbackStats() {
+  const t = useTranslations('dashboard.fallbackStats')
   const { user } = useAuth()
   const [stats, setStats] = useState<FallbackStats | null>(null)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
@@ -61,9 +63,9 @@ export function FallbackStats() {
   }, [trend])
 
   const trendText = useMemo(() => {
-    if (trend === 'up') return 'Aumentando'
-    if (trend === 'down') return 'Disminuyendo'
-    return 'Estable'
+    if (trend === 'up') return t('increasing')
+    if (trend === 'down') return t('decreasing')
+    return t('stable')
   }, [trend])
 
   const trendColor = useMemo(() => {
@@ -83,8 +85,8 @@ export function FallbackStats() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Estadísticas de Fallbacks</CardTitle>
-          <CardDescription>Análisis de intervenciones manuales</CardDescription>
+          <CardTitle>{t('title')}</CardTitle>
+          <CardDescription>{t('subtitle')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
@@ -99,11 +101,11 @@ export function FallbackStats() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Estadísticas de Fallbacks</CardTitle>
-          <CardDescription>Análisis de intervenciones manuales</CardDescription>
+          <CardTitle>{t('title')}</CardTitle>
+          <CardDescription>{t('subtitle')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-500">No hay datos disponibles</p>
+          <p className="text-sm text-gray-500">{t('noData')}</p>
         </CardContent>
       </Card>
     )
@@ -114,10 +116,10 @@ export function FallbackStats() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <AlertCircle className="w-5 h-5 text-orange-500" />
-          Estadísticas de Fallbacks
+          {t('title')}
         </CardTitle>
         <CardDescription>
-          Análisis de intervenciones manuales y solicitudes de atención
+          {t('subtitleFull')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -125,21 +127,21 @@ export function FallbackStats() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {/* Total */}
           <div className="space-y-1">
-            <p className="text-sm text-gray-500">Total</p>
+            <p className="text-sm text-gray-500">{t('total')}</p>
             <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-            <p className="text-xs text-gray-400">Todos los tiempos</p>
+            <p className="text-xs text-gray-400">{t('allTime')}</p>
           </div>
 
           {/* Today */}
           <div className="space-y-1">
-            <p className="text-sm text-gray-500">Hoy</p>
+            <p className="text-sm text-gray-500">{t('today')}</p>
             <p className="text-2xl font-bold text-orange-600">{stats.today}</p>
-            <p className="text-xs text-gray-400">Últimas 24h</p>
+            <p className="text-xs text-gray-400">{t('last24h')}</p>
           </div>
 
           {/* This Week */}
           <div className="space-y-1">
-            <p className="text-sm text-gray-500">Esta Semana</p>
+            <p className="text-sm text-gray-500">{t('thisWeek')}</p>
             <p className="text-2xl font-bold text-green-600">{stats.thisWeek}</p>
             <div className="flex items-center gap-1">
               {trendIcon}
@@ -151,7 +153,7 @@ export function FallbackStats() {
 
           {/* Last Fallback */}
           <div className="space-y-1">
-            <p className="text-sm text-gray-500">Último Fallback</p>
+            <p className="text-sm text-gray-500">{t('lastFallback')}</p>
             <p className="text-sm font-semibold text-gray-900">
               {stats.lastFallback ? (
                 formatDistanceToNow(new Date(stats.lastFallback), {
@@ -159,16 +161,16 @@ export function FallbackStats() {
                   locale: es
                 })
               ) : (
-                'Nunca'
+                t('never')
               )}
             </p>
-            <p className="text-xs text-gray-400">Más reciente</p>
+            <p className="text-xs text-gray-400">{t('mostRecent')}</p>
           </div>
         </div>
 
         {/* Breakdown by Type */}
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-gray-700">Desglose por Tipo</h4>
+          <h4 className="text-sm font-semibold text-gray-700">{t('breakdownByType')}</h4>
           
           <div className="space-y-2">
             {/* Uncertainty */}
@@ -176,8 +178,8 @@ export function FallbackStats() {
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Incertidumbre de IA</p>
-                  <p className="text-xs text-gray-500">Bot no pudo responder</p>
+                  <p className="text-sm font-medium text-gray-900">{t('aiUncertainty')}</p>
+                  <p className="text-xs text-gray-500">{t('aiUncertaintyDesc')}</p>
                 </div>
               </div>
               <div className="text-right">
@@ -193,8 +195,8 @@ export function FallbackStats() {
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Solicitud Humana</p>
-                  <p className="text-xs text-gray-500">Cliente pidió agente</p>
+                  <p className="text-sm font-medium text-gray-900">{t('humanRequest')}</p>
+                  <p className="text-xs text-gray-500">{t('humanRequestDesc')}</p>
                 </div>
               </div>
               <div className="text-right">
@@ -210,22 +212,22 @@ export function FallbackStats() {
         {/* Insights */}
         {stats.total > 0 && (
           <div className="p-4 bg-green-50 rounded-lg border border-green-100">
-            <h4 className="text-sm font-semibold text-green-900 mb-2">💡 Insights</h4>
+            <h4 className="text-sm font-semibold text-green-900 mb-2">💡 {t('insights')}</h4>
             <ul className="space-y-1 text-sm text-green-800">
               {stats.uncertainty > stats.human_request && (
-                <li>• Considera mejorar el prompt o agregar más contexto al bot</li>
+                <li>• {t('insightImprovePrompt')}</li>
               )}
               {stats.human_request > stats.uncertainty && (
-                <li>• Los clientes prefieren atención humana. Considera mejorar la confianza del bot</li>
+                <li>• {t('insightHumanPreferred')}</li>
               )}
               {trend === 'up' && (
-                <li>• Los fallbacks están aumentando. Revisa la configuración del bot</li>
+                <li>• {t('insightIncreasing')}</li>
               )}
               {trend === 'down' && (
-                <li>• ¡Excelente! Los fallbacks están disminuyendo</li>
+                <li>• {t('insightDecreasing')}</li>
               )}
               {stats.today === 0 && (
-                <li>• ¡Perfecto! No hay fallbacks hoy</li>
+                <li>• {t('insightNoFallbacksToday')}</li>
               )}
             </ul>
           </div>

@@ -182,6 +182,34 @@
       "starter": "Starter Plan",
       "professional": "Professional Plan",
       "enterprise": "Enterprise Plan"
+    },
+    "fallbackStats": {
+      "title": "Fallback Statistics",
+      "subtitle": "Manual intervention analysis",
+      "subtitleFull": "Analysis of manual interventions and attention requests",
+      "noData": "No data available",
+      "total": "Total",
+      "allTime": "All time",
+      "today": "Today",
+      "last24h": "Last 24h",
+      "thisWeek": "This Week",
+      "lastFallback": "Last Fallback",
+      "never": "Never",
+      "mostRecent": "Most recent",
+      "increasing": "Increasing",
+      "decreasing": "Decreasing",
+      "stable": "Stable",
+      "breakdownByType": "Breakdown by Type",
+      "aiUncertainty": "AI Uncertainty",
+      "aiUncertaintyDesc": "Bot couldn't respond",
+      "humanRequest": "Human Request",
+      "humanRequestDesc": "Customer asked for agent",
+      "insights": "Insights",
+      "insightImprovePrompt": "Consider improving the prompt or adding more context to the bot",
+      "insightHumanPreferred": "Customers prefer human attention. Consider improving bot confidence",
+      "insightIncreasing": "Fallbacks are increasing. Review bot configuration",
+      "insightDecreasing": "Excellent! Fallbacks are decreasing",
+      "insightNoFallbacksToday": "Perfect! No fallbacks today"
     }
   },
   "conversations": {
@@ -244,6 +272,9 @@
     },
     "starters": {
       "title": "Suggestions to start:"
+    },
+    "chatWindow": {
+      "messagesCount": "{count} messages in this conversation"
     }
   },
   "clients": {

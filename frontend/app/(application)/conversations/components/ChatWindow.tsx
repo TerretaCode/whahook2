@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import { useTranslations } from 'next-intl'
 import { ChatHeader } from "./ChatHeader"
 import { MessageList } from "./MessageList"
 import { ChatInput } from "./ChatInput"
@@ -47,6 +48,7 @@ interface ChatWindowProps {
 }
 
 export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
+  const t = useTranslations('conversations.chatWindow')
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
@@ -431,7 +433,7 @@ export function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
             {/* Indicador de cantidad de mensajes */}
             {messages.length > 0 && (
               <div className="text-center text-xs text-gray-400 py-2">
-                {messages.length} mensajes en esta conversación
+                {t('messagesCount', { count: messages.length })}
               </div>
             )}
             {showStarters && (
