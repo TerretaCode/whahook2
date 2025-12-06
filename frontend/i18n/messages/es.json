@@ -278,6 +278,10 @@
     },
     "chatWindow": {
       "messagesCount": "{count} mensajes en esta conversación"
+    },
+    "messageList": {
+      "noMessages": "Sin mensajes aún",
+      "startConversation": "Inicia la conversación"
     }
   },
   "clients": {
@@ -596,7 +600,9 @@
         "saving": "Guardando...",
         "saved": "¡Guardado!",
         "saveError": "Error al guardar",
-        "saveApiKey": "Guardar Clave API"
+        "saveApiKey": "Guardar Clave API",
+        "howToGetKey": "Cómo obtener tu clave API de {provider}",
+        "openProvider": "Abrir {provider}"
       },
       "modelConfig": {
         "title": "Parámetros del Modelo IA",

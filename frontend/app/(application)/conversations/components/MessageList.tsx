@@ -1,6 +1,7 @@
 "use client"
 
 import { memo } from "react"
+import { useTranslations } from 'next-intl'
 import { MessageItem } from "./MessageItem"
 
 interface Message {
@@ -17,12 +18,14 @@ interface MessageListProps {
 }
 
 function MessageListComponent({ messages }: MessageListProps) {
+  const t = useTranslations('conversations.messageList')
+  
   if (messages.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
         <p className="text-gray-500 text-center">
-          No messages yet<br />
-          <span className="text-sm">Start the conversation</span>
+          {t('noMessages')}<br />
+          <span className="text-sm">{t('startConversation')}</span>
         </p>
       </div>
     )

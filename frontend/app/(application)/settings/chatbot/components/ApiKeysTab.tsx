@@ -305,7 +305,7 @@ export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabPr
             <HelpCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1">
               <h4 className="text-sm font-medium text-green-900 mb-2">
-                How to get your {currentProviderInfo.name} API Key
+                {t('howToGetKey', { provider: currentProviderInfo.name })}
               </h4>
               <ol className="text-sm text-green-800 space-y-1 list-decimal list-inside mb-3">
                 {currentProviderInfo.steps.map((step, i) => (
@@ -324,7 +324,7 @@ export function ApiKeysTab({ initialData, hasInitialData = false }: ApiKeysTabPr
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-green-700 hover:text-green-800 hover:underline"
               >
                 <ExternalLink className="w-4 h-4" />
-                Open {currentProviderInfo.name}
+                {t('openProvider', { provider: currentProviderInfo.name })}
               </a>
             </div>
           </div>

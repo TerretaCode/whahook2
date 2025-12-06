@@ -278,6 +278,10 @@
     },
     "chatWindow": {
       "messagesCount": "{count} messages in this conversation"
+    },
+    "messageList": {
+      "noMessages": "No messages yet",
+      "startConversation": "Start the conversation"
     }
   },
   "clients": {
@@ -596,7 +600,9 @@
         "saving": "Saving...",
         "saved": "Saved!",
         "saveError": "Error saving",
-        "saveApiKey": "Save API Key"
+        "saveApiKey": "Save API Key",
+        "howToGetKey": "How to get your {provider} API Key",
+        "openProvider": "Open {provider}"
       },
       "modelConfig": {
         "title": "AI Model Parameters",
