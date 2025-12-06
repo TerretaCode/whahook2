@@ -295,6 +295,10 @@
     "sync": "Sincronizar",
     "syncing": "Sincronizando...",
     "export": "Exportar",
+    "extractInfoError": "Error al extraer información. Asegúrate de haber configurado la IA con una clave API válida.",
+    "deleteError": "Error al eliminar cliente",
+    "saveError": "Error al guardar cliente",
+    "exportComingSoon": "Exportar a CSV - Próximamente",
     "autoCapture": {
       "title": "Captura Automática con IA",
       "description": "Extrae automáticamente email, empresa e intereses de las conversaciones",

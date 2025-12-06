@@ -295,6 +295,10 @@
     "sync": "Sync",
     "syncing": "Syncing...",
     "export": "Export",
+    "extractInfoError": "Error extracting info. Make sure you have configured the AI with a valid API key.",
+    "deleteError": "Error deleting client",
+    "saveError": "Error saving client",
+    "exportComingSoon": "Export to CSV - Coming soon",
     "autoCapture": {
       "title": "AI Auto-Capture",
       "description": "Automatically extract email, company & interests from conversations",

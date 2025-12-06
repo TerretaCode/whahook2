@@ -142,7 +142,7 @@ export default function ClientsPage() {
       await fetchClients()
     } catch (error) {
       console.error('Error extracting info:', error)
-      alert('Error extracting info. Make sure you have configured the AI with a valid API key.')
+      alert(t('extractInfoError'))
     }
   }
 
@@ -185,7 +185,7 @@ export default function ClientsPage() {
       await ApiClient.request(`/api/clients/${clientId}`, { method: 'DELETE' })
       setClients(prev => prev.filter(c => c.id !== clientId))
     } catch {
-      alert('Error deleting client')
+      alert(t('deleteError'))
     }
   }
 
@@ -201,13 +201,13 @@ export default function ClientsPage() {
       setIsModalOpen(false)
       setSelectedClient(null)
     } catch {
-      alert('Error saving client')
+      alert(t('saveError'))
     }
   }
 
   const handleExport = () => {
     // TODO: Implement CSV export
-    alert('Export to CSV - Coming soon')
+    alert(t('exportComingSoon'))
   }
 
   if (authLoading || !user) {
