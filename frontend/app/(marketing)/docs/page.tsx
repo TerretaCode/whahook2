@@ -1,17 +1,21 @@
+'use client'
+
 import Link from "next/link"
+import { useTranslations } from 'next-intl'
 import { Button } from "@/components/ui/button"
 import { Book, Code, Rocket, MessageSquare, Settings, Shield, ArrowRight } from "lucide-react"
 
 export default function DocsPage() {
+  const t = useTranslations('docsPage')
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-green-50 to-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl font-bold mb-4">Documentation</h1>
+            <h1 className="text-5xl font-bold mb-4">{t('title')}</h1>
             <p className="text-xl text-gray-600">
-              Everything you need to get started with WhaHook
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -21,22 +25,22 @@ export default function DocsPage() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold mb-12 text-center">Quick Start Guide</h2>
+            <h2 className="text-3xl font-bold mb-12 text-center">{t('quickStart.title')}</h2>
             <div className="grid md:grid-cols-3 gap-8">
               <QuickStartCard
                 number="1"
-                title="Create Account"
-                description="Sign up for a free account and verify your email address"
+                title={t('quickStart.step1.title')}
+                description={t('quickStart.step1.desc')}
               />
               <QuickStartCard
                 number="2"
-                title="Connect WhatsApp"
-                description="Link your WhatsApp Business account using QR code"
+                title={t('quickStart.step2.title')}
+                description={t('quickStart.step2.desc')}
               />
               <QuickStartCard
                 number="3"
-                title="Configure AI"
-                description="Set up your chatbot responses and automation rules"
+                title={t('quickStart.step3.title')}
+                description={t('quickStart.step3.desc')}
               />
             </div>
           </div>
@@ -47,43 +51,43 @@ export default function DocsPage() {
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold mb-12 text-center">Browse Documentation</h2>
+            <h2 className="text-3xl font-bold mb-12 text-center">{t('categories.title')}</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               <DocCard
                 icon={<Rocket className="w-8 h-8 text-green-600" />}
-                title="Getting Started"
-                description="Learn the basics and set up your first chatbot"
-                topics={["Account Setup", "WhatsApp Connection", "First Conversation"]}
+                title={t('categories.gettingStarted.title')}
+                description={t('categories.gettingStarted.desc')}
+                topics={[t('categories.gettingStarted.topic1'), t('categories.gettingStarted.topic2'), t('categories.gettingStarted.topic3')]}
               />
               <DocCard
                 icon={<MessageSquare className="w-8 h-8 text-green-600" />}
-                title="Chatbot Configuration"
-                description="Configure AI responses and conversation flows"
-                topics={["AI Training", "Response Templates", "Conversation Logic"]}
+                title={t('categories.chatbot.title')}
+                description={t('categories.chatbot.desc')}
+                topics={[t('categories.chatbot.topic1'), t('categories.chatbot.topic2'), t('categories.chatbot.topic3')]}
               />
               <DocCard
                 icon={<Code className="w-8 h-8 text-green-600" />}
-                title="API Reference"
-                description="Integrate WhaHook with your applications"
-                topics={["REST API", "Webhooks", "Authentication"]}
+                title={t('categories.api.title')}
+                description={t('categories.api.desc')}
+                topics={[t('categories.api.topic1'), t('categories.api.topic2'), t('categories.api.topic3')]}
               />
               <DocCard
                 icon={<Settings className="w-8 h-8 text-green-600" />}
-                title="Advanced Features"
-                description="Unlock the full potential of WhaHook"
-                topics={["Custom Integrations", "Workflows", "Analytics"]}
+                title={t('categories.advanced.title')}
+                description={t('categories.advanced.desc')}
+                topics={[t('categories.advanced.topic1'), t('categories.advanced.topic2'), t('categories.advanced.topic3')]}
               />
               <DocCard
                 icon={<Shield className="w-8 h-8 text-green-600" />}
-                title="Security & Privacy"
-                description="Keep your data safe and compliant"
-                topics={["Data Encryption", "GDPR Compliance", "Access Control"]}
+                title={t('categories.security.title')}
+                description={t('categories.security.desc')}
+                topics={[t('categories.security.topic1'), t('categories.security.topic2'), t('categories.security.topic3')]}
               />
               <DocCard
                 icon={<Book className="w-8 h-8 text-green-600" />}
-                title="Best Practices"
-                description="Tips and tricks for optimal results"
-                topics={["Conversation Design", "Performance Tips", "Common Patterns"]}
+                title={t('categories.bestPractices.title')}
+                description={t('categories.bestPractices.desc')}
+                topics={[t('categories.bestPractices.topic1'), t('categories.bestPractices.topic2'), t('categories.bestPractices.topic3')]}
               />
             </div>
           </div>
@@ -94,27 +98,27 @@ export default function DocsPage() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold mb-12 text-center">Popular Articles</h2>
+            <h2 className="text-3xl font-bold mb-12 text-center">{t('articles.title')}</h2>
             <div className="space-y-4">
               <ArticleLink
-                title="How to connect your WhatsApp Business account"
-                category="Getting Started"
+                title={t('articles.article1.title')}
+                category={t('articles.article1.category')}
               />
               <ArticleLink
-                title="Creating your first AI chatbot"
-                category="Chatbot Configuration"
+                title={t('articles.article2.title')}
+                category={t('articles.article2.category')}
               />
               <ArticleLink
-                title="Setting up appointment scheduling"
-                category="Advanced Features"
+                title={t('articles.article3.title')}
+                category={t('articles.article3.category')}
               />
               <ArticleLink
-                title="Understanding webhook events"
-                category="API Reference"
+                title={t('articles.article4.title')}
+                category={t('articles.article4.category')}
               />
               <ArticleLink
-                title="Best practices for conversation design"
-                category="Best Practices"
+                title={t('articles.article5.title')}
+                category={t('articles.article5.category')}
               />
             </div>
           </div>
@@ -125,14 +129,14 @@ export default function DocsPage() {
       <section className="py-20 bg-gradient-to-br from-green-600 to-green-700">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold text-white mb-4">
-            Need More Help?
+            {t('cta.title')}
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Can't find what you're looking for? Our support team is here to help
+            {t('cta.subtitle')}
           </p>
           <Link href="/contact">
             <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100 text-lg px-10 py-5 h-auto">
-              Contact Support
+              {t('cta.button')}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </Link>

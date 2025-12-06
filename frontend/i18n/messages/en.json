@@ -1821,5 +1821,142 @@
       "button": "Start Free Trial Now",
       "noCommitment": "No commitment"
     }
+  },
+  "docsPage": {
+    "title": "Documentation",
+    "subtitle": "Everything you need to get started with WhaHook",
+    "quickStart": {
+      "title": "Quick Start Guide",
+      "step1": {
+        "title": "Create Account",
+        "desc": "Sign up for a free account and verify your email address"
+      },
+      "step2": {
+        "title": "Connect WhatsApp",
+        "desc": "Link your WhatsApp Business account using QR code"
+      },
+      "step3": {
+        "title": "Configure AI",
+        "desc": "Set up your chatbot responses and automation rules"
+      }
+    },
+    "categories": {
+      "title": "Browse Documentation",
+      "gettingStarted": {
+        "title": "Getting Started",
+        "desc": "Learn the basics and set up your first chatbot",
+        "topic1": "Account Setup",
+        "topic2": "WhatsApp Connection",
+        "topic3": "First Conversation"
+      },
+      "chatbot": {
+        "title": "Chatbot Configuration",
+        "desc": "Configure AI responses and conversation flows",
+        "topic1": "AI Training",
+        "topic2": "Response Templates",
+        "topic3": "Conversation Logic"
+      },
+      "api": {
+        "title": "API Reference",
+        "desc": "Integrate WhaHook with your applications",
+        "topic1": "REST API",
+        "topic2": "Webhooks",
+        "topic3": "Authentication"
+      },
+      "advanced": {
+        "title": "Advanced Features",
+        "desc": "Unlock the full potential of WhaHook",
+        "topic1": "Custom Integrations",
+        "topic2": "Workflows",
+        "topic3": "Analytics"
+      },
+      "security": {
+        "title": "Security & Privacy",
+        "desc": "Keep your data safe and compliant",
+        "topic1": "Data Encryption",
+        "topic2": "GDPR Compliance",
+        "topic3": "Access Control"
+      },
+      "bestPractices": {
+        "title": "Best Practices",
+        "desc": "Tips and tricks for optimal results",
+        "topic1": "Conversation Design",
+        "topic2": "Performance Tips",
+        "topic3": "Common Patterns"
+      }
+    },
+    "articles": {
+      "title": "Popular Articles",
+      "article1": {
+        "title": "How to connect your WhatsApp Business account",
+        "category": "Getting Started"
+      },
+      "article2": {
+        "title": "Creating your first AI chatbot",
+        "category": "Chatbot Configuration"
+      },
+      "article3": {
+        "title": "Setting up appointment scheduling",
+        "category": "Advanced Features"
+      },
+      "article4": {
+        "title": "Understanding webhook events",
+        "category": "API Reference"
+      },
+      "article5": {
+        "title": "Best practices for conversation design",
+        "category": "Best Practices"
+      }
+    },
+    "cta": {
+      "title": "Need More Help?",
+      "subtitle": "Can't find what you're looking for? Our support team is here to help",
+      "button": "Contact Support"
+    }
+  },
+  "contactPage": {
+    "title": "Get in Touch",
+    "subtitle": "Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
+    "form": {
+      "title": "Send us a Message",
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "subject": "Subject",
+      "subjectPlaceholder": "How can we help?",
+      "message": "Message",
+      "messagePlaceholder": "Tell us more about your inquiry...",
+      "submit": "Send Message",
+      "sending": "Sending..."
+    },
+    "info": {
+      "title": "Contact Information",
+      "email": "Email",
+      "liveChat": "Live Chat",
+      "liveChatHours": "Available Mon-Fri, 9am-6pm",
+      "phone": "Phone",
+      "office": "Office"
+    },
+    "hours": {
+      "title": "Business Hours",
+      "weekdays": "Monday - Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday",
+      "closed": "Closed"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "How quickly will I receive a response?",
+      "a1": "We typically respond to all inquiries within 24 hours during business days. For urgent matters, please use our live chat feature.",
+      "q2": "Do you offer phone support?",
+      "a2": "Yes, phone support is available for Professional and Enterprise plan customers during business hours.",
+      "q3": "Can I schedule a demo?",
+      "a3": "Absolutely! Contact us to schedule a personalized demo of WhaHook's features with our team."
+    },
+    "toast": {
+      "success": "Message Sent!",
+      "successDesc": "We'll get back to you within 24 hours"
+    }
   }
 }

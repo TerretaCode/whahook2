@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from 'next-intl'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Mail, MessageSquare, Phone, MapPin, Send } from "lucide-react"
 import { toast } from "@/lib/toast"
 
 export default function ContactPage() {
+  const t = useTranslations('contactPage')
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -29,7 +31,7 @@ export default function ContactPage() {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500))
 
-    toast.success("Message Sent!", "We'll get back to you within 24 hours")
+    toast.success(t('toast.success'), t('toast.successDesc'))
     setFormData({ name: "", email: "", subject: "", message: "" })
     setIsSubmitting(false)
   }
@@ -40,9 +42,9 @@ export default function ContactPage() {
       <section className="bg-gradient-to-b from-green-50 to-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl font-bold mb-4">Get in Touch</h1>
+            <h1 className="text-5xl font-bold mb-4">{t('title')}</h1>
             <p className="text-xl text-gray-600">
-              Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -54,11 +56,11 @@ export default function ContactPage() {
           <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
             {/* Contact Form */}
             <div>
-              <h2 className="text-3xl font-bold mb-6">Send us a Message</h2>
+              <h2 className="text-3xl font-bold mb-6">{t('form.title')}</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Name
+                    {t('form.name')}
                   </label>
                   <Input
                     id="name"
@@ -66,14 +68,14 @@ export default function ContactPage() {
                     type="text"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Your name"
+                    placeholder={t('form.namePlaceholder')}
                     required
                   />
                 </div>
 
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
+                    {t('form.email')}
                   </label>
                   <Input
                     id="email"
@@ -81,14 +83,14 @@ export default function ContactPage() {
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="your@email.com"
+                    placeholder={t('form.emailPlaceholder')}
                     required
                   />
                 </div>
 
                 <div>
                   <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject
+                    {t('form.subject')}
                   </label>
                   <Input
                     id="subject"
@@ -96,21 +98,21 @@ export default function ContactPage() {
                     type="text"
                     value={formData.subject}
                     onChange={handleChange}
-                    placeholder="How can we help?"
+                    placeholder={t('form.subjectPlaceholder')}
                     required
                   />
                 </div>
 
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    Message
+                    {t('form.message')}
                   </label>
                   <textarea
                     id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="Tell us more about your inquiry..."
+                    placeholder={t('form.messagePlaceholder')}
                     required
                     rows={6}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
@@ -124,10 +126,10 @@ export default function ContactPage() {
                   size="lg"
                 >
                   {isSubmitting ? (
-                    "Sending..."
+                    t('form.sending')
                   ) : (
                     <>
-                      Send Message
+                      {t('form.submit')}
                       <Send className="ml-2 w-4 h-4" />
                     </>
                   )}
@@ -137,47 +139,47 @@ export default function ContactPage() {
 
             {/* Contact Information */}
             <div>
-              <h2 className="text-3xl font-bold mb-6">Contact Information</h2>
+              <h2 className="text-3xl font-bold mb-6">{t('info.title')}</h2>
               <div className="space-y-6">
                 <ContactInfo
                   icon={<Mail className="w-6 h-6 text-green-600" />}
-                  title="Email"
+                  title={t('info.email')}
                   content="support@whahook.com"
                   link="mailto:support@whahook.com"
                 />
                 <ContactInfo
                   icon={<MessageSquare className="w-6 h-6 text-green-600" />}
-                  title="Live Chat"
-                  content="Available Mon-Fri, 9am-6pm"
+                  title={t('info.liveChat')}
+                  content={t('info.liveChatHours')}
                 />
                 <ContactInfo
                   icon={<Phone className="w-6 h-6 text-green-600" />}
-                  title="Phone"
+                  title={t('info.phone')}
                   content="+1 (555) 123-4567"
                   link="tel:+15551234567"
                 />
                 <ContactInfo
                   icon={<MapPin className="w-6 h-6 text-green-600" />}
-                  title="Office"
+                  title={t('info.office')}
                   content="123 Business Street, Suite 100, City, Country"
                 />
               </div>
 
               {/* Business Hours */}
               <div className="mt-12 bg-green-50 rounded-2xl p-6">
-                <h3 className="text-xl font-semibold mb-4">Business Hours</h3>
+                <h3 className="text-xl font-semibold mb-4">{t('hours.title')}</h3>
                 <div className="space-y-2 text-gray-700">
                   <div className="flex justify-between">
-                    <span>Monday - Friday</span>
+                    <span>{t('hours.weekdays')}</span>
                     <span className="font-medium">9:00 AM - 6:00 PM</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Saturday</span>
+                    <span>{t('hours.saturday')}</span>
                     <span className="font-medium">10:00 AM - 4:00 PM</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Sunday</span>
-                    <span className="font-medium">Closed</span>
+                    <span>{t('hours.sunday')}</span>
+                    <span className="font-medium">{t('hours.closed')}</span>
                   </div>
                 </div>
               </div>
@@ -190,19 +192,19 @@ export default function ContactPage() {
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
+            <h2 className="text-3xl font-bold text-center mb-12">{t('faq.title')}</h2>
             <div className="space-y-6">
               <FAQItem
-                question="How quickly will I receive a response?"
-                answer="We typically respond to all inquiries within 24 hours during business days. For urgent matters, please use our live chat feature."
+                question={t('faq.q1')}
+                answer={t('faq.a1')}
               />
               <FAQItem
-                question="Do you offer phone support?"
-                answer="Yes, phone support is available for Professional and Enterprise plan customers during business hours."
+                question={t('faq.q2')}
+                answer={t('faq.a2')}
               />
               <FAQItem
-                question="Can I schedule a demo?"
-                answer="Absolutely! Contact us to schedule a personalized demo of WhaHook's features with our team."
+                question={t('faq.q3')}
+                answer={t('faq.a3')}
               />
             </div>
           </div>

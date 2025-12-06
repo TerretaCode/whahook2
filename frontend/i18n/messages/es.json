@@ -1824,5 +1824,142 @@
       "button": "Comenzar Prueba Gratis Ahora",
       "noCommitment": "Sin compromiso"
     }
+  },
+  "docsPage": {
+    "title": "Documentación",
+    "subtitle": "Todo lo que necesitas para empezar con WhaHook",
+    "quickStart": {
+      "title": "Guía de Inicio Rápido",
+      "step1": {
+        "title": "Crear Cuenta",
+        "desc": "Regístrate gratis y verifica tu correo electrónico"
+      },
+      "step2": {
+        "title": "Conectar WhatsApp",
+        "desc": "Vincula tu cuenta de WhatsApp Business usando código QR"
+      },
+      "step3": {
+        "title": "Configurar IA",
+        "desc": "Configura las respuestas del chatbot y reglas de automatización"
+      }
+    },
+    "categories": {
+      "title": "Explorar Documentación",
+      "gettingStarted": {
+        "title": "Primeros Pasos",
+        "desc": "Aprende lo básico y configura tu primer chatbot",
+        "topic1": "Configuración de Cuenta",
+        "topic2": "Conexión WhatsApp",
+        "topic3": "Primera Conversación"
+      },
+      "chatbot": {
+        "title": "Configuración del Chatbot",
+        "desc": "Configura respuestas de IA y flujos de conversación",
+        "topic1": "Entrenamiento de IA",
+        "topic2": "Plantillas de Respuesta",
+        "topic3": "Lógica de Conversación"
+      },
+      "api": {
+        "title": "Referencia API",
+        "desc": "Integra WhaHook con tus aplicaciones",
+        "topic1": "REST API",
+        "topic2": "Webhooks",
+        "topic3": "Autenticación"
+      },
+      "advanced": {
+        "title": "Funciones Avanzadas",
+        "desc": "Desbloquea todo el potencial de WhaHook",
+        "topic1": "Integraciones Personalizadas",
+        "topic2": "Flujos de Trabajo",
+        "topic3": "Analíticas"
+      },
+      "security": {
+        "title": "Seguridad y Privacidad",
+        "desc": "Mantén tus datos seguros y en cumplimiento",
+        "topic1": "Encriptación de Datos",
+        "topic2": "Cumplimiento GDPR",
+        "topic3": "Control de Acceso"
+      },
+      "bestPractices": {
+        "title": "Mejores Prácticas",
+        "desc": "Consejos y trucos para resultados óptimos",
+        "topic1": "Diseño de Conversaciones",
+        "topic2": "Consejos de Rendimiento",
+        "topic3": "Patrones Comunes"
+      }
+    },
+    "articles": {
+      "title": "Artículos Populares",
+      "article1": {
+        "title": "Cómo conectar tu cuenta de WhatsApp Business",
+        "category": "Primeros Pasos"
+      },
+      "article2": {
+        "title": "Creando tu primer chatbot con IA",
+        "category": "Configuración del Chatbot"
+      },
+      "article3": {
+        "title": "Configurando programación de citas",
+        "category": "Funciones Avanzadas"
+      },
+      "article4": {
+        "title": "Entendiendo los eventos de webhook",
+        "category": "Referencia API"
+      },
+      "article5": {
+        "title": "Mejores prácticas para diseño de conversaciones",
+        "category": "Mejores Prácticas"
+      }
+    },
+    "cta": {
+      "title": "¿Necesitas Más Ayuda?",
+      "subtitle": "¿No encuentras lo que buscas? Nuestro equipo de soporte está aquí para ayudarte",
+      "button": "Contactar Soporte"
+    }
+  },
+  "contactPage": {
+    "title": "Contáctanos",
+    "subtitle": "¿Tienes preguntas? Nos encantaría saber de ti. Envíanos un mensaje y te responderemos lo antes posible.",
+    "form": {
+      "title": "Envíanos un Mensaje",
+      "name": "Nombre",
+      "namePlaceholder": "Tu nombre",
+      "email": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "subject": "Asunto",
+      "subjectPlaceholder": "¿Cómo podemos ayudarte?",
+      "message": "Mensaje",
+      "messagePlaceholder": "Cuéntanos más sobre tu consulta...",
+      "submit": "Enviar Mensaje",
+      "sending": "Enviando..."
+    },
+    "info": {
+      "title": "Información de Contacto",
+      "email": "Email",
+      "liveChat": "Chat en Vivo",
+      "liveChatHours": "Disponible Lun-Vie, 9am-6pm",
+      "phone": "Teléfono",
+      "office": "Oficina"
+    },
+    "hours": {
+      "title": "Horario de Atención",
+      "weekdays": "Lunes - Viernes",
+      "saturday": "Sábado",
+      "sunday": "Domingo",
+      "closed": "Cerrado"
+    },
+    "faq": {
+      "title": "Preguntas Frecuentes",
+      "q1": "¿Qué tan rápido recibiré una respuesta?",
+      "a1": "Normalmente respondemos a todas las consultas en 24 horas durante días laborables. Para asuntos urgentes, usa nuestro chat en vivo.",
+      "q2": "¿Ofrecen soporte telefónico?",
+      "a2": "Sí, el soporte telefónico está disponible para clientes de planes Professional y Enterprise durante horario laboral.",
+      "q3": "¿Puedo programar una demo?",
+      "a3": "¡Por supuesto! Contáctanos para programar una demo personalizada de las funciones de WhaHook con nuestro equipo."
+    },
+    "toast": {
+      "success": "¡Mensaje Enviado!",
+      "successDesc": "Te responderemos en 24 horas"
+    }
   }
 }
