@@ -234,23 +234,52 @@ router.get('/sessions', async (req: Request, res: Response) => {
 
     const workspaceId = req.query.workspace_id as string | undefined
 
-    let query = supabaseAdmin
-      .from('whatsapp_accounts')
-      .select('*')
-      .eq('user_id', userId)
-    
+    let sessions: any[] = []
+
     if (workspaceId) {
-      query = query.eq('workspace_id', workspaceId)
+      // If workspace_id is provided, get sessions that belong to this workspace
+      // This includes sessions from the workspace owner
+      const { data: workspaceSessions, error: wsError } = await supabaseAdmin
+        .from('whatsapp_accounts')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .order('created_at', { ascending: false })
+      
+      if (wsError) {
+        console.error('Error fetching workspace sessions:', wsError)
+      } else {
+        sessions = workspaceSessions || []
+      }
+
+      // If no sessions found by workspace_id, also check for user's sessions without workspace
+      // and sessions that might not have workspace_id set yet
+      if (sessions.length === 0) {
+        const { data: userSessions, error: userError } = await supabaseAdmin
+          .from('whatsapp_accounts')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+        
+        if (!userError && userSessions) {
+          sessions = userSessions
+        }
+      }
+    } else {
+      // No workspace_id, get all user's sessions
+      const { data: userSessions, error } = await supabaseAdmin
+        .from('whatsapp_accounts')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching sessions:', error)
+        return res.status(500).json({ success: false, error: 'Error fetching sessions' })
+      }
+      sessions = userSessions || []
     }
 
-    const { data: sessions, error } = await query.order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('Error fetching sessions:', error)
-      return res.status(500).json({ success: false, error: 'Error fetching sessions' })
-    }
-
-    res.json({ success: true, data: { sessions: sessions || [] } })
+    res.json({ success: true, data: { sessions } })
   } catch (error: any) {
     console.error('Error in GET /sessions:', error)
     res.status(500).json({ success: false, error: error.message })
