@@ -65,7 +65,8 @@
     "showLess": "Show less",
     "noResults": "No results found",
     "tryAgain": "Try again",
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "selectWorkspace": "Select workspace"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -356,6 +357,7 @@
   "dashboard": {
     "greeting": "Hello, {name}!",
     "summary": "Here's your activity summary",
+    "selectWorkspace": "Select workspace",
     "refresh": "Refresh",
     "needsAttention": "Needs attention",
     "urgent": "URGENT",

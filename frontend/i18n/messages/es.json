@@ -65,7 +65,8 @@
     "showLess": "Ver menos",
     "noResults": "No se encontraron resultados",
     "tryAgain": "Intentar de nuevo",
-    "comingSoon": "Próximamente"
+    "comingSoon": "Próximamente",
+    "selectWorkspace": "Seleccionar workspace"
   },
   "nav": {
     "dashboard": "Panel",
@@ -356,6 +357,7 @@
   "dashboard": {
     "greeting": "¡Hola, {name}!",
     "summary": "Aquí tienes el resumen de tu actividad",
+    "selectWorkspace": "Seleccionar workspace",
     "refresh": "Actualizar",
     "needsAttention": "Requieren atención",
     "urgent": "URGENTE",

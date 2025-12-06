@@ -26,6 +26,7 @@ import {
   Zap,
   RefreshCw
 } from "lucide-react"
+import { WorkspaceSelectorHeader } from "@/components/WorkspaceSelectorHeader"
 
 interface DashboardStats {
   totalConversations: number
@@ -184,6 +185,7 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <WorkspaceSelectorHeader namespace="dashboard" />
             <Button 
               variant="outline" 
               size="sm" 

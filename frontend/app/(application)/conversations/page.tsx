@@ -76,8 +76,11 @@ function ConversationsContent() {
     )
   }
 
-  // Check if user has multiple workspaces (only owners can see all)
-  const canSelectWorkspace = isOwner && workspaces.length > 1
+  // Check if user has multiple workspaces (only owners with Pro/Enterprise can see all)
+  const subscriptionTier = user?.profile?.subscription_tier || 'basic'
+  const isPaidPlan = subscriptionTier === 'pro' || subscriptionTier === 'enterprise'
+  const ownerWorkspaces = workspaces.filter(w => w.is_owner)
+  const canSelectWorkspace = isOwner && isPaidPlan && ownerWorkspaces.length > 1
 
   return (
     <div className="h-full flex overflow-hidden bg-gray-50">
@@ -104,7 +107,7 @@ function ConversationsContent() {
             
             {showWorkspaceSelector && (
               <div className="absolute top-full left-4 right-4 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
-                {workspaces.map((ws) => (
+                {ownerWorkspaces.map((ws) => (
                   <button
                     key={ws.id}
                     className={`w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-2 ${
