@@ -17,24 +17,13 @@ interface WorkspaceSelectorHeaderProps {
  */
 export function WorkspaceSelectorHeader({ namespace = 'common' }: WorkspaceSelectorHeaderProps) {
   const t = useTranslations(namespace)
-  const { user } = useAuth()
+  const { effectivePlan } = useAuth()
   const { workspace, workspaces, setWorkspace, isOwner } = useWorkspaceContext()
 
-  const subscriptionTier = user?.profile?.subscription_tier || 'basic'
-  const isPaidPlan = subscriptionTier === 'pro' || subscriptionTier === 'enterprise'
+  // Use effectivePlan which handles both owners and invited members
+  const isPaidPlan = effectivePlan === 'professional' || effectivePlan === 'enterprise'
   const ownerWorkspaces = workspaces.filter(w => w.is_owner)
   const showSelector = isOwner && isPaidPlan && ownerWorkspaces.length > 1
-
-  // Debug log - remove after testing
-  console.log('[WorkspaceSelector]', {
-    currentWorkspace: workspace?.name,
-    workspaceId: workspace?.id,
-    isOwner,
-    subscriptionTier,
-    isPaidPlan,
-    ownerWorkspacesCount: ownerWorkspaces.length,
-    showSelector
-  })
 
   // Owner with Pro/Enterprise and multiple workspaces - show selector
   if (showSelector) {

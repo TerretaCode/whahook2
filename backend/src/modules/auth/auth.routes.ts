@@ -47,6 +47,37 @@ router.post('/register', async (req, res) => {
   }
 })
 
+// Helper function to get effective plan for a member user
+async function getEffectivePlanForMember(userId: string): Promise<string> {
+  // Get the first workspace they're a member of
+  const { data: membership } = await supabaseAdmin
+    .from('workspace_members')
+    .select('workspace_id')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .limit(1)
+    .single()
+
+  if (!membership) return 'trial'
+
+  // Get the owner's plan
+  const { data: workspace } = await supabaseAdmin
+    .from('workspaces')
+    .select('user_id')
+    .eq('id', membership.workspace_id)
+    .single()
+
+  if (!workspace) return 'trial'
+
+  const { data: ownerProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('subscription_tier')
+    .eq('id', workspace.user_id)
+    .single()
+
+  return ownerProfile?.subscription_tier || 'trial'
+}
+
 // Helper function to get or create profile
 async function getOrCreateProfile(authUser: any) {
   // Try to get profile from profiles table
@@ -57,6 +88,12 @@ async function getOrCreateProfile(authUser: any) {
     .single()
   
   if (profile) {
+    // Calculate effective plan for members
+    let effectivePlan = profile.subscription_tier || 'trial'
+    if (profile.subscription_tier === 'member' || profile.is_invited_user) {
+      effectivePlan = await getEffectivePlanForMember(authUser.id)
+    }
+
     // Profile exists in table
     return {
       user_id: authUser.id,
@@ -67,8 +104,11 @@ async function getOrCreateProfile(authUser: any) {
       avatar_url: profile.avatar_url,
       account_type: profile.account_type || 'saas',
       subscription_tier: profile.subscription_tier || 'trial',
+      effective_plan: effectivePlan,
       subscription_status: profile.subscription_status || 'active',
       trial_ends_at: profile.trial_ends_at,
+      is_invited_user: profile.is_invited_user || false,
+      invited_to_workspace_id: profile.invited_to_workspace_id,
       has_gemini_api_key: !!authUser.user_metadata?.has_gemini_api_key,
       created_at: profile.created_at,
       updated_at: profile.updated_at

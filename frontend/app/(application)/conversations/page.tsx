@@ -20,7 +20,7 @@ function ConversationsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const t = useTranslations('conversations')
-  const { user, isLoading: authLoading } = useAuth()
+  const { user, isLoading: authLoading, effectivePlan } = useAuth()
   const { workspace, workspaces, setWorkspace, isOwner, isLoading: workspaceLoading } = useWorkspaceContext()
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
   const [initialPhoneProcessed, setInitialPhoneProcessed] = useState(false)
@@ -77,8 +77,7 @@ function ConversationsContent() {
   }
 
   // Check if user has multiple workspaces (only owners with Pro/Enterprise can see all)
-  const subscriptionTier = user?.profile?.subscription_tier || 'basic'
-  const isPaidPlan = subscriptionTier === 'pro' || subscriptionTier === 'enterprise'
+  const isPaidPlan = effectivePlan === 'professional' || effectivePlan === 'enterprise'
   const ownerWorkspaces = workspaces.filter(w => w.is_owner)
   const canSelectWorkspace = isOwner && isPaidPlan && ownerWorkspaces.length > 1
 

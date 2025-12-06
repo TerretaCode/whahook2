@@ -22,6 +22,11 @@ interface UserProfile {
   created_at: string
   updated_at?: string
   last_login_at?: string | null
+  // Invited user fields
+  is_invited_user?: boolean
+  invited_to_workspace_id?: string | null
+  // Effective plan (for members, this is the owner's plan)
+  effective_plan?: string
   metadata?: {
     requires_password_change?: boolean
     [key: string]: any
@@ -39,6 +44,8 @@ interface AuthContextType {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
+  isInvitedUser: boolean
+  effectivePlan: string
   login: (email: string, password: string, rememberMe?: boolean) => Promise<boolean>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
@@ -194,15 +201,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  // Compute derived values for invited users
+  const isInvitedUser = user?.profile?.is_invited_user || user?.profile?.subscription_tier === 'member' || false
+  const effectivePlan = user?.profile?.effective_plan || user?.profile?.subscription_tier || 'trial'
+
   // Memoize context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => ({
     user,
     isLoading,
     isAuthenticated,
+    isInvitedUser,
+    effectivePlan,
     login,
     logout,
     refreshUser,
-  }), [user, isLoading, isAuthenticated, login, logout, refreshUser])
+  }), [user, isLoading, isAuthenticated, isInvitedUser, effectivePlan, login, logout, refreshUser])
 
   return (
     <AuthContext.Provider value={contextValue}>

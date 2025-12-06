@@ -145,20 +145,45 @@ router.post('/:token/accept', async (req: Request, res: Response) => {
       })
     }
 
-    // Also update the profile email if needed
+    // Get workspace_id for the invitation
+    const { data: memberWithWorkspace } = await supabaseAdmin
+      .from('workspace_members')
+      .select('workspace_id')
+      .eq('id', member.id)
+      .single()
+
+    // Update or create profile for the invited user
     const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
-      .select('id')
+      .select('id, subscription_tier')
       .eq('id', user_id)
       .single()
 
-    if (!existingProfile) {
-      // Create profile for the new user
+    if (existingProfile) {
+      // Update existing profile to be a member (no own plan)
+      await supabaseAdmin
+        .from('profiles')
+        .update({
+          subscription_tier: 'member',
+          subscription_status: 'active',
+          trial_ends_at: null,
+          is_invited_user: true,
+          invited_to_workspace_id: memberWithWorkspace?.workspace_id,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user_id)
+    } else {
+      // Create profile for the new invited user
       await supabaseAdmin
         .from('profiles')
         .insert({
           id: user_id,
           email: member.invited_email,
+          subscription_tier: 'member',
+          subscription_status: 'active',
+          trial_ends_at: null,
+          is_invited_user: true,
+          invited_to_workspace_id: memberWithWorkspace?.workspace_id,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
