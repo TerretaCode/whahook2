@@ -49,13 +49,6 @@ interface InvitationData {
   branding?: AgencyBranding
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  admin: 'Administrador',
-  client: 'Cliente',
-  agent: 'Agente',
-  viewer: 'Visor (CRM)'
-}
-
 export default function AcceptInvitationPage() {
   const t = useTranslations('invite')
   const params = useParams()
