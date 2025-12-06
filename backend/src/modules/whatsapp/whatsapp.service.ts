@@ -1046,18 +1046,13 @@ class WhatsAppService {
 
     
     if (!accounts?.length) {
-            return
+      console.log('📱 No WhatsApp sessions to restore')
+      return
     }
 
-    // Agrupar por user_id y tomar solo la más reciente de cada usuario
-    const latestByUser = new Map<string, WhatsAppAccount>()
-    for (const account of accounts as WhatsAppAccount[]) {
-      if (!latestByUser.has(account.user_id)) {
-        latestByUser.set(account.user_id, account)
-      }
-    }
-
-    const sessionsToRestore = Array.from(latestByUser.values())
+    // Restaurar TODAS las sesiones válidas (cada workspace puede tener su propia conexión)
+    // No filtrar por user_id - los límites se aplican al crear, no al restaurar
+    const sessionsToRestore = accounts as WhatsAppAccount[]
     console.log(`🔄 Restoring ${sessionsToRestore.length} WhatsApp session(s)...`)
 
     for (const account of sessionsToRestore) {
