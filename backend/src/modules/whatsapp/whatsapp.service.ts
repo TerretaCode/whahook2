@@ -10,6 +10,7 @@ import { keepaliveService } from '../../services/keepalive.service'
 import { backupService } from '../../services/backup.service'
 import { autoReconnectService } from '../../services/autoReconnect.service'
 import { sendWhatsAppConnectedEmail } from '../../utils/email'
+import { processConversationForClient } from '../clients/clientAiExtraction.service'
 
 class WhatsAppService {
   private sessions: Map<string, WhatsAppSession> = new Map()
@@ -645,6 +646,62 @@ class WhatsAppService {
         timestamp: new Date(message.timestamp * 1000).toISOString(),
       }
     })
+
+    // Trigger AI extraction for client data (async, don't wait)
+    // Only process if workspace has AI configured
+    if (waAccount.workspace_id) {
+      this.scheduleClientAiExtraction(
+        conversation.id,
+        waAccount.workspace_id,
+        userId,
+        contactPhone,
+        contactName
+      )
+    }
+  }
+
+  /**
+   * Schedule AI extraction for client data
+   * Uses debouncing to avoid processing on every message
+   */
+  private clientExtractionTimeouts: Map<string, NodeJS.Timeout> = new Map()
+  
+  private scheduleClientAiExtraction(
+    conversationId: string,
+    workspaceId: string,
+    userId: string,
+    contactPhone: string,
+    contactName: string | null
+  ): void {
+    const key = `${workspaceId}:${contactPhone}`
+    
+    // Clear existing timeout for this conversation
+    const existingTimeout = this.clientExtractionTimeouts.get(key)
+    if (existingTimeout) {
+      clearTimeout(existingTimeout)
+    }
+    
+    // Schedule extraction after 2 minutes of inactivity
+    // This ensures we capture the full conversation context
+    const timeout = setTimeout(async () => {
+      this.clientExtractionTimeouts.delete(key)
+      
+      try {
+        console.log(`🤖 [AI-EXTRACT] Triggering extraction for ${contactPhone}`)
+        await processConversationForClient(
+          conversationId,
+          workspaceId,
+          userId,
+          contactPhone,
+          contactName,
+          'whatsapp'
+        )
+      } catch (error) {
+        console.error(`❌ [AI-EXTRACT] Error in scheduled extraction:`, error)
+      }
+    }, 2 * 60 * 1000) // 2 minutes
+    
+    this.clientExtractionTimeouts.set(key, timeout)
   }
 
   /**

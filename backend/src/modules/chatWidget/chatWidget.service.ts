@@ -7,8 +7,12 @@ import {
   UpdateWidgetInput,
   SendMessageInput 
 } from './chatWidget.types'
+import { processConversationForClient } from '../clients/clientAiExtraction.service'
 
 class ChatWidgetService {
+  // Map for debouncing AI extraction per conversation
+  private clientExtractionTimeouts: Map<string, NodeJS.Timeout> = new Map()
+
   /**
    * Listar widgets del usuario (opcionalmente filtrado por workspace)
    */
@@ -237,7 +241,59 @@ class ChatWidgetService {
       })
     }
 
+    // Schedule AI extraction for client data (async, debounced)
+    this.scheduleClientAiExtraction(widgetId, conversationId!, input.visitorId, input.visitorEmail || input.visitorId)
+
     return { conversationId: conversationId!, message }
+  }
+
+  /**
+   * Schedule AI extraction for web widget client data
+   * Uses debouncing to avoid processing on every message
+   */
+  private scheduleClientAiExtraction(
+    widgetId: string,
+    conversationId: string,
+    visitorId: string,
+    contactIdentifier: string
+  ): void {
+    const key = `web:${widgetId}:${visitorId}`
+    
+    // Clear existing timeout for this conversation
+    const existingTimeout = this.clientExtractionTimeouts.get(key)
+    if (existingTimeout) {
+      clearTimeout(existingTimeout)
+    }
+    
+    // Schedule extraction after 2 minutes of inactivity
+    const timeout = setTimeout(async () => {
+      this.clientExtractionTimeouts.delete(key)
+      
+      try {
+        // Get widget info for workspace_id and user_id
+        const { data: widget } = await supabaseAdmin
+          .from('chat_widgets')
+          .select('user_id, workspace_id')
+          .eq('id', widgetId)
+          .single()
+
+        if (!widget?.workspace_id) return
+
+        console.log(`🤖 [AI-EXTRACT] Triggering web extraction for ${contactIdentifier}`)
+        await processConversationForClient(
+          conversationId,
+          widget.workspace_id,
+          widget.user_id,
+          contactIdentifier, // Use email or visitor_id as phone equivalent
+          null,
+          'web'
+        )
+      } catch (error) {
+        console.error(`❌ [AI-EXTRACT] Error in scheduled web extraction:`, error)
+      }
+    }, 2 * 60 * 1000) // 2 minutes
+    
+    this.clientExtractionTimeouts.set(key, timeout)
   }
 
   /**
