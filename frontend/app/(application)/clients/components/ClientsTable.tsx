@@ -24,11 +24,12 @@ const STATUS_STYLES: Record<string, string> = {
   inactive: 'bg-gray-100 text-gray-800 border-gray-200'
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  customer: 'Customer',
-  prospect: 'Prospect',
-  lead: 'Lead',
-  inactive: 'Inactive'
+// Status labels are now translation keys
+const STATUS_KEYS: Record<string, string> = {
+  customer: 'statusCustomer',
+  prospect: 'statusProspect',
+  lead: 'statusLead',
+  inactive: 'statusInactive'
 }
 
 const INTEREST_STYLES: Record<string, string> = {
@@ -40,13 +41,14 @@ const INTEREST_STYLES: Record<string, string> = {
   other: 'bg-gray-100 text-gray-800'
 }
 
-const INTEREST_LABELS: Record<string, string> = {
-  product: 'Product',
-  service: 'Service',
-  support: 'Support',
-  information: 'Info',
-  complaint: 'Complaint',
-  other: 'Other'
+// Interest labels are now translation keys
+const INTEREST_KEYS: Record<string, string> = {
+  product: 'interestProduct',
+  service: 'interestService',
+  support: 'interestSupport',
+  information: 'interestInfo',
+  complaint: 'interestComplaint',
+  other: 'interestOther'
 }
 
 function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtractInfo }: ClientsTableProps) {
@@ -65,28 +67,28 @@ function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtract
 
   const getStatusBadge = useCallback((status: Client['status']) => (
     <Badge variant="outline" className={STATUS_STYLES[status] || STATUS_STYLES.lead}>
-      {STATUS_LABELS[status] || 'Lead'}
+      {t(STATUS_KEYS[status] || 'statusLead')}
     </Badge>
-  ), [])
+  ), [t])
 
   const getInterestBadge = useCallback((interest?: string) => {
     if (!interest) return null
     return (
       <Badge variant="secondary" className={INTEREST_STYLES[interest] || INTEREST_STYLES.other}>
-        {INTEREST_LABELS[interest] || interest}
+        {t(INTEREST_KEYS[interest] || 'interestOther')}
       </Badge>
     )
-  }, [])
+  }, [t])
 
   const getSatisfactionBadge = useCallback((satisfaction?: string) => {
     if (!satisfaction || satisfaction === 'unknown') {
       return <span className="text-xs text-gray-400">-</span>
     }
     
-    const config: Record<string, { icon: React.ReactNode; bg: string; text: string; label: string }> = {
-      happy: { icon: <Smile className="w-3 h-3" />, bg: 'bg-green-100', text: 'text-green-700', label: 'Happy' },
-      neutral: { icon: <Meh className="w-3 h-3" />, bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Neutral' },
-      unhappy: { icon: <Frown className="w-3 h-3" />, bg: 'bg-red-100', text: 'text-red-700', label: 'Unhappy' }
+    const config: Record<string, { icon: React.ReactNode; bg: string; text: string; labelKey: string }> = {
+      happy: { icon: <Smile className="w-3 h-3" />, bg: 'bg-green-100', text: 'text-green-700', labelKey: 'satisfactionHappy' },
+      neutral: { icon: <Meh className="w-3 h-3" />, bg: 'bg-yellow-100', text: 'text-yellow-700', labelKey: 'satisfactionNeutral' },
+      unhappy: { icon: <Frown className="w-3 h-3" />, bg: 'bg-red-100', text: 'text-red-700', labelKey: 'satisfactionUnhappy' }
     }
 
     const info = config[satisfaction]
@@ -95,10 +97,10 @@ function ClientsTableComponent({ clients, isLoading, onEdit, onDelete, onExtract
     return (
       <span className={`${info.bg} ${info.text} px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit`}>
         {info.icon}
-        {info.label}
+        {t(info.labelKey)}
       </span>
     )
-  }, [])
+  }, [t])
 
   const goToConversation = useCallback((phone: string) => {
     // Navigate to conversations with the phone number as filter

@@ -526,7 +526,20 @@
       "noClientsDesc": "Empieza añadiendo tu primer cliente",
       "webVisitor": "Visitante web",
       "noSummary": "Sin resumen",
-      "extractAI": "Extraer info con IA"
+      "extractAI": "Extraer info con IA",
+      "statusCustomer": "Cliente",
+      "statusProspect": "Prospecto",
+      "statusLead": "Lead",
+      "statusInactive": "Inactivo",
+      "interestProduct": "Producto",
+      "interestService": "Servicio",
+      "interestSupport": "Soporte",
+      "interestInfo": "Info",
+      "interestComplaint": "Queja",
+      "interestOther": "Otro",
+      "satisfactionHappy": "Feliz",
+      "satisfactionNeutral": "Neutral",
+      "satisfactionUnhappy": "Insatisfecho"
     },
     "status": {
       "customer": "Cliente",

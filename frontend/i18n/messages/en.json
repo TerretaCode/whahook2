@@ -526,7 +526,20 @@
       "noClientsDesc": "Start by adding your first client",
       "webVisitor": "Web visitor",
       "noSummary": "No summary",
-      "extractAI": "Extract info with AI"
+      "extractAI": "Extract info with AI",
+      "statusCustomer": "Customer",
+      "statusProspect": "Prospect",
+      "statusLead": "Lead",
+      "statusInactive": "Inactive",
+      "interestProduct": "Product",
+      "interestService": "Service",
+      "interestSupport": "Support",
+      "interestInfo": "Info",
+      "interestComplaint": "Complaint",
+      "interestOther": "Other",
+      "satisfactionHappy": "Happy",
+      "satisfactionNeutral": "Neutral",
+      "satisfactionUnhappy": "Unhappy"
     },
     "status": {
       "customer": "Customer",
