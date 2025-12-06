@@ -85,15 +85,15 @@ export async function extractClientDataFromConversation(
       // Fallback: get any config from this workspace's owner that has an API key
       const { data: workspace } = await supabaseAdmin
         .from('workspaces')
-        .select('owner_id')
+        .select('user_id')
         .eq('id', workspaceId)
         .single()
       
-      if (workspace?.owner_id) {
+      if (workspace?.user_id) {
         const { data: configByUser } = await supabaseAdmin
           .from('chatbot_configs')
           .select('provider, model, api_key_encrypted')
-          .eq('user_id', workspace.owner_id)
+          .eq('user_id', workspace.user_id)
           .not('api_key_encrypted', 'is', null)
           .limit(1)
           .single()

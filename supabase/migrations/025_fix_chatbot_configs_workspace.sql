@@ -8,7 +8,7 @@ UPDATE whatsapp_accounts wa
 SET workspace_id = (
   SELECT w.id 
   FROM workspaces w 
-  WHERE w.owner_id = wa.user_id 
+  WHERE w.user_id = wa.user_id 
   ORDER BY w.created_at ASC 
   LIMIT 1
 )
@@ -36,7 +36,7 @@ UPDATE chatbot_configs cc
 SET workspace_id = (
   SELECT w.id 
   FROM workspaces w 
-  WHERE w.owner_id = cc.user_id 
+  WHERE w.user_id = cc.user_id 
   ORDER BY w.created_at ASC 
   LIMIT 1
 )
