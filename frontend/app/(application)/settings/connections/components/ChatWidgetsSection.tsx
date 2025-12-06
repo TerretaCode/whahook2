@@ -720,7 +720,7 @@ export function ChatWidgetsSection({ workspaceId, hasExistingConnection = false,
                               </Button>
                             </div>
                             <pre className="text-xs text-green-400 overflow-x-auto whitespace-pre-wrap">
-                              {embedCode || 'Loading...'}
+                              {embedCode || tCommon('loading')}
                             </pre>
                           </div>
                         </div>
