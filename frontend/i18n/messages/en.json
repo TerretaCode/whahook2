@@ -765,6 +765,27 @@
         "question": "Question",
         "answer": "Answer",
         "addFaq": "Add FAQ"
+      },
+      "visitorDataSection": {
+        "title": "Visitor Data",
+        "subtitle": "Configure what information to ask from web visitors",
+        "whyThisTitle": "What is this for?",
+        "whyThisDesc": "The bot can ask for name, email or phone from your website visitors. This information is automatically saved in your customer database.",
+        "collectData": "Collect visitor data",
+        "collectDataDesc": "The bot will ask for contact information during the conversation",
+        "whatToCollect": "What data to ask for?",
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "whenToCollect": "When to ask for data?",
+        "selectTiming": "Select timing",
+        "beforeChat": "Before starting - Initial form",
+        "duringChat": "During conversation - Bot asks naturally",
+        "endOfChat": "At the end - Before saying goodbye",
+        "timingHint": "\"During conversation\" is more natural and has better response rate",
+        "handoffEmail": "Email for human transfers",
+        "handoffEmailPlaceholder": "support@company.com",
+        "handoffEmailHint": "When a visitor asks to speak to a human, you'll receive a notification at this email"
       }
     },
     "branding": {

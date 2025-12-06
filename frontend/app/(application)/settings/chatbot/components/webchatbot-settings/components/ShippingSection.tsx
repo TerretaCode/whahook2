@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -39,6 +40,8 @@ export function ShippingSection({
   isOpen,
   onToggle
 }: ShippingSectionProps) {
+  const t = useTranslations('settings.chatbot.shippingSection')
+  
   return (
     <Collapsible open={isOpen} onOpenChange={onToggle}>
       <Card>
@@ -50,8 +53,8 @@ export function ShippingSection({
                   <Truck className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">Envíos y Pagos</h3>
-                  <p className="text-sm text-muted-foreground">Info para responder "¿Cuánto cuesta el envío?" o "¿Aceptáis Bizum?"</p>
+                  <h3 className="font-semibold text-lg">{t('title')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
                 </div>
               </div>
               {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -63,38 +66,38 @@ export function ShippingSection({
             {/* Info box */}
             <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
               <p className="text-sm text-green-800 dark:text-green-200">
-                <strong>¿Para qué sirve esto?</strong> Cuando un cliente pregunte sobre envíos, pagos o devoluciones, el bot usará esta información para responder.
+                <strong>{t('whyThisTitle')}</strong> {t('whyThisDesc')}
               </p>
             </div>
 
             {/* Shipping methods */}
             <div>
               <h4 className="font-medium mb-2 flex items-center gap-2">
-                <Truck className="w-4 h-4" /> Métodos de envío
+                <Truck className="w-4 h-4" /> {t('shippingMethods')}
               </h4>
-              <p className="text-sm text-muted-foreground mb-3">Añade las opciones de envío que ofreces. Ej: "Envío estándar - 3-5 días - 4,95€"</p>
+              <p className="text-sm text-muted-foreground mb-3">{t('shippingMethodsDesc')}</p>
               <div className="space-y-2">
                 {(formData?.shipping_methods || []).map((method: { name?: string; delivery_time?: string; price?: string; free_from?: string }, index: number) => (
                   <Card key={index} className="p-3">
                     <div className="grid grid-cols-4 gap-2">
                       <Input
-                        placeholder="Nombre"
+                        placeholder={t('name')}
                         value={method.name || ''}
                         onChange={(e) => updateArrayItem('shipping_methods', index, { ...method, name: e.target.value })}
                       />
                       <Input
-                        placeholder="Tiempo"
+                        placeholder={t('time')}
                         value={method.delivery_time || ''}
                         onChange={(e) => updateArrayItem('shipping_methods', index, { ...method, delivery_time: e.target.value })}
                       />
                       <Input
-                        placeholder="Precio"
+                        placeholder={t('price')}
                         value={method.price || ''}
                         onChange={(e) => updateArrayItem('shipping_methods', index, { ...method, price: e.target.value })}
                       />
                       <div className="flex gap-2">
                         <Input
-                          placeholder="Gratis desde"
+                          placeholder={t('freeFrom')}
                           value={method.free_from || ''}
                           onChange={(e) => updateArrayItem('shipping_methods', index, { ...method, free_from: e.target.value })}
                         />
@@ -110,7 +113,7 @@ export function ShippingSection({
                   size="sm"
                   onClick={() => addToArray('shipping_methods', { name: '', delivery_time: '', price: '', free_from: '' })}
                 >
-                  <Plus className="w-4 h-4 mr-2" /> Añadir método de envío
+                  <Plus className="w-4 h-4 mr-2" /> {t('addShippingMethod')}
                 </Button>
               </div>
             </div>
@@ -120,9 +123,9 @@ export function ShippingSection({
             {/* Shipping zones */}
             <div>
               <h4 className="font-medium mb-2 flex items-center gap-2">
-                <Globe className="w-4 h-4" /> Zonas de envío
+                <Globe className="w-4 h-4" /> {t('shippingZones')}
               </h4>
-              <p className="text-sm text-muted-foreground mb-3">¿A dónde envías? Escribe y pulsa Enter. Ej: "España", "Europa", "Todo el mundo"</p>
+              <p className="text-sm text-muted-foreground mb-3">{t('shippingZonesDesc')}</p>
               <div className="flex flex-wrap gap-2">
                 {(formData?.shipping_zones || []).map((zone: string, index: number) => (
                   <Badge key={index} variant="secondary" className="px-3 py-1">
@@ -135,7 +138,7 @@ export function ShippingSection({
               </div>
               <div className="flex gap-2 mt-2">
                 <Input
-                  placeholder="Nueva zona..."
+                  placeholder={t('newZone')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('shipping_zones', (e.target as HTMLInputElement).value)
@@ -152,9 +155,9 @@ export function ShippingSection({
             {/* Payment methods */}
             <div>
               <h4 className="font-medium mb-2 flex items-center gap-2">
-                <CreditCard className="w-4 h-4" /> Métodos de pago
+                <CreditCard className="w-4 h-4" /> {t('paymentMethods')}
               </h4>
-              <p className="text-sm text-muted-foreground mb-3">¿Cómo pueden pagar tus clientes? Escribe y pulsa Enter. Ej: "Tarjeta", "PayPal", "Bizum"</p>
+              <p className="text-sm text-muted-foreground mb-3">{t('paymentMethodsDesc')}</p>
               <div className="flex flex-wrap gap-2">
                 {(formData?.payment_methods || []).map((method: string, index: number) => (
                   <Badge key={index} variant="secondary" className="px-3 py-1">
@@ -167,7 +170,7 @@ export function ShippingSection({
               </div>
               <div className="flex gap-2 mt-2">
                 <Input
-                  placeholder="Nuevo método..."
+                  placeholder={t('newMethod')}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addToArray('payment_methods', (e.target as HTMLInputElement).value)
@@ -184,12 +187,12 @@ export function ShippingSection({
             {/* Returns */}
             <div>
               <h4 className="font-medium mb-2 flex items-center gap-2">
-                <RotateCcw className="w-4 h-4" /> Devoluciones
+                <RotateCcw className="w-4 h-4" /> {t('returns')}
               </h4>
-              <p className="text-sm text-muted-foreground mb-3">Cuando pregunten "¿Puedo devolver un producto?", el bot dará esta info.</p>
+              <p className="text-sm text-muted-foreground mb-3">{t('returnsDesc')}</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Plazo (días)</Label>
+                  <Label>{t('returnDays')}</Label>
                   <Input
                     type="number"
                     placeholder="30"
@@ -198,17 +201,17 @@ export function ShippingSection({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Coste</Label>
+                  <Label>{t('returnCost')}</Label>
                   <Input
-                    placeholder="Gratis"
+                    placeholder={t('free')}
                     value={formData?.returns?.cost || ''}
                     onChange={(e) => updateNestedField('returns', 'cost', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Condiciones</Label>
+                  <Label>{t('returnConditions')}</Label>
                   <Input
-                    placeholder="Producto sin abrir"
+                    placeholder={t('unopenedProduct')}
                     value={formData?.returns?.conditions || ''}
                     onChange={(e) => updateNestedField('returns', 'conditions', e.target.value)}
                   />
@@ -221,11 +224,11 @@ export function ShippingSection({
             {/* Warranty */}
             <div>
               <h4 className="font-medium mb-2 flex items-center gap-2">
-                <Shield className="w-4 h-4" /> Garantías
+                <Shield className="w-4 h-4" /> {t('warranty')}
               </h4>
-              <p className="text-sm text-muted-foreground mb-3">¿Ofreces garantía en tus productos? Descríbela aquí.</p>
+              <p className="text-sm text-muted-foreground mb-3">{t('warrantyDesc')}</p>
               <Textarea
-                placeholder="Ej: 2 años de garantía en todos los productos. Garantía de satisfacción: si no te gusta, te devolvemos el dinero."
+                placeholder={t('warrantyPlaceholder')}
                 rows={2}
                 value={formData?.warranty || ''}
                 onChange={(e) => updateField('warranty', e.target.value)}

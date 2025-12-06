@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -37,6 +38,8 @@ export function VisitorDataSection({
   isOpen,
   onToggle
 }: VisitorDataSectionProps) {
+  const t = useTranslations('settings.chatbot.visitorDataSection')
+  
   return (
     <Collapsible open={isOpen} onOpenChange={onToggle}>
       <Card>
@@ -48,8 +51,8 @@ export function VisitorDataSection({
                   <UserCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">Datos del Visitante</h3>
-                  <p className="text-sm text-muted-foreground">Configura qué información pedir a los visitantes web</p>
+                  <h3 className="font-semibold text-lg">{t('title')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
                 </div>
               </div>
               {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -60,17 +63,16 @@ export function VisitorDataSection({
           <CardContent className="pt-0 space-y-6">
             <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800 mb-4">
               <p className="text-sm text-green-800 dark:text-green-200">
-                <strong>¿Para qué sirve?</strong> El bot puede pedir nombre, email o teléfono a los visitantes de tu web. 
-                Esta información se guarda automáticamente en tu base de clientes.
+                <strong>{t('whyThisTitle')}</strong> {t('whyThisDesc')}
               </p>
             </div>
 
             {/* Enable/Disable */}
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div className="space-y-0.5">
-                <Label className="text-base">Recolectar datos de visitantes</Label>
+                <Label className="text-base">{t('collectData')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  El bot pedirá información de contacto durante la conversación
+                  {t('collectDataDesc')}
                 </p>
               </div>
               <Switch
@@ -83,13 +85,13 @@ export function VisitorDataSection({
               <>
                 {/* What to collect */}
                 <div className="space-y-4">
-                  <h4 className="font-medium">¿Qué datos pedir?</h4>
+                  <h4 className="font-medium">{t('whatToCollect')}</h4>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-gray-500" />
-                        <Label>Nombre</Label>
+                        <Label>{t('name')}</Label>
                       </div>
                       <Switch
                         checked={formData?.collect_name || false}
@@ -100,7 +102,7 @@ export function VisitorDataSection({
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4 text-gray-500" />
-                        <Label>Email</Label>
+                        <Label>{t('email')}</Label>
                       </div>
                       <Switch
                         checked={formData?.collect_email || false}
@@ -111,7 +113,7 @@ export function VisitorDataSection({
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-2">
                         <Phone className="w-4 h-4 text-gray-500" />
-                        <Label>Teléfono</Label>
+                        <Label>{t('phone')}</Label>
                       </div>
                       <Switch
                         checked={formData?.collect_phone || false}
@@ -123,37 +125,37 @@ export function VisitorDataSection({
 
                 {/* When to collect */}
                 <div className="space-y-2">
-                  <Label>¿Cuándo pedir los datos?</Label>
+                  <Label>{t('whenToCollect')}</Label>
                   <Select 
                     value={formData?.collect_data_timing || 'during_chat'} 
                     onValueChange={(value) => updateField('collect_data_timing', value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecciona momento" />
+                      <SelectValue placeholder={t('selectTiming')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="before_chat">Antes de empezar - Formulario inicial</SelectItem>
-                      <SelectItem value="during_chat">Durante la conversación - El bot los pide naturalmente</SelectItem>
-                      <SelectItem value="end_of_chat">Al final - Antes de despedirse</SelectItem>
+                      <SelectItem value="before_chat">{t('beforeChat')}</SelectItem>
+                      <SelectItem value="during_chat">{t('duringChat')}</SelectItem>
+                      <SelectItem value="end_of_chat">{t('endOfChat')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    "Durante la conversación" es más natural y tiene mejor tasa de respuesta
+                    {t('timingHint')}
                   </p>
                 </div>
 
                 {/* Human handoff email */}
                 <div className="space-y-2">
-                  <Label htmlFor="human_handoff_email">Email para transferencias a humano</Label>
+                  <Label htmlFor="human_handoff_email">{t('handoffEmail')}</Label>
                   <Input
                     id="human_handoff_email"
                     type="email"
-                    placeholder="soporte@empresa.com"
+                    placeholder={t('handoffEmailPlaceholder')}
                     value={formData?.human_handoff_email || ''}
                     onChange={(e) => updateField('human_handoff_email', e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Cuando un visitante pida hablar con un humano, recibirás una notificación en este email
+                    {t('handoffEmailHint')}
                   </p>
                 </div>
               </>

@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -32,6 +33,8 @@ export function EscalationSection({
   isOpen,
   onToggle
 }: EscalationSectionProps) {
+  const t = useTranslations('settings.chatbot.escalationSection')
+  
   return (
     <Collapsible open={isOpen} onOpenChange={onToggle}>
       <Card>
@@ -43,8 +46,8 @@ export function EscalationSection({
                   <AlertTriangle className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">Escalación a Humano</h3>
-                  <p className="text-sm text-muted-foreground">Cuándo el bot debe pasar la conversación a una persona</p>
+                  <h3 className="font-semibold text-lg">{t('title')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
                 </div>
               </div>
               {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -56,19 +59,19 @@ export function EscalationSection({
             {/* Info box */}
             <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
               <p className="text-sm text-green-800 dark:text-green-200">
-                <strong>¿Para qué sirve esto?</strong> A veces el bot no puede resolver algo y necesita pasar la conversación a una persona real. Aquí configuras cuándo debe hacerlo y qué datos pedir al cliente antes.
+                <strong>{t('whyThisTitle')}</strong> {t('whyThisDesc')}
               </p>
             </div>
 
             {/* Escalation triggers */}
             <div>
-              <h4 className="font-medium mb-2">El bot debe pasar a un humano cuando:</h4>
-              <p className="text-sm text-muted-foreground mb-3">Marca las situaciones en las que quieres que el bot deje de responder y avise a tu equipo.</p>
+              <h4 className="font-medium mb-2">{t('triggers')}</h4>
+              <p className="text-sm text-muted-foreground mb-3">{t('triggersDesc')}</p>
               <div className="space-y-2">
                 {[
-                  'Cliente pide hablar con persona',
-                  'Queja o reclamación',
-                  'Problema con pedido'
+                  t('triggerHuman'),
+                  t('triggerComplaint'),
+                  t('triggerOrderProblem')
                 ].map((trigger) => (
                   <label key={trigger} className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -105,7 +108,7 @@ export function EscalationSection({
                   size="sm"
                   onClick={() => addToArray('custom_escalation_triggers', '')}
                 >
-                  <Plus className="w-4 h-4 mr-2" /> Añadir motivo personalizado
+                  <Plus className="w-4 h-4 mr-2" /> {t('addTrigger')}
                 </Button>
               </div>
             </div>
@@ -114,10 +117,10 @@ export function EscalationSection({
 
             {/* Escalation message */}
             <div>
-              <h4 className="font-medium mb-2">Mensaje al escalar:</h4>
-              <p className="text-sm text-muted-foreground mb-3">Este mensaje se envía al cliente cuando el bot decide pasar la conversación a una persona.</p>
+              <h4 className="font-medium mb-2">{t('escalationMessage')}</h4>
+              <p className="text-sm text-muted-foreground mb-3">{t('escalationMessageDesc')}</p>
               <Textarea
-                placeholder="Ej: Entiendo que necesitas ayuda más personalizada. Te paso con un compañero de mi equipo que te atenderá enseguida. ¡Un momento!"
+                placeholder={t('escalationMessagePlaceholder')}
                 rows={2}
                 value={formData?.escalation_message || ''}
                 onChange={(e) => updateField('escalation_message', e.target.value)}
@@ -128,8 +131,8 @@ export function EscalationSection({
 
             {/* Info to collect */}
             <div>
-              <h4 className="font-medium mb-2">Antes de escalar, pedir al cliente:</h4>
-              <p className="text-sm text-muted-foreground mb-3">El bot pedirá estos datos al cliente antes de pasarlo a un humano. Así tu equipo ya tiene la info cuando recibe la conversación.</p>
+              <h4 className="font-medium mb-2">{t('infoToCollect')}</h4>
+              <p className="text-sm text-muted-foreground mb-3">{t('infoToCollectDesc')}</p>
               <div className="space-y-2">
                 {['Nombre completo', 'Email', 'Teléfono', 'Número de pedido', 'Empresa'].map((field) => (
                   <label key={field} className="flex items-center gap-2 cursor-pointer">
@@ -167,12 +170,12 @@ export function EscalationSection({
                   size="sm"
                   onClick={() => addToArray('custom_info_fields', '')}
                 >
-                  <Plus className="w-4 h-4 mr-2" /> Añadir campo personalizado
+                  <Plus className="w-4 h-4 mr-2" /> {t('addField')}
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground mt-3 flex items-center gap-2">
                 <span className="text-green-600">💡</span>
-                Esta info se guarda en la ficha del cliente (CRM)
+                {t('infoSavedCrm')}
               </p>
             </div>
           </CardContent>

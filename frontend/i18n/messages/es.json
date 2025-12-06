@@ -765,6 +765,27 @@
         "question": "Pregunta",
         "answer": "Respuesta",
         "addFaq": "Añadir FAQ"
+      },
+      "visitorDataSection": {
+        "title": "Datos del Visitante",
+        "subtitle": "Configura qué información pedir a los visitantes web",
+        "whyThisTitle": "¿Para qué sirve?",
+        "whyThisDesc": "El bot puede pedir nombre, email o teléfono a los visitantes de tu web. Esta información se guarda automáticamente en tu base de clientes.",
+        "collectData": "Recolectar datos de visitantes",
+        "collectDataDesc": "El bot pedirá información de contacto durante la conversación",
+        "whatToCollect": "¿Qué datos pedir?",
+        "name": "Nombre",
+        "email": "Email",
+        "phone": "Teléfono",
+        "whenToCollect": "¿Cuándo pedir los datos?",
+        "selectTiming": "Selecciona momento",
+        "beforeChat": "Antes de empezar - Formulario inicial",
+        "duringChat": "Durante la conversación - El bot los pide naturalmente",
+        "endOfChat": "Al final - Antes de despedirse",
+        "timingHint": "\"Durante la conversación\" es más natural y tiene mejor tasa de respuesta",
+        "handoffEmail": "Email para transferencias a humano",
+        "handoffEmailPlaceholder": "soporte@empresa.com",
+        "handoffEmailHint": "Cuando un visitante pida hablar con un humano, recibirás una notificación en este email"
       }
     },
     "branding": {

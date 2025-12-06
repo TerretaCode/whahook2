@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -48,6 +49,7 @@ export function AvailabilitySection({
   isOpen,
   onToggle
 }: AvailabilitySectionProps) {
+  const t = useTranslations('settings.chatbot.availabilitySection')
   const scheduleMode = formData?.schedule_mode || 'always_on'
 
   return (
@@ -61,8 +63,8 @@ export function AvailabilitySection({
                   <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">Disponibilidad del Bot</h3>
-                  <p className="text-sm text-muted-foreground">Cuándo responde el bot automáticamente</p>
+                  <h3 className="font-semibold text-lg">{t('title')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
                 </div>
               </div>
               {isOpen ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -73,7 +75,7 @@ export function AvailabilitySection({
           <CardContent className="pt-0 space-y-6">
             {/* Mode selection */}
             <div className="space-y-4">
-              <h4 className="font-medium">¿Cuándo quieres que el bot responda?</h4>
+              <h4 className="font-medium">{t('whenRespond')}</h4>
               
               <div className="space-y-3">
                 {/* Always on */}
@@ -93,9 +95,9 @@ export function AvailabilitySection({
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <div className="font-medium text-green-600 dark:text-green-400">🟢 Siempre activo (24/7)</div>
+                    <div className="font-medium text-green-600 dark:text-green-400">🟢 {t('alwaysOn')}</div>
                     <p className="text-sm text-muted-foreground mt-1">
-                      El bot responde a cualquier hora, todos los días. <strong>Recomendado</strong> para maximizar la atención al cliente.
+                      {t('alwaysOnDesc')}
                     </p>
                   </div>
                 </label>
@@ -117,9 +119,9 @@ export function AvailabilitySection({
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <div className="font-medium text-green-600 dark:text-green-400">🌙 Solo fuera de horario laboral</div>
+                    <div className="font-medium text-green-600 dark:text-green-400">🌙 {t('outsideHours')}</div>
                     <p className="text-sm text-muted-foreground mt-1">
-                      El bot responde cuando tu equipo no está disponible. Durante el horario laboral, los mensajes los gestiona tu equipo humano.
+                      {t('outsideHoursDesc')}
                     </p>
                   </div>
                 </label>
@@ -141,9 +143,9 @@ export function AvailabilitySection({
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <div className="font-medium text-green-600 dark:text-green-400">☀️ Solo en horario laboral</div>
+                    <div className="font-medium text-green-600 dark:text-green-400">☀️ {t('duringHours')}</div>
                     <p className="text-sm text-muted-foreground mt-1">
-                      El bot solo responde durante tu horario de atención. Fuera de horario, se envía un mensaje automático.
+                      {t('duringHoursDesc')}
                     </p>
                   </div>
                 </label>
@@ -157,18 +159,18 @@ export function AvailabilitySection({
 
                 <div className="space-y-4">
                   <h4 className="font-medium flex items-center gap-2">
-                    <Clock className="w-4 h-4" /> Configurar horario laboral
+                    <Clock className="w-4 h-4" /> {t('configureSchedule')}
                   </h4>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label>Zona horaria</Label>
+                      <Label>{t('timezone')}</Label>
                       <Select 
                         value={formData?.timezone || 'Europe/Madrid'} 
                         onValueChange={(value) => updateField('timezone', value)}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecciona zona" />
+                          <SelectValue placeholder={t('selectTimezone')} />
                         </SelectTrigger>
                         <SelectContent>
                           {TIMEZONES.map((tz) => (
@@ -181,7 +183,7 @@ export function AvailabilitySection({
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Hora de inicio</Label>
+                      <Label>{t('startTime')}</Label>
                       <Input
                         type="time"
                         value={formData?.business_hours_start || '09:00'}
@@ -190,7 +192,7 @@ export function AvailabilitySection({
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Hora de fin</Label>
+                      <Label>{t('endTime')}</Label>
                       <Input
                         type="time"
                         value={formData?.business_hours_end || '18:00'}
@@ -201,16 +203,16 @@ export function AvailabilitySection({
 
                   {/* Days of week */}
                   <div className="space-y-2">
-                    <Label>Días laborables</Label>
+                    <Label>{t('workDays')}</Label>
                     <div className="flex flex-wrap gap-2">
                       {[
-                        { value: 'mon', label: 'Lun' },
-                        { value: 'tue', label: 'Mar' },
-                        { value: 'wed', label: 'Mié' },
-                        { value: 'thu', label: 'Jue' },
-                        { value: 'fri', label: 'Vie' },
-                        { value: 'sat', label: 'Sáb' },
-                        { value: 'sun', label: 'Dom' }
+                        { value: 'mon', label: t('mon') },
+                        { value: 'tue', label: t('tue') },
+                        { value: 'wed', label: t('wed') },
+                        { value: 'thu', label: t('thu') },
+                        { value: 'fri', label: t('fri') },
+                        { value: 'sat', label: t('sat') },
+                        { value: 'sun', label: t('sun') }
                       ].map((day) => {
                         const selectedDays = formData?.business_days || ['mon', 'tue', 'wed', 'thu', 'fri']
                         const isSelected = selectedDays.includes(day.value)
@@ -245,15 +247,15 @@ export function AvailabilitySection({
                 <div className="space-y-3">
                   <h4 className="font-medium">
                     {scheduleMode === 'outside_hours' 
-                      ? 'Mensaje durante horario laboral (cuando el bot está pausado):'
-                      : 'Mensaje fuera de horario:'
+                      ? t('messageDuringHours')
+                      : t('messageOutsideHours')
                     }
                   </h4>
                   <Textarea
                     placeholder={
                       scheduleMode === 'outside_hours'
-                        ? 'Gracias por tu mensaje. Nuestro equipo te responderá en breve.'
-                        : 'Gracias por contactarnos. Nuestro horario de atención es {hours}. Te responderemos lo antes posible.'
+                        ? t('messageDuringHoursPlaceholder')
+                        : t('messageOutsideHoursPlaceholder')
                     }
                     rows={3}
                     value={formData?.schedule_off_message || ''}
@@ -261,7 +263,7 @@ export function AvailabilitySection({
                   />
                   <p className="text-sm text-muted-foreground flex items-center gap-2">
                     <Info className="w-4 h-4" />
-                    Usa <code className="bg-muted px-1 rounded">{'{hours}'}</code> para insertar el horario automáticamente
+                    {t('hoursPlaceholderHint')}
                   </p>
                 </div>
               </>
@@ -270,8 +272,7 @@ export function AvailabilitySection({
             {/* Info box */}
             <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
               <p className="text-sm text-green-800 dark:text-green-200">
-                <strong>💡 Consejo:</strong> Tener el bot activo 24/7 mejora la experiencia del cliente y no pierdes oportunidades de venta fuera de horario. 
-                Solo limita el horario si realmente necesitas que tu equipo gestione los mensajes en tiempo real.
+                <strong>💡 {t('tip')}:</strong> {t('tipDesc')}
               </p>
             </div>
           </CardContent>
