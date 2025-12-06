@@ -1455,6 +1455,31 @@
       "passwordChangeError": "Error al cambiar la contraseña",
       "logout": "Cerrar sesión",
       "logoutDescription": "Cierra tu sesión en este dispositivo"
+    },
+    "workspaceWhiteLabel": {
+      "title": "Branding del Workspace",
+      "subtitle": "Personaliza la marca para este cliente",
+      "subtitleEnterprise": "Personaliza la marca para este cliente específico",
+      "enterpriseRequired": "El branding personalizado está disponible en el plan Enterprise. Actualiza tu plan para personalizar el branding de cada workspace.",
+      "upgradeToEnterprise": "Actualizar a Enterprise",
+      "saved": "Guardado",
+      "brandingUpdated": "Branding del workspace actualizado",
+      "saveError": "No se pudo guardar",
+      "optional": "Opcional",
+      "optionalDescription": "Si no configuras branding para este workspace, se usará el branding de tu agencia configurado en Settings > Branding.",
+      "useCustomBranding": "Usar branding personalizado",
+      "useCustomBrandingDesc": "Mostrar la marca del cliente en lugar de tu marca de agencia",
+      "clientName": "Nombre del cliente",
+      "clientNameDesc": "Se mostrará en el widget y paneles",
+      "clientNamePlaceholder": "Nombre de la empresa del cliente",
+      "clientLogo": "Logo del cliente",
+      "clientLogoDesc": "URL del logo (recomendado: 200x50px)",
+      "clientLogoPlaceholder": "https://cliente.com/logo.png",
+      "primaryColor": "Color principal",
+      "primaryColorDesc": "Color de la marca del cliente",
+      "preview": "Vista previa",
+      "client": "Cliente",
+      "exampleButton": "Botón de ejemplo"
     }
   },
   "campaigns": {

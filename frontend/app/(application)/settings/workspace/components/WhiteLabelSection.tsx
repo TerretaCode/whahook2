@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { 
@@ -37,6 +38,8 @@ const DEFAULT_SETTINGS: WorkspaceBranding = {
 }
 
 export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: WhiteLabelSectionProps) {
+  const t = useTranslations('settings.workspaceWhiteLabel')
+  const tCommon = useTranslations('common')
   const [settings, setSettings] = useState<WorkspaceBranding>(initialSettings || DEFAULT_SETTINGS)
   const [isSaving, setIsSaving] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
@@ -64,10 +67,10 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
           body: JSON.stringify({ white_label: settings })
         }
       )
-      toast.success('Guardado', 'Branding del workspace actualizado')
+      toast.success(t('saved'), t('brandingUpdated'))
       setHasChanges(false)
     } catch (error: any) {
-      toast.error('Error', error.message || 'No se pudo guardar')
+      toast.error(tCommon('error'), error.message || t('saveError'))
     } finally {
       setIsSaving(false)
     }
@@ -82,21 +85,20 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
             <Crown className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Branding del Workspace</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('title')}</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Personaliza la marca para este cliente
+              {t('subtitle')}
             </p>
           </div>
         </div>
         <div className="bg-green-50 dark:bg-green-950 rounded-lg p-4 border border-green-200 dark:border-green-800">
           <p className="text-sm text-green-800 dark:text-green-200">
-            🔒 El branding personalizado está disponible en el plan Enterprise.
-            Actualiza tu plan para personalizar el branding de cada workspace.
+            🔒 {t('enterpriseRequired')}
           </p>
           <Link href="/settings/billing">
             <Button className="mt-3 bg-green-600 hover:bg-green-700 text-white">
               <Crown className="w-4 h-4 mr-2" />
-              Actualizar a Enterprise
+              {t('upgradeToEnterprise')}
             </Button>
           </Link>
         </div>
@@ -113,9 +115,9 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
             <Palette className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Branding del Workspace</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('title')}</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Personaliza la marca para este cliente específico
+              {t('subtitleEnterprise')}
             </p>
           </div>
         </div>
@@ -128,12 +130,12 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
             {isSaving ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Guardando...
+                {tCommon('loading')}
               </>
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2" />
-                Guardar
+                {tCommon('save')}
               </>
             )}
           </Button>
@@ -146,8 +148,7 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
           <AlertCircle className="w-5 h-5 text-green-600 mt-0.5" />
           <div>
             <p className="text-sm text-green-800">
-              <strong>Opcional:</strong> Si no configuras branding para este workspace, 
-              se usará el branding de tu agencia configurado en <Link href="/settings/branding" className="underline font-medium">Settings &gt; Branding</Link>.
+              <strong>{t('optional')}:</strong> {t('optionalDescription')}
             </p>
           </div>
         </div>
@@ -157,8 +158,8 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <label className="flex items-center justify-between cursor-pointer">
           <div>
-            <span className="font-medium text-gray-900 dark:text-white">Usar branding personalizado</span>
-            <p className="text-sm text-gray-500">Mostrar la marca del cliente en lugar de tu marca de agencia</p>
+            <span className="font-medium text-gray-900 dark:text-white">{t('useCustomBranding')}</span>
+            <p className="text-sm text-gray-500">{t('useCustomBrandingDesc')}</p>
           </div>
           <input
             type="checkbox"
@@ -174,12 +175,12 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
           {/* Client Name */}
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <label className="block">
-              <span className="font-medium text-gray-900 dark:text-white">Nombre del cliente</span>
-              <p className="text-sm text-gray-500 mb-2">Se mostrará en el widget y paneles</p>
+              <span className="font-medium text-gray-900 dark:text-white">{t('clientName')}</span>
+              <p className="text-sm text-gray-500 mb-2">{t('clientNameDesc')}</p>
               <Input
                 value={settings.client_name || ''}
                 onChange={(e) => handleChange('client_name', e.target.value || null)}
-                placeholder="Nombre de la empresa del cliente"
+                placeholder={t('clientNamePlaceholder')}
               />
             </label>
           </div>
@@ -187,12 +188,12 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
           {/* Client Logo */}
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <label className="block">
-              <span className="font-medium text-gray-900 dark:text-white">Logo del cliente</span>
-              <p className="text-sm text-gray-500 mb-2">URL del logo (recomendado: 200x50px)</p>
+              <span className="font-medium text-gray-900 dark:text-white">{t('clientLogo')}</span>
+              <p className="text-sm text-gray-500 mb-2">{t('clientLogoDesc')}</p>
               <Input
                 value={settings.logo_url || ''}
                 onChange={(e) => handleChange('logo_url', e.target.value || null)}
-                placeholder="https://cliente.com/logo.png"
+                placeholder={t('clientLogoPlaceholder')}
               />
             </label>
           </div>
@@ -200,8 +201,8 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
           {/* Client Color */}
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <label className="block">
-              <span className="font-medium text-gray-900 dark:text-white">Color principal</span>
-              <p className="text-sm text-gray-500 mb-2">Color de la marca del cliente</p>
+              <span className="font-medium text-gray-900 dark:text-white">{t('primaryColor')}</span>
+              <p className="text-sm text-gray-500 mb-2">{t('primaryColorDesc')}</p>
               <div className="flex items-center gap-3">
                 <input
                   type="color"
@@ -226,7 +227,7 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
         <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2 mb-3">
             <Eye className="w-4 h-4 text-gray-600" />
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Vista previa</h4>
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('preview')}</h4>
           </div>
           <div 
             className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm"
@@ -245,7 +246,7 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
                   className="text-xl font-bold"
                   style={{ color: settings.primary_color }}
                 >
-                  {settings.client_name || 'Cliente'}
+                  {settings.client_name || t('client')}
                 </span>
               )}
             </div>
@@ -253,7 +254,7 @@ export function WhiteLabelSection({ workspaceId, initialSettings, userPlan }: Wh
               className="px-4 py-2 rounded-lg text-white text-sm font-medium"
               style={{ backgroundColor: settings.primary_color }}
             >
-              Botón de ejemplo
+              {t('exampleButton')}
             </button>
           </div>
         </div>
