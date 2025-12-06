@@ -1246,7 +1246,21 @@
       "aboutBranding": "About branding",
       "brandingAppliesAll": "This branding applies to all your workspaces by default",
       "brandingCustomizeEach": "You can customize the branding of each workspace individually",
-      "brandingFallback": "If a workspace doesn't have its own branding, it will use this agency branding"
+      "brandingFallback": "If a workspace doesn't have its own branding, it will use this agency branding",
+      "placeholders": {
+        "tabTitle": "My Agency",
+        "primaryColor": "#22c55e",
+        "agencyName": "My Digital Agency",
+        "poweredByText": "Powered by My Agency",
+        "customDomain": "panel.youragency.com",
+        "smtpHost": "smtp.yourdomain.com",
+        "smtpPort": "587",
+        "smtpUser": "noreply@yourdomain.com",
+        "smtpPassword": "••••••••",
+        "fromEmail": "noreply@yourdomain.com",
+        "fromName": "My Agency",
+        "replyTo": "support@yourdomain.com"
+      }
     },
     "team": {
       "title": "Team",

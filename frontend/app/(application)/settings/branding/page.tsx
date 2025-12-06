@@ -519,7 +519,7 @@ export default function AgencyBrandingPage() {
               id="tab_title"
               value={branding.tab_title}
               onChange={(e) => setBranding(prev => ({ ...prev, tab_title: e.target.value }))}
-              placeholder="Mi Agencia"
+              placeholder={t('placeholders.tabTitle')}
               className="max-w-md"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -544,7 +544,7 @@ export default function AgencyBrandingPage() {
               <Input
                 value={branding.primary_color}
                 onChange={(e) => setBranding(prev => ({ ...prev, primary_color: e.target.value }))}
-                placeholder="#22c55e"
+                placeholder={t('placeholders.primaryColor')}
                 className="flex-1"
               />
             </div>
@@ -564,7 +564,7 @@ export default function AgencyBrandingPage() {
                 id="agency_name"
                 value={branding.agency_name}
                 onChange={(e) => setBranding(prev => ({ ...prev, agency_name: e.target.value }))}
-                placeholder="Mi Agencia Digital"
+                placeholder={t('placeholders.agencyName')}
               />
               <p className="text-xs text-gray-500 mt-1">
                 {t('agencyNameHint')}
@@ -602,7 +602,7 @@ export default function AgencyBrandingPage() {
                   id="powered_by_text"
                   value={branding.powered_by_text}
                   onChange={(e) => setBranding(prev => ({ ...prev, powered_by_text: e.target.value }))}
-                  placeholder="Powered by Mi Agencia"
+                  placeholder={t('placeholders.poweredByText')}
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   {t('customTextHint')}
@@ -715,7 +715,7 @@ export default function AgencyBrandingPage() {
                     id="custom_domain"
                     value={domainInput}
                     onChange={(e) => setDomainInput(e.target.value.toLowerCase())}
-                    placeholder="panel.tuagencia.com"
+                    placeholder={t('placeholders.customDomain')}
                     className="flex-1"
                   />
                   <Button
@@ -768,7 +768,7 @@ export default function AgencyBrandingPage() {
                     id="smtp_host"
                     value={smtpConfig.host}
                     onChange={(e) => setSmtpConfig(prev => ({ ...prev, host: e.target.value }))}
-                    placeholder="smtp.tudominio.com"
+                    placeholder={t('placeholders.smtpHost')}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -779,7 +779,7 @@ export default function AgencyBrandingPage() {
                       type="number"
                       value={smtpConfig.port}
                       onChange={(e) => setSmtpConfig(prev => ({ ...prev, port: parseInt(e.target.value) || 587 }))}
-                      placeholder="587"
+                      placeholder={t('placeholders.smtpPort')}
                     />
                   </div>
                   <div>
@@ -810,7 +810,7 @@ export default function AgencyBrandingPage() {
                     id="smtp_user"
                     value={smtpConfig.auth_user}
                     onChange={(e) => setSmtpConfig(prev => ({ ...prev, auth_user: e.target.value }))}
-                    placeholder="noreply@tudominio.com"
+                    placeholder={t('placeholders.smtpUser')}
                   />
                 </div>
                 <div>
@@ -823,7 +823,7 @@ export default function AgencyBrandingPage() {
                       type={showSmtpPassword ? 'text' : 'password'}
                       value={smtpConfig.auth_pass}
                       onChange={(e) => setSmtpConfig(prev => ({ ...prev, auth_pass: e.target.value }))}
-                      placeholder="••••••••"
+                      placeholder={t('placeholders.smtpPassword')}
                       className="pr-10"
                     />
                     <button
@@ -851,7 +851,7 @@ export default function AgencyBrandingPage() {
                     type="email"
                     value={smtpConfig.from_email}
                     onChange={(e) => setSmtpConfig(prev => ({ ...prev, from_email: e.target.value }))}
-                    placeholder="noreply@tudominio.com"
+                    placeholder={t('placeholders.fromEmail')}
                   />
                 </div>
                 <div>
@@ -862,7 +862,7 @@ export default function AgencyBrandingPage() {
                     id="smtp_from_name"
                     value={smtpConfig.from_name}
                     onChange={(e) => setSmtpConfig(prev => ({ ...prev, from_name: e.target.value }))}
-                    placeholder="Mi Agencia"
+                    placeholder={t('placeholders.fromName')}
                   />
                 </div>
               </div>
@@ -876,7 +876,7 @@ export default function AgencyBrandingPage() {
                   type="email"
                   value={smtpConfig.reply_to}
                   onChange={(e) => setSmtpConfig(prev => ({ ...prev, reply_to: e.target.value }))}
-                  placeholder="soporte@tudominio.com"
+                  placeholder={t('placeholders.replyTo')}
                   className="max-w-md"
                 />
                 <p className="text-xs text-gray-500 mt-1">

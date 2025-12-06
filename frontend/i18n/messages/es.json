@@ -1246,7 +1246,21 @@
       "aboutBranding": "Sobre el branding",
       "brandingAppliesAll": "Este branding se aplica a todos tus workspaces por defecto",
       "brandingCustomizeEach": "Puedes personalizar el branding de cada workspace individualmente",
-      "brandingFallback": "Si un workspace no tiene branding propio, usará este branding de agencia"
+      "brandingFallback": "Si un workspace no tiene branding propio, usará este branding de agencia",
+      "placeholders": {
+        "tabTitle": "Mi Agencia",
+        "primaryColor": "#22c55e",
+        "agencyName": "Mi Agencia Digital",
+        "poweredByText": "Powered by Mi Agencia",
+        "customDomain": "panel.tuagencia.com",
+        "smtpHost": "smtp.tudominio.com",
+        "smtpPort": "587",
+        "smtpUser": "noreply@tudominio.com",
+        "smtpPassword": "••••••••",
+        "fromEmail": "noreply@tudominio.com",
+        "fromName": "Mi Agencia",
+        "replyTo": "soporte@tudominio.com"
+      }
     },
     "team": {
       "title": "Equipo",
