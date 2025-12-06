@@ -453,10 +453,10 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
         .eq('workspace_id', id)
         .order('created_at', { ascending: false }),
       
-      // AI config - get from workspace owner
+      // AI config - get from workspace owner (table is ai_config, not ai_configs)
       supabaseAdmin
-        .from('ai_configs')
-        .select('id, provider, model, has_api_key, created_at, updated_at')
+        .from('ai_config')
+        .select('id, provider, model, api_key_encrypted, created_at, updated_at')
         .eq('user_id', workspace.user_id)
         .single(),
       
@@ -470,8 +470,20 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
 
     const sessions = sessionsResult.data || []
     const ecommerceConnections = ecommerceResult.data || []
-    const aiConfig = aiConfigResult.data || null
     const widgets = widgetsResult.data || []
+    
+    // Process AI config - add has_api_key flag
+    let aiConfig = null
+    if (aiConfigResult.data) {
+      aiConfig = {
+        id: aiConfigResult.data.id,
+        provider: aiConfigResult.data.provider,
+        model: aiConfigResult.data.model,
+        has_api_key: !!aiConfigResult.data.api_key_encrypted,
+        created_at: aiConfigResult.data.created_at,
+        updated_at: aiConfigResult.data.updated_at
+      }
+    }
 
     console.log(`📱 [GET /workspaces/${id}/chatbot] Found ${sessions.length} sessions`)
 
