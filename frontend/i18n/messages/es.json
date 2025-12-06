@@ -108,7 +108,10 @@
       "somethingWrong": "Algo salió mal. Inténtalo de nuevo.",
       "emailVerified": "¡Correo verificado!",
       "canNowLogin": "Ya puedes iniciar sesión en tu cuenta.",
-      "contactAdmin": "Si no tienes cuenta, contacta con tu administrador para recibir una invitación."
+      "contactAdmin": "Si no tienes cuenta, contacta con tu administrador para recibir una invitación.",
+      "comingSoon": "Próximamente",
+      "googleComingSoon": "El inicio de sesión con Google estará disponible pronto",
+      "githubComingSoon": "El inicio de sesión con GitHub estará disponible pronto"
     },
     "register": {
       "title": "Crea tu cuenta",
@@ -145,7 +148,10 @@
       "checkEmailVerify": "Revisa tu correo para verificar tu cuenta antes de iniciar sesión.",
       "welcome": "¡Bienvenido!",
       "pleaseLogin": "Inicia sesión para continuar",
-      "somethingWrong": "Algo salió mal. Inténtalo de nuevo."
+      "somethingWrong": "Algo salió mal. Inténtalo de nuevo.",
+      "comingSoon": "Próximamente",
+      "googleComingSoon": "El registro con Google estará disponible pronto",
+      "githubComingSoon": "El registro con GitHub estará disponible pronto"
     },
     "forgotPassword": {
       "title": "¿Olvidaste tu Contraseña?",

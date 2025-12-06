@@ -108,7 +108,10 @@
       "somethingWrong": "Something went wrong. Please try again.",
       "emailVerified": "Email verified!",
       "canNowLogin": "You can now log in to your account.",
-      "contactAdmin": "If you don't have an account, contact your administrator for an invitation."
+      "contactAdmin": "If you don't have an account, contact your administrator for an invitation.",
+      "comingSoon": "Coming soon",
+      "googleComingSoon": "Google login will be available soon",
+      "githubComingSoon": "GitHub login will be available soon"
     },
     "register": {
       "title": "Create your account",
@@ -145,7 +148,10 @@
       "checkEmailVerify": "Please check your email to verify your account before logging in.",
       "welcome": "Welcome!",
       "pleaseLogin": "Please log in to continue",
-      "somethingWrong": "Something went wrong. Please try again."
+      "somethingWrong": "Something went wrong. Please try again.",
+      "comingSoon": "Coming soon",
+      "googleComingSoon": "Google sign up will be available soon",
+      "githubComingSoon": "GitHub sign up will be available soon"
     },
     "forgotPassword": {
       "title": "Forgot Password?",
