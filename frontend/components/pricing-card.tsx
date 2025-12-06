@@ -17,85 +17,93 @@ export interface PlanData {
   highlighted?: boolean
 }
 
+// Plan data with translation keys for name, description, features, and cta
 export const PLANS: Record<string, PlanData> = {
   starter: {
     id: "starter",
-    name: "Starter",
+    name: "plans.starter.name",
     monthlyPrice: 12,
     yearlyPrice: 120,
-    description: "Perfect for small businesses",
+    description: "plans.starter.description",
     features: [
-      "1 WhatsApp connection",
-      "1 Web widget",
-      "1 Workspace",
-      "1 User",
-      "Unlimited AI (your own API key)",
-      "Basic CRM (contacts & tags)",
-      "Conversation history",
-      "CSV export",
-      "30-day message history",
-      "Email support"
+      "features.whatsappConnections",
+      "features.webWidgets",
+      "features.workspaces",
+      "features.users",
+      "features.unlimitedAI",
+      "features.basicCRM",
+      "features.conversationHistory",
+      "features.csvExport",
+      "features.messageHistory30",
+      "features.emailSupport"
     ],
-    cta: "Start Free Trial",
+    cta: "plans.starter.cta",
     ctaLink: "/register",
   },
   professional: {
     id: "professional",
-    name: "Professional",
+    name: "plans.professional.name",
     monthlyPrice: 28,
     yearlyPrice: 280,
-    description: "For growing businesses & small agencies",
+    description: "plans.professional.description",
     features: [
-      "3 WhatsApp connections",
-      "3 Web widgets",
-      "3 Workspaces",
-      "3 Users per workspace",
-      "Unlimited AI (API key per workspace)",
-      "Full CRM (tags, notes, custom fields)",
-      "WhatsApp campaigns (scheduled bulk)",
-      "Email campaigns",
-      "Advanced segmentation",
-      "Advanced analytics",
-      "Client access links",
-      "Remote QR connection",
-      "API Key per workspace",
-      "CSV export",
-      "90-day message history",
-      "Email support"
+      "features.whatsappConnections",
+      "features.webWidgets",
+      "features.workspaces",
+      "features.usersPerWorkspace",
+      "features.unlimitedAIPerWorkspace",
+      "features.fullCRM",
+      "features.whatsappCampaigns",
+      "features.emailCampaigns",
+      "features.advancedSegmentation",
+      "features.advancedAnalytics",
+      "features.clientAccessLinks",
+      "features.remoteQR",
+      "features.apiKeyPerWorkspace",
+      "features.csvExport",
+      "features.messageHistory90",
+      "features.emailSupport"
     ],
-    cta: "Get Started",
+    cta: "plans.professional.cta",
     ctaLink: "/register",
     highlighted: true,
   },
   enterprise: {
     id: "enterprise",
-    name: "Enterprise",
+    name: "plans.enterprise.name",
     monthlyPrice: 89,
     yearlyPrice: 890,
-    description: "For agencies & multi-brand businesses",
+    description: "plans.enterprise.description",
     features: [
-      "10 WhatsApp connections",
-      "10 Web widgets",
-      "10 Workspaces",
-      "10 Users per workspace",
-      "Unlimited AI (API key per workspace)",
-      "Full CRM (tags, notes, custom fields)",
-      "WhatsApp campaigns (scheduled bulk)",
-      "Email campaigns",
-      "Advanced segmentation",
-      "Advanced analytics",
-      "Client access links",
-      "Remote QR connection",
-      "API Key per workspace",
-      "White-label (hide Whahook brand)",
-      "Custom domain support",
-      "CSV export",
-      "90-day message history",
-      "Email support"
+      "features.whatsappConnections",
+      "features.webWidgets",
+      "features.workspaces",
+      "features.usersPerWorkspace",
+      "features.unlimitedAIPerWorkspace",
+      "features.fullCRM",
+      "features.whatsappCampaigns",
+      "features.emailCampaigns",
+      "features.advancedSegmentation",
+      "features.advancedAnalytics",
+      "features.clientAccessLinks",
+      "features.remoteQR",
+      "features.apiKeyPerWorkspace",
+      "features.whiteLabel",
+      "features.customDomain",
+      "features.csvExport",
+      "features.messageHistory90",
+      "features.emailSupport"
     ],
-    cta: "Get Started",
+    cta: "plans.enterprise.cta",
     ctaLink: "/register",
   },
+}
+
+// Feature counts for interpolation
+const FEATURE_COUNTS: Record<string, Record<string, number>> = {
+  starter: { whatsapp: 1, widgets: 1, workspaces: 1, users: 1 },
+  professional: { whatsapp: 3, widgets: 3, workspaces: 3, users: 3 },
+  enterprise: { whatsapp: 10, widgets: 10, workspaces: 10, users: 10 },
 }
 
 interface PricingCardProps {
@@ -126,10 +134,10 @@ export function PricingCard({
         : 'bg-white border-2 border-gray-200'
     }`}>
       <h3 className={`text-2xl font-bold mb-2 ${plan.highlighted ? 'text-white' : 'text-gray-900'}`}>
-        {plan.name}
+        {t(plan.name)}
       </h3>
       <p className={`mb-6 ${plan.highlighted ? 'text-green-100' : 'text-gray-600'}`}>
-        {plan.description}
+        {t(plan.description)}
       </p>
       <div className="mb-6">
         <span className="text-5xl font-bold">€{price}</span>
@@ -141,12 +149,17 @@ export function PricingCard({
         )}
       </div>
       <ul className="space-y-3 mb-8">
-        {plan.features.map((feature, index) => (
-          <li key={index} className="flex items-start gap-3">
-            <CheckCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${plan.highlighted ? 'text-green-200' : 'text-green-600'}`} />
-            <span className={plan.highlighted ? 'text-green-50' : 'text-gray-700'}>{feature}</span>
-          </li>
-        ))}
+        {plan.features.map((feature, index) => {
+          const counts = FEATURE_COUNTS[plan.id]
+          return (
+            <li key={index} className="flex items-start gap-3">
+              <CheckCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${plan.highlighted ? 'text-green-200' : 'text-green-600'}`} />
+              <span className={plan.highlighted ? 'text-green-50' : 'text-gray-700'}>
+                {t(feature, { count: feature.includes('whatsapp') ? counts.whatsapp : feature.includes('widget') ? counts.widgets : feature.includes('workspace') ? counts.workspaces : counts.users })}
+              </span>
+            </li>
+          )
+        })}
       </ul>
       
       {isCurrentPlan ? (
@@ -163,7 +176,7 @@ export function PricingCard({
               ? 'bg-white text-green-600 hover:bg-gray-100' 
               : 'bg-green-600 text-white hover:bg-green-700'
           }`}>
-            {plan.cta}
+            {t(plan.cta)}
           </Button>
         </Link>
       ) : (
@@ -176,7 +189,7 @@ export function PricingCard({
           onClick={onSubscribe}
           disabled={isProcessing}
         >
-          {isProcessing ? t('processing') : plan.cta}
+          {isProcessing ? t('processing') : t(plan.cta)}
         </Button>
       )}
     </div>
