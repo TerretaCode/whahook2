@@ -2130,5 +2130,74 @@
       "change2": "Integración de calendario",
       "change3": "Herramientas de colaboración en equipo"
     }
+  },
+  "termsPage": {
+    "title": "Términos de Servicio",
+    "lastUpdated": "Última actualización: 24 de noviembre de 2025",
+    "sections": {
+      "acceptance": {
+        "title": "1. Aceptación de los Términos",
+        "content": "Al acceder y usar WhaHook, aceptas y acuerdas estar sujeto a los términos y disposiciones de este acuerdo."
+      },
+      "license": {
+        "title": "2. Licencia de Uso",
+        "content": "Se concede permiso para usar temporalmente WhaHook con fines personales o comerciales. Esta es una concesión de licencia, no una transferencia de título, y bajo esta licencia no puedes:",
+        "items": [
+          "Modificar o copiar los materiales",
+          "Usar los materiales con fines comerciales sin autorización",
+          "Intentar descompilar o realizar ingeniería inversa del software",
+          "Eliminar notaciones de derechos de autor o propiedad",
+          "Transferir los materiales a otra persona"
+        ]
+      },
+      "accounts": {
+        "title": "3. Cuentas de Usuario",
+        "content1": "Al crear una cuenta con nosotros, debes proporcionar información precisa, completa y actual. No hacerlo constituye una violación de los Términos, lo que puede resultar en la terminación inmediata de tu cuenta.",
+        "content2": "Eres responsable de proteger tu contraseña y de todas las actividades que ocurran bajo tu cuenta."
+      },
+      "acceptableUse": {
+        "title": "4. Uso Aceptable",
+        "content": "Aceptas no usar WhaHook para:",
+        "items": [
+          "Enviar spam o mensajes no solicitados",
+          "Violar leyes o regulaciones",
+          "Infringir derechos de propiedad intelectual",
+          "Transmitir malware o código malicioso",
+          "Acosar, abusar o dañar a otros",
+          "Hacerse pasar por cualquier persona o entidad"
+        ]
+      },
+      "payment": {
+        "title": "5. Pago y Facturación",
+        "content1": "Los servicios de pago se facturan por adelantado de forma mensual o anual. Todas las tarifas no son reembolsables excepto según lo requiera la ley.",
+        "content2": "Nos reservamos el derecho de cambiar nuestros precios en cualquier momento. Los cambios de precio se comunicarán con 30 días de anticipación."
+      },
+      "availability": {
+        "title": "6. Disponibilidad del Servicio",
+        "content": "Nos esforzamos por proporcionar un 99.9% de tiempo de actividad pero no garantizamos acceso ininterrumpido al servicio. Podemos suspender el servicio por mantenimiento o actualizaciones con aviso razonable."
+      },
+      "ip": {
+        "title": "7. Propiedad Intelectual",
+        "content": "El servicio y su contenido original, características y funcionalidad son propiedad de WhaHook y están protegidos por leyes internacionales de derechos de autor, marcas registradas y otras leyes de propiedad intelectual."
+      },
+      "termination": {
+        "title": "8. Terminación",
+        "content": "Podemos terminar o suspender tu cuenta inmediatamente, sin previo aviso, por cualquier incumplimiento de estos Términos. Tras la terminación, tu derecho a usar el servicio cesará inmediatamente."
+      },
+      "liability": {
+        "title": "9. Limitación de Responsabilidad",
+        "content": "En ningún caso WhaHook será responsable de daños indirectos, incidentales, especiales, consecuentes o punitivos, incluyendo sin limitación, pérdida de beneficios, datos, uso, buena voluntad u otras pérdidas intangibles."
+      },
+      "changes": {
+        "title": "10. Cambios en los Términos",
+        "content": "Nos reservamos el derecho de modificar o reemplazar estos Términos en cualquier momento. Proporcionaremos aviso de cualquier cambio material publicando los nuevos Términos en esta página con una fecha de vigencia actualizada."
+      },
+      "contact": {
+        "title": "11. Contáctanos",
+        "content": "Si tienes alguna pregunta sobre estos Términos, contáctanos:",
+        "email": "Email: legal@whahook.com",
+        "address": "Dirección: [Dirección de la Empresa]"
+      }
+    }
   }
 }

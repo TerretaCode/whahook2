@@ -2127,5 +2127,74 @@
       "change2": "Calendar integration",
       "change3": "Team collaboration tools"
     }
+  },
+  "termsPage": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: November 24, 2025",
+    "sections": {
+      "acceptance": {
+        "title": "1. Acceptance of Terms",
+        "content": "By accessing and using WhaHook, you accept and agree to be bound by the terms and provision of this agreement."
+      },
+      "license": {
+        "title": "2. Use License",
+        "content": "Permission is granted to temporarily use WhaHook for personal or commercial purposes. This is the grant of a license, not a transfer of title, and under this license you may not:",
+        "items": [
+          "Modify or copy the materials",
+          "Use the materials for any commercial purpose without authorization",
+          "Attempt to decompile or reverse engineer any software",
+          "Remove any copyright or proprietary notations",
+          "Transfer the materials to another person"
+        ]
+      },
+      "accounts": {
+        "title": "3. User Accounts",
+        "content1": "When you create an account with us, you must provide accurate, complete, and current information. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account.",
+        "content2": "You are responsible for safeguarding the password and for all activities that occur under your account."
+      },
+      "acceptableUse": {
+        "title": "4. Acceptable Use",
+        "content": "You agree not to use WhaHook to:",
+        "items": [
+          "Send spam or unsolicited messages",
+          "Violate any laws or regulations",
+          "Infringe on intellectual property rights",
+          "Transmit malware or malicious code",
+          "Harass, abuse, or harm others",
+          "Impersonate any person or entity"
+        ]
+      },
+      "payment": {
+        "title": "5. Payment and Billing",
+        "content1": "Paid services are billed in advance on a monthly or annual basis. All fees are non-refundable except as required by law.",
+        "content2": "We reserve the right to change our pricing at any time. Price changes will be communicated 30 days in advance."
+      },
+      "availability": {
+        "title": "6. Service Availability",
+        "content": "We strive to provide 99.9% uptime but do not guarantee uninterrupted access to the service. We may suspend service for maintenance or updates with reasonable notice."
+      },
+      "ip": {
+        "title": "7. Intellectual Property",
+        "content": "The service and its original content, features, and functionality are owned by WhaHook and are protected by international copyright, trademark, and other intellectual property laws."
+      },
+      "termination": {
+        "title": "8. Termination",
+        "content": "We may terminate or suspend your account immediately, without prior notice, for any breach of these Terms. Upon termination, your right to use the service will immediately cease."
+      },
+      "liability": {
+        "title": "9. Limitation of Liability",
+        "content": "In no event shall WhaHook be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses."
+      },
+      "changes": {
+        "title": "10. Changes to Terms",
+        "content": "We reserve the right to modify or replace these Terms at any time. We will provide notice of any material changes by posting the new Terms on this page with an updated effective date."
+      },
+      "contact": {
+        "title": "11. Contact Us",
+        "content": "If you have any questions about these Terms, please contact us:",
+        "email": "Email: legal@whahook.com",
+        "address": "Address: [Your Company Address]"
+      }
+    }
   }
 }
