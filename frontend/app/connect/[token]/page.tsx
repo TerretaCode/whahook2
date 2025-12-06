@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { QRCodeSVG } from 'qrcode.react'
 import { 
@@ -35,6 +36,7 @@ interface ConnectionData {
 }
 
 export default function ConnectPage() {
+  const t = useTranslations('connect')
   const params = useParams()
   const token = params.token as string
   
@@ -53,14 +55,14 @@ export default function ConnectPage() {
       const result = await response.json()
 
       if (!response.ok) {
-        setError(result.error || 'Connection link not found')
+        setError(result.error || t('linkNotFound'))
         return
       }
 
       setData(result.data)
       setError(null)
     } catch {
-      setError('Failed to load connection data')
+      setError(t('loadError'))
     } finally {
       setIsLoading(false)
     }
@@ -76,14 +78,14 @@ export default function ConnectPage() {
       const result = await response.json()
 
       if (!response.ok) {
-        setError(result.error || 'Failed to start connection')
+        setError(result.error || t('startError'))
         return
       }
 
       // Start polling for QR
       fetchData()
     } catch {
-      setError('Failed to start connection')
+      setError(t('startError'))
     } finally {
       setIsStarting(false)
     }
@@ -99,7 +101,7 @@ export default function ConnectPage() {
       const diff = expires.getTime() - now.getTime()
 
       if (diff <= 0) {
-        setTimeLeft('Expired')
+        setTimeLeft(t('expired'))
         return
       }
 
@@ -173,11 +175,11 @@ export default function ConnectPage() {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <XCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Connection Error</h1>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">{t('connectionError')}</h1>
           <p className="text-gray-600 mb-6">{error}</p>
           <Button onClick={() => window.location.reload()} variant="outline">
             <RefreshCw className="w-4 h-4 mr-2" />
-            Try Again
+            {t('tryAgain')}
           </Button>
         </div>
       </div>
@@ -207,9 +209,9 @@ export default function ConnectPage() {
           >
             <CheckCircle2 className="w-10 h-10" style={{ color: brandColor }} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">WhatsApp Connected!</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('connected')}</h1>
           <p className="text-gray-600 mb-2">
-            Your WhatsApp has been successfully connected.
+            {t('connectedDesc')}
           </p>
           {data.phone && (
             <p className="text-lg font-medium mb-6" style={{ color: brandColor }}>
@@ -217,7 +219,7 @@ export default function ConnectPage() {
             </p>
           )}
           <p className="text-sm text-gray-500">
-            You can close this page now.
+            {t('canClose')}
           </p>
           {!hideWhahook && (
             <p className="text-xs text-gray-400 mt-8">
@@ -255,16 +257,16 @@ export default function ConnectPage() {
               <Smartphone className="w-8 h-8" style={{ color: brandColor }} />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Connect WhatsApp
+              {t('connectWhatsApp')}
             </h1>
             <p className="text-gray-600">
-              Connect your WhatsApp to {brandName}
+              {t('connectTo', { brand: brandName })}
             </p>
           </div>
 
           <div className="flex items-center justify-center gap-2 text-sm text-gray-500 mb-6">
             <Clock className="w-4 h-4" />
-            <span>Link expires in {timeLeft}</span>
+            <span>{t('expiresIn', { time: timeLeft })}</span>
           </div>
 
           <Button 
@@ -276,12 +278,12 @@ export default function ConnectPage() {
             {isStarting ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Starting...
+                {t('starting')}
               </>
             ) : (
               <>
                 <Smartphone className="w-5 h-5 mr-2" />
-                Start Connection
+                {t('startConnection')}
               </>
             )}
           </Button>
@@ -315,10 +317,10 @@ export default function ConnectPage() {
         
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Scan QR Code
+            {t('scanQR')}
           </h1>
           <p className="text-gray-600">
-            Open WhatsApp on your phone and scan this code
+            {t('scanQRDesc')}
           </p>
         </div>
 
@@ -342,35 +344,35 @@ export default function ConnectPage() {
 
         {/* Instructions */}
         <div className="bg-gray-50 rounded-xl p-4 mb-6">
-          <h3 className="font-medium text-gray-900 mb-3">How to connect:</h3>
+          <h3 className="font-medium text-gray-900 mb-3">{t('howToConnect')}</h3>
           <ol className="space-y-2 text-sm text-gray-600">
             <li className="flex items-start gap-2">
               <span 
                 className="flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium"
                 style={{ backgroundColor: `${brandColor}20`, color: brandColor }}
               >1</span>
-              <span>Open WhatsApp on your phone</span>
+              <span>{t('step1')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span 
                 className="flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium"
                 style={{ backgroundColor: `${brandColor}20`, color: brandColor }}
               >2</span>
-              <span>Go to Settings → Linked Devices</span>
+              <span>{t('step2')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span 
                 className="flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium"
                 style={{ backgroundColor: `${brandColor}20`, color: brandColor }}
               >3</span>
-              <span>Tap "Link a Device"</span>
+              <span>{t('step3')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span 
                 className="flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium"
                 style={{ backgroundColor: `${brandColor}20`, color: brandColor }}
               >4</span>
-              <span>Point your phone at this QR code</span>
+              <span>{t('step4')}</span>
             </li>
           </ol>
         </div>
@@ -378,7 +380,7 @@ export default function ConnectPage() {
         {/* Time left */}
         <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
           <Clock className="w-4 h-4" />
-          <span>Link expires in {timeLeft}</span>
+          <span>{t('expiresIn', { time: timeLeft })}</span>
         </div>
 
         {/* Refresh button */}
@@ -388,7 +390,7 @@ export default function ConnectPage() {
           className="w-full mt-4"
         >
           <RefreshCw className="w-4 h-4 mr-2" />
-          Refresh QR Code
+          {t('refreshQR')}
         </Button>
 
         {!hideWhahook && (

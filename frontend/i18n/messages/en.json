@@ -187,6 +187,30 @@
       "testStep5": "Verify the header logo and colors"
     }
   },
+  "connect": {
+    "linkNotFound": "Connection link not found",
+    "loadError": "Failed to load connection data",
+    "startError": "Failed to start connection",
+    "expired": "Expired",
+    "connectionError": "Connection Error",
+    "tryAgain": "Try Again",
+    "connected": "WhatsApp Connected!",
+    "connectedDesc": "Your WhatsApp has been successfully connected.",
+    "canClose": "You can close this page now.",
+    "connectWhatsApp": "Connect WhatsApp",
+    "connectTo": "Connect your WhatsApp to {brand}",
+    "expiresIn": "Link expires in {time}",
+    "starting": "Starting...",
+    "startConnection": "Start Connection",
+    "scanQR": "Scan QR Code",
+    "scanQRDesc": "Open WhatsApp on your phone and scan this code",
+    "howToConnect": "How to connect:",
+    "step1": "Open WhatsApp on your phone",
+    "step2": "Go to Settings → Linked Devices",
+    "step3": "Tap \"Link a Device\"",
+    "step4": "Point your phone at this QR code",
+    "refreshQR": "Refresh QR Code"
+  },
   "dashboard": {
     "greeting": "Hello, {name}!",
     "summary": "Here's your activity summary",

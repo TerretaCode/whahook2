@@ -187,6 +187,30 @@
       "testStep5": "Verifica el logo del encabezado y los colores"
     }
   },
+  "connect": {
+    "linkNotFound": "Enlace de conexión no encontrado",
+    "loadError": "Error al cargar datos de conexión",
+    "startError": "Error al iniciar conexión",
+    "expired": "Expirado",
+    "connectionError": "Error de Conexión",
+    "tryAgain": "Intentar de Nuevo",
+    "connected": "¡WhatsApp Conectado!",
+    "connectedDesc": "Tu WhatsApp se ha conectado exitosamente.",
+    "canClose": "Puedes cerrar esta página ahora.",
+    "connectWhatsApp": "Conectar WhatsApp",
+    "connectTo": "Conecta tu WhatsApp a {brand}",
+    "expiresIn": "El enlace expira en {time}",
+    "starting": "Iniciando...",
+    "startConnection": "Iniciar Conexión",
+    "scanQR": "Escanear Código QR",
+    "scanQRDesc": "Abre WhatsApp en tu teléfono y escanea este código",
+    "howToConnect": "Cómo conectar:",
+    "step1": "Abre WhatsApp en tu teléfono",
+    "step2": "Ve a Ajustes → Dispositivos vinculados",
+    "step3": "Toca \"Vincular un dispositivo\"",
+    "step4": "Apunta tu teléfono a este código QR",
+    "refreshQR": "Actualizar Código QR"
+  },
   "dashboard": {
     "greeting": "¡Hola, {name}!",
     "summary": "Aquí tienes el resumen de tu actividad",
