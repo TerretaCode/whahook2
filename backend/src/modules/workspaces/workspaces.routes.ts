@@ -390,21 +390,39 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
 
     const { id } = req.params
 
-    // Verify workspace belongs to user
+    // Get workspace (verify user has access - owner or member)
     const { data: workspace, error: wsError } = await supabaseAdmin
       .from('workspaces')
       .select('*')
       .eq('id', id)
-      .eq('user_id', userId)
       .single()
 
     if (wsError || !workspace) {
       return res.status(404).json({ success: false, error: 'Workspace not found' })
     }
 
+    // Verify user has access to this workspace (owner or member)
+    const isOwner = workspace.user_id === userId
+    let isMember = false
+    
+    if (!isOwner) {
+      const { data: membership } = await supabaseAdmin
+        .from('workspace_members')
+        .select('id')
+        .eq('workspace_id', id)
+        .eq('user_id', userId)
+        .single()
+      
+      isMember = !!membership
+    }
+
+    if (!isOwner && !isMember) {
+      return res.status(403).json({ success: false, error: 'Access denied' })
+    }
+
     console.log(`📱 [GET /workspaces/${id}/chatbot] workspace.whatsapp_session_id:`, workspace.whatsapp_session_id)
 
-    // Get WhatsApp sessions - use workspace.whatsapp_session_id if available
+    // Get WhatsApp sessions - ONLY by workspace link, not by user
     let sessionsResult: { data: any[] | null; error: any }
     
     if (workspace.whatsapp_session_id) {
@@ -421,7 +439,7 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
         .eq('workspace_id', id)
     }
 
-    // Fetch other data in parallel
+    // Fetch other data in parallel - filter by workspace, not user
     const [
       ecommerceResult,
       aiConfigResult,
@@ -432,22 +450,20 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
       supabaseAdmin
         .from('ecommerce_connections')
         .select('*')
-        .eq('user_id', userId)
         .eq('workspace_id', id)
         .order('created_at', { ascending: false }),
       
-      // AI config for this user (global, not per workspace)
+      // AI config - get from workspace owner
       supabaseAdmin
         .from('ai_configs')
         .select('id, provider, model, has_api_key, created_at, updated_at')
-        .eq('user_id', userId)
+        .eq('user_id', workspace.user_id)
         .single(),
       
       // Chat widgets for this workspace
       supabaseAdmin
         .from('chat_widgets')
         .select('*')
-        .eq('user_id', userId)
         .eq('workspace_id', id)
         .order('created_at', { ascending: false })
     ])
