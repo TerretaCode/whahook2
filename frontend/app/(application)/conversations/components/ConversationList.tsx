@@ -54,6 +54,12 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
   const [isLoading, setIsLoading] = useState(true)
   const lastActivityRef = useRef<number>(Date.now())
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const workspaceIdRef = useRef<string | undefined>(workspaceId)
+  
+  // Keep workspaceId ref in sync
+  useEffect(() => {
+    workspaceIdRef.current = workspaceId
+  }, [workspaceId])
 
   // Polling adaptativo
   const startPolling = useCallback(() => {
@@ -85,6 +91,9 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
   }, [])
 
   useEffect(() => {
+    // Clear conversations when workspace changes to avoid showing stale data
+    setConversations([])
+    setFilteredConversations([])
     setIsLoading(true)
     fetchConversations()
     startPolling()
@@ -129,8 +138,9 @@ export function ConversationList({ selectedConversationId, onSelectConversation,
 
   const fetchConversations = async () => {
     try {
-      // Build query params with workspace filter
-      const workspaceParam = workspaceId ? `?workspace_id=${workspaceId}` : ''
+      // Build query params with workspace filter (use ref for polling to get latest value)
+      const currentWorkspaceId = workspaceIdRef.current
+      const workspaceParam = currentWorkspaceId ? `?workspace_id=${currentWorkspaceId}` : ''
       
       // Fetch both WhatsApp and Web conversations in parallel for better performance
       const [whatsappResponse, webResponse] = await Promise.allSettled([

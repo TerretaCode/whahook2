@@ -83,8 +83,10 @@ export default function ClientsPage() {
 
   useEffect(() => {
     if (user && workspace?.id) {
-      // Only show loading on workspace change
+      // Clear data and show loading on workspace change
       if (lastWorkspaceId.current !== workspace.id) {
+        setClients([])
+        setFilteredClients([])
         setIsInitialLoad(true)
         lastWorkspaceId.current = workspace.id
       }

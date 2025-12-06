@@ -113,8 +113,9 @@ export default function DashboardPage() {
   // Initial load and workspace change
   useEffect(() => {
     if (user && workspace?.id) {
-      // Only show loading state on workspace change
+      // Clear stats and show loading state on workspace change
       if (lastWorkspaceId.current !== workspace.id) {
+        setStats(DEFAULT_STATS)
         setIsInitialLoad(true)
         lastWorkspaceId.current = workspace.id
       }
