@@ -402,20 +402,31 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Workspace not found' })
     }
 
-    // Fetch all data in parallel
+    console.log(`📱 [GET /workspaces/${id}/chatbot] workspace.whatsapp_session_id:`, workspace.whatsapp_session_id)
+
+    // Get WhatsApp sessions - use workspace.whatsapp_session_id if available
+    let sessionsResult: { data: any[] | null; error: any }
+    
+    if (workspace.whatsapp_session_id) {
+      // Get session linked to workspace via whatsapp_session_id
+      sessionsResult = await supabaseAdmin
+        .from('whatsapp_accounts')
+        .select('*')
+        .eq('session_id', workspace.whatsapp_session_id)
+    } else {
+      // Fallback: get sessions by workspace_id column
+      sessionsResult = await supabaseAdmin
+        .from('whatsapp_accounts')
+        .select('*')
+        .eq('workspace_id', id)
+    }
+
+    // Fetch other data in parallel
     const [
-      sessionsResult,
       ecommerceResult,
       aiConfigResult,
       widgetsResult
     ] = await Promise.all([
-      // WhatsApp sessions for this workspace
-      supabaseAdmin
-        .from('whatsapp_accounts')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('workspace_id', id)
-        .order('created_at', { ascending: false }),
       
       // E-commerce connections for this workspace
       supabaseAdmin
@@ -446,8 +457,10 @@ router.get('/:id/chatbot', async (req: Request, res: Response) => {
     const aiConfig = aiConfigResult.data || null
     const widgets = widgetsResult.data || []
 
+    console.log(`📱 [GET /workspaces/${id}/chatbot] Found ${sessions.length} sessions`)
+
     // Fetch chatbot configs for all sessions
-    const sessionIds = sessions.map(s => s.session_id)
+    const sessionIds = sessions.map((s: any) => s.session_id)
     let chatbotConfigs: any[] = []
     
     if (sessionIds.length > 0) {
