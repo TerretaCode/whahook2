@@ -515,8 +515,8 @@ class WhatsAppService {
    * OPTIMIZADO: Mejor manejo de errores, getContact no bloquea
    */
   private async handleIncomingMessage(sessionId: string, userId: string, message: any): Promise<void> {
-    // Ignorar mensajes de grupos y broadcasts
-    if (message.from.includes('@g.us') || message.from.includes('@broadcast')) {
+    // Ignorar mensajes de grupos, broadcasts y newsletters - no son clientes individuales
+    if (message.from.includes('@g.us') || message.from.includes('@broadcast') || message.from.includes('@newsletter')) {
       return
     }
 
@@ -716,8 +716,8 @@ class WhatsAppService {
    * Manejar mensaje saliente (enviado desde el teléfono)
    */
   private async handleOutgoingMessage(sessionId: string, userId: string, message: any): Promise<void> {
-    // Ignorar mensajes de grupos y broadcasts
-    if (message.to.includes('@g.us') || message.to.includes('@broadcast')) {
+    // Ignorar mensajes de grupos, broadcasts y newsletters - no son clientes individuales
+    if (message.to.includes('@g.us') || message.to.includes('@broadcast') || message.to.includes('@newsletter')) {
       return
     }
 
