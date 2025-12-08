@@ -73,14 +73,20 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
   const connectOAuth = async (provider: 'gmail' | 'outlook') => {
     try {
       setIsConnecting(true)
-      const response = await ApiClient.request<{ data: { url: string } }>(
+      const response = await ApiClient.request<{ data: { url: string }, error?: string }>(
         `/api/email/oauth/${provider}/url?workspace_id=${workspaceId}`
       )
       if (response.data?.data?.url) {
         window.location.href = response.data.data.url
+      } else {
+        // OAuth not configured - show friendly message
+        const providerName = provider === 'gmail' ? 'Gmail' : 'Outlook'
+        alert(`La conexión con ${providerName} no está disponible en este momento. Por favor, usa la opción SMTP manual o contacta al administrador.`)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error getting OAuth URL:', error)
+      const providerName = provider === 'gmail' ? 'Gmail' : 'Outlook'
+      alert(`La conexión con ${providerName} no está disponible. Por favor, usa la opción SMTP manual.`)
     } finally {
       setIsConnecting(false)
     }
