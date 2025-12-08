@@ -16,8 +16,7 @@ import {
   CheckCircle2, 
   XCircle, 
   Loader2,
-  Settings,
-  ExternalLink
+  Settings
 } from "lucide-react"
 
 interface EmailConnection {
@@ -36,7 +35,7 @@ interface EmailConnectionSectionProps {
 }
 
 export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionProps) {
-  const t = useTranslations('settings.connections')
+  const t = useTranslations('settings.connections.email')
   const [connections, setConnections] = useState<EmailConnection[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isConnecting, setIsConnecting] = useState(false)
@@ -129,7 +128,7 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
   }
 
   const deleteConnection = async (id: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta conexión de email?')) {
+    if (!confirm(t('deleteConfirm'))) {
       return
     }
     try {
@@ -179,9 +178,9 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
               <Mail className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <CardTitle className="text-lg">Email para Campañas</CardTitle>
+              <CardTitle className="text-lg">{t('title')}</CardTitle>
               <CardDescription>
-                Conecta tu email para enviar campañas directamente desde tu cuenta
+                {t('subtitle')}
               </CardDescription>
             </div>
           </div>
@@ -207,12 +206,12 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                     {activeConnection.is_verified ? (
                       <Badge className="bg-green-100 text-green-700 text-xs">
                         <CheckCircle2 className="w-3 h-3 mr-1" />
-                        Verificado
+                        {t('verified')}
                       </Badge>
                     ) : (
                       <Badge className="bg-yellow-100 text-yellow-700 text-xs">
                         <XCircle className="w-3 h-3 mr-1" />
-                        Sin verificar
+                        {t('notVerified')}
                       </Badge>
                     )}
                   </div>
@@ -230,7 +229,7 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                     size="sm"
                     onClick={() => testConnection(activeConnection.id)}
                   >
-                    Verificar
+                    {t('verify')}
                   </Button>
                 )}
                 <Button
@@ -248,7 +247,7 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
           // Show connection options
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
-              Elige cómo quieres enviar emails desde este workspace:
+              {t('chooseMethod')}
             </p>
             
             {/* OAuth Options */}
@@ -260,8 +259,8 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                 disabled={isConnecting}
               >
                 <span className="text-2xl">📧</span>
-                <span className="font-medium">Gmail</span>
-                <span className="text-xs text-gray-500">Conexión con Google</span>
+                <span className="font-medium">{t('gmail')}</span>
+                <span className="text-xs text-gray-500">{t('gmailDesc')}</span>
               </Button>
               
               <Button
@@ -271,8 +270,8 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                 disabled={isConnecting}
               >
                 <span className="text-2xl">📨</span>
-                <span className="font-medium">Outlook</span>
-                <span className="text-xs text-gray-500">Conexión con Microsoft</span>
+                <span className="font-medium">{t('outlook')}</span>
+                <span className="text-xs text-gray-500">{t('outlookDesc')}</span>
               </Button>
             </div>
 
@@ -282,19 +281,19 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                 <DialogTrigger asChild>
                   <Button variant="ghost" className="w-full text-gray-600">
                     <Settings className="w-4 h-4 mr-2" />
-                    Configuración manual (SMTP)
+                    {t('smtpManual')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Configurar SMTP</DialogTitle>
+                    <DialogTitle>{t('smtpTitle')}</DialogTitle>
                     <DialogDescription>
-                      Configura tu servidor de correo manualmente
+                      {t('smtpDescription')}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                      <Label>Email remitente</Label>
+                      <Label>{t('senderEmail')}</Label>
                       <Input
                         type="email"
                         placeholder="tu@empresa.com"
@@ -303,7 +302,7 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Nombre para mostrar (opcional)</Label>
+                      <Label>{t('displayName')}</Label>
                       <Input
                         placeholder="Mi Empresa"
                         value={smtpForm.display_name}
@@ -312,7 +311,7 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
-                        <Label>Servidor SMTP</Label>
+                        <Label>{t('smtpServer')}</Label>
                         <Input
                           placeholder="smtp.gmail.com"
                           value={smtpForm.smtp_host}
@@ -320,7 +319,7 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Puerto</Label>
+                        <Label>{t('port')}</Label>
                         <Input
                           type="number"
                           placeholder="587"
@@ -330,7 +329,7 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Usuario SMTP</Label>
+                      <Label>{t('smtpUsername')}</Label>
                       <Input
                         placeholder="tu@empresa.com"
                         value={smtpForm.smtp_username}
@@ -338,7 +337,7 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Contraseña / App Password</Label>
+                      <Label>{t('smtpPassword')}</Label>
                       <Input
                         type="password"
                         placeholder="••••••••"
@@ -354,12 +353,12 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                       {isConnecting ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Conectando...
+                          {t('connecting')}
                         </>
                       ) : (
                         <>
                           <Plus className="w-4 h-4 mr-2" />
-                          Guardar conexión
+                          {t('saveConnection')}
                         </>
                       )}
                     </Button>
