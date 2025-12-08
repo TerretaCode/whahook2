@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Badge } from "@/components/ui/badge"
 import { 
   Mail, 
@@ -16,7 +16,8 @@ import {
   CheckCircle2, 
   XCircle, 
   Loader2,
-  Settings
+  Settings,
+  ChevronDown
 } from "lucide-react"
 
 interface EmailConnection {
@@ -283,21 +284,18 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
 
             {/* SMTP Option */}
             <div className="border-t pt-4">
-              <Dialog open={showSmtpDialog} onOpenChange={setShowSmtpDialog}>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" className="w-full text-gray-600">
-                    <Settings className="w-4 h-4 mr-2" />
-                    {t('smtpManual')}
+              <Collapsible open={showSmtpDialog} onOpenChange={setShowSmtpDialog}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="w-full text-gray-600 justify-between">
+                    <span className="flex items-center">
+                      <Settings className="w-4 h-4 mr-2" />
+                      {t('smtpManual')}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showSmtpDialog ? 'rotate-180' : ''}`} />
                   </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>{t('smtpTitle')}</DialogTitle>
-                    <DialogDescription>
-                      {t('smtpDescription')}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-4">
+                  <div className="space-y-4 p-4 bg-gray-50 rounded-lg border">
                     <div className="space-y-2">
                       <Label>{t('senderEmail')}</Label>
                       <Input
@@ -352,7 +350,7 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                       />
                     </div>
                     <Button
-                      className="w-full"
+                      className="w-full bg-green-600 hover:bg-green-700"
                       onClick={connectSmtp}
                       disabled={isConnecting || !smtpForm.email_address || !smtpForm.smtp_host || !smtpForm.smtp_password}
                     >
@@ -369,8 +367,8 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
                       )}
                     </Button>
                   </div>
-                </DialogContent>
-              </Dialog>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           </div>
         )}
