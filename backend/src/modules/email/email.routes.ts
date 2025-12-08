@@ -9,6 +9,7 @@
 import { Router, Request, Response } from 'express'
 import { supabaseAdmin } from '../../config/supabase'
 import crypto from 'crypto'
+import nodemailer from 'nodemailer'
 
 const router = Router()
 
@@ -344,7 +345,6 @@ router.post('/connections/:id/test', async (req: Request, res: Response) => {
     try {
       if (connection.provider === 'smtp') {
         // Test SMTP connection
-        const nodemailer = await import('nodemailer')
         const transporter = nodemailer.createTransport({
           host: connection.smtp_host,
           port: connection.smtp_port,
