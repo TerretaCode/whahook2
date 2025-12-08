@@ -534,6 +534,12 @@ export async function processConversationForClient(
   forceAnalysis: boolean = false
 ): Promise<void> {
   try {
+    // Skip WhatsApp groups and newsletters - they are not individual clients
+    if (contactPhone.includes('@g.us') || contactPhone.includes('@newsletter') || contactPhone.includes('@broadcast')) {
+      console.log(`⏭️ [AI-EXTRACT] Skipping group/newsletter/broadcast: ${contactPhone}`)
+      return
+    }
+    
     console.log(`🔄 [AI-EXTRACT] Processing conversation for client: ${contactPhone}`)
 
     // Get or create client with full context
