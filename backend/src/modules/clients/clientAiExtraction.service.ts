@@ -537,10 +537,11 @@ export async function processConversationForClient(
     console.log(`🔄 [AI-EXTRACT] Processing conversation for client: ${contactPhone}`)
 
     // Get or create client with full context
+    // Note: unique constraint is on (user_id, phone), so we search by that
     let { data: client } = await supabaseAdmin
       .from('clients')
-      .select('id, ai_analysis_count, last_ai_analysis_at, ai_summary, tags, interests, messages_since_last_analysis')
-      .eq('workspace_id', workspaceId)
+      .select('id, ai_analysis_count, last_ai_analysis_at, ai_summary, tags, interests, messages_since_last_analysis, workspace_id')
+      .eq('user_id', userId)
       .eq('phone', contactPhone)
       .single()
 
@@ -570,17 +571,31 @@ export async function processConversationForClient(
       }
       client = newClient
     } else {
-      // Increment message count and update last contact
+      // Client exists - increment message count and update last contact
       const newMessageCount = (client.messages_since_last_analysis || 0) + 1
+      const updateData: Record<string, unknown> = { 
+        last_contact_at: new Date().toISOString(),
+        messages_since_last_analysis: newMessageCount,
+        conversation_id: conversationId // Update to latest conversation
+      }
+      
+      // Update workspace_id if different (same phone, different workspace)
+      if (client.workspace_id !== workspaceId) {
+        updateData.workspace_id = workspaceId
+      }
+      
+      // Update whatsapp_name if we have a new one
+      if (contactName && contactName !== 'Unknown') {
+        updateData.whatsapp_name = contactName
+      }
+      
       await supabaseAdmin
         .from('clients')
-        .update({ 
-          last_contact_at: new Date().toISOString(),
-          messages_since_last_analysis: newMessageCount
-        })
+        .update(updateData)
         .eq('id', client.id)
       
       client.messages_since_last_analysis = newMessageCount
+      console.log(`📝 [AI-EXTRACT] Updated existing client ${client.id} for ${contactPhone}`)
     }
 
     // Check if we should run analysis (rate limiting)
