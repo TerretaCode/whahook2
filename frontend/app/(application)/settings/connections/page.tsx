@@ -9,8 +9,9 @@ import { WhatsAppAccountsSection } from "./components/WhatsAppAccountsSection"
 import { ChatWidgetsSection } from "./components/ChatWidgetsSection"
 import { EcommerceConnectionsSection } from "./components/EcommerceConnectionsSection"
 import { WebhooksSection } from "./components/WebhooksSection"
+import { EmailConnectionSection } from "./components/EmailConnectionSection"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Smartphone, Globe, Building2, AlertCircle, ShoppingCart, Webhook, Plus } from "lucide-react"
+import { Smartphone, Globe, Building2, AlertCircle, ShoppingCart, Webhook, Plus, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useConnectionsPage, Workspace } from "@/hooks/useWorkspaceConnections"
 import { 
@@ -44,7 +45,7 @@ function ConnectionsPageContent() {
   const tabParam = searchParams.get('tab')
   
   useEffect(() => {
-    if (tabParam === 'web' || tabParam === 'ecommerce' || tabParam === 'webhooks') {
+    if (tabParam === 'web' || tabParam === 'ecommerce' || tabParam === 'webhooks' || tabParam === 'email') {
       setActiveTab(tabParam)
     }
   }, [tabParam])
@@ -155,7 +156,7 @@ function ConnectionsPageContent() {
       {/* Content */}
       {selectedWorkspace ? (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="whatsapp" className="flex items-center gap-2">
               <Smartphone className="w-4 h-4" />
               <span className="hidden sm:inline">WhatsApp</span>
@@ -183,6 +184,10 @@ function ConnectionsPageContent() {
               {hasWebhooks && (
                 <span className="w-2 h-2 bg-green-500 rounded-full" />
               )}
+            </TabsTrigger>
+            <TabsTrigger value="email" className="flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              <span className="hidden sm:inline">Email</span>
             </TabsTrigger>
           </TabsList>
 
@@ -232,6 +237,10 @@ function ConnectionsPageContent() {
                 initialData={connectionsData?.webhooks}
               />
             )}
+          </TabsContent>
+
+          <TabsContent value="email" className="space-y-6">
+            <EmailConnectionSection workspaceId={selectedWorkspace.id} />
           </TabsContent>
         </Tabs>
       ) : (

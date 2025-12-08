@@ -21,6 +21,7 @@ import invitationsRoutes from './modules/workspaces/invitations.routes'
 import brandingRoutes from './modules/branding/branding.routes'
 import domainsRoutes from './modules/domains/domains.routes'
 import campaignsRoutes from './modules/campaigns/campaigns.routes'
+import emailRoutes from './modules/email/email.routes'
 import { keepaliveMessagesService, sessionMonitoringService, backupService, cacheCleanupService } from './services'
 import { healthRoutes } from './routes'
 
@@ -133,6 +134,7 @@ app.use('/api/workspaces', workspacesRoutes)
 app.use('/api/branding', brandingRoutes)
 app.use('/api/domains', domainsRoutes)
 app.use('/api/campaigns', campaignsRoutes)
+app.use('/api/email', emailRoutes)
 
 // Public domain lookup (no auth required for middleware)
 app.use('/api/domains/lookup', cors({ origin: '*', methods: ['GET', 'OPTIONS'] }), domainsRoutes)
