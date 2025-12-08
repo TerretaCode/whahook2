@@ -178,16 +178,16 @@ function ConnectionsPageContent() {
                 <span className="w-2 h-2 bg-green-500 rounded-full" />
               )}
             </TabsTrigger>
+            <TabsTrigger value="email" className="flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              <span className="hidden sm:inline">Email</span>
+            </TabsTrigger>
             <TabsTrigger value="webhooks" className="flex items-center gap-2">
               <Webhook className="w-4 h-4" />
               <span className="hidden sm:inline">Webhooks</span>
               {hasWebhooks && (
                 <span className="w-2 h-2 bg-green-500 rounded-full" />
               )}
-            </TabsTrigger>
-            <TabsTrigger value="email" className="flex items-center gap-2">
-              <Mail className="w-4 h-4" />
-              <span className="hidden sm:inline">Email</span>
             </TabsTrigger>
           </TabsList>
 
@@ -228,6 +228,10 @@ function ConnectionsPageContent() {
             )}
           </TabsContent>
 
+          <TabsContent value="email" className="space-y-6">
+            <EmailConnectionSection workspaceId={selectedWorkspace.id} />
+          </TabsContent>
+
           <TabsContent value="webhooks" className="space-y-6">
             {isLoadingConnections ? (
               <WebhooksSkeleton />
@@ -237,10 +241,6 @@ function ConnectionsPageContent() {
                 initialData={connectionsData?.webhooks}
               />
             )}
-          </TabsContent>
-
-          <TabsContent value="email" className="space-y-6">
-            <EmailConnectionSection workspaceId={selectedWorkspace.id} />
           </TabsContent>
         </Tabs>
       ) : (

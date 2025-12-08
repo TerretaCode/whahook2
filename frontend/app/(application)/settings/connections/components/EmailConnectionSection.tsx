@@ -180,8 +180,8 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Mail className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-green-100 rounded-lg">
+              <Mail className="w-5 h-5 text-green-600" />
             </div>
             <div>
               <CardTitle className="text-lg">{t('title')}</CardTitle>
@@ -260,7 +260,7 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Button
                 variant="outline"
-                className="h-auto py-4 flex flex-col items-center gap-2 hover:border-blue-300 hover:bg-blue-50"
+                className="h-auto py-4 flex flex-col items-center gap-2 hover:border-green-300 hover:bg-green-50"
                 onClick={() => connectOAuth('gmail')}
                 disabled={isConnecting}
               >
@@ -271,7 +271,7 @@ export function EmailConnectionSection({ workspaceId }: EmailConnectionSectionPr
               
               <Button
                 variant="outline"
-                className="h-auto py-4 flex flex-col items-center gap-2 hover:border-blue-300 hover:bg-blue-50"
+                className="h-auto py-4 flex flex-col items-center gap-2 hover:border-green-300 hover:bg-green-50"
                 onClick={() => connectOAuth('outlook')}
                 disabled={isConnecting}
               >
