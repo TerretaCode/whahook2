@@ -33,11 +33,12 @@ CREATE TABLE IF NOT EXISTS email_connections (
   last_error TEXT,
   
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  
-  -- One active email connection per workspace
-  UNIQUE(workspace_id, is_active) WHERE is_active = true
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- One active email connection per workspace (partial unique index)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_email_connections_one_active_per_workspace 
+ON email_connections(workspace_id) WHERE is_active = true;
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_email_connections_workspace ON email_connections(workspace_id);
