@@ -562,7 +562,7 @@ export async function processConversationForClient(
           conversation_id: conversationId,
           messages_since_last_analysis: 1
         })
-        .select('id, ai_analysis_count, last_ai_analysis_at, ai_summary, tags, interests, messages_since_last_analysis')
+        .select('id, ai_analysis_count, last_ai_analysis_at, ai_summary, tags, interests, messages_since_last_analysis, workspace_id')
         .single()
 
       if (createError || !newClient) {
@@ -570,6 +570,7 @@ export async function processConversationForClient(
         return
       }
       client = newClient
+      console.log(`✨ [AI-EXTRACT] Created new client ${client.id} for ${contactPhone}`)
     } else {
       // Client exists - increment message count and update last contact
       const newMessageCount = (client.messages_since_last_analysis || 0) + 1
@@ -596,6 +597,12 @@ export async function processConversationForClient(
       
       client.messages_since_last_analysis = newMessageCount
       console.log(`📝 [AI-EXTRACT] Updated existing client ${client.id} for ${contactPhone}`)
+    }
+
+    // At this point client is guaranteed to exist
+    if (!client) {
+      console.error(`❌ [AI-EXTRACT] Client is null after create/update - this should not happen`)
+      return
     }
 
     // Check if we should run analysis (rate limiting)
