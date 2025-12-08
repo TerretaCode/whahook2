@@ -130,7 +130,14 @@ app.use(compression()) // Gzip compression
 
 // CORS abierto para rutas públicas del widget (ANTES del CORS restrictivo)
 // Esto permite que el widget se embeba en cualquier sitio web
-app.use('/api/public', cors({ origin: '*', methods: ['GET', 'POST', 'OPTIONS'] }))
+app.use('/api/public', cors({ 
+  origin: '*', 
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}))
+
+// Handle preflight OPTIONS for public routes explicitly
+app.options('/api/public/*', cors({ origin: '*' }))
 
 // CORS with dynamic origin checking for custom domains
 app.use(cors({
