@@ -55,19 +55,35 @@ const dynamicCorsOrigin = async (origin: string | undefined, callback: (err: Err
     const { supabaseAdmin } = await import('./config/supabase')
     const hostname = new URL(origin).hostname
     
-    const { data } = await supabaseAdmin
+    // Check profiles custom domain
+    const { data: profileData } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('custom_domain', hostname)
       .eq('custom_domain_verified', true)
       .single()
     
-    if (data) {
+    if (profileData) {
+      return callback(null, true)
+    }
+    
+    // Check workspace branding custom domain
+    const { data: brandingData } = await supabaseAdmin
+      .from('workspace_branding')
+      .select('id')
+      .eq('custom_domain', hostname)
+      .eq('custom_domain_verified', true)
+      .single()
+    
+    if (brandingData) {
       return callback(null, true)
     }
   } catch (e) {
-    // Domain not found or error - deny
+    // Domain not found or error - continue to deny
   }
+  
+  // Log denied origin for debugging
+  console.log(`⚠️ [CORS] Denied origin: ${origin}`)
   
   // Deny unknown origins
   callback(new Error('Not allowed by CORS'))
@@ -75,7 +91,35 @@ const dynamicCorsOrigin = async (origin: string | undefined, callback: (err: Err
 
 const io = new SocketServer(httpServer, {
   cors: {
-    origin: staticAllowedOrigins,
+    origin: async (origin, callback) => {
+      // Allow no origin (same-origin requests)
+      if (!origin) {
+        return callback(null, true)
+      }
+      // Allow static origins
+      if (staticAllowedOrigins.includes(origin)) {
+        return callback(null, true)
+      }
+      // Check custom domains
+      try {
+        const { supabaseAdmin } = await import('./config/supabase')
+        const hostname = new URL(origin).hostname
+        
+        const { data: brandingData } = await supabaseAdmin
+          .from('workspace_branding')
+          .select('id')
+          .eq('custom_domain', hostname)
+          .eq('custom_domain_verified', true)
+          .single()
+        
+        if (brandingData) {
+          return callback(null, true)
+        }
+      } catch (e) {
+        // Continue to deny
+      }
+      callback(new Error('Not allowed by CORS'))
+    },
     credentials: true,
   },
 })
