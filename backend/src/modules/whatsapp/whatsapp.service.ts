@@ -250,11 +250,19 @@ class WhatsAppService {
       await this.handleDisconnection(sessionId, reason)
     })
 
-    // Cambio de estado - solo loguear estados problemáticos
+    // Cambio de estado - loguear todos los estados para debugging
     client.on('change_state', (state) => {
-      if (state !== 'CONNECTED') {
-        console.log(`⚠️ State: ${state}`)
-      }
+      console.log(`📊 [STATE] ${sessionId}: ${state}`)
+    })
+
+    // Loading screen - útil para saber si la sesión está cargando
+    client.on('loading_screen', (percent, message) => {
+      console.log(`⏳ [LOADING] ${sessionId}: ${percent}% - ${message}`)
+    })
+
+    // Remote session saved - la sesión se guardó remotamente
+    client.on('remote_session_saved', () => {
+      console.log(`💾 [REMOTE-SAVED] ${sessionId}: Session saved remotely`)
     })
 
     // Browser crash
