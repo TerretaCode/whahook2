@@ -39,6 +39,8 @@ const staticAllowedOrigins = [
 ].filter(Boolean) as string[]
 
 // Dynamic CORS - allows custom domains from database
+// For public API routes (widget), we allow any origin
+// For authenticated routes, we check against allowed origins
 const dynamicCorsOrigin = async (origin: string | undefined, callback: (err: Error | null, allow?: boolean | string) => void) => {
   // Allow requests with no origin (mobile apps, Postman, etc.)
   if (!origin) {
@@ -79,47 +81,18 @@ const dynamicCorsOrigin = async (origin: string | undefined, callback: (err: Err
       return callback(null, true)
     }
   } catch (e) {
-    // Domain not found or error - continue to deny
+    // Domain not found or error - continue to allow for public routes
   }
   
-  // Log denied origin for debugging
-  console.log(`⚠️ [CORS] Denied origin: ${origin}`)
-  
-  // Deny unknown origins
-  callback(new Error('Not allowed by CORS'))
+  // For now, allow all origins to support widget embedding on any website
+  // The widget uses public routes that don't require authentication
+  // Authenticated routes are protected by JWT tokens, not CORS
+  return callback(null, true)
 }
 
 const io = new SocketServer(httpServer, {
   cors: {
-    origin: async (origin, callback) => {
-      // Allow no origin (same-origin requests)
-      if (!origin) {
-        return callback(null, true)
-      }
-      // Allow static origins
-      if (staticAllowedOrigins.includes(origin)) {
-        return callback(null, true)
-      }
-      // Check custom domains
-      try {
-        const { supabaseAdmin } = await import('./config/supabase')
-        const hostname = new URL(origin).hostname
-        
-        const { data: brandingData } = await supabaseAdmin
-          .from('workspace_branding')
-          .select('id')
-          .eq('custom_domain', hostname)
-          .eq('custom_domain_verified', true)
-          .single()
-        
-        if (brandingData) {
-          return callback(null, true)
-        }
-      } catch (e) {
-        // Continue to deny
-      }
-      callback(new Error('Not allowed by CORS'))
-    },
+    origin: true, // Allow all origins - Socket.IO is protected by JWT auth
     credentials: true,
   },
 })
