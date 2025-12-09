@@ -379,28 +379,50 @@ async function callAIForExtraction(
 
   try {
     let response: Response
-    let text: string
+    let text: string = '{}'
 
     if (provider === 'google') {
-      response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.2, maxOutputTokens: 2000 }
-          })
+      // Retry logic for Google AI rate limits
+      let retries = 0
+      const maxRetries = 3
+      
+      while (retries < maxRetries) {
+        response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.2, maxOutputTokens: 2000 }
+            })
+          }
+        )
+        const data: any = await response.json()
+        
+        if (data.error) {
+          // Check if it's a rate limit error (429)
+          if (data.error.code === 429) {
+            retries++
+            const waitTime = Math.min(15 * retries, 60) // Wait 15s, 30s, 45s max
+            console.log(`⏳ [AI-EXTRACT] Google AI rate limited, waiting ${waitTime}s (retry ${retries}/${maxRetries})`)
+            await new Promise(resolve => setTimeout(resolve, waitTime * 1000))
+            continue
+          }
+          console.error(`❌ [AI-EXTRACT] Google AI error:`, data.error)
+          return {}
         }
-      )
-      const data: any = await response.json()
-      if (data.error) {
-        console.error(`❌ [AI-EXTRACT] Google AI error:`, data.error)
-        return {}
+        
+        text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}'
+        if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+          console.log(`⚠️ [AI-EXTRACT] Google AI response structure:`, JSON.stringify(data, null, 2).substring(0, 500))
+        }
+        break // Success, exit retry loop
       }
-      text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}'
-      if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        console.log(`⚠️ [AI-EXTRACT] Google AI response structure:`, JSON.stringify(data, null, 2).substring(0, 500))
+      
+      if (retries >= maxRetries) {
+        console.error(`❌ [AI-EXTRACT] Google AI rate limit exceeded after ${maxRetries} retries`)
+        return {}
       }
     } else if (provider === 'openai') {
       response = await fetch('https://api.openai.com/v1/chat/completions', {
