@@ -354,14 +354,15 @@ lifecycle_stage:
 - customer: Ya ha comprado
 
 IMPORTANTE:
+- SIEMPRE genera un ai_summary aunque sea breve, describiendo el tipo de relación/conversación
 - El ai_summary debe ser ACUMULATIVO: si hay contexto previo, intégralo con la nueva información
-- Los tags deben ser útiles para campañas de marketing (ej: "precio-sensible", "urgente", "b2b", "premium", "repetidor")
-- conversation_topics: temas específicos discutidos en ESTA conversación
-- key_questions: preguntas importantes que hizo el cliente
-- objections: dudas, objeciones o preocupaciones expresadas
-- next_steps: acción recomendada (ej: "enviar presupuesto", "hacer seguimiento en 3 días", "cerrar venta")
+- Los tags deben ser útiles para segmentación (ej: "personal", "familia", "amigo", "cliente", "proveedor", "b2b", "premium")
+- Si es una conversación personal/familiar, usa tags como "personal", "familia", "amigo" y engagement_level apropiado
+- conversation_topics: temas específicos discutidos en ESTA conversación (aunque sean personales)
+- NUNCA devuelvas un JSON vacío {}. Siempre incluye al menos: ai_summary, tags, engagement_level, sentiment_score
 
-Responde SOLO con el JSON válido, sin explicaciones ni markdown.`
+Responde SOLO con el JSON válido, sin explicaciones ni markdown. Ejemplo mínimo:
+{"ai_summary": "Contacto personal, conversación casual", "tags": ["personal"], "engagement_level": "medium", "sentiment_score": 50}`
 }
 
 /**
@@ -388,12 +389,19 @@ async function callAIForExtraction(
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.1, maxOutputTokens: 1000 }
+            generationConfig: { temperature: 0.2, maxOutputTokens: 2000 }
           })
         }
       )
       const data: any = await response.json()
+      if (data.error) {
+        console.error(`❌ [AI-EXTRACT] Google AI error:`, data.error)
+        return {}
+      }
       text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}'
+      if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        console.log(`⚠️ [AI-EXTRACT] Google AI response structure:`, JSON.stringify(data, null, 2).substring(0, 500))
+      }
     } else if (provider === 'openai') {
       response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -404,8 +412,8 @@ async function callAIForExtraction(
         body: JSON.stringify({
           model,
           messages: [{ role: 'user', content: prompt }],
-          temperature: 0.1,
-          max_tokens: 1000
+          temperature: 0.2,
+          max_tokens: 2000
         })
       })
       const data: any = await response.json()
@@ -420,7 +428,7 @@ async function callAIForExtraction(
         },
         body: JSON.stringify({
           model,
-          max_tokens: 1000,
+          max_tokens: 2000,
           messages: [{ role: 'user', content: prompt }]
         })
       })
@@ -431,7 +439,7 @@ async function callAIForExtraction(
     }
 
     // Extract JSON from response
-    console.log(`🤖 [AI-EXTRACT] Raw AI response: ${text.substring(0, 500)}...`)
+    console.log(`🤖 [AI-EXTRACT] Raw AI response (${text.length} chars): ${text.substring(0, 1000)}`)
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0])
