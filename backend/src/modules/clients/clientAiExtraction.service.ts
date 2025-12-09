@@ -431,13 +431,17 @@ async function callAIForExtraction(
     }
 
     // Extract JSON from response
+    console.log(`🤖 [AI-EXTRACT] Raw AI response: ${text.substring(0, 500)}...`)
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0])
+      const parsed = JSON.parse(jsonMatch[0])
+      console.log(`🤖 [AI-EXTRACT] Parsed data:`, JSON.stringify(parsed, null, 2))
+      return parsed
     }
+    console.log(`⚠️ [AI-EXTRACT] No JSON found in AI response`)
     return {}
   } catch (error) {
-    console.error('AI extraction error:', error)
+    console.error('❌ [AI-EXTRACT] AI extraction error:', error)
     return {}
   }
 }
@@ -450,6 +454,8 @@ export async function updateClientWithExtractedData(
   extractedData: ExtractedClientData
 ): Promise<boolean> {
   try {
+    console.log(`📝 [AI-EXTRACT] Updating client ${clientId} with data:`, JSON.stringify(extractedData, null, 2))
+    
     const updateData: Record<string, unknown> = {
       ...extractedData,
       last_ai_analysis_at: new Date().toISOString(),
